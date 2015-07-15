@@ -119,19 +119,19 @@ namespace GSP
 				//Play found for what was landed on
 				if(temp.ResourceName == "Fish")
 				{
-					audioSrc.audio.PlayOneShot( GSP.AudioReference.sfxFishing ); //Play fish sound
+					audioSrc.GetComponent<AudioSource>().PlayOneShot( GSP.AudioReference.sfxFishing ); //Play fish sound
 				} //end if
 				else if(temp.ResourceName == "Wood")
 				{
-					audioSrc.audio.PlayOneShot( GSP.AudioReference.sfxWoodcutting ); //Play wood sound
+					audioSrc.GetComponent<AudioSource>().PlayOneShot( GSP.AudioReference.sfxWoodcutting ); //Play wood sound
 				} //end else if
 				else if(temp.ResourceName == "Wool")
 				{
-					audioSrc.audio.PlayOneShot( GSP.AudioReference.sfxShearing ); //Play wool sound
+					audioSrc.GetComponent<AudioSource>().PlayOneShot( GSP.AudioReference.sfxShearing ); //Play wool sound
 				} //end else if
 				else
 				{
-					audioSrc.audio.PlayOneShot( GSP.AudioReference.sfxMining ); //Play ore sound
+					audioSrc.GetComponent<AudioSource>().PlayOneShot( GSP.AudioReference.sfxMining ); //Play ore sound
 				} //end else
 				return "RESOURCE";
 			} //end else if RESOURCE TILE

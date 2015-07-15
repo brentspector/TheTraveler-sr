@@ -45,15 +45,15 @@ namespace GSP.JAVIERGUI
 			int roll = m_die.Roll(1, 3);
 			if(roll == 1)
 			{
-				audioSrc.audio.PlayOneShot( GSP.AudioReference.sfxSwordHit1 ); //Play sword sound
+				audioSrc.GetComponent<AudioSource>().PlayOneShot( GSP.AudioReference.sfxSwordHit1 ); //Play sword sound
 			} //end if
 			else if(roll == 2)
 			{
-				audioSrc.audio.PlayOneShot( GSP.AudioReference.sfxSwordHit2 ); //Play sword sound
+				audioSrc.GetComponent<AudioSource>().PlayOneShot( GSP.AudioReference.sfxSwordHit2 ); //Play sword sound
 			} //end else if
 			else
 			{
-				audioSrc.audio.PlayOneShot( GSP.AudioReference.sfxSwordHit3 ); //Play sword sound
+				audioSrc.GetComponent<AudioSource>().PlayOneShot( GSP.AudioReference.sfxSwordHit3 ); //Play sword sound
 			} //end else
 			#endregion
 		}	//end public void InitThis(blah, blah, blah, blah)

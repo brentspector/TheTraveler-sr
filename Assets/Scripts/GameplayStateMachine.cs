@@ -533,7 +533,7 @@ namespace GSP
 					m_GUIDiceDistVal = m_DieScript.Dice.Roll(1,8);
 
 					//Play die roll sound
-					audioSrc.audio.PlayOneShot( GSP.AudioReference.sfxDice ); //Play die roll sound
+					audioSrc.GetComponent<AudioSource>().PlayOneShot( GSP.AudioReference.sfxDice ); //Play die roll sound
 
 					//nextState()
 					m_gamePlayState = GamePlayState.CALCDISTANCE;
