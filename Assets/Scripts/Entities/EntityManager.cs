@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-namespace GSP.Entity
+namespace GSP.Entities
 {
 	public sealed class EntityManager : System.IDisposable
 	{
@@ -25,7 +25,11 @@ namespace GSP.Entity
 		// The private constructor for initialising the entity manager.
 		EntityManager()
 		{
-			//
+			// Initialize the entity map.
+			m_entities = new EntityMap();
+
+			// Create the entity manager.
+			m_entGen = new EntityGenerator();
 		}
 
 		#endregion
@@ -40,14 +44,14 @@ namespace GSP.Entity
 		}
 
 		// Get's the instance of the entity generator.
-		public static EntityGenerator GetEntityGenerator()
+		public EntityGenerator GetEntityGenerator()
 		{
 			// Return the entity generator.
 			return m_entGen;
 		}
 
 		// Returns the entity at the given ID.
-		public static Entity GetEntity(int entityID)
+		public Entity GetEntity(int entityID)
 		{
 			// Try to get the value at the given key.
 			Entity ent;
@@ -58,7 +62,7 @@ namespace GSP.Entity
 		}
 
 		// Returns a specific set of subentities of Entity.
-		public static EntitySet<TClass> GetEntities<TClass>() where TClass: class
+		public EntitySet<TClass> GetEntities<TClass>() where TClass: class
 		{
 			// Declare the set that will hold the result
 			EntitySet<TClass> result = new EntitySet<TClass>();
@@ -85,27 +89,53 @@ namespace GSP.Entity
 		}
 
 		// Get all the entities.
-		public static EntityMap GetAllEntities()
+		public EntityMap GetAllEntities()
 		{
 			return m_entities;
 		}
 
 		// Adds an entity to the entity manager.
-		public static bool AddEntity(Entity entity)
+		public bool AddEntity(Entity entity)
 		{
-			//
+			// We don't want to add an entity with an ID that already exists.
+			var exists = m_entities.ContainsKey(entity.ID);
+
+			// Does the given entity 's ID already exist?
+			if (exists)
+			{
+				// The ID already exixts so log it and return failure.
+				Debug.LogErrorFormat("Entity of ID '%d' already exists!", entity.ID);
+				return false;
+			}
+
+			// It doesn't exist so add the entity and return success.
+			m_entities.Add(entity.ID, entity);
 			return true;
 		}
 
 		// Removes an entity from the entity manager.
-		public static bool RemoveEntity(int entityID)
+		public bool RemoveEntity(int entityID)
 		{
-			//
+			// Get the entity from the given ID.
+			Entity ent = GetEntity (entityID);
+
+			// Does the entity at the given ID exist?
+			if (ent == null)
+			{
+				// The entity doesn't exist so log it and return failure.
+				Debug.LogErrorFormat("Entity of ID '%d' was not found!", entityID);
+			}
+
+			// The enity exists so tell it to dispose of itself.
+			ent.Dispose();
+
+			// Now remove the entity from the list and return success.
+			m_entities.Remove(entityID);
 			return true;
 		}
 
 		// Gets the number of entities.
-		public static int GetNumEntities()
+		public int GetNumEntities()
 		{
 			return m_entities.Count;
 		}

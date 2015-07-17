@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-namespace GSP.Entity
+namespace GSP.Entities
 {
 	/// <summary>
 	/// Provides the functionality of the dictionary with a more readable name.

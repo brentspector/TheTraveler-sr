@@ -2,7 +2,7 @@
 using System.Collections;
 using GSP;
 
-namespace GSP.Entity
+namespace GSP.Entities
 {
 	/// <summary>
 	/// Provides the functionality of the pair with a more readable name.
