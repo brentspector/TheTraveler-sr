@@ -62,10 +62,10 @@ namespace GSP.Entities
 		}
 
 		// Returns a specific set of subentities of Entity.
-		public EntitySet<TClass> GetEntities<TClass>() where TClass: class
+        public EntitySet<TSubEntity> GetEntities<TSubEntity>() where TSubEntity : Entity
 		{
 			// Declare the set that will hold the result
-			EntitySet<TClass> result = new EntitySet<TClass>();
+            EntitySet<TSubEntity> result = new EntitySet<TSubEntity>();
 
 			// Loop over the the entities to find the entity type we are looking for.
 			foreach(var ent in m_entities)
@@ -74,7 +74,7 @@ namespace GSP.Entities
 				Entity baseEntity = ent.Value;
 
 				// Now try to cast it to the subclass we are looking for.
-				TClass subEntity = baseEntity as TClass;
+                TSubEntity subEntity = baseEntity as TSubEntity;
 
 				// Were we successful?
 				if (subEntity != null)

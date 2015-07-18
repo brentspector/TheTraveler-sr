@@ -24,12 +24,6 @@ namespace GSP.Char
 			// Nothing to do here at the moment.
 		}
 
-		// Destroy the game object this script is attached to.
-		public void DestroyGO()
-		{
-			Destroy(this.gameObject);
-		}
-
 		// Get the ally by its index. This should stay readonly (get only).
 		public GameObject this[int index]
 		{

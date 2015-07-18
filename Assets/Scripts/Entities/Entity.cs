@@ -6,25 +6,33 @@ namespace GSP.Entities
 {
 	public abstract class Entity : System.IDisposable
 	{
-		int			m_ID;			// Holds the enity's ID.
-		Vector2		m_position;		// Holds the entity's position.
+		int			m_ID;		// Holds the enity's ID.
+		Vector2		m_position; // Holds the entity's position.
 
-		EntityType	m_type;			// Holds the entity's type.
-		GameObject	m_gameObject;	// Holds the game objecy the entity is attached to.
+		EntityType	m_type;		// Holds the entity's type.
+		GameObject	m_gameObj;  // Holds the game objecy the entity is attached to.
 
 		// Constructor.
 		public Entity(int ID, GameObject gameObject)
 		{
-			m_ID = ID;
-			m_gameObject = gameObject;
-			// Set the type to none initially.
-			m_type = EntityType.ENT_NONE;
+            // Set the type to none initially.
+            m_type = EntityType.ENT_NONE;
+            
+            // Set the other variables.
+            m_ID = ID;
+			m_gameObj = gameObject;
 		}
 
-		// Gets and protected sets the entity's type
-		public EntityType Type { get; protected set; }
-
-		// Gets and sets the entity's position. (not always used)
+        // Gets the ID of the entity.
+        public int ID
+        {
+            get
+            {
+                return m_ID;
+            }
+        }
+        
+        // Gets and sets the entity's position. (not always used)
 		public Vector2 Position
 		{
 			get
@@ -38,21 +46,34 @@ namespace GSP.Entities
 			}
 		}
 
-		// Gets the ID of the entity.
-		public int ID
-		{ 
-			get
-			{
-				return m_ID;
-			}
-		}
+        // Gets and protected sets the entity's type
+        public EntityType Type
+        { 
+            get
+            {
+                return m_type;
+            }
+            protected set
+            {
+                m_type = value;
+            }
+        }
+
+        // Gets the game object stored on the entity.
+        public GameObject GameObj
+        {
+            get
+            {
+                return m_gameObj;
+            }
+        }
 
 		#region IDisposable Members
 		
 		// Public dispose method that will call the internal dispose method.
 		public void Dispose()
 		{
-			// Dispose the entity object.
+            // Dispose the entity object.
 			Dispose(true);
 			
 			// Now since we've done the cleanup already, there is nothing left
@@ -67,19 +88,18 @@ namespace GSP.Entities
 		// If disposing equals false, the method has been called by the 
 		// runtime from inside the finalizer and you should not reference 
 		// other objects. Only unmanaged resources can be disposed. 
-		private void Dispose(bool disposing)
+		void Dispose(bool disposing)
 		{
-			// Only proceed if we're disposing directly.
+            // Only proceed if we're disposing directly.
 			if (disposing)
 			{
-				// TODO: Destroy the entity's game object.
-				// Switch over the entity types.
+                // Switch over the entity types.
 				switch (m_type)
 				{
 					case EntityType.ENT_MERCHANT:
 					{
 						// Get the player script attached to the game object.
-						var script = m_gameObject.GetComponent<Player>();
+						var script = GameObj.GetComponent<Player>();
 
 						// Tell the script to destroy its gameobject.
 						script.DestroyGO();
@@ -89,7 +109,7 @@ namespace GSP.Entities
 					case EntityType.ENT_PORTER:
 					{
 						// Get the ally script attached to the game object.
-						var script = m_gameObject.GetComponent<Ally>();
+                        var script = GameObj.GetComponent<Ally2>();
 						
 						// Tell the script to destroy its gameobject.
 						script.DestroyGO();
@@ -103,7 +123,7 @@ namespace GSP.Entities
 					case EntityType.ENT_BANDIT:
 					{
 						// Get the enemy script attached to the game object.
-						var script = m_gameObject.GetComponent<Enemy>();
+                        var script = GameObj.GetComponent<Enemy>();
 						
 						// Tell the script to destroy its gameobject.
 						script.DestroyGO();
