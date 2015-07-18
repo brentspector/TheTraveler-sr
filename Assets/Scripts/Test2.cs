@@ -19,7 +19,7 @@ public class Test2 : MonoBehaviour
 		if ( Input.GetKeyDown( KeyCode.Alpha0 ) )
 		{
 			// Play the sound effect as a 1-shot sound.
-			audioSrc.audio.PlayOneShot( GSP.AudioReference.sfxCoins );
+			audioSrc.GetComponent<AudioSource>().PlayOneShot( GSP.AudioReference.sfxCoins );
 		}
 	}
 }

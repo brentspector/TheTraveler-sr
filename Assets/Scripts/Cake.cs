@@ -46,7 +46,7 @@ namespace GSP.Cake
 			// Find the gui text child.
 			m_guiText = GameObject.Find( "CakeChart/CakeText" );
 
-			m_guiText.guiText.text = "Have some Cake Chart! (Click to eat)";
+			m_guiText.GetComponent<GUIText>().text = "Have some Cake Chart! (Click to eat)";
 		} // end Start function
 
 		void OnMouseDown()
@@ -78,10 +78,10 @@ namespace GSP.Cake
 		// Coroutine for the ending.
 		IEnumerator Quit()
 		{
-			m_guiText.guiText.text = "The universe is ending!";
+			m_guiText.GetComponent<GUIText>().text = "The universe is ending!";
 
 			// Play an explosion sound.
-			m_audioSource.audio.PlayOneShot( AudioReference.sfxExplosion );
+			m_audioSource.GetComponent<AudioSource>().PlayOneShot( AudioReference.sfxExplosion );
 
 			// Wait for a second.
 			yield return new WaitForSeconds( 3.0f );
