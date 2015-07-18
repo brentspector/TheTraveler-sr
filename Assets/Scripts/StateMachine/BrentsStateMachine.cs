@@ -173,20 +173,10 @@ namespace GSP
 						//Pick player amount
 						#region Menu Data Adding Stuff
 
-						guideText.text = "Please select a map...Done!\nPlease enter the number of players [1-4]";
+						guideText.text = "Please select a map...Done!\nPlease enter the number of players [2-4]";
 
 						//Set number of players
-						if(Input.GetKeyDown(KeyCode.Alpha1) || Input.GetKeyDown(KeyCode.Keypad1))
-						{
-							m_menuDataScript.NumberPlayers = 1;
-
-							//Display loading text
-							guideText.text = "Loading, please wait.";
-
-							//Transition into game state
-							m_programState = OVERALLSTATES.GAME;
-						} //end if
-						else if(Input.GetKeyDown(KeyCode.Alpha2) || Input.GetKeyDown(KeyCode.Keypad2))
+						if(Input.GetKeyDown(KeyCode.Alpha2) || Input.GetKeyDown(KeyCode.Keypad2))
 						{
 							m_menuDataScript.NumberPlayers = 2;
 
@@ -205,7 +195,7 @@ namespace GSP
 
 							//Transition into game state
 							m_programState = OVERALLSTATES.GAME;
-						} //end if
+						} //end else if
 						else if(Input.GetKeyDown(KeyCode.Alpha4) || Input.GetKeyDown(KeyCode.Keypad4))
 						{
 							m_menuDataScript.NumberPlayers = 4;
@@ -215,7 +205,7 @@ namespace GSP
 
 							//Transition into game state
 							m_programState = OVERALLSTATES.GAME;
-						} //end if
+						} //end else if
 						#endregion
 					} //end if
 					break;
