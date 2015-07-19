@@ -18,4 +18,7 @@ git checkout development-overall
 git merge GSP362DeVryNov2014/development-overall
 git push origin
 
+git fetch GSP362DeVryNov2014
 git checkout development-brent
+git merge GSP362DeVryNov2014/development-overall
+git push origin
