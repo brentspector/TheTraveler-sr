@@ -36,11 +36,8 @@ namespace GSP.Entities
 
 		void EntityMapDestroyer(EntityData dataPair)
 		{
-			// Dispose of the entity.
+            // Dispose of the entity.
 			dataPair.Second.Dispose();
-
-			// Next set it to null in the list.
-			dataPair.Second = null;
 		}
 
 		// Get's the instance of the entity generator.
@@ -104,7 +101,7 @@ namespace GSP.Entities
 			if (exists)
 			{
 				// The ID already exixts so log it and return failure.
-				Debug.LogErrorFormat("Entity of ID '%d' already exists!", entity.ID);
+				Debug.LogErrorFormat("Entity of ID '{0}' already exists!", entity.ID);
 				return false;
 			}
 
@@ -123,7 +120,8 @@ namespace GSP.Entities
 			if (ent == null)
 			{
 				// The entity doesn't exist so log it and return failure.
-				Debug.LogErrorFormat("Entity of ID '%d' was not found!", entityID);
+				Debug.LogErrorFormat("Entity of ID '{0}' was not found!", entityID);
+                return false;
 			}
 
 			// The enity exists so tell it to dispose of itself.
