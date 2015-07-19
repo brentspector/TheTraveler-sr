@@ -31,12 +31,12 @@ namespace GSP.Entities
 				{
 					// Create the entity.
 					// TODO: Get from master settings: colour, name.
-					Merchant merchant = new Merchant(m_entID, gameObject, PlayerColours.COL_BLUE, "Bob");
+					Merchant merchant = new Merchant(m_entID, gameObject, PlayerColours.COL_BLUE, "Jim");
 					
 					// Now try to add the entity to the manager.
 					if (!EntityManager.Instance.AddEntity(merchant))
 					{
-						// The entity coulnd't be added to the manager so return failure.
+						// The entity couldn't be added to the manager so return failure.
 						result = false;
 					}
 
