@@ -103,7 +103,7 @@ namespace GSP
 					MovePlayer();
 					Highlight.ClearHightlight(); // Clear the highlight objects.
 					Highlight.GenerateHighlight( m_PlayerEntity.transform.position, m_currTravelDist ); // Recreate the highlights with the new values.
-					audioSrc.audio.PlayOneShot( GSP.AudioReference.sfxWalking ); //Play walking sound
+					audioSrc.GetComponent<AudioSource>().PlayOneShot( GSP.AudioReference.sfxWalking ); //Play walking sound
 				}
 				//right
 				if( GUI.Button( new Rect( (Screen.width -(1*width) +gridXShift), (Screen.height -(2*height) +gridYShift), width, height ), ">" ) )
@@ -113,7 +113,7 @@ namespace GSP
 					MovePlayer();
 					Highlight.ClearHightlight(); // Clear the highlight objects.
 					Highlight.GenerateHighlight( m_PlayerEntity.transform.position, m_currTravelDist ); // Recreate the highlights with the new values.
-					audioSrc.audio.PlayOneShot( GSP.AudioReference.sfxWalking ); //Play walking sound
+					audioSrc.GetComponent<AudioSource>().PlayOneShot( GSP.AudioReference.sfxWalking ); //Play walking sound
 				}
 				//cancel
 				if( GUI.Button( new Rect( (Screen.width -(2*width) +gridXShift), (Screen.height -(2*height) +gridYShift), width, height ), "X" ) )
@@ -123,7 +123,7 @@ namespace GSP
 					CancelMove();
 					Highlight.ClearHightlight(); // Clear the highlight objects.
 					Highlight.GenerateHighlight( m_origPlayerPosition, m_currTravelDist ); // Recreate the highlights with the new values.
-					audioSrc.audio.PlayOneShot( GSP.AudioReference.sfxWalking ); //Play walking sound
+					audioSrc.GetComponent<AudioSource>().PlayOneShot( GSP.AudioReference.sfxWalking ); //Play walking sound
 				}
 				//up
 				if( GUI.Button( new Rect( (Screen.width -(2*width) +gridXShift), (Screen.height -(3*height) +gridYShift), width, height ), "^" ) )
@@ -133,7 +133,7 @@ namespace GSP
 					MovePlayer();
 					Highlight.ClearHightlight(); // Clear the highlight objects.
 					Highlight.GenerateHighlight( m_PlayerEntity.transform.position, m_currTravelDist ); // Recreate the highlights with the new values.
-					audioSrc.audio.PlayOneShot( GSP.AudioReference.sfxWalking ); //Play walking sound
+					audioSrc.GetComponent<AudioSource>().PlayOneShot( GSP.AudioReference.sfxWalking ); //Play walking sound
 				}
 				//down
 				if( GUI.Button( new Rect( (Screen.width -(2*width) +gridXShift), (Screen.height -(1*height) +gridYShift), width, height ), "v" ) )
@@ -143,7 +143,7 @@ namespace GSP
 					MovePlayer();
 					Highlight.ClearHightlight(); // Clear the highlight objects.
 					Highlight.GenerateHighlight( m_PlayerEntity.transform.position, m_currTravelDist ); // Recreate the highlights with the new values.
-					audioSrc.audio.PlayOneShot( GSP.AudioReference.sfxWalking ); //Play walking sound
+					audioSrc.GetComponent<AudioSource>().PlayOneShot( GSP.AudioReference.sfxWalking ); //Play walking sound
 				}
 
 			} //end if( m_currDistTravel > 0 )

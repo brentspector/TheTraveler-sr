@@ -162,7 +162,7 @@ namespace GSP.Char
 				m_totalWeight -= resource.WeightValue;
 			} // end else statement
 			
-			// Check if the operation will bring the weight value to zero or less.
+			// Check if the operation will bring the size value to zero or less.
 			if ( ( m_totalSize - resource.SizeValue ) <= 0 )
 			{
 				// Clamp to zero.
