@@ -284,7 +284,7 @@ namespace GSP
 			}
 			else
 			{
-				//IsItEndOfGame();
+				IsItEndOfGame();
 
 				StateMachine();			//update any values that affect GUI before creating GUI
 				
