@@ -43,7 +43,8 @@ namespace GSP.JAVIERGUI
 			m_headerString = "";
 			m_headerString = "Player " +(m_EndSceneCharDataObject.PlayerNumber).ToString() +" is the Winner!\n" 
 				+"Player " +(m_EndSceneCharDataObject.PlayerNumber).ToString() +" collected " +(m_EndSceneCharDataObject.PlayerCurrency).ToString() +" Gold.";
-			
+			AudioManager.instance.playVictory ();
+
 			List<KeyValuePair<int, int>> playerList = m_MiscScript.GetList();
 			m_bodyString = "";
 			for( int i =1; i <= (m_EndSceneDataScript.Count -1); i++)
@@ -55,7 +56,20 @@ namespace GSP.JAVIERGUI
 			
 			m_isActionRunning = true;
 		}
-		
+
+		void Update()
+		{
+			if(Input.GetKeyDown(KeyCode.D))
+			{
+				AudioManager.instance.playDraw();
+			} //end if
+
+			if(Input.GetKeyDown(KeyCode.L))
+			{
+				AudioManager.instance.playLoss();
+			} //end if
+
+		}
 		
 		// Update is called once per frame
 		void OnGUI () 
@@ -126,6 +140,7 @@ namespace GSP.JAVIERGUI
 			if ( GUI.Button (new Rect( doneStartX, doneStartY, doneWidth, doneHeight), "OK") )
 			{
 				m_isActionRunning = false;
+				Destroy(AudioManager.instance.gameObject);
 				Application.LoadLevel(0);
 			}
 		} //end private void ConfigDoneButton()
