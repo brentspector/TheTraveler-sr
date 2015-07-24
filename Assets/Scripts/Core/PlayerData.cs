@@ -9,6 +9,7 @@ namespace GSP.Core
     {
         string m_name;              // The player's name.
         PlayerColours m_colour;     // The player's colour.
+        Vector3 m_positon;          // The player's position.
 
         // Default constructor.
         public PlayerData()
@@ -25,6 +26,9 @@ namespace GSP.Core
 
             // Set the colour to black.
             m_colour = PlayerColours.COL_BLACK;
+
+            // Set the position to be zero.
+            m_positon = Vector3.zero;
         }
 
         // Gets and Sets the player's name.
@@ -50,6 +54,19 @@ namespace GSP.Core
             set
             {
                 m_colour = value;
+            }
+        }
+
+        // Gets and Sets the player's position.
+        public Vector3 Position
+        {
+            get
+            {
+                return m_positon;
+            }
+            set
+            {
+                m_positon = value;
             }
         }
     }

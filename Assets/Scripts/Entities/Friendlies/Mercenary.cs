@@ -1,35 +1,34 @@
 ﻿using UnityEngine;
 using System.Collections;
-using GSP.Entities.Interfaces;
 using GSP.Char;
+using System.Collections.Generic;
+using GSP.Entities.Interfaces;
 
 namespace GSP.Entities.Friendlies
 {
-	public class Porter : Friendly, IInventory
+	public class Mercenary : Friendly, IEquipment
 	{
-        #region IInventory Variables
+        #region IEquipment Variables
 
         // Variables will be defined in week 4.
 
         #endregion
         
-        public Porter(int ID, GameObject gameObject) : base(ID, gameObject)
+        public Mercenary(int ID, GameObject gameObject) : base(ID, gameObject)
 		{
 			// Set the entity's type to porter.
-			Type = EntityType.ENT_PORTER;
+			Type = EntityType.ENT_MERCENARY;
 
-            #region IInventory Variable Initialisation
+            #region IEquipment Variable Initialisation
 
             // Variable initialisation will be done in week 4.
 
             #endregion
 		}
 
-        // The below interfaces will be implemented in Week 4.
+        #region IEquipment Members
 
-        #region IInventory Members
-
-        public ResourceList Resources
+        public int DefencePower
         {
             get
             {
@@ -41,7 +40,7 @@ namespace GSP.Entities.Friendlies
             }
         }
 
-        public int TotalWeight
+        public EquippedArmor EquippedArmour
         {
             get
             {
@@ -53,7 +52,7 @@ namespace GSP.Entities.Friendlies
             }
         }
 
-        public int TotalSize
+        public List<GameObject> Bonuses
         {
             get
             {
@@ -65,79 +64,50 @@ namespace GSP.Entities.Friendlies
             }
         }
 
-        public int TotalValue
-        {
-            get
-            {
-                throw new System.NotImplementedException();
-            }
-            set
-            {
-                throw new System.NotImplementedException();
-            }
-        }
-
-        public int MaxWeight
-        {
-            get
-            {
-                throw new System.NotImplementedException();
-            }
-            set
-            {
-                throw new System.NotImplementedException();
-            }
-        }
-
-        public int MaxInventorySpace
-        {
-            get
-            {
-                throw new System.NotImplementedException();
-            }
-            set
-            {
-                throw new System.NotImplementedException();
-            }
-        }
-
-        public int Currency
-        {
-            get
-            {
-                throw new System.NotImplementedException();
-            }
-            set
-            {
-                throw new System.NotImplementedException();
-            }
-        }
-
-        public void PickupResource(Resource resource, int amount)
+        public void EquipArmour(string item)
         {
             throw new System.NotImplementedException();
         }
 
-        public void SellResource(Resource resource, int amount)
+        public void UnequipArmour(string item)
         {
             throw new System.NotImplementedException();
         }
 
-        public void SellResources()
+        public int AttackPower
+        {
+            get
+            {
+                throw new System.NotImplementedException();
+            }
+            set
+            {
+                throw new System.NotImplementedException();
+            }
+        }
+
+        public EquippedWeapon EquippedWeapon
+        {
+            get
+            {
+                throw new System.NotImplementedException();
+            }
+            set
+            {
+                throw new System.NotImplementedException();
+            }
+        }
+
+        public void EquipWeapon(string item)
         {
             throw new System.NotImplementedException();
         }
 
-        public void TransferCurrency(GameObject other, int amount)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public void TransferResource(GameObject other, Resource resource)
+        public void UnequipWeapon(string item)
         {
             throw new System.NotImplementedException();
         }
 
         #endregion
-    }
+	}
 }

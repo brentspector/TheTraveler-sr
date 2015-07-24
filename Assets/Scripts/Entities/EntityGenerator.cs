@@ -5,6 +5,7 @@ using GSP.Char;
 using GSP.Entities.Friendlies;
 using GSP.Entities.Hostiles;
 using GSP.Entities.Neutrals;
+using GSP.Core;
 
 namespace GSP.Entities
 {
@@ -19,7 +20,7 @@ namespace GSP.Entities
 			m_entID = 0;
 		}
 
-		public bool CreateEntity(EntityType type, GameObject gameObject)
+		public bool CreateEntity(out int entID, EntityType type, GameObject gameObject, int playerNum = 0)
 		{
 			// Holds the result of creation.
 			bool result = false;
@@ -30,8 +31,7 @@ namespace GSP.Entities
 				case EntityType.ENT_MERCHANT:
 				{
 					// Create the entity.
-					// TODO: Get from master settings: colour, name.
-					Merchant merchant = new Merchant(m_entID, gameObject, PlayerColours.COL_BLUE, "Jim");
+                    Merchant merchant = new Merchant(m_entID, gameObject, GameMaster.Instance.GetPlayerColour(playerNum), GameMaster.Instance.GetPlayerName(playerNum));
 					
 					// Now try to add the entity to the manager.
 					if (!EntityManager.Instance.AddEntity(merchant))
@@ -62,13 +62,13 @@ namespace GSP.Entities
 
 					break;
 				}
-				case EntityType.ENT_MERCINARY:
+				case EntityType.ENT_MERCENARY:
 				{
 					// Create the entity.
-					Mercinary mercinary = new Mercinary(m_entID, gameObject);
+					Mercenary mercenary = new Mercenary(m_entID, gameObject);
 					
 					// Now try to add the entity to the manager.
-					if (!EntityManager.Instance.AddEntity(mercinary))
+					if (!EntityManager.Instance.AddEntity(mercenary))
 					{
 						// The entity coulnd't be added to the manager so return failure.
 						result = false;
@@ -114,6 +114,9 @@ namespace GSP.Entities
 					break;
 				}
 			}
+
+            // Set the out ID variable.
+            entID = m_entID;
 
 			// Increment to the next ID.
 			m_entID++;
