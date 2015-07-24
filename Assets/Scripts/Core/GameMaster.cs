@@ -13,21 +13,29 @@ namespace GSP.Core
         static string m_highScoreFilePath;
         static string m_saveFileExt;
 
+        // The first tile.
+        static Vector3 startingPos = new Vector3(.32f, -(GSP.Tiles.TileManager.MaxHeightUnits / 2.0f), -1.6f);
+
         // Max number of players.
         static readonly int m_maxPlayers = 4;
         
         // The variables here are through dictionaries. The key is the player number.
         Dictionary<int, string> m_playerNames;
         Dictionary<int, PlayerColours> m_PlayerColours;
+        Dictionary<int, GameObject> m_playerObjs;
+        Dictionary<int, Char.Player> m_players;
 
         // Initialise the dictionaries.
         public override void Awake()
         {
-            // Call the awake function of the base class.
+            // Call the parent's awake first.
             base.Awake();
             
+            // Create the dictionaries.
             m_playerNames = new Dictionary<int, string>();
             m_PlayerColours = new Dictionary<int, PlayerColours>();
+            m_playerObjs = new Dictionary<int, GameObject>();
+            m_players = new Dictionary<int, Char.Player>();
 
             // Set the save file information strings.
             m_playerFilePath = Application.persistentDataPath + "/player";
@@ -38,10 +46,13 @@ namespace GSP.Core
         // Fill the dictionaries.
         void Start()
         {
-            for (int i = 1; i < MaxPlayers + 1; i++)
+            for (int i = 0; i < MaxPlayers; i++)
             {
-                m_playerNames.Add(i, "");
-                m_PlayerColours.Add(i, PlayerColours.COL_BLACK);
+                int playerNum = i + 1;
+                m_playerNames.Add(playerNum, "");
+                m_PlayerColours.Add(playerNum, PlayerColours.COL_BLACK);
+                m_playerObjs.Add(playerNum, null);
+                m_players.Add(playerNum, null);
             }
         }
 
@@ -77,6 +88,170 @@ namespace GSP.Core
         {
             m_PlayerColours[playerNum] = playerColour;
         }
+
+        #region Create Characters
+
+        #region Create Players
+
+        // Create a new player.
+        public void CreatePlayer(int playerNum)
+        {
+            Vector3 startPos = startingPos;
+            // Get the starting position.
+            startPos.y -= ((playerNum + 1) * .64f);
+            // Create the player game object.
+            GameObject obj = Instantiate(PrefabReference.prefabPlayer, startingPos, Quaternion.identity) as GameObject;
+            obj.transform.localScale = new Vector3(1, 1, 1);
+
+            // Holds the ID of the created entity.
+            int entID = -1;
+
+            // Create the merchant entity.
+            Entities.EntityManager.Instance.GetEntityGenerator().CreateEntity(out entID, Entities.EntityType.ENT_MERCHANT, obj, playerNum);
+
+            // Set the game obj for the given player.
+            m_playerObjs[playerNum] = obj;
+
+            // Set the player script for the given player.
+            m_players[playerNum] = m_playerObjs[playerNum].GetComponent<Char.Player>();
+
+            // Give the player script the ID for the merchant.
+            m_players[playerNum].GetMerchant(entID);
+        }
+
+        // Create a new player and load their settings.
+        public void CreateAndLoadPlayer(int playerNum)
+        {
+            //First load the player's settings.
+            LoadPlayer(playerNum);
+
+            // Then create the player.
+            CreatePlayer(playerNum);
+        }
+
+        // Create new players.
+        public void CreatePlayers()
+        {
+            // Loop over the dictionary to create each player. We use the player name dictionary here.
+            foreach (var player in m_playerNames)
+            {
+                // create the current player.
+                CreatePlayer(player.Key);
+            }
+        }
+
+        // Create new players and load their settings.
+        public void CreateAndLoadPlayers()
+        {
+            // Loop over the dictionary to create each player. We use the player name dictionary here.
+            foreach (var player in m_playerNames)
+            {
+                // create the current player.
+                CreateAndLoadPlayer(player.Key);
+            }
+        }
+
+        #endregion
+
+        #region Create Enemies
+
+        // Create a new enemy.
+        public void CreateEnemy(Entities.HostileType enemyType)
+        {
+            // Create the enemy game object.
+            GameObject obj = Instantiate(PrefabReference.prefabEnemy) as GameObject;
+
+            int entID = -1;  // Holds the ID of the created enemy.
+
+            switch (enemyType)
+            {
+                case Entities.HostileType.HT_BANDIT:
+                    {
+                        // Make sure the ID is zero before starting.
+                        entID = -1;
+
+                        // Add the bandit enemy script.
+                        var script = obj.AddComponent<Char.Enemies.BanditMB>();
+
+                        // Create the enemy entity.
+                        Entities.EntityManager.Instance.GetEntityGenerator().CreateEntity(out entID, Entities.EntityType.ENT_BANDIT, obj);
+
+                        // Give the enemy script the ID for the enemy.
+                        script.GetEnemy(entID);
+
+                        break;
+                    }
+                case Entities.HostileType.HT_MIMIC:
+                    {
+                        // Make sure the ID is zero before starting.
+                        entID = -1;
+
+                        // Add the bandit enemy script.
+                        var script = obj.AddComponent<Char.Enemies.BanditMB>();
+
+                        // Create the enemy entity.
+                        Entities.EntityManager.Instance.GetEntityGenerator().CreateEntity(out entID, Entities.EntityType.ENT_BANDIT, obj);
+
+                        // Give the enemy script the ID for the enemy.
+                        script.GetEnemy(entID);
+
+                        break;
+                    }
+            }
+        }
+
+        #endregion
+
+        #region Create Allies
+
+        // Create a new enemy.
+        public void CreateAlly(Entities.FriendlyType allyType)
+        {
+            // Create the enemy game object.
+            GameObject obj = Instantiate(PrefabReference.prefabAlly) as GameObject;
+
+            int entID = -1;  // Holds the ID of the created enemy.
+
+            switch (allyType)
+            {
+                case Entities.FriendlyType.FT_PORTER:
+                    {
+                        // Make sure the ID is zero before starting.
+                        entID = -1;
+
+                        // Add the porter ally script.
+                        var script = obj.AddComponent<Char.Allies.PorterMB>();
+
+                        // Create the enemy entity.
+                        Entities.EntityManager.Instance.GetEntityGenerator().CreateEntity(out entID, Entities.EntityType.ENT_PORTER, obj);
+
+                        // Give the ally script the ID for the ally.
+                        script.GetAlly(entID);
+
+                        break;
+                    }
+                case Entities.FriendlyType.FT_MERCENARY:
+                    {
+                        // Make sure the ID is zero before starting.
+                        entID = -1;
+
+                        // Add the mercenary ally script.
+                        var script = obj.AddComponent<Char.Allies.MercenaryMB>();
+
+                        // Create the enemy entity.
+                        Entities.EntityManager.Instance.GetEntityGenerator().CreateEntity(out entID, Entities.EntityType.ENT_MERCENARY, obj);
+
+                        // Give the ally script the ID for the ally.
+                        script.GetAlly(entID);
+
+                        break;
+                    }
+            }
+        }
+
+        #endregion
+
+        #endregion
 
         #region Save and Load
 
