@@ -17,6 +17,9 @@ namespace GSP
 		MENUSTATES m_menuState;				//Current menu state
 		float timeHolder;					//Holds waiting time
 
+		//Audio prefab holder
+		public GameObject audioManager;
+
 		//Menu Objects
 		GameObject introSet;				//Intro panel
 		GameObject menuSet;					//Main Menu panel
@@ -30,6 +33,7 @@ namespace GSP
 		bool creditsDisplayed;				//Whether credits are displayed or not
 		public string m_mapSelection;		//Holds scene name of map
 		bool mapsDisplayed;					//Whether selection maps are displayed or not
+
 		#region Menu Data Declaration Stuff
 
 		// Holds the reference to the game object.
@@ -98,6 +102,12 @@ namespace GSP
 				//INTRO
 			case OVERALLSTATES.INTRO:
 				//INTRO ENTRY POINT
+				//Make sure an AudioManager exists
+				if(AudioManager.instance == null)
+				{
+					Instantiate(audioManager);
+				} //end if
+
 				//After intro finishes, move to menu
 				if(Time.time > timeHolder)
 				{
@@ -255,6 +265,28 @@ namespace GSP
 				m_programState = OVERALLSTATES.MENU;
 				m_menuState = MENUSTATES.HOME;
 
+				//Play correct background music
+				if(m_mapSelection == "area01")
+				{
+					AudioManager.instance.playDesert();
+				} //end if
+				else if(m_mapSelection == "area02")
+				{
+					AudioManager.instance.playEuro();
+				} //end else if
+				else if(m_mapSelection == "area03")
+				{
+					AudioManager.instance.playMetro();
+				} //end else if
+				else if(m_mapSelection == "area04")
+				{
+					AudioManager.instance.playSnow();
+				} //end else if 
+				else
+				{
+					AudioManager.instance.playMenu();
+				} //end else
+
 				//Load selected level
 				Application.LoadLevel(m_mapSelection);
 				break;
@@ -263,10 +295,11 @@ namespace GSP
 				//END ENTRY POINT - WATCH OUT UNIVERSE!
 				//Wrap up any loose ends here since the program is now exiting.
 
-				//Delete exit button if it exists
-				if(GameObject.Find("BackButton") != null)
+				//Destroy Audio Manager
+				if(AudioManager.instance != null)
 				{
-					Destroy (GameObject.Find("BackButton"));
+					Destroy (AudioManager.instance.gameObject);
+					AudioManager.instance = null;
 				} //end if
 
 				//Reset state machine to initial
