@@ -10,7 +10,9 @@ namespace GSP.Entities
 		Vector2		m_position; // Holds the entity's position.
 
 		EntityType	m_type;		// Holds the entity's type.
-		GameObject	m_gameObj;  // Holds the game objecy the entity is attached to.
+		GameObject	m_gameObj;  // Holds the game object the entity is attached to.
+
+        string      m_name;     // Holds the eneity's name.
 
 		// Constructor.
 		public Entity(int ID, GameObject gameObject)
@@ -68,6 +70,19 @@ namespace GSP.Entities
             }
         }
 
+        // Gets and Sets the name of the entity.
+        public string Name
+        {
+            get
+            {
+                return m_name;
+            }
+            set
+            {
+                m_name = value;
+            }
+        }
+
 		#region IDisposable Members
 		
 		// Public dispose method that will call the internal dispose method.
@@ -109,21 +124,27 @@ namespace GSP.Entities
 					case EntityType.ENT_PORTER:
 					{
 						// Get the ally script attached to the game object.
-                        var script = GameObj.GetComponent<Ally2>();
+                        var script = GameObj.GetComponent<Ally2<Friendlies.Porter>>();
 						
 						// Tell the script to destroy its gameobject.
 						script.DestroyGO();
 						
 						break;
 					}
-					case EntityType.ENT_MERCINARY:
+					case EntityType.ENT_MERCENARY:
 					{
-						goto case EntityType.ENT_PORTER;
+                        // Get the ally script attached to the game object.
+                        var script = GameObj.GetComponent<Ally2<Friendlies.Mercenary>>();
+
+                        // Tell the script to destroy its gameobject.
+                        script.DestroyGO();
+
+                        break;
 					}
 					case EntityType.ENT_BANDIT:
 					{
-						// Get the enemy script attached to the game object.
-                        var script = GameObj.GetComponent<Enemy>();
+						// Get the enemy of type bandit script attached to the game object.
+                        var script = GameObj.GetComponent<Enemy<Hostiles.Bandit>>();
 						
 						// Tell the script to destroy its gameobject.
 						script.DestroyGO();
@@ -132,7 +153,13 @@ namespace GSP.Entities
 					}
 					case EntityType.ENT_MIMIC:
 					{
-						goto case EntityType.ENT_BANDIT;
+                        // Get the enemy of type mimic script attached to the game object.
+                        var script = GameObj.GetComponent<Enemy<Hostiles.Mimic>>();
+
+                        // Tell the script to destroy its gameobject.
+                        script.DestroyGO();
+
+                        break;
 					}
 				}
 			}

@@ -615,7 +615,8 @@ namespace GSP.Entities.Tests
             EntityGenerator entGen = entMan.GetEntityGenerator();
 
             // Create a merchant.
-            if (entGen.CreateEntity(EntityType.ENT_MERCHANT, this.gameObject))
+            int entID = 0;
+            if (entGen.CreateEntity(out entID, EntityType.ENT_MERCHANT, this.gameObject))
             {
                 Debug.LogWarning("EntityGenerator returned true");
             }
@@ -627,7 +628,7 @@ namespace GSP.Entities.Tests
             Debug.LogWarningFormat("NumEnities: {0}", entMan.GetNumEntities());
 
             // Create a bandit.
-            if (entGen.CreateEntity(EntityType.ENT_BANDIT, this.gameObject))
+            if (entGen.CreateEntity(out entID, EntityType.ENT_BANDIT, this.gameObject))
             {
                 Debug.LogWarning("EntityGenerator returned true");
             }
@@ -639,7 +640,7 @@ namespace GSP.Entities.Tests
             Debug.LogWarningFormat("NumEnities: {0}", entMan.GetNumEntities());
 
             // Create a mimic.
-            if (entGen.CreateEntity(EntityType.ENT_MIMIC, this.gameObject))
+            if (entGen.CreateEntity(out entID, EntityType.ENT_MIMIC, this.gameObject))
             {
                 Debug.LogWarning("EntityGenerator returned true");
             }
@@ -651,7 +652,7 @@ namespace GSP.Entities.Tests
             Debug.LogWarningFormat("NumEnities: {0}", entMan.GetNumEntities());
 
             // Create a porter.
-            if (entGen.CreateEntity(EntityType.ENT_PORTER, this.gameObject))
+            if (entGen.CreateEntity(out entID, EntityType.ENT_PORTER, this.gameObject))
             {
                 Debug.LogWarning("EntityGenerator returned true");
             }
@@ -662,8 +663,8 @@ namespace GSP.Entities.Tests
 
             Debug.LogWarningFormat("NumEnities: {0}", entMan.GetNumEntities());
 
-            // Create a mercinary.
-            if (entGen.CreateEntity(EntityType.ENT_MERCINARY, this.gameObject))
+            // Create a mercenary.
+            if (entGen.CreateEntity(out entID, EntityType.ENT_MERCENARY, this.gameObject))
             {
                 Debug.LogWarning("EntityGenerator returned true");
             }
