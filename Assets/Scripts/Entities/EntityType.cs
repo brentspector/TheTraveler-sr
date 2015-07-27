@@ -7,7 +7,7 @@ namespace GSP.Entities
 	{
 		ENT_MERCHANT,
 		ENT_PORTER,
-		ENT_MERCINARY,
+		ENT_MERCENARY,
 		ENT_BANDIT,
 		ENT_MIMIC,
 		ENT_NONE
