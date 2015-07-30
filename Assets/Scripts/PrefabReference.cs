@@ -12,6 +12,15 @@ namespace GSP
 		// This is the reference to the character prefab.
 		public static GameObject prefabCharacter = Resources.Load( "Character" ) as GameObject;
 
+        // This is the reference to the player prefab.
+        public static GameObject prefabPlayer = Resources.Load("Player") as GameObject;
+
+        // This is the reference to the enemy prefab.
+        public static GameObject prefabEnemy = Resources.Load("Enemy") as GameObject;
+
+        // This is the reference to the ally prefab.
+        public static GameObject prefabAlly = Resources.Load("Ally") as GameObject;
+
 		// This is the reference to the dice button prefab.
 		public static GameObject prefabDiceButton = Resources.Load( "DiceButton" ) as GameObject;
 
