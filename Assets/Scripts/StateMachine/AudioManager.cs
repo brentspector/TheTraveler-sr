@@ -15,6 +15,17 @@ namespace GSP
 		public AudioClip victoryMusic;					//Victory music
 		public AudioClip drawMusic;						//Tie/Draw music
 		public AudioClip lossMusic;						//Loss music
+		public AudioClip coinSFX;						//Coin Jangling SFX
+		public AudioClip walkingSFX;					//Walking noise SFX
+		public AudioClip swordHit1SFX;					//One variation of a sword clash
+		public AudioClip swordHit2SFX;					//Second variation of a sword clash
+		public AudioClip swordHit3SFX;					//Third variation of a sword clash
+		public AudioClip diceSFX;						//Rolling dice SFX
+		public AudioClip fishingSFX;					//Fish catch SFX
+		public AudioClip miningSFX;						//Ore mining SFX
+		public AudioClip shearingSFX;					//Wool shearing SFX
+		public AudioClip woodSFX;						//Woodcutting SFX
+		public AudioClip explosionSFX;					//Cake chart explosion
 		public static AudioManager instance = null;		//Singleton reference
 		public float lowPitchRange = 0.95f;				//Low end of change spectrum
 		public float highPitchRange = 1.05f;			//High end of change spectrum
@@ -121,5 +132,50 @@ namespace GSP
 			musicSource.clip = lossMusic;
 			musicSource.PlayDelayed (1.0f);
 		} //end playLoss
+
+		public void PlayCoin()
+		{
+			PlaySingle (coinSFX);
+		} //end PlayCoin()
+
+		public void PlayWalk()
+		{
+			PlaySingle (walkingSFX);
+		} //end PlayWalk()
+
+		public void PlaySword()
+		{
+			RandomizeSFX (swordHit1SFX, swordHit2SFX, swordHit3SFX);
+		} //end PlaySword()
+
+		public void PlayDie()
+		{
+			PlaySingle (diceSFX);
+		} //end PlayDie()
+
+		public void PlayFish()
+		{
+			PlaySingle (fishingSFX);
+		} //end PlayFish()
+
+		public void PlayMine()
+		{
+			PlaySingle (miningSFX);
+		} //end PlayMine()
+
+		public void PlayShear()
+		{
+			PlaySingle (shearingSFX);
+		} //end PlayShear()
+
+		public void PlayWood()
+		{
+			PlaySingle (woodSFX);
+		} //end PlayWood()
+
+		public void PlayExplosion()
+		{
+			PlaySingle (explosionSFX);
+		} //end PlayExplosion()
 	} //end AudioManager class
 } //end namespace GSP
