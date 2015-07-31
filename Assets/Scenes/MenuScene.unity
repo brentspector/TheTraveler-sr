@@ -336,48 +336,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
---- !u!1001 &101953546
-Prefab:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 452888, guid: 68608c25d4417844bb7964dbd7d2e460, type: 2}
-      propertyPath: m_LocalPosition.x
-      value: 406.136139
-      objectReference: {fileID: 0}
-    - target: {fileID: 452888, guid: 68608c25d4417844bb7964dbd7d2e460, type: 2}
-      propertyPath: m_LocalPosition.y
-      value: 162.781998
-      objectReference: {fileID: 0}
-    - target: {fileID: 452888, guid: 68608c25d4417844bb7964dbd7d2e460, type: 2}
-      propertyPath: m_LocalPosition.z
-      value: -5.0625
-      objectReference: {fileID: 0}
-    - target: {fileID: 452888, guid: 68608c25d4417844bb7964dbd7d2e460, type: 2}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 452888, guid: 68608c25d4417844bb7964dbd7d2e460, type: 2}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 452888, guid: 68608c25d4417844bb7964dbd7d2e460, type: 2}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 452888, guid: 68608c25d4417844bb7964dbd7d2e460, type: 2}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 452888, guid: 68608c25d4417844bb7964dbd7d2e460, type: 2}
-      propertyPath: m_RootOrder
-      value: 3
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-  m_ParentPrefab: {fileID: 100100000, guid: 68608c25d4417844bb7964dbd7d2e460, type: 2}
-  m_IsPrefabParent: 0
 --- !u!1 &105869030
 GameObject:
   m_ObjectHideFlags: 0
@@ -767,7 +725,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 40dd1c1a0ed906149a6d3e13890a8f5a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  audioManager: {fileID: 164814, guid: 68608c25d4417844bb7964dbd7d2e460, type: 2}
+  audioManager: {fileID: 180450, guid: f6bd2579e88206f4ba901c37e88155e4, type: 2}
 --- !u!1 &319034181
 GameObject:
   m_ObjectHideFlags: 0
@@ -1876,6 +1834,48 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.ScrollRect+ScrollRectEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
+--- !u!1001 &955730469
+Prefab:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 430358, guid: f6bd2579e88206f4ba901c37e88155e4, type: 2}
+      propertyPath: m_LocalPosition.x
+      value: 406.136139
+      objectReference: {fileID: 0}
+    - target: {fileID: 430358, guid: f6bd2579e88206f4ba901c37e88155e4, type: 2}
+      propertyPath: m_LocalPosition.y
+      value: 162.781998
+      objectReference: {fileID: 0}
+    - target: {fileID: 430358, guid: f6bd2579e88206f4ba901c37e88155e4, type: 2}
+      propertyPath: m_LocalPosition.z
+      value: -5.0625
+      objectReference: {fileID: 0}
+    - target: {fileID: 430358, guid: f6bd2579e88206f4ba901c37e88155e4, type: 2}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 430358, guid: f6bd2579e88206f4ba901c37e88155e4, type: 2}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 430358, guid: f6bd2579e88206f4ba901c37e88155e4, type: 2}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 430358, guid: f6bd2579e88206f4ba901c37e88155e4, type: 2}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 430358, guid: f6bd2579e88206f4ba901c37e88155e4, type: 2}
+      propertyPath: m_RootOrder
+      value: 3
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_ParentPrefab: {fileID: 100100000, guid: f6bd2579e88206f4ba901c37e88155e4, type: 2}
+  m_IsPrefabParent: 0
 --- !u!1 &969689558
 GameObject:
   m_ObjectHideFlags: 0
