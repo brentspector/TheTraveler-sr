@@ -1,302 +1,253 @@
-using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;	//required for List<GameObjects>
+/*******************************************************************************
+ *
+ *  File Name: GameplayStateMachine.cs
+ *
+ *  Description: The brains of the program, controls the flow
+ *
+ *******************************************************************************/
+using GSP.Char;
 using GSP.Tiles;
+using System.Collections.Generic;
+using UnityEngine;
 
 namespace GSP
 {
-	
-	public class GameplayStateMachine : MonoBehaviour 
-		//====================================================================
-		// +will be in charge of designing the stateMachine
-		// +OnGUI() //need this function to use Unity's GUI
-		//			//also runs StateMachine() every cycle
-		// -StateMachine() 	//runs all the State Specific GUI tasks
-		// -ShowResources()	//toggles between hiding and showing Resources in the GUI bar
-		//
-		// +GetState() returns int
-		//		//BEGINTURN
-		//		//ROLLDICE
-		//		//CALCDISTANCE
-		//		//DISPLAYDISTANCE
-		//		//SELECTPATHTOTAKE
-		//		//DOACTION
-		//		//ENDTURN
-		// +public void NextState() will move state machine to the next state
-		//
-		//====================================================================
+
+    /*******************************************************************************
+     *
+     * Name: GameplayStateMachine
+     * 
+     * Description: Controls the flow of the game through a finite state machine.
+     * 
+     *******************************************************************************/
+    public class GameplayStateMachine : MonoBehaviour 
 	{
-		private enum GamePlayState
-			//--------------------------------------------
-			// +enum will hold the values of gameplay statesm_MapEventResourceString
-			//--------------------------------------------
+		GamePlayState gamePlayState;  // The current state
+
+		bool canInitAfterStart = false;  // Initialising values after Start()
+
+		bool isColorActionButtonDefault = true;   // The default colour of the action button
+		bool isColorResourceButtonDefault = true; // The default colour of the resource button
+        bool isGUIActionPressed = false;	        // Determines if the Action Button has been pressed
+        bool canGUIShowResources = false;	        // GUI for Resources can be hidden at push of button
+		double animTimer = 0.0;                 // The animater timer
+		string guiActionString;			        // Changes the String in the Action button According to State player is in
+		string mapEventString; 			        // The type of action event will occur
+		string mapEventResultString; 		    // If mapEvent is Item, what Resource is picked up? Null if not a resource event
+		int guiPlayerTurn = 0;	                // Whos turn is it
+		int guiGoldVal = -1;		            // The player's Gold Value; if GUI displays -1, value was not received from player
+        int guiWeight = -1;		                // The player's actual weight; if GUI displays -1, value was not received from player
+        int guiMaxWeight = -1;	                // The player's max weight; if GUI displays -1, value was not received from player
+        int guiOre = -1;			            // The player's number of ore; if GUI displays -1, value was not received from player
+        int guiWool = -1;			            // The player's number of wool; if GUI displays -1, value was not received from player
+        int guiWood = -1;			            // The player's number of wood; if GUI displays -1, value was not received from player
+        int guiFish = -1;			            // The player's number of fish; if GUI displays -1, value was not received from player
+        int guiDiceDistVal = 0;	                // The dice value which is then onverted into a distance value
+        int guiNumOfPlayers = 2; 	            // The number of players playing
+		
+		DieInput dieScript;                         // The DieInput script reference
+		GUIMapEvents guiMapEventsScript;            // The GUIMapEvent script reference
+        GUIMovement guiMovementScript;              // The GUIMovementScript reference
+        MapEvent mapEventScript;                    // The MapEvent script reference
+		JAVIERGUI.GUIBottomBar guiBottomBarScript;  // The GUIBottomBat reference that contains the item and ally buttons
+
+        GameObject endSceneCharData;    // The GameObject reference for the EndSceneCharData
+        bool canRunEndStuff;            // Whether the end scene stuff should be ran during that state.
+		
+		GameObject playerEntity;                            // The player GameObject
+        List<GameObject> players;                           // The list of the player GameObject's
+		List<GSP.Char.Character> playerScripts;             // The list of the player's Character scripts
+		List<GSP.Char.ResourceList> playerResourceLists;    // The list of the player's ResourceList scripts
+
+		GameObject audioSrc;    // The GameObject that contains the AudioSource
+
+		// Runs when the object if first instantiated, because this object will occur once through the game,
+        // these values are the beginning of game values
+        // Note: Values should be updated at the EndTurn State
+        void Start()
 		{
-			BEGINTURN,
-			ROLLDICE,
-			CALCDISTANCE,
-			DISPLAYDISTANCE,
-			SELECTPATHTOTAKE,
-			DOACTION,
-			ENDTURN,
-			ENDGAME
-		} //end public enum GamePlayState
-		
-
-		//......Holds Current State......
-		private GamePlayState m_gamePlayState;
-
-		//.....InitializingValues.....
-		bool m_initAfterStart = false;
-		//......GUI Values......
-		bool m_colorActionButtonDefault = true;
-		bool m_colorResourceButtonDefault = true;
-		double m_animTimer = 0.0;
-		string m_GUIActionString;			//Changes the String in the Action button According to State player is in
-		string m_MapEventString; 			//holds what type of action event will occur
-		string m_MapEventResultString; 		//if mapEvent is Item, what Resource is picked up? Null if not a resource event
-		bool m_GUIActionPressed = false;	//determines if the Action Button has been pressed.
-		int m_GUIPlayerTurn = 0;	//whos turn is it
-		int m_GUIGoldVal = -1;		//Players Gold Value; if gui displays -1; value was not received from player
-		int m_GUIWeight = -1;		//Players actual weight; if gui displays -1; value was not received from player
-		int m_GUIMaxWeight = -1;	//Players max weight; //if gui displays -1; value was not received from player
-		bool m_GUIShowResources = false;	// GUI for Resources can be hidden at push of button
-		int m_GUIOre = -1;			//if gui displays -1; value was not received from player
-		int m_GUIWool = -1;			//if gui displays -1; value was not received from player
-		int m_GUIWood = -1;			//if gui displays -1; value was not received from player
-		int m_GUIFish = -1;			//if gui displays -1; value was not received from player 
-		int m_GUIDiceDistVal = 0;	//HOlds the dice value, then is converted into Distance Value
-		int m_GUINumOfPlayers = 2; 	// how many players playing
-		
-		//...Script Instances...
-		private GSP.DieInput m_DieScript;								//Access the sigleton Die and its functions
-		private GSP.GUIMapEvents m_GUIMapEventsScript; 					//Access the sigleton Die and its functions
-		private GSP.GUIMovement m_GUIMovementScript;
-		//private GSP.JAVIERGUI.NewGUIMapEvent m_NEWGUIMapEventScript;	//used during testing
-		private GSP.MapEvent m_MapEventScript;
-		private GSP.JAVIERGUI.GUIBottomBar m_GUIBottomBarScript;
-
-
-		#region End Scene Declaration Stuff
-
-		// Holds the reference to the game object.
-		GameObject m_endSceneCharData;
-
-		// Holds whether the end scene stuff should be ran during that state.
-		bool m_runEndStuff;
-
-		#endregion
-		
-		//players list
-		private GameObject m_playerEntity; //player!
-		private List<GameObject> m_playerList;	//create players
-		private List<GSP.Char.Character> m_playerScriptList; //access Character.cs scripts from each player to get player values
-		private List<GSP.Char.ResourceList> m_PlayerResourceList; //access Characters.cs resourcesList scripts
-
-		//Audio
-		GameObject audioSrc;
-
-		//=================================================================================================
-		//-----------------------------------Functions-----------------------------------------------------
-		//=================================================================================================
-		
-		void Start()
-			//------------------------------------------------------------------
-			//  Start() runs when the object if first instantiated
-			//		-Because this object will occur once through the game, 
-			//			these values are the beginning of game values
-			//		-Values should be updated at EndTurn State of StateMachine()
-			//-------------------------------------------------------------------
-		{
-			// Clear the dictionary
+            //TODO: Damien: Replace Tile stuff later
+            // Clear the tile dictionary
 			TileDictionary.Clean();
-
 			// Set the dimensions and generate/add the tiles
 			TileManager.SetDimensions(64, 20, 16);
 			TileManager.GenerateAndAddTiles();
 
-			#region End Scene Initialisation stuff
+            //TODO: Damien: Replace with the GameMaster functionality later.
+            // Create an empty GameObject for the EndSceneCharData
+            endSceneCharData = new GameObject("EndSceneCharData");
+            // Tag it as EndSceneCharData
+            endSceneCharData.tag = "EndSceneCharDataTag";
+            // Add the EndSceneCharData component
+            endSceneCharData.AddComponent<EndSceneData>();
+            // Set it to not destroy on load
+            DontDestroyOnLoad(endSceneCharData);
+            // Running the end stuff defaults to true
+            canRunEndStuff = true;
 
-			// Create the empty game object.
-			m_endSceneCharData = new GameObject( "EndSceneCharData" );
-
-			// Tag it as end scene char data.
-			m_endSceneCharData.tag = "EndSceneCharDataTag";
-
-			// Add the end scene char data component.
-			m_endSceneCharData.AddComponent<EndSceneData>();
-
-			// Set it to not destroy on load.
-			DontDestroyOnLoad( m_endSceneCharData );
-
-			// Defaults to true.
-			m_runEndStuff = true;
-
-			#endregion
-
-			//#region Menu Data Initialisation Stuff
-
-			// Get the game object with the menu data tag.
-			GameObject menuData = GameObject.FindGameObjectWithTag( "MenuDataTag" );
-
-			// Only proceed of the data object isn't null.
-			if ( menuData != null )
+            //TODO: Damien: Replace with the GameMaster functionality later.
+            // Get the GameObject with the MenuDataTag tag
+			GameObject menuData = GameObject.FindGameObjectWithTag("MenuDataTag");
+            // Only proceed if the MenuData object isn't null
+			if (menuData != null)
 			{
-				// Get its menu data script.
+				// Get its MenuData script reference
 				MenuData menuDataScript = menuData.GetComponent<MenuData>();
 				
-				// Copy the value into the state machine.
-				m_GUINumOfPlayers = menuDataScript.NumberPlayers;
+				// Copy the value into the state machine
+				guiNumOfPlayers = menuDataScript.NumberPlayers;
 			}
+			// Finally, destroy the menu data object
+			Destroy(menuData);
 
-			// Finally, destroy the menu data object.
-			Destroy( menuData );
+            //TODO: Damien: Replace with the GameMaster functionality later
+            // Initialise the lists
+			players = new List<GameObject>();
+			playerScripts = new List<Character>();
+            playerResourceLists = new List<ResourceList>();
 
-			//#endregion
+            //TODO: Damien: Replace with the GameMaster functionality later
+            // Add the player instances
+			AddPlayers(guiNumOfPlayers);
 
-			//initialize empty lists
-			m_playerList = new List<GameObject>();
-			m_playerScriptList = new List<GSP.Char.Character>();
-			m_PlayerResourceList = new List<GSP.Char.ResourceList>();
-			
-			//Add Players Instances
-			AddPlayers (m_GUINumOfPlayers);
+			// Get script references
+			dieScript = GameObject.FindGameObjectWithTag("DieTag").GetComponent<DieInput>();
+            //TODO: Brent: Replace the four scripts below with the new In-Game UI later
+			guiMapEventsScript = GameObject.FindGameObjectWithTag("GUIMapEventSpriteTag").GetComponent<GUIMapEvents>();
+            guiMovementScript = GameObject.FindGameObjectWithTag("GUIMovementTag").GetComponent<GSP.GUIMovement>();
+            mapEventScript = GameObject.FindGameObjectWithTag("DieTag").GetComponent<GSP.MapEvent>();
+            guiBottomBarScript = this.GetComponent<GSP.JAVIERGUI.GUIBottomBar>();
 
-			//Beginning State
-			m_gamePlayState = GamePlayState.BEGINTURN;
+			// Reseed the random number generator
+            dieScript.Dice.Reseed(System.Environment.TickCount);
 
-			//get scripts needed
-			m_DieScript = GameObject.FindGameObjectWithTag("DieTag").GetComponent<DieInput>();
-			m_GUIMapEventsScript = GameObject.FindGameObjectWithTag("GUIMapEventSpriteTag").GetComponent<GUIMapEvents>();
-			m_GUIMovementScript = GameObject.FindGameObjectWithTag("GUIMovementTag").GetComponent<GSP.GUIMovement>();
-			//m_NEWGUIMapEventScript = GameObject.FindGameObjectWithTag ("GUIMapEventSpriteTag").GetComponent<GSP.JAVIERGUI.NewGUIMapEvent>();	//used during testing
-			m_MapEventScript = GameObject.FindGameObjectWithTag("DieTag").GetComponent<GSP.MapEvent>();
-			m_GUIBottomBarScript = this.GetComponent<GSP.JAVIERGUI.GUIBottomBar>();
+			//TODO: Brent: This is probably obsolete now
+            // Text for the action button
+			guiActionString = "Action\nButton";
 
-			m_DieScript.Dice.Reseed (System.Environment.TickCount);
+			// There isn't a map event in the beginning
+			mapEventString = "Nothing";
+			mapEventResultString = string.Empty;
 
-			//text for the action button
-			m_GUIActionString = "Action\nButton";
+			// Initialise other things after Start() runs
+			canInitAfterStart = true;
 
-			//no map event at start;
-			m_MapEventString = "NOTHING";
-			m_MapEventResultString = null;
+			// Get the AudioSource GameObject
+			audioSrc = GameObject.FindGameObjectWithTag("AudioSourceTag");
+            
+            // Set the state to the BeginTurn state
+            gamePlayState = GamePlayState.BeginTurn;
+		} // end Start
 
-			//this initializes things after Start()
-			m_initAfterStart = true;
-
-			//Init audio
-			audioSrc = GameObject.FindGameObjectWithTag( "AudioSourceTag" );
-		}	//END start()
-
-		private void InitAfterStart()
+		// Initialises things after the Start() function runs
+        void InitAfterStart()
 		{
-			//Add Players Instances
-			AddItems(m_GUINumOfPlayers);
+			// Add the player instances
+			AddItems(guiNumOfPlayers);
+		} // end InitAfterStart
 
-			//#region TODO: PLAY STARTING SOUND
-			//#endregion
-
-		}	// end private void InitAfterStart()
-
-		private void AddPlayers( int p_numOfPlayers )
+        //TODO: Damien: Replace with the GameMaster functionality later
+        // Adds the players to the game
+        void AddPlayers(int numPlayers)
 		{
-			Vector3 startingPos = new Vector3 (.32f, -(GSP.Tiles.TileManager.MaxHeight/2.0f), -1.6f); //first tile
+			Vector3 startingPos = new Vector3(.32f, -(TileManager.MaxHeight / 2.0f), -1.6f);   // The first tile
 
-			for (int count = 0; count < p_numOfPlayers; count++) 
+			// Loop over the number of players to add their instances
+            for (int count = 0; count < numPlayers; count++) 
 			{
-				startingPos.y = .32f -((count+1) *.64f); 
-				//create players
-				m_playerEntity = Instantiate( PrefabReference.prefabCharacter, startingPos, Quaternion.identity ) as GameObject;
-				m_playerEntity.transform.localScale = new Vector3 (1, 1, 1);
+				// Calculate the y starting position
+                startingPos.y = .32f -((count + 1) * .64f); 
+				// Create the player
+				playerEntity = Instantiate(PrefabReference.prefabCharacter, startingPos, Quaternion.identity) as GameObject;
+				playerEntity.transform.localScale = new Vector3(1, 1, 1);
 
-				// Add a RigidBody2D component to the player.
-				var rigidBody2D = m_playerEntity.AddComponent<Rigidbody2D>();
-				// Turn off gravity.
+				// Give the player a RigidBody2D component to allow for collisions
+				var rigidBody2D = playerEntity.AddComponent<Rigidbody2D>();
+				// This is a 2D game so turn off gravity
 				rigidBody2D.gravityScale = 0.0f;
 
-				// Add a BoxCollider2D component to the player.
-				m_playerEntity.AddComponent<BoxCollider2D>();
+				// Give the player a BoxCollider2D component to add collisions
+				playerEntity.AddComponent<BoxCollider2D>();
+
+                // Add the player to the players list
+                players.Add(playerEntity);
 				
-				m_playerList.Add( m_playerEntity ); //add PlayerEntity to list
-				
-				m_playerScriptList.Add( m_playerEntity.GetComponent<GSP.Char.Character>() );
-				m_PlayerResourceList.Add( m_playerEntity.GetComponent<GSP.Char.ResourceList>() );
+				// Add the player's character script to the playerScripts list
+                playerScripts.Add(playerEntity.GetComponent<Character>());
+                // Add the player's character script to the playerResourceLists list
+				playerResourceLists.Add(playerEntity.GetComponent<ResourceList>());
 
-				// Set the character's sprite sheet sprites.
-				m_playerScriptList[count].SetCharacterSprites( count + 1 );
+				// Set the character's sprite sheet sprites
+				playerScripts[count].SetCharacterSprites(count + 1);
 
-				// Set the character's facing.
-				m_playerScriptList[count].Face( GSP.Char.Character.FacingDirection.SOUTH );
+				// Set the character's facing
+				playerScripts[count].Face(FacingDirection.South);
+			} // end for
+		} // end AddPlayers
 
-			} //end for loop
-			
-		} // end private void AddPlayers( int p_numOfPlayers )
-
-
-		private void AddItems( int p_numOfPlayers )
+		//TODO: Damien: Replace with the GameMaster functionality later
+        // Adds the starting items to the players
+        void AddItems(int numPlayers)
 		{
-			for (int count = 0; count < p_numOfPlayers; count++) 
+			// Loop over the number of players to give them the items
+            for (int count = 0; count < numPlayers; count++) 
 			{
-				m_playerScriptList[count].EquipItem("SWORD", 0);
-				m_playerScriptList[count].EquipItem("CHAINLEGS", 0);
-			} //end for loop
-			
-		} // end private void AddItems( int p_numOfPlayers )
+				playerScripts[count].EquipItem("SWORD", 0);
+				playerScripts[count].EquipItem("CHAINLEGS", 0);
+			} // end for
+		} // end AddItems
 
-
-		private void GetPlayerValues()
-			//-----------------------------------------------------------------------------
-			//	At the BEGINTURN state, values are grabbed from each player and stored into
-			//		respective m_GUI variable.
-			//
-			//-----------------------------------------------------------------------------
+		//TODO: Damien: Replace with the GameMaster functionality later
+        //TODO: Brent: Replace OnGUI stuff with the new In-Game UI later
+        // Gets the player's values for display on the In-Game UI; At the beginning of each turn the values are grabbed
+        // from each player and stored into respective GUI variables.
+        void GetPlayerValues()
 		{
-			//Get Gold val
-			m_GUIGoldVal = m_playerScriptList [m_GUIPlayerTurn].Currency;
+			// The gold value
+            guiGoldVal = playerScripts[guiPlayerTurn].Currency;
 
-			//Get Weight Values; Max and Actual weight
-			m_GUIMaxWeight = m_playerScriptList [m_GUIPlayerTurn].MaxWeight;
-			//TODO: does this weight need to be added with armor and weapon weight??? Ask
-			// 		Brent how to get Totale Weapon and armor weight Values for varible below.
-			m_GUIWeight = m_playerScriptList [m_GUIPlayerTurn].ResourceWeight;
+			// The Weight Values; Max and Current weight
+            guiMaxWeight = playerScripts[guiPlayerTurn].MaxWeight;
+            guiWeight = playerScripts[guiPlayerTurn].ResourceWeight;
 			
-			//get the resources for current player
-			m_GUIOre = m_PlayerResourceList[ m_GUIPlayerTurn ].GetResourcesByType( "ORE" ).Count;
-			m_GUIWool = m_PlayerResourceList[m_GUIPlayerTurn].GetResourcesByType("WOOL").Count;
-			m_GUIWood = m_PlayerResourceList [m_GUIPlayerTurn].GetResourcesByType ("WOOD").Count;
-			m_GUIFish = m_PlayerResourceList [m_GUIPlayerTurn].GetResourcesByType ("FISH").Count;
+			// The resource values
+            guiOre = playerResourceLists[guiPlayerTurn].GetResourcesByType("Ore").Count;
+            guiWool = playerResourceLists[guiPlayerTurn].GetResourcesByType("Wool").Count;
+            guiWood = playerResourceLists[guiPlayerTurn].GetResourcesByType("Wood").Count;
+            guiFish = playerResourceLists[guiPlayerTurn].GetResourcesByType("Fish").Count;
+		} // end GetPlayerValues
 
-		}	//end private void GetPlayerValues()
-
-		
-		void OnGUI()
-			//-------------------------------------------------------------------
-			//	OnGUI() is needed in order to run GUI. functions. Runs once per cycle
-			//	-will run StateMachine() every cycle to make sure on correct State
-			//	-Uses some config functions for Cleaning up GUI look and special occasions
-			//--------------------------------------------------------------------
+        //TODO: Damien Replace other functionality with GameMaster functionality or something later
+        //TODO: Brent: Replace OnGUI stuff with the new In-Game UI later
+        // The old style GUI functioned using an OnGUI function; Runs each frame
+        void OnGUI()
 		{
-			if(m_initAfterStart == true)	//this is turned into true at teh end of Start()
+            // This was set to true at the end of Start()
+            if(canInitAfterStart)
 			{
-				InitAfterStart();
+				// Initialise stuff after start
+                InitAfterStart();
 
-				m_initAfterStart = false;	//DON'T change this value to true. ever! this is meant to only run once.
-			}
+                // DON'T change this value to true. ever! This is meant to only run once.
+                canInitAfterStart = false;
+			} // end if
 			else
 			{
-				//IsItEndOfGame();
+				// Otherwise, Check if it's the end of the game
+                IsItEndOfGame();
 
-				StateMachine();			//update any values that affect GUI before creating GUI
+                // Update any values that affect GUI before creating GUI
+                StateMachine();
 				
-				//Buttons will be red
+				// Buttons will be red
 				GUI.backgroundColor = Color.red;
 				
-				//This is the tool bar container
-				GUI.Box( new Rect(0,0,Screen.width,64)," ");
+				// This is the tool bar container
+				GUI.Box(new Rect(0, 0, Screen.width ,64), " ");
 				
-				//Scalable values for GUI miniContainers
+				//Scalable values for GUI mini-containers
 				int gap = 2;
-				int width = (Screen.width/4)-2;
+				int width = (Screen.width / 4) - 2;
 				int height = 28;
 				
 				//..................................
@@ -308,502 +259,524 @@ namespace GSP
 				//..................................
 				// ...WEIGHT AND RESOURCE COLUMN...
 				//..................................
-				col = col+1;
-				GUISecondColumn (col, gap , width, height);
+				col++;
+				GUISecondColumn(col, gap , width, height);
 
 				
 				//..................................
 				//      ...DICE ROLL COLUMN...
 				//..................................
-				col = col+1;
-				GUIThirdColumn (col, gap, width, height);
+				col++;
+				GUIThirdColumn(col, gap, width, height);
 
 				
 				//..................................
 				//      ...ACTION COLUMN...
 				//..................................
-				col = col + 1;
-				GUIFourthColumn (col, gap, width, height);
-			}
-			
-		}	//end OnGUI()
+				col++;
+				GUIFourthColumn(col, gap, width, height);
+			} // end else
+		} // end OnGUI
 
-		private void GUIFirstColumn (int col, int gap, int width, int height)
+        //TODO: Damien: Replace with the GameMaster functionality later
+        //TODO: Brent: Replace OnGUI stuff with the new In-Game UI later
+        // The first column for the OnGUI system
+        void GUIFirstColumn (int col, int gap, int width, int height)
 		{
-			int tmpPlayer = m_GUIPlayerTurn + 1;
+			// Temporary player based on the turn
+            int tmpPlayer = guiPlayerTurn + 1;
 
-			//player container
-			GUI.Box (new Rect ((col*width)+(col+1)*gap, 2,width, height), "Player: "+tmpPlayer.ToString());		//Whose Turn
+			// The player container tells whos turn it is
+			GUI.Box(new Rect((col * width) + (col + 1) * gap, 2, width, height), "Player: " + tmpPlayer.ToString());
 
-			//Gold Container
-			GUI.Box (new Rect ((col*width)+(col+1)*gap,32, width, height), "Gold: $"+m_GUIGoldVal.ToString());			//How Much Gold
+			// The gold Container tell how much gold they have
+			GUI.Box(new Rect((col * width) + (col + 1) * gap, 32, width, height), "Gold: $" + guiGoldVal.ToString());
 		
-		}	//end private void GUIPlayerGoldColumn(int col)
+		} // end GUIFirstColumn
 
-		private void GUISecondColumn (int col, int gap, int width, int height)
+        //TODO: Damien: Replace with the GameMaster functionality later
+        //TODO: Brent: Replace OnGUI stuff with the new In-Game UI later
+        // The second column for the OnGUI system
+        void GUISecondColumn (int col, int gap, int width, int height)
 		{
-			//weight container
-			GUI.Box(new Rect ((col*width)+(col+1)*gap,2,width, height), "Weight:"+m_GUIWeight.ToString() +"/"+ m_GUIMaxWeight.ToString() );	//weight container
+			// The weight container
+			GUI.Box(new Rect((col * width) + (col + 1) * gap, 2, width, height), "Weight:" + guiWeight.ToString() + "/" + guiMaxWeight.ToString());
 
-			//resource button
-			ResourceButtonConfig (gap, col, width, height);
+			// The resource button
+			ResourceButtonConfig(gap, col, width, height);
 
-			//Show/hides Resources
+			// Show/hide the resources UI
 			ShowResources();
-		}	//end private void GUIPlayerGoldColumn(int col)
+		} // end GUISecondColumn
 
-		private void GUIThirdColumn (int col, int gap, int width, int height)
+        //TODO: Damien: Replace with the GameMaster functionality later
+        //TODO: Brent: Replace OnGUI stuff with the new In-Game UI later
+        // The third column of the OnGUI system
+        void GUIThirdColumn (int col, int gap, int width, int height)
 		{
-			DiceBoxConfig(gap, col, width, height);	
-		}	//end private void GUIPlayerGoldColumn(int col)
+			// Confiure the dice box
+            DiceBoxConfig(gap, col, width, height);	
+		} // end GUIThirdColumn
 
-		private void GUIFourthColumn (int col, int gap, int width, int height)
+        //TODO: Damien: Replace with the GameMaster functionality later
+        //TODO: Brent: Replace OnGUI stuff with the new In-Game UI later
+        // The fourth column of the OnGUI system
+        void GUIFourthColumn (int col, int gap, int width, int height)
 		{
-			ActionButtonConfig (gap, col, width, height);
-		}	//end private void GUIPlayerGoldColumn(int col)
+			// Configure the action button
+            ActionButtonConfig (gap, col, width, height);
+		} // end GUIFourthColumn
 
-		private void ShowResources()
-			//----------------------------------------------------
-			//	Hides and shows the Resources
-			//
-			//----------------------------------------------------
+        //TODO: Damien: Replace with the GameMaster functionality later
+        //TODO: Brent: Replace OnGUI stuff with the new In-Game UI later
+        // Shows or hides the resources UI for the OnGUI system
+        void ShowResources()
 		{
-			if (m_GUIShowResources) 
+			// Show we show the resources UI?
+            if (canGUIShowResources) 
 			{
-				//Resrouces GUI Container attributes
-				const int NUMOFRSRCS = 4; //change this to meet our needs
+				// Resources GUI container attributes
+				const int numberOfResources = 4;
 				int gap = 2;
-				int width = (Screen.width/NUMOFRSRCS)-2;
+                int width = (Screen.width / numberOfResources) - 2;
 				int height = 28;
 				
 				//...............
 				//   ...Ore...
 				//..............
 				int col = 0;
-				GUI.Box(new Rect ((col*width)+(col+1)*gap,64,width, height), "Ore: "+m_GUIOre.ToString());
+                GUI.Box(new Rect((col * width) + (col + 1) * gap, 64, width, height), "Ore: " + guiOre.ToString());
 				
 				//...............
 				//  ...Wool...
 				//...............
-				col = col +1;
-				GUI.Box(new Rect ((col*width)+(col+1)*gap,64,width, height), "Wool: "+m_GUIWool.ToString());
+				col++;
+                GUI.Box(new Rect((col * width) + (col + 1) * gap, 64, width, height), "Wool: " + guiWool.ToString());
 
 				//..............
 				// ...Wood....
 				//..............
-				col = col +1;
-				GUI.Box(new Rect ((col*width)+(col+1)*gap,64,width, height), "Wood: "+m_GUIWood.ToString());
+				col++;
+                GUI.Box(new Rect((col * width) + (col + 1) * gap, 64, width, height), "Wood: " + guiWood.ToString());
 
 				//.............
 				// ...Fish...
 				//.............
-				col = col +1;
-				GUI.Box(new Rect ((col*width)+(col+1)*gap, 64,width, height), "Fish: "+m_GUIFish.ToString());
-			}	//end if(m_GUIShowResources)
+				col++;
+                GUI.Box(new Rect((col * width) + (col + 1) * gap, 64, width, height), "Fish: " + guiFish.ToString());
+			} // end if
 			
-		} //end private void ShowResources()
-		
-		
-		private void ResourceButtonConfig(int p_gap, int p_col, int p_width, int p_height)
-			//--------------------------------------------------------------------------------
-			//	-Configures Resource Button to display correctly on screen
-			//	-Toggles betweend ShowResources or Hide Resources boolean
-			//
-			//--------------------------------------------------------------------------------
-		{
-			animTimer(m_colorResourceButtonDefault);
+		} // end ShowResources
 
-			if (GUI.Button (new Rect ((p_col * p_width) + (p_col + 1) * p_gap, 32, p_width, p_height),"Resources")) 		//resrouces toggle Show/Hide Button
-			{
-				//set Default Value
-				m_colorResourceButtonDefault = true;
-
-				if ( !(m_GUIShowResources) ) 
-				{	m_GUIShowResources = true; }	//Show Resources Containers
-				else 
-				{ m_GUIShowResources = false; }		//Hide Resources' Containers
-				
-			}	//end if(GUI.Button(Resources))
-			
-		}	//end private void ResourceButtonConfig( int p_gap, int p_col, int p_width, int p_height )
-		
-		
-		private void DiceBoxConfig( int p_gap, int p_col, int p_width, int p_height )
-			//--------------------------------------------------------------------------
-			//	-Configures DiceBox container in GUI
-			//	-Special Occassion: When the Dice has not been rolled, is should display
-			//		"DICE ROLL [Press Action Button]"
-			//
-			//--------------------------------------------------------------------------
+        //TODO: Brent: Replace OnGUI stuff with the new In-Game UI later
+        // Configures the resource button for the OnGUI system
+		void ResourceButtonConfig(int p_gap, int p_col, int p_width, int p_height)
 		{
-			//if in first state, tell the user to push the Action Button to begin rolling the Die
-			if (m_gamePlayState == GamePlayState.ROLLDICE) 
+			// Animate according to whether the color is default or not
+            AnimTimer(isColorResourceButtonDefault);
+
+            // Create the resource button's functionality for toggling the resource UI
+			if (GUI.Button (new Rect ((p_col * p_width) + (p_col + 1) * p_gap, 32, p_width, p_height),"Resources"))
 			{
-				GUI.Box (new Rect ((p_col * p_width) + (p_col + 1) * p_gap, 2, 
-				                   p_width, 2 * p_height), "DICE ROLL\n[Press Action\nButton]");
-			} 
+				// Set the default value
+				isColorResourceButtonDefault = true;
+
+				// Toggle between showing and hiding the resource UI
+                if (!canGUIShowResources)
+                {
+                    canGUIShowResources = true;
+                } // end if canGUIShowResources
+				else
+                {
+                    canGUIShowResources = false;
+                } // end else
+			} // end if
+		} // end ResourceButtonConfig
+
+
+        //TODO: Brent: Replace OnGUI stuff with the new In-Game UI later
+        // Configures the dice box for the OnGUI system
+        // When the Dice has not been rolled, is should display "DICE ROLL [Press Action Button]"
+        private void DiceBoxConfig(int p_gap, int p_col, int p_width, int p_height)
+		{
+			// If in the RollDice state, tell the player to push the action button to begin rolling the Dice
+			if (gamePlayState == GamePlayState.RollDice) 
+			{
+                GUI.Box(new Rect((p_col * p_width) + (p_col + 1) * p_gap, 2, p_width, 2 * p_height), "Dice Roll\n[Press Action\nButton]");
+			} // end if 
 			else
-				//else display the Rolled Value
 			{
-				GUI.Box (new Rect ((p_col * p_width) + (p_col + 1) * p_gap, 2,
-				                   p_width, 2 * p_height), "Travel Dist.\n\n"+m_GUIDiceDistVal);
-			}
-			
-		}	//end private void DiceBoxConfig( int gap, in col, int width, int height )
-		
-		
-		private void ActionButtonConfig( int gap, int col, int width, int height )
-			//-----------------------------------------------------------------------------
-			//	Action button has a few different settings to consider,
-			//		-Makes sure Action button gets pressed only once per state
-			//		 
-			//------------------------------------------------------------------------------
-		{
-			animTimer(m_colorActionButtonDefault);
+                // Otherwise, display the rolled Value
+                GUI.Box(new Rect((p_col * p_width) + (p_col + 1) * p_gap, 2, p_width, 2 * p_height), "Travel Dist.\n\n" + guiDiceDistVal);
+			} // end else
+		} // end DiceBoxConfig
 
-			//Makes sure Action Button gets pressed only once per State
-			if (!(m_GUIActionPressed)) 
+        //TODO: Brent: Replace OnGUI stuff with the new In-Game UI later
+        // Configures the action button for the OnGUI system
+        private void ActionButtonConfig( int gap, int col, int width, int height )
+		{
+            // Animate according to whether the color is default or not
+            AnimTimer(isColorActionButtonDefault);
+
+			// Ensures the action button only gets pressed once per RollDie state
+			if (!isGUIActionPressed) 
 			{
-				if (GUI.Button (new Rect ((col * width) + (col + 1) * gap, 2, width, 2 * height), m_GUIActionString)) 
+                if (GUI.Button(new Rect((col * width) + (col + 1) * gap, 2, width, 2 * height), guiActionString))
 				{
-					m_GUIActionPressed = true;
-				}
+					// The action button has been pressed
+                    isGUIActionPressed = true;
+				} // end if OnGUI-button-press
 			} 
 			else 
 			{
-				GUI.Box (new Rect ((col * width) + (col + 1) * gap, 2, width, 2 * height), m_GUIActionString);
-			}
-	
-		} //end private void ActionButtonConfig(int gap, int col, int width, int height)
+                // Create a box instead of a button, this makes it unclickable
+                GUI.Box(new Rect((col * width) + (col + 1) * gap, 2, width, 2 * height), guiActionString);
+			} // end else
+		} // end ActionButtonConfig
 
-
-		private void IsItEndOfGame()
+		//TODO: I think this is obsolete, don't need a key to end the game anymore
+        // Checks if the end of the game
+        void IsItEndOfGame()
 		{
-			if( Input.GetKeyDown(KeyCode.Q) )
+			// Check if the q key has been pressed
+            if (Input.GetKeyDown(KeyCode.Q))
 			{
-				// Trigger the end of the game.
+				// Trigger the end of the game
 				EndGame();
-			}
-		}	//end IsItEndOfGame()
+			} // end if
+		} // end IsItEndOfGame
 
-		public void EndGame()
+		// Changes the state to EndGame which ends the game.
+        public void EndGame()
 		{
-			m_gamePlayState = GamePlayState.ENDGAME;
-		}
+			gamePlayState = GamePlayState.EndGame;
+		} // end EndGame
 
-		private void StateMachine()
-			//---------------------------------------------------------------------
-			// +StateMachine in charge of displaying GUI that describes
-			//	 what stage the gamePlay is in
-			// +Uses a switch() statement for handling states
-			//
-			//---------------------------------------------------------------------
+        //TODO: Damien: Replace with the GameMaster functionality later
+        //TODO: Brent: Replace OnGUI stuff with the new In-Game UI later
+        // Controls the flow of the game through various states
+        void StateMachine()
 		{
-			var state = GameObject.FindGameObjectWithTag("GUITextTag").GetComponent<GUIText>();
-			switch (m_gamePlayState) 
+			// Get the GameObject with the GUITextTag tag to display the state
+            var state = GameObject.FindGameObjectWithTag("GUITextTag").GetComponent<GUIText>();
+
+            // Switch over the GamePlayState's
+			switch (gamePlayState) 
 			{
+                // The player begins their turn.
+                case GamePlayState.BeginTurn:
+                    {
+                        //Get the player's values and update them
+                        GetPlayerValues();
+                        guiBottomBarScript.RefreshBottomBarGUI(players[guiPlayerTurn]);
 
-			case GamePlayState.BEGINTURN:
-				//Get All the Players values
-				GetPlayerValues();
-				m_GUIBottomBarScript.RefreshBottomBarGUI(m_playerList[m_GUIPlayerTurn]);
+                        // Switch the state to the RollDie state
+                        gamePlayState = GamePlayState.RollDice;
+                        break;
+                    } // end Case BeginTurn
+                
+                // The player rolls the dice
+                case GamePlayState.RollDice:
+                    {
+                        // The players list is zero-index based but the GUI needs to start Display with player "1"
+                        int tmpPlayerTurn = guiPlayerTurn + 1;
 
-				//tell the player to roll the dice
-				m_gamePlayState = GamePlayState.ROLLDICE;
-				break;
+                        // Set the state text
+                        state.text = "Player " + tmpPlayerTurn.ToString() + " roll dice";
 
-			case GamePlayState.ROLLDICE:
-				//list start at 0 but I need GUI to start Display with player "1"
-				int tmpPlayerTurn = m_GUIPlayerTurn +1;
+                        // Set the action button's text to roll dice
+                        guiActionString = "Action\nRoll Dice";
 
-				state.text = "Player " +tmpPlayerTurn.ToString() +" roll dice";
+                        // Highlight the action button
+                        isColorActionButtonDefault = false;
 
-				//create a roll dice button
-				m_GUIActionString = "Action\nRoll Dice";
+                        // Check if the button is clicked, destroy button
+                        if (isGUIActionPressed)
+                        {
+                            // Stop the animation
+                            isColorActionButtonDefault = true;
 
-				//highlight button
-				m_colorActionButtonDefault = false;
+                            // Roll the die
+                            guiDiceDistVal = dieScript.Dice.Roll();
 
-				//if button is clicked, destroy button
-				if( m_GUIActionPressed )
-				{
-					//stop animation
-					m_colorActionButtonDefault = true;
+                            //TODO: Brent: Replace with AudioManager later
+                            //Play die roll sound
+                            //audioSrc.GetComponent<AudioSource>().PlayOneShot(GSP.AudioReference.sfxDice);
 
-					m_GUIDiceDistVal = m_DieScript.Dice.Roll(1,8);
+                            // Change to the CalcDistance State
+                            gamePlayState = GamePlayState.CalcDistance;
+                        } // end if
+                        break;
+                    } // end Case RollDice
+                
+                // Calculate the allowed disance to travel
+                case GamePlayState.CalcDistance:
+                    {
+                        // Set the state text
+                        state.text = "Calculate Distance";
 
-					//Play die roll sound
-					audioSrc.GetComponent<AudioSource>().PlayOneShot( GSP.AudioReference.sfxDice ); //Play die roll sound
+                        // Get the dice's value and calculate the allowed movement
+                        guiDiceDistVal = guiDiceDistVal * (guiMaxWeight - guiWeight) / guiMaxWeight;
 
-					//nextState()
-					m_gamePlayState = GamePlayState.CALCDISTANCE;
-				}					
-				break;
-//
-			case GamePlayState.CALCDISTANCE:
-				state.text = "Calculate Distance";
+                        // Make the action button clickable again
+                        isGUIActionPressed = false;
 
-				//get dice value /calculate m_allowedTravelDistance
-				m_GUIDiceDistVal = m_GUIDiceDistVal*(m_GUIMaxWeight-m_GUIWeight)/m_GUIMaxWeight;
+                        // Change the state to the DisplayDistance state
+                        gamePlayState = GamePlayState.DisplayDistance;
+                        break;
+                    } // end Case CalcDistance
+                
+                // Display the distance allowed to travel
+                case GamePlayState.DisplayDistance:
+                    {
+                        // Set the state text
+                        state.text = "DisplayDistance";
 
-				//nextState()
-				m_GUIActionPressed = false;
-				m_gamePlayState = GamePlayState.DISPLAYDISTANCE;
-				break;
+                        // Change the state to the SelectPathToTake state
+                        gamePlayState = GamePlayState.SelectPathToTake;
 
-			case GamePlayState.DISPLAYDISTANCE:
-				state.text = "DisplayDistance";
+                        // Display the movement arrows
+                        guiMovementScript.InitThis(players[guiPlayerTurn], guiDiceDistVal);
+                        break;
+                    } // end Case DisplayDistance
+                
+                // The player selects their path to take on the map
+                case GamePlayState.SelectPathToTake:
+                    {
+                        // Set the state text
+                        state.text = "Select Path To Take\nPress Action butotn to End Turn\nor X to start over.";
+                        // Set the action button's text to end turn
+                        guiActionString = "End Turn";
 
-				//TODO: Add function to display tiles
+                        // Update the value of allowed travel distance upon the player pressing a move button
+                        guiDiceDistVal = guiMovementScript.RemainingTravelDistance;
 
-				//nextState()
-				m_gamePlayState = GamePlayState.SELECTPATHTOTAKE;
-				//display arrows
-				m_GUIMovementScript.InitThis( m_playerList[ m_GUIPlayerTurn ], m_GUIDiceDistVal );
-				break;
+                        // Check if the action button has been pressed
+                        if (isGUIActionPressed)
+                        {
+                            // Change the state to the DoAction state
+                            gamePlayState = GamePlayState.DoAction;
 
-			case GamePlayState.SELECTPATHTOTAKE:
-				state.text = "Select Path To Take\nPress Action butotn to End Turn\nor X to start over.";
-				m_GUIActionString = "End Turn";
+                            // Determine the MapEvent event
+                            mapEventString = mapEventScript.DetermineEvent(players[guiPlayerTurn]);
+                            mapEventResultString = mapEventScript.GetResultString();
+                            // Initialise the OnGUI UI for the MapEvent event
+                            guiMapEventsScript.InitThis(players[guiPlayerTurn], mapEventString, mapEventResultString);
+                        } // end if
+                        break;
+                    } // end Case SelectPathToTake
+                
+                // Deal with a MapEvent action
+                case GamePlayState.DoAction:
+                    {
+                        // Set the state text
+                        state.text = "";
 
-				//update new value of DiceDist if player pressed a move button
-				m_GUIDiceDistVal = m_GUIMovementScript.GetTravelDistanceLeft();
+                        // Get the player's values
+                        GetPlayerValues();
 
-				//if ( Input.GetKeyDown( KeyCode.Alpha1 ) )
-				if ( m_GUIActionPressed )
-				{
-					//find out what mapEvent Occured
+                        // Check if a MapEvent's action is running
+                        if (!guiMapEventsScript.IsActionRunning())
+                        {
+                            // The MapEvent's action isn't running so reset the values.
+                            mapEventString = "Nothing";
+                            mapEventResultString = string.Empty;
 
-					m_gamePlayState = GamePlayState.DOACTION;
+                            // Change the state to the EndTurn state
+                            gamePlayState = GamePlayState.EndTurn;
+                            // Make the action button clickable again
+                            isGUIActionPressed = false;
+                        }
+                        break;
+                    } // end Case DoAction
+                
+                // The player has ended their turn
+                case GamePlayState.EndTurn:
+                    {
+                        // Set the state text
+                        state.text = "End Turn";
 
-					//TODO: REMOVE below line if test works.
-					//m_NEWGUIMapEventScript.InitThis( m_playerList[m_GUIPlayerTurn] );
+                        // Clear the board of any highlight tiles.
+                        Highlight.ClearHighlight();
 
-					//update gui by getting new values
-					//GetPlayerValues();
+                        // Its now thw next players turn
+                        guiPlayerTurn++;
 
-					//TODO: after testing, delete command above and use this one below
-					m_MapEventString = m_MapEventScript.DetermineEvent( m_playerList[m_GUIPlayerTurn] );
-					m_MapEventResultString = m_MapEventScript.GetResultString();
-					m_GUIMapEventsScript.InitThis( m_playerList[m_GUIPlayerTurn], m_MapEventString, m_MapEventResultString );
-					//m_GUIMapEventsScript.InitThis( m_playerList[m_GUIPlayerTurn], "ENEMY", null );
-				}
+                        // Loop back to player 1 if we reached the end of the players turns
+                        if (guiPlayerTurn >= guiNumOfPlayers)
+                        {
+                            // The player's list is zero-index based so setting to zero is player 1.
+                            guiPlayerTurn = 0;
+                        }
 
-				break;
+                        // Change the state to the BeginTurn state
+                        gamePlayState = GamePlayState.BeginTurn;
+                        break;
+                    } // end Case EndTurn
+                
+                // Its the end of the game
+                case GamePlayState.EndGame:
+                    {
+                        // Set the state text
+                        state.text = "Universe Ending";
 
-			case GamePlayState.DOACTION:
-				//state.text = "Do Action/MapEvent";
-				state.text = "";
+                        // Check whether to run the end stuff
+                        if (canRunEndStuff)
+                        {
+                            // Only run this once
+                            canRunEndStuff = false;
 
-				GetPlayerValues();
+                            // Get the number of players
+                            int numPlayers = GetNumOfPlayers();
 
-				//map events
-				if( m_GUIMapEventsScript.isActionRunning() == false )
-				//TODO: remove bottome line if above line works
-				//if( m_NEWGUIMapEventScript.GetIsActionRunning() == false )
-				{
+                            // Loop through and sell the character's resources and their ally's resources
+                            for (int playerSellIndex = 0; playerSellIndex < numPlayers; playerSellIndex++)
+                            {
+                                // We need to access the character script at the given index and sell the resources
+                                playerScripts[playerSellIndex].SellResource();
+                            } // end for
 
-					//TODO: After Testing, uncomment the following
-					m_MapEventString = "NOTHING";
-					m_MapEventResultString = null;
+                            // Get the EndSceneData object's script
+                            EndSceneData endSceneScript = endSceneCharData.GetComponent<EndSceneData>();
 
-					//NextState()
-					m_gamePlayState = GamePlayState.ENDTURN;
-					m_GUIActionPressed = false;
-				}
+                            // Loop over the number of players and add the player stuff
+                            for (int endSceneIndex = 0; endSceneIndex < numPlayers; endSceneIndex++)
+                            {
+                                // Add the current player to the EndScenedata object
+                                // Note: Be sure to add 1 to index to get the player number correct. This is because the players list is zero-index based
+                                int playerNum = endSceneIndex + 1;
 
-				break;
+                                // Check if the key doesn't exist. Only proceed if it doesn't.
+                                if (!endSceneScript.KeyExists(playerNum))
+                                {
+                                    endSceneScript.AddData(playerNum, players[endSceneIndex]);
+                                } // end if
+                            } // end for
 
-			case GamePlayState.ENDTURN:
-				state.text = "End Turn";
-				
-				// Clear the board of any highlight tiles.
-				Highlight.ClearHightlight();
-				
-				//next players turn
-				m_GUIPlayerTurn = m_GUIPlayerTurn +1;
+                            // Finally, load the end scene
+                            Application.LoadLevel("EndScene");
+                        }
+                        break;
+                    } // end Case EndGame
+                
+                // Shouldn't reach here, this is reached if the state isn't listed above
+                default:
+                    {
+                        Debug.LogWarning("Hit the default case in GamePlayStateMachine!");
+                        break;
+                    } // end Case default
+            } // end switch gamePlayState
+		} // end StateMachine
+		
+		// Gets the current state
+        public int GetState()
+		{
+            return (int)gamePlayState;
+		} // end GetState
+		
+		// Changes the current state to the next state
+        public void NextState()
+		{
+			gamePlayState++;
+		} // end NextState
 
-				//if exceeds the number of player playing, start back at player 1
-				if( m_GUIPlayerTurn >= m_GUINumOfPlayers )
-				{
-					m_GUIPlayerTurn = 0;
-				}
+		// Does an action; used for dealing with MapEvent actions
+        public void DoAction(string mapEventType, string typeOfResource)
+		{
+			// Change to the DoAction state
+			gamePlayState = GamePlayState.DoAction;
 
-				//new player gets new turn
-				m_gamePlayState = GamePlayState.BEGINTURN;
+			// Set MapEvent types
+			mapEventString = mapEventType;
+			mapEventResultString = typeOfResource;
+		} // end DoAction
 
-				break;
-
-			case GamePlayState.ENDGAME:
-				state.text = "Universe Ending";
-
-				if (m_runEndStuff)
-				{
-					#region Selling Character resource stuff
-					
-					// Set it to not run this again.
-					m_runEndStuff = false;
-
-					// Get the number of players.
-					int numPlayers = m_playerList.Count;
-					
-					// Loop through and sell the character's resources and their ally's resources.
-					for ( int playerSellIndex = 0; playerSellIndex < numPlayers; playerSellIndex++ )
-					{
-						// We need to access the character script at the given index and sell the resources.
-						m_playerScriptList[playerSellIndex].SellResource();
-					} // end for loop
-					
-					#endregion
-					
-					#region End Scene Quit Adding Stuff
-					
-					// Get the end scene data object's script.
-					EndSceneData endSceneScript = m_endSceneCharData.GetComponent<EndSceneData>();
-					
-					// Add the player stuff.
-					for (int endSceneIndex = 0; endSceneIndex < numPlayers; endSceneIndex++)
-					{
-						// Add the current player to the end scene data object.
-						// Note: Be sure to add 1 to index to get the player number correct.
-						int playerNum = endSceneIndex + 1;
-						
-						// Check if the key doesn't exist. Only proceed if it doesn't.
-						if ( !endSceneScript.KeyExists( playerNum ) )
-						{
-							// NOTE: Uncomment the below line for testing. Recomment it for the real game.
-							//m_playerScriptList[endSceneIndex].Currency += m_DieScript.Dice.Roll(1, 100);
-							endSceneScript.AddData( playerNum, m_playerList[endSceneIndex] );
-						} // end if statement
-					} // end for loop
-					
-					#endregion
-					
-					// Next load the end scene
-					Application.LoadLevel( "EndScene" );
-				}
-				break;
-				
-			default:
-				//stage transition
-				break;
-				
-			} //end switch (m_gamePlayState)
+		// Change to the EndTurn state
+        public void EndTurn()
+		{
+			gamePlayState = GamePlayState.EndTurn;
 			
-		} //end private void StateMachine()
+		} // end EndTurn
 
-		
-		public int GetState()
-			//---------------------------------------------------------
-			//	-If another class wants to get the Current State, 
-			//		this function will return int form of Enum States
-			//
-			//----------------------------------------------------------
-		{
-			int state;
-			state = (int)m_gamePlayState;
-			return state;
-		}
-		
-		public void NextState()
-			//---------------------------------------------------------
-			// changes to the next state
-			//		-MIGHT NOT BE NEEDED IF GUI CONTROLS
-			//			WHICH STATES COME NEXT
-			//----------------------------------------------------------
-		{
-			m_gamePlayState = m_gamePlayState +1;
-		} //end public void NextStage()
 
-		public void DoAction( string p_MapEventType, string p_TypeOfResource )
-			//--------------------------------------------------------
-			//	can be called from other objects to start an action
-			//
-			//--------------------------------------------------------
+        //TODO: Damien: Replace with the GameMaster functionality later; probably obsolete
+        //TODO: Brent: Replace OnGUI stuff with the new In-Game UI later; probably obsolete
+        // Resets values at the end of a turn right before a new player's turn
+        void ResetValues()
 		{
-			//set state machine to DOACTION
-			m_gamePlayState = GamePlayState.DOACTION;
+			guiActionString = "Action\nButton";
+            isGUIActionPressed = false;
+            guiGoldVal = 0;
+            guiWeight = 0;
+            guiMaxWeight = 100;
+            canGUIShowResources = false;
+            guiOre = 0;
+            guiWool = 0;
+            guiDiceDistVal = 0;
+		} // end ResetValues
 
-			//set map event typs and call the init
-			m_MapEventString = p_MapEventType;
-			m_MapEventResultString = p_TypeOfResource;
-		} // void 
-
-		public void EndTurn()
-			//---------------------------------------------------------
-			// automatically changes to endTurn state
-			// and resets values
-			//---------------------------------------------------------
+        //TODO: Damien: Replace with the GameMaster functionality later; probably obsolete
+        //TODO: Brent: Replace OnGUI stuff with the new In-Game UI later; probably obsolete
+        // Gets the current player from the players list
+        public GameObject GetCurrentPlayer()
 		{
-			m_gamePlayState = GamePlayState.ENDTURN;
-			
-		} //end public void ENDTURN()
-		
-		private void ResetValues()
-			//---------------------------------------------------------
-			// Resets Values at the end of a Turn right before a New 
-			// 	New Players Turn
-			//
-			//---------------------------------------------------------
-		{
-			m_GUIActionString = "Action\nButton";
-			m_GUIActionPressed = false;
-			m_GUIGoldVal = 0;
-			m_GUIWeight = 0;
-			m_GUIMaxWeight = 100;
-			m_GUIShowResources = false;
-			m_GUIOre = 0;
-			m_GUIWool = 0;
-			m_GUIDiceDistVal = 0;
+			return	players[guiPlayerTurn];
+		} // end GetCurrentPlayer
 
-		}	//end private void ResetValues();
-
-		public GameObject GetCurrentPlayer()
+        //TODO: Damien: Replace with the GameMaster functionality later; probably obsolete
+        // Gets the number of players
+        public int GetNumOfPlayers()
 		{
-			return	m_playerList[m_GUIPlayerTurn];
-		} //end public GameObject Get
-
-		public int GetNumOfPlayers()
-		{
-			return m_GUINumOfPlayers;
-		}	//end public int GetNumOfPlayers()
+			return guiNumOfPlayers;
+		} // end GetNumOfPlayers
 	
-		public void AnimateActionButton(bool p_isPlayRed)
+		//TODO: probably obsolete
+        // Animates the action button for the OnGUI system
+        public void AnimateActionButton(bool isPlayRed)
 		{
-			m_colorActionButtonDefault = p_isPlayRed;
-		}	//end public bool AnimateActionButton(bool p_isPlayRed)
+			isColorActionButtonDefault = isPlayRed;
+		} // end AnimateActionButton
 
-		public void AnimateResourceButton( bool p_isPlayRed )
+        //TODO: probably obsolete
+        // Animates the resource button for the OnGUI system
+        public void AnimateResourceButton(bool isPlayRed)
 		{
-			m_colorResourceButtonDefault = p_isPlayRed;
-		}	//end public bool AnimateResourceButton( bool p_isPlayRed)
+			isColorResourceButtonDefault = isPlayRed;
+		} // end AnimateResourceButton
 
-		private void animTimer(bool p_isAnimating)
+		// TODO: probably obsolete
+        // Times the animation between switching background colours for the OnGUI system
+        void AnimTimer(bool isAnimating)
 		{
-			m_animTimer = m_animTimer +Time.deltaTime;
-			if(m_animTimer > 2.0)
+			// Accumulate the delta time
+            animTimer += Time.deltaTime;
+
+            // Reset every two seconds
+			if(animTimer > 2.0f)
 			{
-				m_animTimer = 0.0;
-			}
+                animTimer = 0.0f;
+			} // end if
 
-			if( (p_isAnimating == true) || (m_animTimer < 1.0f) )
+			// Proceed if we are animating or the time is less than a second
+            if((isAnimating == true) || (animTimer < 1.0f))
 			{
-				GUI.backgroundColor = Color.red;
-			}
+				// Colour the GUI background red.
+                GUI.backgroundColor = Color.red;
+			} // end if
 			else
 			{
-				GUI.backgroundColor = Color.yellow;
-			}	
-		}	//end private void animTimer()
+				// Otherwise, colour the GUI background yellow
+                GUI.backgroundColor = Color.yellow;
+			} // end else
+		} // end AnimTimer
 
-
-		public void StopAnimation()
+        // TODO: probably obsolete
+        // Stops the animation for the OnGUI system
+        public void StopAnimation()
 		{
-			m_colorResourceButtonDefault = true;
-			m_colorActionButtonDefault = true;
-		}	//end public void StopAnimation()
-	
-
-	}	//end public class GameplayStateMachine : MonoBehaviour
-	
-}	//end namespace GSP
+			// Set both colour booleans to true to stop the animation
+            isColorResourceButtonDefault = true;
+			isColorActionButtonDefault = true;
+		} // end StopAnimation
+	} // end GameplayStateMachine
+} // end GSP

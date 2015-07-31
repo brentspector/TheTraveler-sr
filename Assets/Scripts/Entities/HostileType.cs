@@ -1,11 +1,17 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿/*******************************************************************************
+ *
+ *  File Name: HostileType.cs
+ *
+ *  Description: The enumeration for all the types of enemies in the game
+ *
+ *******************************************************************************/
 
 namespace GSP.Entities
 {
+    // The enumeration of the hostile types a.k.a enemies
     public enum HostileType
     {
-        HT_BANDIT,
-        HT_MIMIC
-    }
-}
+        Bandit,
+        Mimic
+    } // end HostileType
+} // end GSP.Entities

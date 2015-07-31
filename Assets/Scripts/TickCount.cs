@@ -1,187 +1,136 @@
-﻿using System;
-using System.Linq;
+﻿/*******************************************************************************
+ *
+ *  File Name: TickCount.cs
+ *
+ *  Description: Replacement for Environment.TickCount
+ *
+ *******************************************************************************/
+using System;
 
 namespace GSP
 {
-	/// <summary>
-	/// Represents how long the application has been running in milliseconds.
-	/// </summary>
-	public struct TickCount : IEquatable<TickCount>
+    /*******************************************************************************
+     *
+     * Name: TickCount
+     * 
+     * Description: Represents how long the application has been running in
+     *              milliseconds.
+     *              
+     * Note: This was pulled elsewhere so comments is limited.
+     * 
+     *******************************************************************************/
+    public struct TickCount : IEquatable<TickCount>
 	{
-		/// <summary>
-		/// Stores the time that the application started. Or, more precisely, the time that this class was first called.
-		/// </summary>
-		static readonly int _startupTime = Environment.TickCount;
+        // Stores the time that the application started. Or, more precisely, the time that this struct was first called.
+        static readonly int _startupTime = Environment.TickCount;
 		readonly uint _value;
 
-		/// <summary>
-		/// Initializes a new instance of the <see cref="TickCount"/> struct.
-		/// </summary>
-		/// <param name="value">The value.</param>
-		public TickCount( uint value )
+        // Initializes a new instance of the TickCount struct.
+		public TickCount(uint value)
 		{
 			_value = value;
-		} // end TickCount constructor
+		} // end TickCount
 
-		/// <summary>
-		/// Gets the largest possible value for a <see cref="TickCount"/>.
-		/// </summary>
-		public static TickCount MaxValue
+        // Gets the largest possible value for a TickCount.
+        public static TickCount MaxValue
 		{
-			get { return new TickCount ( uint.MaxValue ); }
-		} // end MaxValue property
+            get { return new TickCount(uint.MaxValue); }
+		} // end MaxValue
 
-		/// <summary>
-		/// Gets the smallest possible value for a <see cref="TickCount"/>.
-		/// </summary>
+        // Gets the smallest possible value for a TickCount.
 		public static TickCount MinValue
 		{
-			get { return new TickCount( uint.MinValue ); }
-		} // end MinValue property
+            get { return new TickCount(uint.MinValue); }
+		} // end MinValue
 
-		/// <summary>
-		/// Gets the amount of time that has elapsed in milliseconds since this application has started. This value will initially
-		/// start at 0 when the application starts up. After approximately 49.71 days of application up-time, the tick count
-		/// will roll back over back to 0. This is intended to be used as a replacement to <see cref="Environment.TickCount"/> since it
-		/// guarantees rolling over only after approximately 49.71 days of application up-time, whereas <see cref="Environment.TickCount"/>
-		/// roll-over depends on how long the system has been running and can roll over at any time relative to when the application started.
-		/// </summary>
+		// Gets the amount of time that has elapsed in milliseconds since this application has started. This value will initially
+		// start at 0 when the application starts up. After approximately 49.71 days of application up-time, the tick count will roll
+        // back over back to 0. This is intended to be used as a replacement to Environment.TickCount since it guarantees rolling over
+        // only after approximately 49.71 days of application up-time, whereas Environment.TickCount roll-over depends on how long the
+        // system has been running and can roll over at any time relative to when the application started
 		public static TickCount Now
 		{
 			get
 			{
 				// Instead of using TickCount.Now directly, we find the difference in the tick count compared to when the application
 				// started, which allows us to start at 0.
-				return (uint)( Environment.TickCount - _startupTime );
+                return (uint)(Environment.TickCount - _startupTime);
 			}
-		} // end Now property
+		} // end Now
 
-		/// <summary>
-		/// Performs an implicit conversion from <see cref="TickCount"/> to <see cref="System.UInt32"/>.
-		/// </summary>
-		/// <param name="time">The time.</param>
-		/// <returns>The result of the conversion.</returns>
-		public static implicit operator uint( TickCount time )
+        #region IEquatable Members
+
+		/// Performs an implicit conversion from TickCount to Uint32.
+		public static implicit operator uint(TickCount time)
 		{
 			return time._value;
-		} // end uint implicit conversion operator
+		} // end uint
 
-		/// <summary>
-		/// Performs an implicit conversion from <see cref="TickCount"/> to <see cref="System.Int64"/>.
-		/// </summary>
-		/// <param name="time">The time.</param>
-		/// <returns>The result of the conversion.</returns>
-		public static implicit operator long( TickCount time )
+		/// Performs an implicit conversion from TickCount to int64.
+		public static implicit operator long(TickCount time)
 		{
 			return time._value;
-		} // end long implicit conversion operator
+		} // end long
 
-		/// <summary>
-		/// Performs an implicit conversion from <see cref="TickCount"/> to <see cref="System.Single"/>.
-		/// </summary>
-		/// <param name="time">The time.</param>
-		/// <returns>The result of the conversion.</returns>
-		public static implicit operator float( TickCount time )
+		/// Performs an implicit conversion from TickCount to float.
+		public static implicit operator float(TickCount time)
 		{
 			return time._value;
-		} // end float implicit conversion operator
+		} // end float
 
-		/// <summary>
-		/// Performs an implicit conversion from <see cref="System.UInt32"/> to <see cref="TickCount"/>.
-		/// </summary>
-		/// <param name="value">The value.</param>
-		/// <returns>The result of the conversion.</returns>
-		public static implicit operator TickCount( uint value )
+		/// Performs an implicit conversion from Uint32 to TickCount.
+		public static implicit operator TickCount(uint value)
 		{
-			return new TickCount ( value );
-		} // end TickCount implicit conversion operator
+            return new TickCount(value);
+		} // end TickCount
 
-		/// <summary>
-		/// Performs an implicit conversion from <see cref="TickCount"/> to <see cref="System.Int32"/>.
-		/// </summary>
-		/// <param name="time">The time.</param>
-		/// <returns>The result of the conversion.</returns>
-		public static explicit operator int( TickCount time )
+		/// Performs an implicit conversion from TickCount to int32.
+		public static explicit operator int(TickCount time)
 		{
 			return (int)time._value;
-		} // end int explicit conversion operator
+		} // end int
 
-		/// <summary>
-		/// Performs an explicit conversion from <see cref="System.Int32"/> to <see cref="TickCount"/>.
-		/// </summary>
-		/// <param name="value">The value.</param>
-		/// <returns>The result of the conversion.</returns>
-		public static explicit operator TickCount( int value )
+		/// Performs an explicit conversion from int32 to TickCount.
+		public static explicit operator TickCount(int value)
 		{
-			return new TickCount( (uint)value );
-		} // end TickCount explicit conversion operator
+            return new TickCount((uint)value);
+		} // end TickCount
 
-		/// <summary>
-		/// Performs an explicit conversion from <see cref="System.Int64"/> to <see cref="TickCount"/>.
-		/// </summary>
-		/// <param name="value">The value.</param>
-		/// <returns>The result of the conversion.</returns>
-		public static explicit operator TickCount( long value )
+		// Performs an explicit conversion from int64 to TickCount.
+		public static explicit operator TickCount(long value)
 		{
-			return new TickCount( (uint)value );
-		} // end TickCount explicit conversion operator
+            return new TickCount((uint)value);
+		} // end TickCount
 
-		/// <summary>
-		/// Indicates whether the current object is equal to another object of the same type.
-		/// </summary>
-		/// <param name="other">An object to compare with this object.</param>
-		/// <returns>
-		/// true if the current object is equal to the <paramref name="other"/> parameter; otherwise, false.
-		/// </returns>
-		public bool Equals( TickCount other )
+		// Indicates whether the current object is equal to another object of the same type.
+		public bool Equals(TickCount other)
 		{
 			return other._value == _value;
-		} // end Equals function
+		} // end Equals
 
-		/// <summary>
-		/// Indicates whether this instance and a specified object are equal.
-		/// </summary>
-		/// <param name="obj">Another object to compare to.</param>
-		/// <returns>
-		/// true if <paramref name="obj"/> and this instance are the same type and represent the same value; otherwise, false.
-		/// </returns>
-		public override bool Equals( object obj )
+		// Indicates whether this instance and a specified object are equal.
+		public override bool Equals(object obj)
 		{
-			return obj is TickCount && this == (TickCount)obj;
-		} // end Equals function
+            return obj is TickCount && this == (TickCount)obj;
+		} // end Equals
 
-		/// <summary>
-		/// Returns the hash code for this instance.
-		/// </summary>
-		/// <returns>
-		/// A 32-bit signed integer that is the hash code for this instance.
-		/// </returns>
-		/// <filterpriority>2</filterpriority>
+        /// Returns a 32-bit signed integer that is the hash code for this instance
 		public override int GetHashCode()
 		{
 			return _value.GetHashCode();
-		} // end GetHashCode function
+		} // end GetHashCode
 
-		/// <summary>
-		/// Implements the operator ==.
-		/// </summary>
-		/// <param name="left">The left argument.</param>
-		/// <param name="right">The right argument.</param>
-		/// <returns>The result of the operator.</returns>
-		public static bool operator ==( TickCount left, TickCount right )
+		// Implements the operator ==
+		public static bool operator ==(TickCount left, TickCount right)
 		{
-			return left.Equals( right );
-		} // end equality operator
+            return left.Equals(right);
+		} // end ==
 
-		/// <summary>
-		/// Implements the operator !=.
-		/// </summary>
-		/// <param name="left">The left argument.</param>
-		/// <param name="right">The right argument.</param>
-		/// <returns>The result of the operator.</returns>
-		public static bool operator !=( TickCount left, TickCount right )
+		// Implements the operator !=
+		public static bool operator !=(TickCount left, TickCount right)
 		{
-			return !left.Equals( right );
-		} // end inequality operator
-	} // end TickCount struct
-} // end namespace
+            return !left.Equals(right);
+		} // end !=
+        #endregion
+    } // end TickCount
+} // end GSP

@@ -1,151 +1,166 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿/*******************************************************************************
+ *
+ *  File Name: GUIItem.cs
+ *
+ *  Description: Old GUI for the Item MapEvent event
+ *
+ *******************************************************************************/
+using UnityEngine;
 
 namespace GSP.JAVIERGUI
 {
+    //TODO: Damien: Replace with the GameMaster functionality later.
+    //TODO: Brent: Replace this with the new In-Game UI later; probably not in the same namespace
+    /*******************************************************************************
+     *
+     * Name: GUIItem
+     * 
+     * Description: Creates the GUI for the Item MapEvent.
+     * 
+     *******************************************************************************/
+    public class GUIItem : MonoBehaviour
+    {
 
-	public class GUIItem : MonoBehaviour {
+        GameObject playerEntity; 			// Will initialize to the actual player in InitThis
+        GUIMapEvents guiMapEventsScript;    // The GUIMapEvents script reference
+        MapEvent mapEventScript;            // The MapEvent script reference
+        GUIBottomBar guiBottomBarScript;    // The GUIBottomBar script reference
 
-		GameObject m_PlayerEntity; 						//will initialize to the actual player in InitThis.
-		GSP.GUIMapEvents m_GUIMapEventsScript;
-		GSP.MapEvent m_MapEventScript;
-		GSP.JAVIERGUI.GUIBottomBar m_GUIBottomBarScript;
+        string headerString;    // The text in the OnGUI UI; the selection question text
 
-		string m_headerString;
-		string m_itemString;
-		string m_resourceString;
-		
-		int m_mainStartX = -1;
-		int m_mainStartY = -1;
-		int m_mainWidth = -1;
-		int m_mainHeight = -1;
-		
-		bool m_selectionMadeAddRemove = false;	//for internal use, determines if player w to add Ally or not
-		bool m_isActionRunning = false;
-		
-		// Use this for initialization
-		void Start () {
-			m_GUIBottomBarScript = GameObject.FindGameObjectWithTag("GamePlayStateMachineTag").GetComponent<GSP.JAVIERGUI.GUIBottomBar>();
-		}	//end Start()
-		
-		public void InitGUIItem(GameObject p_PlayerEntity, int p_startX, int p_startY, int p_startWidth, int p_startHeight, string p_resultMapEvent) //string p_itemStr, string p_resourceStr )
+        int mainStartX = -1;   // The starting x value
+        int mainStartY = -1;   // The starting y value
+        int mainWidth  = -1;   // The starting width value
+        int mainHeight = -1;   // The starting height value
+
+        bool hasSelectionMadeAddRemove = false;	// For internal use, determines if player wants to add Ally or not
+        bool isActionRunning = false;           // Whether the ally action is running
+
+        //TODO: Brent: Replace OnGUI stuff with the new In-Game UI later
+        // Use this for initialization
+		void Start()
+        {
+            // Get the GUIBottomBar reference
+            guiBottomBarScript = GameObject.FindGameObjectWithTag("GamePlayStateMachineTag").GetComponent<GSP.JAVIERGUI.GUIBottomBar>();
+		} // end Start
+
+        //TODO: Damien: Replace with the GameMaster functionality later.
+        //TODO: Brent: Replace OnGUI stuff with the new In-Game UI later
+        // Initialise things sort of like a custom constructor
+        public void InitGUIItem(GameObject player, int startX, int startY, int startWidth, int startHeight, string resultMapEvent)
 		{
-			m_PlayerEntity = p_PlayerEntity;
-			m_GUIMapEventsScript = GameObject.FindGameObjectWithTag("GUIMapEventSpriteTag").GetComponent<GSP.GUIMapEvents>();
-			m_MapEventScript = GameObject.FindGameObjectWithTag ("DieTag").GetComponent<GSP.MapEvent>();
+			playerEntity = player;
+            guiMapEventsScript = GameObject.FindGameObjectWithTag("GUIMapEventSpriteTag").GetComponent<GSP.GUIMapEvents>();
+            mapEventScript = GameObject.FindGameObjectWithTag("DieTag").GetComponent<GSP.MapEvent>();
 
-			m_isActionRunning = true;
+			isActionRunning = true;
 			
-			//GUIMapEvents values transferred over
-			m_mainStartX = p_startX;
-			m_mainStartY = p_startY;
-			m_mainWidth = p_startWidth;
-			m_mainHeight = p_startHeight;
+			// GUIMapEvents values transferred over
+			mainStartX = startX;
+			mainStartY = startY;
+			mainWidth = startWidth;
+			mainHeight = startHeight;
 
-			m_headerString = p_resultMapEvent;
+			headerString = resultMapEvent;
 
-			//Glow effect on Item Button
+			// Glow effect on Item Button
+		} // end InitGUIItem
 
-		}
-		
-		void OnGUI()
+        //TODO: Brent: Replace OnGUI stuff with the new In-Game UI later
+        // The old style GUI functioned using an OnGUI function; Runs each frame
+        void OnGUI()
 		{
 			GUI.backgroundColor = Color.red;
-			if( m_isActionRunning == true )
+            if (isActionRunning)
 			{
-				if(m_selectionMadeAddRemove == false)
+                if (!hasSelectionMadeAddRemove)
 				{
-					ConfigHeader ();
-					ConfigAddButton ();
-					ConfigCancelButton ();
-				}
+                    ConfigHeader();
+                    ConfigAddButton();
+                    ConfigCancelButton();
+				} // end if
 				else
 				{
 					ConfigHeader();
 					ConfigDoneButton();
-				}
-			}
-		}	//end void OnGUI()
-		
-		private void ConfigHeader()
+				} // end else
+			} // end if
+		} // end OnGUI
+
+        //TODO: Brent: Replace OnGUI stuff with the new In-Game UI later
+        // Configures the header of the OnGUI UI system
+        void ConfigHeader()
 		{
-			if( m_selectionMadeAddRemove == false )
+            if (!hasSelectionMadeAddRemove)
 			{
-				if( m_resourceString == null)
-				{
-					m_resourceString = "";
-				}
-				//////////////////
-				m_headerString = "You found an Item!\nAdd it?";
-				//////////////////
-				//m_headerString = "Would You Like\nto Add " + m_itemString + m_resourceString "?";
-				//////////////////
-			}
-			
-			int headWdth = m_mainWidth - 2;
-			int headHght = m_mainHeight / 6;
-			int headX = m_mainStartX + ((m_mainWidth -headWdth) /2);
-			int headY = m_mainStartY + (headHght*2);
-			
-			GUI.Box(new Rect(headX, headY, headWdth, headHght*2), m_headerString);
-		}	//end private void ConfigHeader()
-		
-		private void ConfigAddButton()
+				headerString = "You found an Item!\nAdd it?";
+			} // end if
+
+            int headWdth = mainWidth - 2;
+            int headHght = mainHeight / 6;
+            int headX = mainStartX + ((mainWidth - headWdth) / 2);
+            int headY = mainStartY + (headHght * 2);
+
+            GUI.Box(new Rect(headX, headY, headWdth, headHght * 2), headerString);
+		} // end ConfigHeader
+
+        //TODO: Brent: Replace OnGUI stuff with the new In-Game UI later
+        // Configures the add button of the OnGUI UI system
+        void ConfigAddButton()
 		{
-			int newWdth = m_mainWidth / 5;
-			int newHght = m_mainHeight / 6;
-			int newX = m_mainStartX + (newWdth*1);
-			int newY = m_mainStartY + (newHght*4);
-			
-			if( GUI.Button(new Rect(newX, newY, newWdth, newHght*2), "Yes") )
+            int newWdth = mainWidth / 5;
+            int newHght = mainHeight / 6;
+            int newX = mainStartX + (newWdth * 1);
+            int newY = mainStartY + (newHght * 4);
+
+            if (GUI.Button(new Rect(newX, newY, newWdth, newHght * 2), "Yes"))
 			{
-				m_GUIBottomBarScript.AnimateItemButton();
+				guiBottomBarScript.AnimateItemButton();
 
-				//GET RESOURCE RESULT FROM MAPEVENT
-				m_headerString = m_MapEventScript.ResolveItem(m_PlayerEntity);
+				// Get item result from the MapEvent
+				headerString = mapEventScript.ResolveItem(playerEntity);
 
-				m_selectionMadeAddRemove = true;
-			}
-		}	// end 	private void ConfigAddButton()
-		
-		private void ConfigCancelButton()
+				hasSelectionMadeAddRemove = true;
+			} // end if
+		} // end ConfigAddButton
+
+        //TODO: Brent: Replace OnGUI stuff with the new In-Game UI later
+        // Configures the cancel button of the OnGUI UI system
+        void ConfigCancelButton()
 		{
-			int newWdth = m_mainWidth / 5;
-			int newHght = m_mainHeight / 6;
-			int newX = m_mainStartX + (newWdth*3);
-			int newY = m_mainStartY + (newHght*4);
-			
-			if( GUI.Button(new Rect(newX, newY, newWdth, newHght*2), "No") )
+            int newWdth = mainWidth / 5;
+            int newHght = mainHeight / 6;
+            int newX = mainStartX + (newWdth * 3);
+            int newY = mainStartY + (newHght * 4);
+
+            if (GUI.Button(new Rect(newX, newY, newWdth, newHght * 2), "No"))
 			{
-				m_headerString = "Item was not Added";
-				m_selectionMadeAddRemove = true;
-			}
-		}	//end 	private void ConfigCancelButton()
-		
-		
-		private void ConfigDoneButton()
+				headerString = "Item was not Added";
+				hasSelectionMadeAddRemove = true;
+			} // end if
+		} // end ConfigCancelButton
+
+        //TODO: Brent: Replace OnGUI stuff with the new In-Game UI later
+        // Configures the done of the OnGUI UI system
+        void ConfigDoneButton()
 		{
-			//done button
-			int doneWidth = m_mainWidth/2;
-			int doneHeight = m_mainHeight / 8;
-			int doneStartX = m_mainStartX +(m_mainWidth -doneWidth) /2;
-			int doneStartY = m_mainStartY +(doneHeight *7);
-			GUI.backgroundColor = Color.red;
-			
-			if ( GUI.Button (new Rect( doneStartX, doneStartY, doneWidth, doneHeight), "DONE") )
+			// done button
+            int doneWidth = mainWidth / 2;
+            int doneHeight = mainHeight / 8;
+            int doneStartX = mainStartX + (mainWidth - doneWidth) / 2;
+            int doneStartY = mainStartY + (doneHeight * 7);
+            GUI.backgroundColor = Color.red;
+
+            if (GUI.Button(new Rect(doneStartX, doneStartY, doneWidth, doneHeight), "DONE"))
 			{
-				//stop animation
-				m_GUIBottomBarScript.StopAnimation();
+				// stop animation
+				guiBottomBarScript.StopAnimation();
 
-				m_isActionRunning = false;
-				m_selectionMadeAddRemove = false;
-				//once nothing is happening, program returns to Controller's End Turn State
-				m_GUIMapEventsScript.MapeEventDone();
-			}
-		}	//end private void ConfigDoneButton()
-
-
-
-
-	}	//end public class GUIItem
-} //end namepsace GSP.JAVIERGUI
+				isActionRunning = false;
+				hasSelectionMadeAddRemove = false;
+				// once nothing is happening, program returns to Controller's End Turn State
+				guiMapEventsScript.MapEventDone();
+			} // end if
+        } // end ConfigDoneButton
+	} // end GUIItem
+} // end GSP.JAVIERGUI

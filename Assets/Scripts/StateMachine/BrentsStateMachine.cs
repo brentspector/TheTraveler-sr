@@ -1,441 +1,521 @@
-﻿using UnityEngine;
+﻿/*******************************************************************************
+ *
+ *  File Name: BrentsStateMachine.cs
+ *
+ *  Description: Brains of the menu's logic; controls the flow of the menu
+ *
+ *******************************************************************************/
+using UnityEngine;
 using UnityEngine.UI;
-using System.Collections;
-using System;
 
 namespace GSP
 {
-	public class BrentsStateMachine : MonoBehaviour
+    /*******************************************************************************
+     *
+     * Name: BrentsStateMachine
+     * 
+     * Description: The logic for the menu.
+     * 
+     *******************************************************************************/
+    public class BrentsStateMachine : MonoBehaviour
 	{
-		//Contains overall states of program
-		public enum OVERALLSTATES {INTRO, MENU, GAME, END};
-		//Contains states of menu
-		public enum MENUSTATES {HOME, SOLO, MULTI, CREDITS, HELP, QUIT};
-		
-		//State machine variables
-		OVERALLSTATES m_programState;		//Current overall state
-		MENUSTATES m_menuState;				//Current menu state
-		float timeHolder;					//Holds waiting time
+        // Note: Class variables should always be private. For outside access, use properties with get and/or set - Damien
+        //       An exception is setting assets/values through the unity editor; however not always the best way to do it
+        
+        // State machine variables
+		OverallState programState;          // Current overall state
+		MenuState menuState;				// Current menu state
+		float timeHolder;					// Waiting time
 
-		//Menu Objects
-		GameObject introSet;				//Intro panel
-		GameObject menuSet;					//Main Menu panel
-		GameObject mapSet;					//Map selection panel
-		GameObject creditsSet;				//Credits panel
-		GameObject instructionsSet;			//Instructions panel
-		GameObject backButton;				//Back button
-		Text 	   guideText;				//Map selection text
-		bool menuDisplayed;					//Whether menu is displayed or not
-		bool instructionsDisplayed;			//Whether instructions are displayed or not
-		bool creditsDisplayed;				//Whether credits are displayed or not
-		public string m_mapSelection;		//Holds scene name of map
-		bool mapsDisplayed;					//Whether selection maps are displayed or not
+        // Audio prefab holder
+        public GameObject audioManager;
+
+		// Menu Objects
+		GameObject introSet;				// Intro panel
+		GameObject menuSet;					// Main Menu panel
+		GameObject mapSet;					// Map selection panel
+		GameObject creditsSet;				// Credits panel
+		GameObject instructionsSet;			// Instructions panel
+		GameObject backButton;				// Back button
+		Text 	   guideText;				// Map selection text
+		bool isMenuDisplayed;				// Whether menu is displayed or not
+		bool isInstructionsDisplayed;		// Whether instructions are displayed or not
+		bool isCreditsDisplayed;			// Whether Credits are displayed or not
+		string mapSelection;		        // Scene name of map
+		bool isMapsDisplayed;				// Whether selection maps are displayed or not
+
 		#region Menu Data Declaration Stuff
 
-		// Holds the reference to the game object.
-		GameObject m_menuData;
+		// The reference to the MenuData GameObject
+		GameObject menuData;
 
-		// Holds the reference to the menu data's script.
-		MenuData m_menuDataScript;
+		// The reference to the menuData's script
+		MenuData menuDataScript;
 
 		#endregion
 		
-		//Initialize variables
+		// Initialize variables
 		void Start()
 		{
-			//Init Menu variables
-			m_programState = OVERALLSTATES.INTRO;				//Initial beginning of game
-			m_menuState = MENUSTATES.HOME;						//Prevents triggers from occuring before called
-			menuDisplayed = true;								//Menu begins displayed
-			creditsDisplayed = false;							//Credits begins hidden
-			instructionsDisplayed = false;						//Instructions begin hidden
-			timeHolder = Time.time + 3.0f;						//Initialize first wait period
-			m_mapSelection = "nothing";							//Nothing has been chosen yet
-			mapsDisplayed = false;								//Map selection begins hidden
+            // Init Menu variables
+			programState = OverallState.Intro;				// Initial beginning of game
+			menuState = MenuState.Home;						// Prevents triggers from occuring before called
+			isMenuDisplayed = true;							// Menu begins displayed
+			isCreditsDisplayed = false;						// Credits begins hidden
+			isInstructionsDisplayed = false;				// Instructions begin hidden
+			timeHolder = Time.time + 3.0f;					// Initialize first wait period
+			mapSelection = "nothing";						// Nothing has been chosen yet
+			isMapsDisplayed = false;						// Map selection begins hidden
 
-			//Obtain references to hierarchy panels and objects
-			introSet = GameObject.Find ("Intro");	
-			menuSet = GameObject.Find ("MainMenu");
-			mapSet = GameObject.Find ("MapSelection");
-			creditsSet = GameObject.Find ("Credits");
-			instructionsSet = GameObject.Find ("Instructions");
-			backButton = GameObject.Find ("BackButton");
-			guideText = GameObject.Find ("GuideText").GetComponent<Text> ();
+			// Obtain references to hierarchy panels and objects
+            introSet = GameObject.Find("Intro");
+            menuSet = GameObject.Find("MainMenu");
+            mapSet = GameObject.Find("MapSelection");
+            creditsSet = GameObject.Find("Credits");
+            instructionsSet = GameObject.Find("Instructions");
+            backButton = GameObject.Find("BackButton");
+            guideText = GameObject.Find("GuideText").GetComponent<Text>();
 
-			//Disable everything but intro and menu
-			disableMapSelection ();
-			disableInstructions ();
-			disableCredits ();
-			backButton.SetActive (false);
-			guideText.gameObject.SetActive (false);
+			// Disable everything but intro and menu
+            DisableMapSelection();
+            DisableInstructions();
+            DisableCredits();
+            backButton.SetActive(false);
+            guideText.gameObject.SetActive(false);
 
 			#region Menu Data Initialisation Stuff
 			
-			// Create the empty game object.
-			m_menuData = new GameObject( "MenuData" );
+			// Create the empty GameObject
+            menuData = new GameObject("MenuData");
 			
-			// Tag it as menu data.
-			m_menuData.tag = "MenuDataTag";
+			// Tag it as MenuDataTag
+			menuData.tag = "MenuDataTag";
 			
-			// Add the menu data component.
-			m_menuData.AddComponent<MenuData>();
+			// Add the MenuData component
+			menuData.AddComponent<MenuData>();
 			
-			// Set it to not destroy on load.
-			DontDestroyOnLoad( m_menuData );
+			// Set it to not destroy on load
+            DontDestroyOnLoad(menuData);
 
-			// Get the menu data object's script.
-			m_menuDataScript = m_menuData.GetComponent<MenuData>();
+			// Get the MenuData GameObject's script
+            menuDataScript = menuData.GetComponent<MenuData>();
 
 			#endregion
-		} //end Start
+		} // end Start
 		
-		//Main function for controlling game
+		// Main function for controlling game
 		void Update()
 		{
-			//PROGRAM ENTRY POINT
-			switch(m_programState)
+			// PROGRAM ENTRY POINT
+			switch(programState)
 			{
-				//INTRO
-			case OVERALLSTATES.INTRO:
-				//INTRO ENTRY POINT
-				//After intro finishes, move to menu
-				if(Time.time > timeHolder)
-				{
-					//Change state
-					m_programState = OVERALLSTATES.MENU;
+				// Intro
+                case OverallState.Intro:
+                    {
+                        // INTRO ENTRY POINT
+                        
+                        // Make sure an AudioManager exists
+                        if (AudioManager.Instance == null)
+                        {
+                            Instantiate(audioManager);
+                        } // end if
+                        
+                        // After intro finishes, move to menu
+                        if (Time.time > timeHolder)
+                        {
+                            // Change state
+                            programState = OverallState.Menu;
 
-					//Show main menu 
-					disableTitle();
-				} //end wait if
-				break;
-				//MENU
-			case OVERALLSTATES.MENU:
-				//MENU ENTRY POINT
-				switch(m_menuState)
-				{
-				case MENUSTATES.HOME:
-					//HOME - Menu hub, displays all buttons for menu
-					if(!menuDisplayed)
-					{
-						enableMainMenu();
-					} //end if
-					break;
-					//SOLO - Single Player game
-				case MENUSTATES.SOLO:
-					//Hide menu if not cleared yet
-					if(menuDisplayed)
-					{
-						disableMainMenu();
-					} //end if
+                            // Show main menu 
+                            DisableTitle();
+                        } // end if
+                        break;
+                    } // end case Intro
+				// Menu
+                case OverallState.Menu:
+                    {
+                        // MENU ENTRY POINT
+                        switch (menuState)
+                        {
+                            case MenuState.Home:
+                                {
+                                    // Home - Menu hub, displays all buttons for menu
+                                    if (!isMenuDisplayed)
+                                    {
+                                        EnableMainMenu();
+                                    } // end if
+                                    break;
+                                } // end case Home
+                            // Solo - Single Player game
+                            case MenuState.Solo:
+                                {
+                                    // Hide menu if not cleared yet
+                                    if (isMenuDisplayed)
+                                    {
+                                        DisableMainMenu();
+                                    } // end if
 
-					//Display maps for selection if not done yet
-					if(!mapsDisplayed)
-					{
-						enableMapSelection();
-					} //end if
+                                    // Display maps for selection if not done yet
+                                    if (!isMapsDisplayed)
+                                    {
+                                        EnableMapSelection();
+                                    } // end if
 
-					//Only continue once a map has been chosen
-					if(m_mapSelection != "nothing")
-					{
-						//Pick player amount
-						#region Menu Data Adding Stuff
+                                    // Only continue once a map has been chosen
+                                    if (mapSelection != "nothing")
+                                    {
+                                        // Pick player amount
+                                        #region Menu Data Adding Stuff
 
-						// Set the number of players to one for solo mode.
-						m_menuDataScript.NumberPlayers = 1;
+                                        // Set the number of players to one for solo mode
+                                        menuDataScript.NumberPlayers = 1;
 
-						#endregion
+                                        #endregion
 
-						//Display loading text
-						guideText.text = "Loading, please wait.";
+                                        // Display loading text
+                                        guideText.text = "Loading, please wait.";
 
-						//Transition into game state
-						m_programState = OVERALLSTATES.GAME;
-					} //end if
-					break;
-					//MULTI - Multiplayer game
-				case MENUSTATES.MULTI:
-					//Clear buttons if not cleared yet
-					//Hide menu if not cleared yet
-					if(menuDisplayed)
-					{
-						disableMainMenu();
-					} //end if
-					
-					//Display maps for selection
-					if(!mapsDisplayed)
-					{
-						enableMapSelection();
-					} //end if
-					
-					//Only continue once a map has been chosen
-					if(m_mapSelection != "nothing")
-					{
-						//Pick player amount
-						#region Menu Data Adding Stuff
+                                        // Transition into game state
+                                        programState = OverallState.Game;
+                                    } // end if
+                                    break;
+                                } // end case Solo
+                            //Multi - Multiplayer game
+                            case MenuState.Multi:
+                                {
+                                    // Clear buttons if not cleared yet
+                                    // Hide menu if not cleared yet
+                                    if (isMenuDisplayed)
+                                    {
+                                        DisableMainMenu();
+                                    } // end if
 
-						guideText.text = "Please select a map...Done!\nPlease enter the number of players [2-4]";
+                                    // Display maps for selection
+                                    if (!isMapsDisplayed)
+                                    {
+                                        EnableMapSelection();
+                                    } // end if
 
-						//Set number of players
-						if(Input.GetKeyDown(KeyCode.Alpha2) || Input.GetKeyDown(KeyCode.Keypad2))
-						{
-							m_menuDataScript.NumberPlayers = 2;
+                                    // Only continue once a map has been chosen
+                                    if (mapSelection != "nothing")
+                                    {
+                                        // Pick player amount
+                                        guideText.text = "Please select a map...Done!\nPlease enter the number of players [2-4]";
 
-							//Display loading text
-							guideText.text = "Loading, please wait.";
+                                        #region Menu Data Adding Stuff
 
-							//Transition into game state
-							m_programState = OVERALLSTATES.GAME;
-						} //end if
-						else if(Input.GetKeyDown(KeyCode.Alpha3) || Input.GetKeyDown(KeyCode.Keypad3))
-						{
-							m_menuDataScript.NumberPlayers = 3;
+                                        // Set number of players
+                                        if (Input.GetKeyDown(KeyCode.Alpha2) || Input.GetKeyDown(KeyCode.Keypad2))
+                                        {
+                                            menuDataScript.NumberPlayers = 2;
+                                        } //end if
+                                        else if (Input.GetKeyDown(KeyCode.Alpha3) || Input.GetKeyDown(KeyCode.Keypad3))
+                                        {
+                                            menuDataScript.NumberPlayers = 3;
+                                        } //end else if
+                                        else if (Input.GetKeyDown(KeyCode.Alpha4) || Input.GetKeyDown(KeyCode.Keypad4))
+                                        {
+                                            menuDataScript.NumberPlayers = 4;
+                                        } //end else if
+                                        #endregion
+                                        
+                                        // Note: No need to repeat code if it's the same and not dependent on things inside such circumstances- Damien
+                                        // Note: I screwed this up previously, but it still shouldn't have to be repeated so do a simple conditional check
+                                        if (menuDataScript.NumberPlayers >= 2 && menuDataScript.NumberPlayers <= 4)
+                                        {
+                                            // Display loading text
+                                            guideText.text = "Loading, please wait.";
 
-							//Display loading text
-							guideText.text = "Loading, please wait.";
+                                            // Transition into game state
+                                            programState = OverallState.Game;
+                                        }
+                                    } // end if
+                                    break;
+                                } // end case Multi
+                            // Credits - Display names and instructions
+                            case MenuState.Credits:
+                                {
+                                    // Hide menu if not cleared yet
+                                    if (isMenuDisplayed)
+                                    {
+                                        DisableMainMenu();
+                                    } // end if
 
-							//Transition into game state
-							m_programState = OVERALLSTATES.GAME;
-						} //end else if
-						else if(Input.GetKeyDown(KeyCode.Alpha4) || Input.GetKeyDown(KeyCode.Keypad4))
-						{
-							m_menuDataScript.NumberPlayers = 4;
+                                    if (!isCreditsDisplayed)
+                                    {
+                                        EnableCredits();
+                                    } // end if
+                                    break;
+                                } // end case Credits
+                            // Help - Displays the instructions for the game
+                            case MenuState.Help:
+                                {
+                                    // Clear buttons and display instructions if not cleared yet
+                                    if (isMenuDisplayed)
+                                    {
+                                        DisableMainMenu();
+                                    } // end if
 
-							//Display loading text
-							guideText.text = "Loading, please wait.";
+                                    if (!isInstructionsDisplayed)
+                                    {
+                                        EnableInstructions();
+                                    } // end if
+                                    break;
+                                } // end case Help
+                            // Quit - Change program to End to wrap up any loose ends
+                            case MenuState.Quit:
+                                {
+                                    // Hide menu if not cleared yet
+                                    if (isMenuDisplayed)
+                                    {
+                                        DisableMainMenu();
+                                    } // end if
 
-							//Transition into game state
-							m_programState = OVERALLSTATES.GAME;
-						} //end else if
-						#endregion
-					} //end if
-					break;
-					//CREDITS - Display names and instructions
-				case MENUSTATES.CREDITS:
-					//Hide menu if not cleared yet
-					if(menuDisplayed)
-					{
-						disableMainMenu();
-					} //end if
+                                    // Move to end of program
+                                    programState = OverallState.End;
+                                    break;
+                                } // end case Quit
+                        } // end switch menuState
+                        break;
+                    } // end case Menu
+				// Game
+                case OverallState.Game:
+                    {
+                        // GAMEPLAY ENTRY POINT
+                        // Reset states
+                        programState = OverallState.Menu;
+                        menuState = MenuState.Home;
 
-					if(!creditsDisplayed)
-					{
-						enableCredits();
-					} //end if
-					break;
-					//HELP - Displays the instructions for the game
-				case MENUSTATES.HELP:
-					//Clear buttons and display instructions if not cleared yet
-					if(menuDisplayed)
-					{
-						disableMainMenu();
-					} //end if
+                        // Play correct background music
+                        if (mapSelection == "area01")
+                        {
+                            AudioManager.Instance.PlayDesert();
+                        } // end if
+                        else if (mapSelection == "area02")
+                        {
+                            AudioManager.Instance.PlayEuro();
+                        } // end else if
+                        else if (mapSelection == "area03")
+                        {
+                            AudioManager.Instance.PlayMetro();
+                        } // end else if
+                        else if (mapSelection == "area04")
+                        {
+                            AudioManager.Instance.PlaySnow();
+                        } // end else if 
+                        else
+                        {
+                            AudioManager.Instance.PlayMenu();
+                        } // end else
 
-					if(!instructionsDisplayed)
-					{
-						enableInstructions();
-					} //end if
-					break;
-					//QUIT - Change program to END to wrap up any loose ends
-				case MENUSTATES.QUIT:
-					//Hide menu if not cleared yet
-					if(menuDisplayed)
-					{
-						disableMainMenu();
-					} //end if
+                        // Load selected level
+                        Application.LoadLevel(mapSelection);
+                        break;
+                    } // end case Game
+				// End
+                case OverallState.End:
+                    {
+                        // END ENTRY POINT - WATCH OUT UNIVERSE!
+                        // Wrap up any loose ends here since the program is now exiting.
 
-					//Move to end of program
-					m_programState = OVERALLSTATES.END;
-					break;
-				} //end Menu Switch
-				break;
-				//GAME
-			case OVERALLSTATES.GAME:
-				//GAMEPLAY ENTRY POINT
-				//Reset states
-				m_programState = OVERALLSTATES.MENU;
-				m_menuState = MENUSTATES.HOME;
+                        // Destroy Audio Manager
+                        if (AudioManager.Instance != null)
+                        {
+                            Destroy(AudioManager.Instance.gameObject);
+                        } // end if
 
-				//Load selected level
-				Application.LoadLevel(m_mapSelection);
-				break;
-				//END
-			case OVERALLSTATES.END:
-				//END ENTRY POINT - WATCH OUT UNIVERSE!
-				//Wrap up any loose ends here since the program is now exiting.
+                        // Reset state machine to initial
+                        menuState = MenuState.Home;
+                        programState = OverallState.Intro;
 
-				//Delete exit button if it exists
-				if(GameObject.Find("BackButton") != null)
-				{
-					Destroy (GameObject.Find("BackButton"));
-				} //end if
+                        // Reset objected to initial point
+                        EnableTitle();
+                        DisableMainMenu();
 
-				//Reset state machine to initial
-				m_menuState = MENUSTATES.HOME;
-				m_programState = OVERALLSTATES.INTRO;
+                        // Reset time holder to initial
+                        timeHolder = Time.time + 3.0f;
 
-				//Reset objected to initial point
-				enableTitle();
-				disableMainMenu();
+                        // Exit program if possible
+                        Application.Quit();
 
-				//Reset time holder to initial
-				timeHolder = Time.time + 3.0f;
+                        break;
+                    } // end case End
+				// DEFAULT - Catches any exceptions end prints errored state
+                default:
+                    {
+                        Debug.LogErrorFormat("Error - No program state {0} found.", programState);
+                        break;
+                    } // end case default
+            } // end switch programState
+		} // end Update
 
-				//Exit program if possible
-				Application.Quit();
-
-				break;
-				//DEFAULT - Catches any exceptions end prints errored state
-			default:
-				Debug.Log ("Error - No program state " + m_programState + " found.");
-				break;
-			} //end Program Switch
-		} //end Update
-
-		//State machine functions
-		//Program state
+        // Note: Function names always start with a capital letter - Damien
+        
+        // State machine functions
+		// Program state
 		public int GetState()
 		{
-			return (int)m_programState;
-		} //end GetState()
+			return (int)programState;
+		} // end GetState
 		
-		//Menu state
+		// Menu state
 		public int GetMenu()
 		{
-			return (int)m_menuState;
-		} //end GetMenu()
+			return (int)menuState;
+		} // end GetMenu
 
-		//Menu state settings
-		void enableTitle()
+		// Menu state settings
+        // Enable the intro screen
+		void EnableTitle()
 		{
 			introSet.SetActive (true);
-		} //end enableTitle()
+		} // end EnableTitle
 
-		void disableTitle()
+        // Disable the intro screen
+        void DisableTitle()
 		{
 			introSet.SetActive (false);
-		} //end disableTitle()
+		} // end DisableTitle
 
-		void enableMainMenu()
+        // Enable the main menu screen
+        void EnableMainMenu()
 		{
 			menuSet.SetActive (true);
 			backButton.SetActive (false);
-			menuDisplayed = true;
-		} //end enableMainMenu()
+			isMenuDisplayed = true;
+		} // end EnableMainMenu
 
-		void disableMainMenu()
+        // Disable the main menu screen
+        void DisableMainMenu()
 		{
 			menuSet.SetActive (false);
 			backButton.SetActive (true);
-			menuDisplayed = false;
-		} //end disableMainMenu()
+			isMenuDisplayed = false;
+		} // end DisableMainMenu
 
-		void enableMapSelection()
+        // Enable the level select screen
+        void EnableMapSelection()
 		{
 			mapSet.SetActive (true);
 			guideText.gameObject.SetActive(true);
-			mapsDisplayed = true;
-		} //end enableMapSelection()
+			isMapsDisplayed = true;
+		} // end EnableMapSelection
 
-		void disableMapSelection()
+        // Disable the level select screen
+        void DisableMapSelection()
 		{
 			mapSet.SetActive (false);
 			guideText.gameObject.SetActive (false);
-			mapsDisplayed = false;
-		} //end disableMapSelection()
+			isMapsDisplayed = false;
+		} // end DisableMapSelection
 
-		void enableInstructions()
+        // Enable the instructions screen
+        void EnableInstructions()
 		{
 			instructionsSet.SetActive (true);
-			instructionsDisplayed = true;
-		} //end enableInstructions()
-		
-		void disableInstructions()
+			isInstructionsDisplayed = true;
+		} // end EnableInstructions
+
+        // Disable the instructions screen
+        void DisableInstructions()
 		{
 			instructionsSet.SetActive (false);
-			instructionsDisplayed = false;
-		} //end disableInstructions()
+			isInstructionsDisplayed = false;
+		} // end DisableInstructions
 
-		void enableCredits()
+        // Enable the credits screen
+        void EnableCredits()
 		{
 			creditsSet.SetActive (true);
-			creditsDisplayed = true;
-		} //end enableCredits()
-		
-		void disableCredits()
+			isCreditsDisplayed = true;
+		} // end EnableCredits
+
+        // Disable the credits screen
+        void DisableCredits()
 		{
 			creditsSet.SetActive (false);
-			creditsDisplayed = false;
-		} //end disableCredits()
+			isCreditsDisplayed = false;
+		} // end DisableCredits
 
-		//Menu Button functions
-		public void soloGame()
+		// Menu Button functions
+        // Solo button
+		public void SoloGame()
 		{
-			m_menuState = MENUSTATES.SOLO;
-		} //end soloGame()
+			menuState = MenuState.Solo;
+		} // end SoloGame
 
-		public void multiGame()
+        // Multi button
+        public void MultiGame()
 		{
-			m_menuState = MENUSTATES.MULTI;
-		} //end multiGame()
+			menuState = MenuState.Multi;
+		} // end MultiGame
 
-		public void help()
+        // Help button
+        public void Help()
 		{
-			m_menuState = MENUSTATES.HELP;
-		} //end help()
+			menuState = MenuState.Help;
+		} // end Help
 
-		public void credits()
+        // Credits button
+        public void Credits()
 		{
-			m_menuState = MENUSTATES.CREDITS;
-		} //end credits
+			menuState = MenuState.Credits;
+		} // end Credits
 
-		public void quitGame()
+        // Quit button
+        public void QuitGame()
 		{
-			m_menuState = MENUSTATES.QUIT;
-		} //end quitGame
+			menuState = MenuState.Quit;
+		} // end QuitGame
 
-		public void back()
+        // Back button
+        public void Back()
 		{
-			if(m_menuState == MENUSTATES.CREDITS)
+			if(menuState == MenuState.Credits)
 			{
-				disableCredits();
-				m_menuState = MENUSTATES.HOME;
-			} //end if
-			else if(m_menuState == MENUSTATES.HELP)
+				DisableCredits();
+				menuState = MenuState.Home;
+			} // end if
+			else if(menuState == MenuState.Help)
 			{
-				disableInstructions();
-				m_menuState = MENUSTATES.HOME;
-			} //end else if
-			else if(m_menuState == MENUSTATES.SOLO || m_menuState == MENUSTATES.MULTI)
+				DisableInstructions();
+				menuState = MenuState.Home;
+			} // end else if
+			else if(menuState == MenuState.Solo || menuState == MenuState.Multi)
 			{
-				disableMapSelection();
-				m_mapSelection = "nothing";
+				DisableMapSelection();
+				mapSelection = "nothing";
 				guideText.text = "Please select a map";
-				m_menuState = MENUSTATES.HOME;
-			} //end else if
+				menuState = MenuState.Home;
+			} // end else if
 			else
 			{
-				m_menuState = MENUSTATES.HOME;
-			} //end else
-		} //end back()
+				menuState = MenuState.Home;
+			} // end else
+		} // end Back()
 
-		public void desertMap()
+		// Desert map button
+        public void DesertMap()
 		{
-			m_mapSelection = "area01";
-		} //end desertMap()
+			mapSelection = "area01";
+		} // end DesertMap
 
-		public void euroMap()
+        // Euro map button
+        public void EuroMap()
 		{
-			m_mapSelection = "area02";
-		} //end euroMap()
+			mapSelection = "area02";
+		} // end EuroMap
 
-		public void metroMap()
+        // Metro map button
+        public void MetroMap()
 		{
-			m_mapSelection = "area03";
-		} //end metroMap()
+			mapSelection = "area03";
+		} // end MetroMap
 
-		public void snowMap()
+        // Snow map button
+        public void SnowMap()
 		{
-			m_mapSelection = "area04";
-		} //end snowMap()
-	} //end StateMachine class
-} //end namespace GSP
+			mapSelection = "area04";
+		} // end SnowMap
+    } // end BrentsStateMachine
+} //end GSP

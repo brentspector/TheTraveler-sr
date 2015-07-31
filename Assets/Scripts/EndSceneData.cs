@@ -1,64 +1,79 @@
-﻿using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
+﻿/*******************************************************************************
+ *
+ *  File Name: EndSceneData.cs
+ *
+ *  Description: Middle man between the game scenes and the end scene for some
+ *               data transfer
+ *
+ *******************************************************************************/
+//TODO: Damien: Replace with the GameMaster functionality later.
 using GSP.Char;
+using System.Collections.Generic;
+using UnityEngine;
 
 namespace GSP
 {
-	public class EndSceneData : MonoBehaviour
+    /*******************************************************************************
+     *
+     * Name: EndSceneData
+     * 
+     * Description: Allows the end scene to access some of the player's data.
+     * 
+     *******************************************************************************/
+    public class EndSceneData : MonoBehaviour
 	{
-		Dictionary<int, EndSceneCharData> m_dataDictionary;
+		Dictionary<int, EndSceneCharData> dataDictionary; // The dictionary containing the character's data
 
 
-		// Use this for ininitialisation.
+		// Use this for ininitialisation
 		public void Start()
 		{
-			// Initialises the end scene data dictionary to a new dictionary.
-			m_dataDictionary = new Dictionary<int, EndSceneCharData>();
-		}
+			// Initialises the EndSceneData dictionary
+			dataDictionary = new Dictionary<int, EndSceneCharData>();
+		} // end Start
 
-		// Adds data to the end scene data dictionary with player object.
-		public void AddData( int playerNum, GameObject player )
+		// Adds data to the EndSceneData dictionary with a player GameObject
+		public void AddData(int playerNum, GameObject player)
 		{
-			// Create a new EndSceneCharData object using the given player object.
-			EndSceneCharData charData = new EndSceneCharData( playerNum, player );
+			// Create a new EndSceneCharData object using the given player GameObject
+			EndSceneCharData charData = new EndSceneCharData(playerNum, player);
 
-			// Add that object to the dictionary using the player number as the key.
-			m_dataDictionary.Add( playerNum, charData );
-		} // end AddData function
+			// Add that object to the dictionary using the player number as the key
+			dataDictionary.Add(playerNum, charData);
+		} // end AddData
 
-		// Adds data to the end scene data dictionary with the char data object.
-		public void AddData( EndSceneCharData endSceneCharData )
+		// Adds data to the EndSceneData dictionary with the EnsSceneCharData object
+		public void AddData(EndSceneCharData endSceneCharData)
 		{
-			// Add the given object to the dictionary.
-			m_dataDictionary.Add( endSceneCharData.PlayerNumber, endSceneCharData);
-		} // end AddData function
+			// Add the given EndSceneCharData object to the dictionary
+			dataDictionary.Add(endSceneCharData.PlayerNumber, endSceneCharData);
+		} // end AddData
 
-		// Retrieves the end scene data from the dictionary based on the key supplied.
-		public EndSceneCharData GetData( int playerNum )
+		// Retrieves the EndSceneData from the dictionary based on the key supplied
+		public EndSceneCharData GetData(int playerNum)
 		{
-			// Check if the dictionary contains the key.
-			if (!m_dataDictionary.ContainsKey( playerNum ))
+			// Check if the dictionary contains the key
+			if (!dataDictionary.ContainsKey(playerNum))
 			{
-				// No key found so describe that and return null.
-				Debug.LogWarning("The EndSceneData Dictionary contains no such key: '" + playerNum + "'");
+				// No key found so log it and return null
+				Debug.LogWarningFormat("The EndSceneData Dictionary contains no such key: '{0}'", playerNum);
 				return null;
-			}
+			} // end if
 
-			// Otherwise get the value and return it.
-			return m_dataDictionary[playerNum];
-		} // end GetData function.
+			// Otherwise get the value and return it
+			return dataDictionary[playerNum];
+		} // end GetData
 
-		// Checks if the key exists in the dictionary.
-		public bool KeyExists( int playerNum )
+		// Checks if the key exists in the dictionary
+		public bool KeyExists(int playerNum)
 		{
-			return m_dataDictionary.ContainsKey( playerNum );
-		} // end KeyExists function
+			return dataDictionary.ContainsKey(playerNum);
+		} // end KeyExists
 
-		// Gets the number of entries in the list. This is essentially the number of players.
+		// Gets the number of entries in the dictionary. This is essentially the number of players.
 		public int Count
 		{
-			get { return m_dataDictionary.Count; }
-		} // end Count property
+			get { return dataDictionary.Count; }
+		} // end Count
 	}
-} // end namespace
+} // end GSP

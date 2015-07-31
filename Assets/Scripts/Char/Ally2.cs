@@ -1,47 +1,55 @@
-﻿using UnityEngine;
-using System.Collections;
-using GSP.Entities.Friendlies;
+﻿/*******************************************************************************
+ *
+ *  File Name: Ally2.cs
+ *
+ *  Description: Wrapper for the allies
+ *
+ *******************************************************************************/
 using GSP.Entities;
+using GSP.Entities.Friendlies;
+using UnityEngine;
 
 namespace GSP.Char
 {
-    public class Ally2<T> : MonoBehaviour where T : Friendly
+    /*******************************************************************************
+     *
+     * Name: Ally2
+     * 
+     * Description: The base class for the wrapper to the ally entities.
+     * 
+     *******************************************************************************/
+    // This class name won't have a number later
+    public class Ally2<TSubAlly> : MonoBehaviour where TSubAlly : Friendly
     {
-        T m_ally;   // Each ally needs its own ally object.
+        TSubAlly ally;   // Each Ally needs its own ally object
 
         // Use this for initialisation
         public virtual void Start()
         {
             //
-        }
+        } // end Start
 
+        // Get the ally's reference
         public void GetAlly(int ID)
         {
-            // Get the enemy's reference.
-            m_ally = (T)EntityManager.Instance.GetEntity(ID);
-        }
+            ally = (TSubAlly)EntityManager.Instance.GetEntity(ID);
+        } // end GetAlly
 
-        // Destroy the game object this script is attached to.
+        // Destroy the game object this script is attached to
         public void DestroyGO()
         {
             Destroy(this.gameObject);
-        }
+        } // end DestroyGO
 
         #region Wrapper for the ally class
 
-        // Gets the ally's name.
+        // Gets the ally's Name.
         public string Name
         {
-            get
-            {
-                return m_ally.Name;
-            }
-            set
-            {
-                m_ally.Name = value;
-            }
-        }
+            get { return ally.Name; }
+            set { ally.Name = value; }
+        } // end Name
 
         #endregion
-    }
-}
+    } // end Ally2
+} // end GSP.Char

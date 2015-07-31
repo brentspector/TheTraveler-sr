@@ -1,24 +1,38 @@
-﻿using System;
-using System.Linq;
+﻿/*******************************************************************************
+ *
+ *  File Name: SafeRandom.cs
+ *
+ *  Description: The implementation of a XorShift random number generator
+ *
+ *******************************************************************************/
+using System;
 
 namespace GSP
 {
-	/// <summary>
-	/// A replacement for <see cref="System.Random"/> for when generating random numbers across
-	/// multiple threads with the same random number generator object instance. Unlike <see cref="System.Random"/>,
-	/// this will not become indefinitely corrupt when called from multiple threads. <see cref="System.Random"/>,
-	/// when called from multiple threads, can generate a state corruption of the internal seed array, eventually
-	/// resulting in the seed values becoming 0. Once the right two seed values become 0, the rest of the seeds
-	/// will end up becoming 0, resulting in the generator becoming forever stuck in returning 0 for the internal
-	/// random number generation.
-	/// 
-	/// The only times you should use <see cref="System.Random"/> instead of <see cref="SafeRandom"/> is when you
-	/// need a more reliable set (at least a few hundred numbers) of random values and do not need thread safety.
-	/// </summary>
-	/// <remarks>
-	/// Not sure if this is thread safe as it is here; it should still work for our purposes however.
-	/// </remarks>
-	public class SafeRandom : Random
+    /*******************************************************************************
+     *
+     * Name: SafeRandom
+     * 
+     * Description: A replacement for System.Random for when generating random
+     *              numbers across multiple threads with the same random number
+     *              generator object instance. Unlike System.Random, this will not
+     *              become indefinitely corrupt when called from multiple threads.
+     *              System.Random, when called from multiple threads, can generate a
+     *              state corruption of the internal seed array, eventually resulting
+     *              in the seed values becoming zero. Once the right two seed values
+     *              become zero, the rest of the seeds will end up becoming zero,
+     *              resulting in the generator becoming forever stuck in returning
+     *              zero for the internal random number generation.
+     *              
+     *              The only times you should use System.Random instead of SafeRandom
+     *              is when you need a more reliable set (at least a few hundred
+     *              numbers) of random values and do not need thread safety.
+     *              
+     * Note: Not sure if this is thread safe as it is here; it should still work for
+     *       our purposes however. This was pulled elsewhere so comments is limited.
+     * 
+     *******************************************************************************/
+    public class SafeRandom : Random
 	{
 		/* Implementation based off of George Marsaglia's Xorshift RNG
          *      http://www.jstatsoft.org/v08/i14/paper (updated the link as the original one was broken)
@@ -38,131 +52,104 @@ namespace GSP
 		uint _y;
 		uint _z;
 
-		/// <summary>
-		/// Initializes a new instance of the <see cref="SafeRandom"/> class.
-		/// </summary>
+		// Initializes a new instance of the SafeRandom class.
 		public SafeRandom() : this( (int)TickCount.Now )
 		{
-		} // end SafeRandom constructor
+            // Leave empty.
+		} // end SafeRandom
 
-		/// <summary>
-		/// Initializes a new instance of the <see cref="SafeRandom"/> class.
-		/// </summary>
-		/// <param name="seed">The seed.</param>
-		public SafeRandom( int seed )
+		// Initializes a new instance of the SafeRandom class.
+		public SafeRandom(int seed)
 		{
-			Reseed( seed );
-		} // end SafeRandom constructor
+            Reseed(seed);
+		} // end SafeRandom
 
-		/// <summary>
-		/// Returns a nonnegative random number.
-		/// </summary>
-		/// <returns>
-		/// A 32-bit signed integer greater than or equal to zero and less than <see cref="F:System.Int32.MaxValue"/>.
-		/// </returns>
-		public override int Next()
+		// Returns a 32-bit signed integer greater than or equal to zero and less that the Int32.MaxValue
+        public override int Next()
 		{
-			int ret;
+			int ret;    // The result
 
-			// To be equal to System.Random, we cannot return int.MaxValue
+			// To be equal to System.Random, we cannot return int32.MaxValue
 			do
 			{
 				ret = NextInt();
 			} while ( ret == 0x7FFFFFFF );
 
-			return ret;
-		} // end Next integer function
+			// Return the integer
+            return ret;
+		} // end Next
 
-		/// <summary>
-		/// Returns a random number within a specified range.
-		/// </summary>
-		/// <param name="minValue">The inclusive lower bound of the random number returned.</param>
-		/// <param name="maxValue">The exclusive upper bound of the random number returned.<paramref name="maxValue"/>
-		/// must be greater than or equal to <paramref name="minValue"/>.</param>
-		/// <returns>
-		/// A 32-bit signed integer greater than or equal to <paramref name="minValue"/> and less than
-		/// <paramref name="maxValue"/>; that is, the range of return values includes <paramref name="minValue"/>
-		/// but not <paramref name="maxValue"/>. If <paramref name="minValue"/> equals <paramref name="maxValue"/>,
-		/// <paramref name="minValue"/> is returned.
-		/// </returns>
-		/// <exception cref="T:System.ArgumentOutOfRangeException"><paramref name="minValue"/> is greater than
-		/// <paramref name="maxValue"/>.</exception>
-		/// <exception cref="ArgumentOutOfRangeException"><paramref name="maxValue"/> is less than <paramref name="minValue"/>.</exception>
-		public override int Next( int minValue, int maxValue )
+        // Returns a 32-bit signed integer greater than or equal to Int32.MinValue and less than Int32.MaxValue;
+        // that is, the range of return values includes Int32.MinValue but not Int32.MaxValue. If Int32.MinValue
+        // equals Int32.MaxValue, Int32.MinValue is returned.
+		public override int Next(int minValue, int maxValue)
 		{
-			if ( minValue > maxValue )
+			// Check if the min is greater than the max which is impossible
+            if (minValue > maxValue)
 			{
-				throw new ArgumentOutOfRangeException( "maxValue", maxValue, "maxValue must be >= minValue" );
-			} // end if statement
+				// Throw an exception in this case
+                throw new ArgumentOutOfRangeException("maxValue", maxValue, "maxValue must be >= minValue");
+			} // end if
 
-			var range = maxValue - minValue;
-			if ( range < 0 )
+			// Get the range of the min and max
+            var range = maxValue - minValue;
+            // Check if there has been an overflow
+			if (range < 0)
 			{
-				// If range is <0 then an overflow has occured and must resort to using long integer arithmetic instead (slower).
-				// We also must use all 32 bits of precision, instead of the normal 31, which again is slower.	
-				return minValue + (int)( ( _realUnitUInt * NextUInt() ) * ( (long)maxValue - minValue ) );
-			} // end if statement
+				// If range is less than zero then an overflow has occured and must resort to using long integer
+                // arithmetic instead (slower). We also must use all 32 bits of precision, instead of the normal
+                // 31, which again is slower.
+                return minValue + (int)((_realUnitUInt * NextUInt()) * ((long)maxValue - minValue));
+			} // end if
 
-			// 31 bits of precision will suffice if range <= int.MaxValue. This allows us to cast to an int and gain
-			// a little more performance.
-			return minValue + (int)( ( _realUnitInt * (int)( 0x7FFFFFFF & NextUInt() ) ) * range );
-		} // end Next integer function
+			// 31 bits of precision will suffice if range is less than or equal to int32.MaxValue. This allows us to
+            // cast to an int and gain a little more performance.
+            return minValue + (int)((_realUnitInt * (int)(0x7FFFFFFF & NextUInt())) * range);
+		} // end Next
 
-		/// <summary>
-		/// Returns a nonnegative random number less than the specified maximum.
-		/// </summary>
-		/// <param name="maxValue">The exclusive upper bound of the random number to be generated.
-		/// <paramref name="maxValue"/> must be greater than or equal to zero.</param>
-		/// <returns>
-		/// A 32-bit signed integer greater than or equal to zero, and less than <paramref name="maxValue"/>; that is,
-		/// the range of return values ordinarily includes zero but not <paramref name="maxValue"/>.
-		/// However, if <paramref name="maxValue"/> equals zero, <paramref name="maxValue"/> is returned.
-		/// </returns>
-		/// <exception cref="ArgumentOutOfRangeException"><paramref name="maxValue"/> is less than zero.</exception>
-		public override int Next( int maxValue )
+        // Returns a 32-bit signed integer greater than or equal to zero, and less than Int32.MaxValue;
+        // that is, the range of return values ordinarily includes zero but not Int32.MaxValue. However, if Int32.MxnValue
+        // equals zero, Int32.MaxValue is returned.
+		public override int Next(int maxValue)
 		{
-			if ( maxValue < 0 )
+			// Check if the max is less than zero which is impossible
+            if (maxValue < 0)
 			{
-				throw new ArgumentOutOfRangeException( "maxValue", maxValue, "maxValue must be greater than or equal to zero." );
+				// Throw an exception in this case
+                throw new ArgumentOutOfRangeException("maxValue", maxValue, "maxValue must be greater than or equal to zero.");
 			}
 
-			return (int)( ( _realUnitInt * NextInt() ) * maxValue );
-		} // end Next integer function
+			// Otherwise, return the result
+            return (int)((_realUnitInt * NextInt()) * maxValue);
+		} // end Next
 
-		/// <summary>
-		/// Returns a random boolean value.
-		/// </summary>
-		/// <returns>A random boolean value.</returns>
+        // Returns a random boolean value
 		public bool NextBool()
 		{
-			if ( _bitMask == 1 )
+			if (_bitMask == 1)
 			{
 				// Generate 32 more bits
-				var t = ( _x ^ ( _x << 11 ) );
+                var t = (_x ^ (_x << 11));
 				_x = _y;
 				_y = _z;
 				_z = _w;
-				_bitBuffer = _w = ( _w ^ ( _w >> 19 ) ) ^ ( t ^ ( t >> 8 ) );
+                _bitBuffer = _w = (_w ^ (_w >> 19)) ^ (t ^ (t >> 8));
 
 				// Reset the bitMask that tells us which bit to read next
 				_bitMask = 0x80000000;
-				return ( _bitBuffer & _bitMask ) == 0;
-			} // end if statement
+                return (_bitBuffer & _bitMask) == 0;
+			} // end if
 
-			return ( _bitBuffer & ( _bitMask >>= 1 ) ) == 0;
-		} // end Next bool function
+            return (_bitBuffer & (_bitMask >>= 1)) == 0;
+		} // end NextBool
 
-		/// <summary>
-		/// Fills the elements of a specified array of bytes with random numbers.
-		/// </summary>
-		/// <param name="buffer">An array of bytes to contain random numbers.</param>
-		/// <exception cref="System.ArgumentNullException"><paramref name="buffer"/> is null. </exception>
-		public override void NextBytes( byte[] buffer )
+        // Fills the elements of a specified array of bytes with random numbers.
+		public override void NextBytes(byte[] buffer)
 		{
 			if ( buffer == null )
 			{
 				throw new ArgumentNullException( "buffer" );
-			} // end if statement
+			} // end if
 
 			var x = _x;
 			var y = _y;
@@ -174,92 +161,77 @@ namespace GSP
 
 			// Generate 4 values at a time
 			var bound = buffer.Length - 3;
-			while ( i < bound )
+			while (i < bound)
 			{
-				t = ( x ^ ( x << 11 ) );
+                t = (x ^ (x << 11));
 				x = y;
 				y = z;
 				z = w;
-				w = ( w ^ ( w >> 19 ) ) ^ ( t ^ ( t >> 8 ) );
+                w = (w ^ (w >> 19)) ^ (t ^ (t >> 8));
 
-				buffer [ i++ ] = (byte)w;
-				buffer [ i++ ] = (byte)( w >> 8 );
-				buffer [ i++ ] = (byte)( w >> 16 );
-				buffer [ i++ ] = (byte)( w >> 24 );
-			} // end while statement
+                buffer[i++] = (byte)w;
+                buffer[i++] = (byte)(w >> 8);
+                buffer[i++] = (byte)(w >> 16);
+                buffer[i++] = (byte)(w >> 24);
+			} // end while
 
 			// Generate the remaining values
-			if ( i < buffer.Length )
+			if (i < buffer.Length)
 			{
-				t = ( x ^ ( x << 11 ) );
+                t = (x ^ (x << 11));
 				x = y;
 				y = z;
 				z = w;
-				w = ( w ^ ( w >> 19 ) ) ^ ( t ^ ( t >> 8 ) );
+                w = (w ^ (w >> 19)) ^ (t ^ (t >> 8));
 
-				buffer [ i++ ] = (byte)w;
-				if ( i < buffer.Length )
+                buffer[i++] = (byte)w;
+				if (i < buffer.Length)
 				{
-					buffer [ i++ ] = (byte)( w >> 8 );
-					if ( i < buffer.Length )
+                    buffer[i++] = (byte)(w >> 8);
+					if (i < buffer.Length)
 					{
-						buffer [ i++ ] = (byte)( w >> 16 );
-						if ( i < buffer.Length )
+                        buffer[i++] = (byte)(w >> 16);
+                        if (i < buffer.Length)
 						{
-							buffer [ i ] = (byte)( w >> 24 );
-						} // emd if statement
-					} // end if statement
-				} // end if statement
-			} // end if statement
+                            buffer[i] = (byte)(w >> 24);
+                        } // end if i < buffer.Length (16)
+                    } // end if i < buffer.Length (8)
+                } // end if i < buffer.Length
+			} // end outer if i < buffer.Length
 
 			_x = x;
 			_y = y;
 			_z = z;
 			_w = w;
-		} // end NextBytes function
+		} // end NextBytes
 
-		/// <summary>
-		/// Returns a random number between 0.0 and 1.0.
-		/// </summary>
-		/// <returns>
-		/// A double-precision floating point number greater than or equal to 0.0, and less than 1.0.
-		/// </returns>
+        // Returns a double-precision floating point number greater than or equal to zero, and less than one.
 		public override double NextDouble()
 		{
 			return _realUnitInt * NextInt();
-		} // end NextDouble function
+		} // end NextDouble
 
-		/// <summary>
-		/// Generates a random number in the range of 0 to <see cref="int.MaxValue"/>, inclusive.
-		/// </summary>
-		/// <returns>A random number in the range of 0 to <see cref="int.MaxValue"/>, inclusive.</returns>
-		int NextInt()
+        // Returns a random number in the range of zero to Int32.MaxValue, inclusive.
+        int NextInt()
 		{
 			var t = ( _x ^ ( _x << 11 ) );
 			_x = _y;
 			_y = _z;
 			_z = _w;
 			return (int)( 0x7FFFFFFF & ( _w = ( _w ^ ( _w >> 19 ) ) ^ ( t ^ ( t >> 8 ) ) ) );
-		} // end NextInt function
+		} // end NextInt
 
-		/// <summary>
-		/// Generates an unsigned 32-bit number in the range of 0 to <see cref="uint.MaxValue"/>. This is the fastest
-		/// method for generating random numbers.
-		/// </summary>
-		/// <returns>An unsigned 32-bit number in the range of 0 to <see cref="uint.MaxValue"/></returns>
+        // Returns an unsigned 32-bit number in the range of zero to UInt32.MaxValue
 		public uint NextUInt()
 		{
-			var t = ( _x ^ ( _x << 11 ) );
+            var t = ( _x ^ ( _x << 11 ) );
 			_x = _y;
 			_y = _z;
 			_z = _w;
 			return ( _w = ( _w ^ ( _w >> 19 ) ) ^ ( t ^ ( t >> 8 ) ) );
-		} // end NextUInt function
+		} // end NextUInt
 
-		/// <summary>
-		/// Reinitializes the object using the specified seed value.
-		/// </summary>
-		/// <param name="seed">The seed.</param>
+        // Reinitializes the object using the specified seed value.
 		public void Reseed( int seed )
 		{
 			// The only stipulation stated for the xorshift RNG is that at least one of
@@ -269,6 +241,6 @@ namespace GSP
 			_y = _cY;
 			_z = _cZ;
 			_w = _cW;
-		} // end Reseed function
-	} // end SafeRandom class
-} // end namespace
+		} // end Reseed
+	} // end SafeRandom
+} // end GSP

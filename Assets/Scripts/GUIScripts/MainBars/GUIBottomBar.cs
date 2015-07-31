@@ -1,77 +1,87 @@
-﻿using UnityEngine;
-using System.Collections;
-
+﻿/*******************************************************************************
+ *
+ *  File Name: GUIBottomBar.cs
+ *
+ *  Description: Old GUI for the bottom UI bar
+ *
+ *******************************************************************************/
+using GSP.Char;
+using UnityEngine;
 
 namespace GSP.JAVIERGUI
 {
-
-	public class GUIBottomBar : MonoBehaviour 
+    //TODO: Damien: Replace with the GameMaster functionality later.
+    //TODO: Brent: Replace this with the new In-Game UI later; probably not in the same namespace
+    /*******************************************************************************
+     *
+     * Name: GUIBottomBar
+     * 
+     * Description: Creates the GUI for the bottom bar containing the item and
+     *              ally buttons.
+     * 
+     *******************************************************************************/
+    public class GUIBottomBar : MonoBehaviour 
 	{
-		//...Scripts...
-		GSP.Char.Character m_CharacterScript;
+		// ...Scripts...
+		Character characterScript;
 
-		//....Bottom Bar Configuration values....
-		private int m_gapInYdirection;
-		private int m_gapInXdirection;
-		//private int m_numOfButtonsInXDirection;
-		//private int m_numOfButtonsInYdirection;
-		private int m_buttonHeight;
-		private int m_buttonWidth;
-		private int m_barStartX;
-		private int m_barStartY;
+		// ....Bottom Bar Configuration values....
+		int gapInYdirection;    // The gap between the buttons on the y-axis
+		int gapInXdirection;    // The gap between the buttons on the x-axis
+		int buttonHeight;       // The button's height
+		int buttonWidth;        // The button's width
+		int barStartX;          // The button's starting position on the x-axis
+		int barStartY;          // The button's starting position on the y-axis
 
 
 		//....Feedback Values....
-		private double m_animTimer = 0.0;
-		private bool m_runAnimation = false;
+		double animTimer = 0.0f;        // The button's flashing animation timer
+		bool canRunAnimation = false;   // Whether to run the animation
 
-		private bool m_viewItems = false;
-		private bool m_viewAllies = false;
+		bool canViewItems = false;      // Whether to show the Items UI
+		bool canViewAllies = false;     // Whether to show the Allies UI
 
-		private bool m_runItemAnim = false;
-		private bool m_runAllyAnim = false;
-
-		// Use this for initialization
-		void Awake () {
-			ReScaleValues ();
-		}
-
+		bool canRunItemAnim = false;    // Whether to run the Items animation
+		bool canRunAllyAnim = false;    // Wheter to run the Allies animation
 
 		// Use this for initialization
-		void Start () {
+		void Awake ()
+        {
+			ReScaleValues();
+		} // end Awake
 
-		}
-
-
-		public void RefreshBottomBarGUI( GameObject p_playerEntity )
+		//TODO: Damien: Replace with the GameMaster functionality later.
+        // Sets the Character script reference to the Character component of the given player
+        public void RefreshBottomBarGUI(GameObject player)
 		{
-			m_CharacterScript = p_playerEntity.GetComponent<GSP.Char.Character>();
+			characterScript = player.GetComponent<Character>();
 			
-		}	//end void RefreshBottomBarGUI()
+		} // end RefreshBottomBarGUI
 
 
-		public void ReScaleValues()
+		//TODO: Brent: Replace OnGUI stuff with the new In-Game UI later
+        // Rescales to the values to fit with the OnGUI system
+        public void ReScaleValues()
 		{
-			m_gapInYdirection = 1;
-			m_gapInXdirection = 2;
-			//m_numOfButtonsInXDirection = 1;
-			//m_numOfButtonsInYdirection = 2;
-			m_buttonHeight = 32;
-			m_buttonWidth = 64;
-			m_barStartX = (m_buttonWidth/4);
-			m_barStartY = ( Screen.height - (m_buttonHeight*1) );
-		}	//end public void ReScaleValues()
+			gapInYdirection = 1;
+			gapInXdirection = 2;
+			buttonHeight = 32;
+			buttonWidth = 64;
+			barStartX = (buttonWidth / 4);
+			barStartY = (Screen.height - (buttonHeight * 1));
+		} // end ReScaleValues
 
-
-		void OnGUI()
+        //TODO: Brent: Replace OnGUI stuff with the new In-Game UI later
+        // The old style GUI functioned using an OnGUI function; Runs each frame
+        void OnGUI()
 		{
-			//Rescale valus
-			ReScaleValues ();
-			//default button color
+			// Rescale values
+            ReScaleValues();
+			// default button color
 			GUI.backgroundColor = Color.red;
 
-			int col;
-			int row;
+			int col;    // The columns
+			int row;    // The rows
 
 			//.............
 			//   Row 0
@@ -81,189 +91,192 @@ namespace GSP.JAVIERGUI
 				//   Col 0
 				//,,,,,,,,,,,,
 			col = 0;
-			ConfigItemButton( (m_barStartX +(col*m_gapInXdirection)), (m_barStartY -(row*m_gapInYdirection)), m_buttonWidth, m_buttonHeight );
+            ConfigItemButton((barStartX + (col * gapInXdirection)), (barStartY - (row * gapInYdirection)), buttonWidth, buttonHeight);
 				//,,,,,,,,,,,,
 				//	Col 1
 				//,,,,,,,,,,,,
-			col = col +1;
-			ConfigAllyButton( (m_barStartX +(col*m_buttonWidth +m_gapInXdirection)), (m_barStartY -(row*m_buttonHeight +m_gapInYdirection)), m_buttonWidth, m_buttonHeight );
+            col++;
+            ConfigAllyButton((barStartX + (col * buttonWidth + gapInXdirection)), (barStartY - (row * buttonHeight + gapInYdirection)), buttonWidth, buttonHeight);
 
 
 			//.............
 			//	Row 1
 			//.............
-			row = row +1;
+            row++;
 				//,,,,,,,,,,,,
 				//	Col 0
 				//,,,,,,,,,,,,
 			col = 0;
-			ConfigItemBarDisplay( (m_barStartX +(col*m_buttonWidth +m_gapInXdirection)), (m_barStartY -(row*m_buttonHeight +m_gapInYdirection)), m_buttonWidth, m_buttonHeight );
-			ConfigAllyBarDisplay( (m_barStartX +(col*m_buttonWidth +m_gapInXdirection)), (m_barStartY -(row*m_buttonHeight +m_gapInYdirection)), (2*m_buttonWidth), m_buttonHeight);
+            ConfigItemBarDisplay((barStartX + (col * buttonWidth + gapInXdirection)), (barStartY - (row * buttonHeight + gapInYdirection)), buttonWidth, buttonHeight);
+            ConfigAllyBarDisplay((barStartX + (col * buttonWidth + gapInXdirection)), (barStartY - (row * buttonHeight + gapInYdirection)), (2 * buttonWidth), buttonHeight);
+		} // end OnGUI
 
-		}	//end OnGUI()
-
-
-
-		private void ConfigItemButton( int p_x, int p_y, int p_width, int p_height )
+        //TODO: Brent: Replace OnGUI stuff with the new In-Game UI later
+        // Configures the item button of the OnGUI UI system
+        void ConfigItemButton(int startX, int startY, int startWidth, int startHeight)
 		{
-			if( m_runAnimation == false)
+			if(!canRunAnimation)
 			{
-				PickButtonColor (m_viewItems);
-			}
+                PickButtonColor(canViewItems);
+			} // end if
 			else
 			{
-				AnimTimer( m_runItemAnim );
-			}
+                AnimTimer(canRunItemAnim);
+			} // end else
 
-	
-			if( GUI.Button( new Rect(p_x, p_y, p_width, p_height), "ITEMS") )
+
+            if (GUI.Button(new Rect(startX, startY, startWidth, startHeight), "ITEMS"))
 			{
-				//stop animation
-				m_runItemAnim = false;
-				m_runAnimation = false;
+				// stop animation
+				canRunItemAnim = false;
+				canRunAnimation = false;
 
-				//set view values
-				if( m_viewItems == false )
+				// set view values
+				if(!canViewItems)
 				{
-					m_viewAllies = false;
-					m_viewItems = true;
-				}
+					canViewAllies = false;
+					canViewItems = true;
+				} // end if
 				else
 				{
-					m_viewItems = false;
-				}
-			}
-		}	//end private void ConfigItemButton()
+					canViewItems = false;
+				} // end else
+			} // end if
+		} // end ConfigItemButton
 
-
-
-		private void ConfigItemBarDisplay( int p_x, int p_y, int p_width, int p_height )
+        //TODO: Brent: Replace OnGUI stuff with the new In-Game UI later
+        // Configures the item bar of the OnGUI UI system
+        void ConfigItemBarDisplay(int startX, int startY, int startWidth, int startHeight)
 		{
-			if( m_viewItems == true )
+            if (canViewItems)
 			{
 				int row = 0;
 				int col = 0;
-				string resultString = (m_CharacterScript.AttackPower).ToString();
-				GUI.Box(new Rect (p_x +(col *p_width), p_y +(row *p_height), p_width, p_height), "AP: " +resultString );
+                string resultString = (characterScript.AttackPower).ToString();
+                GUI.Box(new Rect(startX + (col * startWidth), startY + (row * startHeight), startWidth, startHeight), "AP: " + resultString);
 
-				col = col+1;
-				resultString = (m_CharacterScript.DefencePower).ToString();
-				GUI.Box(new Rect (p_x +(col *p_width), p_y +(row *p_height), p_width, p_height), "DP: " +resultString );
+				col++;
+				resultString = (characterScript.DefencePower).ToString();
+                GUI.Box(new Rect(startX + (col * startWidth), startY + (row * startHeight), startWidth, startHeight), "DP: " + resultString);
 
-				col = col+1;
-				resultString = ( m_CharacterScript.ResourceValue.ToString() +"/" +m_CharacterScript.MaxInventory.ToString() ) ;
-				GUI.Box(new Rect (p_x +(col *p_width), p_y +(row *p_height), p_width, p_height), "DP: " +resultString );
-			}
-		}	//edn private void ConfigItemBarDisplay
+				col++;
+                resultString = (characterScript.ResourceValue.ToString() + "/" + characterScript.MaxInventory.ToString());
+                GUI.Box(new Rect(startX + (col * startWidth), startY + (row * startHeight), startWidth, startHeight), "DP: " + resultString);
+			} // end if
+		} // end ConfigItemBarDisplay
 
 
-		private void ConfigAllyButton( int p_x, int p_y, int p_width, int p_height )
+        //TODO: Brent: Replace OnGUI stuff with the new In-Game UI later
+        // Configures the item button of the OnGUI UI system
+        void ConfigAllyButton(int startX, int startY, int startWidth, int startHeight)
 		{
-			if( m_runAnimation == false)
+			if(!canRunAnimation)
 			{
-				PickButtonColor (m_viewAllies );
-			}
+                PickButtonColor(canViewAllies);
+			} // end if
 			else
 			{
-				AnimTimer( m_runAllyAnim );
-			}
+                AnimTimer(canRunAllyAnim);
+			} // end else
 
 
-			if( GUI.Button( new Rect(p_x, p_y, p_width, p_height), "ALLIES") )
+            if (GUI.Button(new Rect(startX, startY, startWidth, startHeight), "ALLIES"))
 			{
-				//stop animation
-				m_runAllyAnim = false;
-				m_runAnimation = false;
+				// stop animation
+				canRunAllyAnim = false;
+				canRunAnimation = false;
 
-				//set view values
-				if( m_viewAllies == false )
+				// set view values
+				if(!canViewAllies)
 				{
-					m_viewItems = false;
-					m_viewAllies = true;
-				}
+					canViewItems = false;
+					canViewAllies = true;
+				} // end if
 				else
 				{
-					m_viewAllies = false;
-				}
-			}
+					canViewAllies = false;
+				} // end else
+			} // end if
+		} // end ConfigAllyButton
 
-		}	//end private void ConfigAllyButton( int p_x, int p_y, int p_width, int p_height )
-
-
-		private void ConfigAllyBarDisplay( int p_x, int p_y, int p_width, int p_height )
+        //TODO: Brent: Replace OnGUI stuff with the new In-Game UI later
+        // Configures the ally bar of the OnGUI UI system
+        void ConfigAllyBarDisplay(int startX, int startY, int startWidth, int startHeight)
 		{
-			if(m_viewAllies == true)
+			if(canViewAllies)
 			{
 				int row = 0;
 				int col = 0;
-				string resultString = (m_CharacterScript.NumAllies).ToString();
-				GUI.Box(new Rect (p_x +(col *p_width), p_y +(row *p_height), p_width, p_height), "# of Allies: " +resultString );
-			}
+                string resultString = (characterScript.NumAllies).ToString();
+                GUI.Box(new Rect(startX + (col * startWidth), startY + (row * startHeight), startWidth, startHeight), "# of Allies: " + resultString);
+			} // end if
 
-		}	//private void ConfigAllyBarDisplay( int p_x, int p_y, int p_width, int p_height )
+		} // end ConfigAllyBarDisplay
 
-
-		private void PickButtonColor(bool p_isSelected)
+        //TODO: Brent: Replace OnGUI stuff with the new In-Game UI later
+        // Picks a background colour based upon if the button is selected for the OnGUI system
+        void PickButtonColor(bool isSelected)
 		{
-			if (p_isSelected == true) 
+			if (isSelected) 
 			{
 				GUI.backgroundColor = Color.yellow;
-			}
+			} // end if
 			else
 			{
 				GUI.backgroundColor = Color.red;
-			}
-		}
+			} // end else
+		} // end PickButtonColor
 
-
-		public void AnimateAllyButton()
+        //TODO: Brent: Replace OnGUI stuff with the new In-Game UI later
+        // Animates the ally button for the OnGUI system
+        public void AnimateAllyButton()
 		{
-			m_runAllyAnim = true;
-			m_runAnimation = true;
-		}	//public void AnimateAllyButton()
+			canRunAllyAnim = true;
+			canRunAnimation = true;
+		} // end AnimateAllyButton
 
-
-		public void AnimateItemButton()
+        //TODO: Brent: Replace OnGUI stuff with the new In-Game UI later
+        // Animate the item button for the OnGUI system
+        public void AnimateItemButton()
 		{
-			m_runItemAnim = true;
-			m_runAnimation = true;
-		}	//public void AnimateAllyButton()
+			canRunItemAnim = true;
+			canRunAnimation = true;
+		} // end AnimateAllyButton
 
-
-		private void AnimTimer(bool p_isAnimating)
+        //TODO: Brent: Replace OnGUI stuff with the new In-Game UI later
+        // Manages the animation timer for the OnGUI system
+        void AnimTimer(bool isAnimating)
 		{
-			m_animTimer = m_animTimer +Time.deltaTime;
-			if(m_animTimer > 2.0)
+            animTimer = animTimer + Time.deltaTime;
+			if(animTimer > 2.0f)
 			{
-				m_animTimer = 0.0;
-			}
+				animTimer = 0.0f;
+			} // end if
 			
-			if(p_isAnimating == true)
+			if(isAnimating)
 			{
-				if (m_animTimer < 1.0f)
+				if (animTimer < 1.0f)
 				{
 					GUI.backgroundColor = Color.red;
-				}
+				} // end if
 				else
 				{
 					GUI.backgroundColor = Color.yellow;
-				}	
-			}
+				} // end else
+			} // end if
 			else
 			{
 				GUI.backgroundColor = Color.red;
-			}
-		}	//end private void animTimer()
+			} // end else
+		} // end AnimTimer
 
-
-		public void StopAnimation()
+        //TODO: Brent: Replace OnGUI stuff with the new In-Game UI later
+        // Stops the animation for the OnGUI system
+        public void StopAnimation()
 		{
-			m_runAllyAnim = false;
-			m_runItemAnim = false;
-			m_runAnimation = false;
-
-		}	//end public void StopAnimation()
-
-	}	//end public class GUIBottomBar : MonoBehaviour
-
-}	//end namespace GSP.JAVIERGUI
+			canRunAllyAnim = false;
+			canRunItemAnim = false;
+			canRunAnimation = false;
+		} // end StopAnimation
+	} // end GUIBottomBar
+} // end GSP.JAVIERGUI
