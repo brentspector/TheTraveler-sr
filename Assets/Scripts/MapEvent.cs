@@ -1,315 +1,349 @@
-using UnityEngine;
-using System;
-using System.Collections;
-using System.Collections.Generic;
+/*******************************************************************************
+ *
+ *  File Name: MapEvent.cs
+ *
+ *  Description: The logic for the events that happen on the maps
+ *
+ *******************************************************************************/
 using GSP.Char;
 using GSP.Tiles;
+using System;
+using System.Collections.Generic;
+using UnityEngine;
 
 namespace GSP
 {
-	public class MapEvent : MonoBehaviour
+    //TODO: Damien: Replace with the GameMaster functionality later.
+    /*******************************************************************************
+     *
+     * Name: MapEvent
+     * 
+     * Description: Deals with the logic behind the different map's events.
+     * 
+     *******************************************************************************/
+    public class MapEvent : MonoBehaviour
 	{
-		//Holds object for refrencing die functions
-		private Die m_die;
+        Die die; // Die reference
 		
-		//Holds the objects for referencing the player and its script functions.
-		GameObject m_player;
-		Character m_playerCharScript;
+		GameObject player;          // The player's GameObject reference
+		Character playerCharScript; // The player's Character script component reference
 
-		//Audio
-		GameObject audioSrc;
+        GameObject audioSrc;    // The AudioSource GameObject reference
 		
 		//NOTE!!
 		//SIZE must be the last item in the enum so that anything based
 		//on the length of the enum can be used as normal. It is best to
 		//add items to the left of SIZE but after the current 2nd to last
-		//item in the enum. For instance if the list was {ENEMY, ALLY, SIZE}
-		//you should enter the new item between ALLY and SIZE.
+		//item in the enum. For instance if the list was {Enemy, Ally, Size}
+		//you should enter the new item between Ally and Size
 		
-		//Holds list of normal tile events
-		enum normalTile {ENEMY, ALLY, ITEM, WEATHER, NOTHING, SIZE};
+		// The enumeration for normal tile events
+		enum NormalTile {Enemy, Ally, Item, Nothing, Size};
 		
-		//Holds list of resource tile events
-		enum resourceTile {WOOL, WOOD, FISH, ORE, SIZE};
+		// The enumeration for the resource tile events
+		enum ResourceTile {Wool, Wood, Fish, Ore, Size};
 		
 		//Event chances
 		//NOTE: These should add up to less than 100 so that 
 		//there is a chance nothing occurs. Minimum chance of
 		//one or else there will be problems
-		int m_enemyChance = 25;
-		int m_allyChance = 15;
-		int m_itemChance = 15;
+		int enemyChance = 25;   // The minimum chance for the MapEvent to an enemy
+        int allyChance = 15;    // The minimum chance for the MapEvent to an ally
+        int itemChance = 15;    // The minimum chance for the MapEvent to an item
 		
-		//Event Summary
-		string m_GUIResult;
+		string guiResult; // The MapEvent summary
 
-		//Initialize die
+		// Used for initialisation
 		void Start()
 		{
 			// Initialise the die here.
-			m_die = new Die();
+			die = new Die();
 			
 			// Reseed the die.
-			m_die.Reseed(Environment.TickCount);
+			die.Reseed(Environment.TickCount);
 
-			//Audio
-			audioSrc = GameObject.FindGameObjectWithTag( "AudioSourceTag" );
+            // Get the AudioSource
+            audioSrc = GameObject.FindGameObjectWithTag("AudioSourceTag");
 		}
 
-		//Calls map event and returns string
-		public string DetermineEvent(GameObject player)
+        //TODO: Damien: Replace with the GameMaster functionality later.
+        //Calls map event and returns string
+		public string DetermineEvent(GameObject playerEntity)
 		{
-			//Set up player script
-			m_player = player;
-			m_playerCharScript = m_player.GetComponent<Character>();
+			// Set the player GameObject and its Character script
+			player = playerEntity;
+			playerCharScript = player.GetComponent<Character>();
 			
-			//Gather tile
-			Vector3 tmp = m_player.transform.localPosition;
-			// Change by Damien to get tiles to work again.
+			// Get the tile at the player's position
+			Vector3 tmp = player.transform.localPosition;
+			// Fix the z-axis; change by Damien to get the tiles to work again.
 			tmp.z = -0.01f;
-			// Original: tmp.z = 0.0f;
-			Tile currentTile = TileDictionary.GetTile (TileManager.ToPixels (tmp));
+            Tile currentTile = TileDictionary.GetTile(TileManager.ToPixels(tmp));
 			
-			//If no tile found
+			// Was a tile found?
 			if(currentTile == null)
 			{
-				//return "This is not a valid \ntile. No event occured.";
-				m_GUIResult = "This is not a valid \ntile. No event occured.";
-				return "NOTHING";
-			} //end if
-			//If no resource at tile
-			else if (currentTile.ResourceType == ResourceType.NONE) 
+				// No tile found so return "This is not a valid \ntile. No event occured.";
+				guiResult = "This is not a valid \ntile. No event occured.";
+				return "Nothing";
+			} // end if
+			// Otherwise, was the tile a non-resource?
+			else if (currentTile.ResourceType == ResourceType.None) 
 			{
-				int dieResult = m_die.Roll (1, 100);
-				if(dieResult < m_enemyChance)
+				// Roll a die to get a number from 1-100
+                int dieResult = die.Roll (1, 100);
+
+                // Check for an enemy
+				if(dieResult < enemyChance)
 				{
-					return "ENEMY";
-				} //end if ENEMY
-				else if (dieResult < m_allyChance + m_enemyChance && dieResult >= m_enemyChance)
+					return "Enemy";
+				} // end if
+				// Check for an ally
+                else if (dieResult < allyChance + enemyChance && dieResult >= enemyChance)
 				{
-					return "ALLY";
-				} //end else if ALLY
-				else if(dieResult < m_itemChance + m_allyChance + m_enemyChance
-				        && dieResult >= m_allyChance + m_enemyChance)
+					return "Ally";
+				} // end else if
+				// Check for an item
+                else if(dieResult < itemChance + allyChance + enemyChance
+				        && dieResult >= allyChance + enemyChance)
 				{
-					return "ITEM";
-				} //end else if ITEM
+					return "Item";
+				} // end else if
 				else
 				{
-					//return "Die roll was " + dieResult + ".\nNo map event occured.";
-					m_GUIResult = "No map event occured.";
-					return "NOTHING";
-				} //end else if NOTHING
-			} //end if NORMAL TILE
-			//If resource at tile
+					// The MapEvent was nothing so return "Die roll was " + dieResult + ".\nNo map event occured.";
+					guiResult = "No map event occured.";
+					return "Nothing";
+				} // end else
+			} //end if
+			// Otherwise, the tile is a resource
 			else
 			{
-				//Create temp resource
+				// Create a temp resource
 				Resource temp = new Resource();
 				
-				// Turn temp into type of resource
+				// Turn temp into a type of resource
 				temp.SetResource(currentTile.ResourceType.ToString());
 				
-				//Pick up resource
-				m_playerCharScript.PickupResource( temp, 1 );
+				// Pick up the resource
+                playerCharScript.PickupResource(temp, 1);
 				
-				//Declare what was landed on
-				m_GUIResult = "You got a resource:\n" + temp.ResourceName;
+				// Declare what was landed on
+				guiResult = "You got a resource:\n" + temp.Name;
 
-				//Play found for what was landed on
-				if(temp.ResourceName == "Fish")
-				{
-					audioSrc.GetComponent<AudioSource>().PlayOneShot( GSP.AudioReference.sfxFishing ); //Play fish sound
-				} //end if
-				else if(temp.ResourceName == "Wood")
-				{
-					audioSrc.GetComponent<AudioSource>().PlayOneShot( GSP.AudioReference.sfxWoodcutting ); //Play wood sound
-				} //end else if
-				else if(temp.ResourceName == "Wool")
-				{
-					audioSrc.GetComponent<AudioSource>().PlayOneShot( GSP.AudioReference.sfxShearing ); //Play wool sound
-				} //end else if
-				else
-				{
-					audioSrc.GetComponent<AudioSource>().PlayOneShot( GSP.AudioReference.sfxMining ); //Play ore sound
-				} //end else
-				return "RESOURCE";
-			} //end else if RESOURCE TILE
-		} //end DetermineEvent(GameObject player)
-		
-		public string ResolveFight(GameObject player)
+                //TODO: Brent: Replace with AudioManager later
+                //// Play found for what was landed on
+                //if(temp.ResourceName == "Fish")
+                //{
+                //    // Play fish sound
+                //    audioSrc.GetComponent<AudioSource>().PlayOneShot(GSP.AudioReference.sfxFishing);
+                //} // end if
+                //else if(temp.ResourceName == "Wood")
+                //{
+                //    // Play wood sound
+                //    audioSrc.GetComponent<AudioSource>().PlayOneShot( GSP.AudioReference.sfxWoodcutting );
+                //} // end else if
+                //else if(temp.ResourceName == "Wool")
+                //{
+                //    // Play wool sound
+                //    audioSrc.GetComponent<AudioSource>().PlayOneShot( GSP.AudioReference.sfxShearing );
+                //} // end else if
+                //else
+                //{
+                //    // Play ore sound
+                //    audioSrc.GetComponent<AudioSource>().PlayOneShot( GSP.AudioReference.sfxMining );
+                //} // end else
+				return "Resource";
+			} // end else
+		} // end DetermineEvent
+
+        //TODO: Damien: Replace with the GameMaster functionality later.
+        // Resolves a fight when the enemy MapEvent spawns
+        public string ResolveFight(GameObject player)
 		{
-			///Create the enemy
-			//TODO Replace prefabCharacter with prefabEnemy
-			GameObject m_enemy = Instantiate( PrefabReference.prefabCharacter,
-				new Vector3( 0.7f, 0.5f, 0.0f ), new Quaternion() ) as GameObject;
+			// Create the enemy
+            GameObject enemy = Instantiate(PrefabReference.prefabCharacter, 
+                new Vector3(0.7f, 0.5f, 0.0f), new Quaternion()) as GameObject;
 
-			// Remove the sprite renderer component. This makes the ally not shown on the map.
-			Destroy( m_enemy.GetComponent<SpriteRenderer>() );
+			// Remove the SpriteRenderer component. This makes the enemy not shown in the scene.
+            Destroy(enemy.GetComponent<SpriteRenderer>());
 			
-			//Get the character script attached to the enemy
-			Character m_enemyScript = m_enemy.GetComponent<Character>();
+			// Get the character script attached to the enemy
+			Character enemyScript = enemy.GetComponent<Character>();
 			
-			//Set stats
-			m_enemyScript.AttackPower = m_die.Roll(1, 9);
-			m_enemyScript.DefencePower = m_die.Roll(1, 9);
+			// Set the stats of the enemy
+			enemyScript.AttackPower = die.Roll(1, 9);
+			enemyScript.DefencePower = die.Roll(1, 9);
 			
-			//TODO Add Battle Scene
+			//TODO: Brent: Add Battle Scene
 			
 			//Battle characters
 			Fight fighter = new Fight();
-			///////////////////////////////////////
-			//string result = "Die roll was " + dieResult + ".\nMap event was enemy, \nand " + 
-			//	fighter.CharacterFight(m_enemy, m_player);
-			//////////////////////////////////////
-			string result = fighter.CharacterFight(m_enemy, m_player);
+			string result = fighter.CharacterFight(enemy, player);
 			
-			//Player lost fight, remove resources or weapon
+			// Check if the player lost the fight
 			if(result.Contains("Enemy wins"))
 			{
-				//Player has no resources, remove weapon
-				if(m_playerCharScript.ResourceWeight <= 0)
+                // The player lost the fight, remove its resources or its weapon
+                // The player has no resources so remove its weapon weapon
+				if(playerCharScript.ResourceWeight <= 0)
 				{
-					m_playerCharScript.RemoveItem("weapon");
-				} //end if
-				//Player has resources, remove random resource
+					playerCharScript.RemoveItem("attack");
+				} // end if
+				// Otherwise, the player has resources so remove a random resource
 				else
 				{
-					// Get the player's resource list script.
-					ResourceList tempList = m_player.GetComponent<ResourceList>();
+					// Get the player's resource list script
+					ResourceList tempList = player.GetComponent<ResourceList>();
 					
-					// Choose a resource.
-					int resourceNumber = m_die.Roll( 1, (int)ResourceType.SIZE ) - 1;
-					print ("Resource number is " + resourceNumber);
+					// Choose a resource
+                    int resourceNumber = die.Roll(1, (int)ResourceType.Size) - 1;
+                    Debug.LogFormat("Resource number is {0}", resourceNumber);
 
-					// Get the list of resources of that type.
-					List<Resource> resList = tempList.GetResourcesByType( 
-						Enum.GetName( typeof( ResourceType ), resourceNumber ) );
+					// Get the list of resources of that type
+                    List<Resource> resList = tempList.GetResourcesByType(
+                        Enum.GetName(typeof(ResourceType), resourceNumber));
 					
-					// Remove the resources by list.
-					tempList.RemoveResources( resList );
-					result += " \nAs a result, you lost all your " + Enum.GetName(typeof(ResourceType), 
-					    resourceNumber);
-				} //end else
-			} //end if
+					// Remove the resources by list
+                    tempList.RemoveResources(resList);
+					result += " \nAs a result, you lost all your " + Enum.GetName(typeof(ResourceType), resourceNumber);
+				} // end else
+			} // end if
 
-			//Clear enemy
-			Destroy(m_enemy);
+			// Destroy the enemy GameObject
+			Destroy(enemy);
 
-			//Set Summary
-			m_GUIResult = result;
-			return m_GUIResult;
-		} //end ResolveFight(GameObject player)
-		
-		public string ResolveAlly(GameObject player, string p_GUIresult)
+			// Set the summary and return it
+			guiResult = result;
+			return guiResult;
+		} // end ResolveFight
+
+        //TODO: Damien: Replace with the GameMaster functionality later.
+        // Resolves an ally when the ally MapEvent spawns
+        public string ResolveAlly(GameObject player, string guiAcceptResult)
 		{
-			//Create ally
-			GameObject m_ally = Instantiate( PrefabReference.prefabCharacter,
-				m_player.transform.position, new Quaternion() ) as GameObject;
+			// Create the ally
+            GameObject ally = Instantiate(PrefabReference.prefabCharacter,
+                player.transform.position, new Quaternion()) as GameObject;
 
-			// Remove the sprite renderer component. This makes the ally not shown on the map.
-			Destroy( m_ally.GetComponent<SpriteRenderer>() );
-			
-			//Generate script
-			Character m_allyScript = m_ally.GetComponent<Character>();
-			
-			//Set max weight
-			m_allyScript.MaxWeight = m_die.Roll(1, 20) * 6;
+			// Remove the SpriteRenderer component. This makes the ally not shown in the scene.
+            Destroy(ally.GetComponent<SpriteRenderer>());
 
-			//Player accepts ally
-			if(p_GUIresult == "YES")
+            // Get the character script attached to the ally
+			Character allyScript = ally.GetComponent<Character>();
+			
+			// Set the ally's max weight
+            allyScript.MaxWeight = die.Roll(1, 20) * 6;
+
+			// Check if the player accepts the ally
+            if (guiAcceptResult == "YES")
 			{
-				//Add to ally list
-				Ally m_playerAllyScript = m_player.GetComponent<Ally>();
-				m_playerAllyScript.AddAlly(m_ally);
+				// Add the ally to the player's ally list
+				Ally playerAllyScript = player.GetComponent<Ally>();
+				playerAllyScript.AddAlly(ally);
 
-				//Return accepted
-				m_GUIResult = "Ally was added.";
-				return "Ally Was Added.";
+				// Set and return accepted
+				guiResult = "Ally was added.";
+				return guiResult;
 			}
 
-			//Player declines ally
-			else if(p_GUIresult == "NO")
+			//Check if the player declines the ally
+            else if (guiAcceptResult == "NO")
 			{
-				//Destroy newAlly
-				Destroy(m_ally);
+				// Destroy the ally GameObject
+				Destroy(ally);
 
-				//Return decline
-				m_GUIResult = "Ally was declined.";
+				// Set and return declined
+				guiResult = "Ally was declined.";
 				return "No ally was added.";
-			} //end else if
+			} // end else if
 
-			//Otherwise wait for answer
+			// Otherwise wait for answer
 			return "No choice was made.";
-		} //end ResolveAlly(GameObject player, string p_GUIresult)
-		
-		public string ResolveItem(GameObject player)
+		} // end ResolveAlly
+
+        //TODO: Damien: Replace with the GameMaster functionality later.
+        // Resolves an item when the item MapEvent spawns
+        public string ResolveItem(GameObject player)
 		{
-			//String to return for display
+			// String to return for display
 			string result;
 			
-			//Determine what item was found
-			int itemType = m_die.Roll(1, 4);
-			
-			if(itemType == 1)
-			{
-				//Pick an item from the weapons enum
-				int itemNumber = m_die.Roll(1, (int)Weapons.SIZE) - 1;
-				
-				//Assign chosen number as the item
-				result = Enum.GetName(typeof(Weapons), itemNumber);
-				
-				//Equip to player
-				m_playerCharScript.EquipItem(result);
-				
-			} //end if Weapon
-			else if(itemType == 2)
-			{
-				//Pick an item from the armor enum
-				int itemNumber = m_die.Roll(1, (int)Armor.SIZE) - 1;
-				
-				//Assign chosen number as the item
-				result = Enum.GetName(typeof(Armor), itemNumber);
-				
-				//Equip to player
-				m_playerCharScript.EquipItem(result);
-			} //end else if Armor
-			else if(itemType == 3)
-			{
-				//Pick an item from the inventory enum
-				int itemNumber = m_die.Roll(1, (int)Inventory.SIZE) - 1;
-				
-				//Assign chosen number as the item
-				result = Enum.GetName(typeof(Inventory), itemNumber);
-				
-				//Equip to player
-				m_playerCharScript.EquipItem(result);
-			} //end else if Inventory
-			else if(itemType == 4)
-			{
-				//Pick an item from the weight enum
-				int itemNumber = m_die.Roll(1, (int)Weight.SIZE) - 1;
-				
-				//Assign chosen number as the item
-				result = Enum.GetName(typeof(Weight), itemNumber);
-				
-				//Equip to player
-				m_playerCharScript.EquipItem(result);
-			} //end else if Weight
-			else
-			{
-				result = "non-existant item. Nothing given.";
-			} //end else
+			// Determine what item was found
+			int itemType = die.Roll(1, 4);
 
-			m_GUIResult = "You got \n" + result;
-			
-			return "You got \n" + result;
-		} //end ResolveItem(GameObject player)
+            // Switch ove the itemType
+            switch (itemType)
+            {
+                // A weapon item
+                case 1:
+                    {
+                        // Pick an item from the weapons enumeration
+                        int itemNumber = die.Roll(1, (int)Weapons.Size) - 1;
 
-		public string GetResultString()
+                        // Assign the chosen number as the item
+                        result = Enum.GetName(typeof(Weapons), itemNumber);
+
+                        // Equip the item on player
+                        playerCharScript.EquipItem(result);
+                        break;
+                    } // end case 1
+                // Am armour item
+                case 2:
+                    {
+                        // Pick an item from the armor enumeration
+                        int itemNumber = die.Roll(1, (int)Armor.Size) - 1;
+
+                        // Assign the chosen number as the item
+                        result = Enum.GetName(typeof(Armor), itemNumber);
+
+                        // Equip the item on player
+                        playerCharScript.EquipItem(result);
+                        break;
+                    } // end case 2
+                // An inventory item
+                case 3:
+                    {
+                        // Pick an item from the inventory enumeration
+                        int itemNumber = die.Roll(1, (int)Inventory.Size) - 1;
+
+                        // Assign the chosen number as the item
+                        result = Enum.GetName(typeof(Inventory), itemNumber);
+
+                        // Equip the item on player
+                        playerCharScript.EquipItem(result);
+                        break;
+                    } // end case 3
+                // A weight item
+                case 4:
+                    {
+                        // Pick an item from the weight enumeration
+                        int itemNumber = die.Roll(1, (int)Weight.Size) - 1;
+
+                        // Assign the chosen number as the item
+                        result = Enum.GetName(typeof(Weight), itemNumber);
+
+                        // Equip the item on player
+                        playerCharScript.EquipItem(result);
+                        break;
+                    } // end case 4
+                // An invalid item
+                default:
+                    {
+                        result = "non-existant item. Nothing given.";
+                        break;
+                    } // end case default
+            } // end switch itemType
+			
+			// Set and return the result
+            guiResult = "You got \n" + result;
+            return guiResult;
+		} // end ResolveItem
+
+		// Gets the result string
+        public string GetResultString()
 		{
-			return m_GUIResult;
-		}
-
-	} //end MapEvent class
-} //end namespace GSP
+			return guiResult;
+		} // end GetResultString
+	} // end MapEvent
+} // end GSP

@@ -87,45 +87,6 @@ NavMeshSettings:
     cellSize: .166666657
     manualCellSize: 0
   m_NavMeshData: {fileID: 0}
---- !u!1 &352410751
-GameObject:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  serializedVersion: 4
-  m_Component:
-  - 4: {fileID: 352410752}
-  - 114: {fileID: 352410753}
-  m_Layer: 0
-  m_Name: Test
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &352410752
-Transform:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 352410751}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.67029107, y: -3.2868669, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 2
---- !u!114 &352410753
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 352410751}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 94edd1ebf2125f741aabb2e556e8213a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1464764040
 GameObject:
   m_ObjectHideFlags: 0
@@ -201,7 +162,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f3b2765b7b8e4f1439f74d39e29799c0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_bgtex: {fileID: 2800000, guid: 2ab4c1023cd000a489ab7d1e1cb32c77, type: 3}
+  backgroundTexture: {fileID: 2800000, guid: 2ab4c1023cd000a489ab7d1e1cb32c77, type: 3}
 --- !u!1 &1979576416
 GameObject:
   m_ObjectHideFlags: 0

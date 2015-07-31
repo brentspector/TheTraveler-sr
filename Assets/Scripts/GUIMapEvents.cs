@@ -1,227 +1,238 @@
-﻿using UnityEngine;
-using System; //needed for Exception
-using System.Collections;
+﻿/*******************************************************************************
+ *
+ *  File Name: GUIMapEvents.cs
+ *
+ *  Description: Old GUI for MapEvent events
+ *
+ *******************************************************************************/
 using GSP.JAVIERGUI;
+using System;
+using UnityEngine;
 
 namespace GSP
 {
-	
-	public class GUIMapEvents : MonoBehaviour
-		//////////////////////////////////////////////////////////////
-		// GUI features for all the map Events
-		// 		-types of Map Events
-		//			+Enemy
-		//			+Ally
-		//			+Resources
-		//				++
-		//////////////////////////////////////////////////////////////
+    //TODO: Damien: Replace with the GameMaster functionality later.
+    //TODO: Brent: Replace this with the new In-Game UI later
+    /*******************************************************************************
+     *
+     * Name: GUIMapEvents
+     * 
+     * Description: GUI features for all the MapEvent events.
+     * 
+     *******************************************************************************/
+    public class GUIMapEvents : MonoBehaviour
 	{
-		//==========================================================
-		//--------------Class Variables-----------------------------
-		//==========================================================
-		//Will remove this when I integrate with class GSP.MapEvent
-		private enum m_EnumMapEvent
+        // Enumeration for the types of MapEvent events
+        enum MapEvent
 		{
-			ENEMY, ALLY, RESOURCE, ITEM, WEATHER, NOTHING, DONE
+			Enemy, Ally, Resource, Item, Weather, Nothing, Done
 		};
 		
-		//Will remove this when I integrate with class GSP.MapEvent
-		private enum m_EnumResourceType
+		// Enumeration for the types of resources
+        enum ResourceType
 		{
-			WOOL, WOOD, FISH, ORE, SIZE
+			Wool, Wood, Fish, Ore, Size
 		};
 		
-		//Enum holders
-		private m_EnumMapEvent m_currEnumMpEvent;
+		MapEvent currMapEvent;  // The current map event
 
-		//variables
-		bool m_showHideGUI = false;
-		bool m_isActionRunning = true;
+		bool canShowGUI = false;        // Whether to show or hise the OnGUI UI
+		bool isActionRunning = true;    // Whether the MapEvent action is running
 		
-		//playerObject
-		private GameObject m_PlayerEntity;
+		GameObject m_PlayerEntity;  // The player GaneObject
 		
-		//scripts
-		bool m_initScript = false; //this makes sure each script is initialized once per state
-		GSP.JAVIERGUI.GUIEnemy m_GUIEnemyScript;
-		GSP.JAVIERGUI.GUIAlly m_GUIAllyScript;
-		GSP.JAVIERGUI.GUIItem m_GUIItemScript;
-		GSP.JAVIERGUI.GUIResource m_GUIResourceScript;
-		GSP.JAVIERGUI.GUINothing m_GUINothingScript;
-		GSP.GameplayStateMachine m_GameplayStateMachineScript;
-		GSP.JAVIERGUI.GUIBottomBar m_GUIBottomBarScript;
+		bool canInitScript = true;                          // Ensures each script is initialized only once per state
+        GUIEnemy guiEnemyScript;                            // The GUIEnemy component reference
+        GUIAlly guiAllyScript;                              // The GUIAlly component reference
+        GUIItem guiItemScript;                              // The GUIItem component reference
+        GUIResource guiResourceScript;                      // The GUIResource component reference
+        GUINothing guiNothingScript;                        // The GUINothing component reference
+		GameplayStateMachine gameplayStateMachineScript;    // The GamePlayStateMachine component reference
+        GUIBottomBar guiBottomBarScript;                    // The GUIBottomBar component reference
 
-		//main container values
-		int m_mainStartX = 0;
-		int m_mainStartY = 65 + 32; //65 is just below the main GUI, and I added a gap of 32 from the end of that
-		int m_mainWidth = Screen.width / 3;
-		int m_mainHeight = Screen.height / 2;
-		string m_resultString;
+		int mainStartX = 0;                 // The main container's starting x
+		int mainStartY = 65 + 32;           // The main container's starting y; 65 is just below the main GUI, and I added a gap of 32 from the end of that
+        int mainWidth = Screen.width / 3;   // The main container's width
+        int mainHeight = Screen.height / 2; // The main container's height
+		string resultString;                // The resulting string
 		
-		//==========================================================
-		//--------------------Functions-----------------------------
-		//==========================================================
-		
-		// Use this for initialization
-		void Start () {
-			m_currEnumMpEvent = m_EnumMapEvent.NOTHING;
-			m_GUIEnemyScript = GameObject.FindGameObjectWithTag("GUIMapEventSpriteTag").GetComponent<GSP.JAVIERGUI.GUIEnemy>();
-			m_GUIAllyScript = GameObject.FindGameObjectWithTag("GUIMapEventSpriteTag").GetComponent<GSP.JAVIERGUI.GUIAlly>();
-			m_GUIItemScript = GameObject.FindGameObjectWithTag("GUIMapEventSpriteTag").GetComponent<GSP.JAVIERGUI.GUIItem>();
-			m_GUIResourceScript = GameObject.FindGameObjectWithTag ("GUIMapEventSpriteTag").GetComponent<GSP.JAVIERGUI.GUIResource>();
-			m_GUINothingScript = GameObject.FindGameObjectWithTag("GUIMapEventSpriteTag").GetComponent<GSP.JAVIERGUI.GUINothing>();
-			m_GameplayStateMachineScript = GameObject.FindGameObjectWithTag("GamePlayStateMachineTag").GetComponent<GSP.GameplayStateMachine>();
-			m_GUIBottomBarScript = GameObject.FindGameObjectWithTag("GamePlayStateMachineTag").GetComponent<GSP.JAVIERGUI.GUIBottomBar>();
+		// Use this for initialisation
+		void Start ()
+        {
+			// Initialise the map event to nothing
+            currMapEvent = MapEvent.Nothing;
 
-		}
+			// Get the component references
+            guiEnemyScript = GameObject.FindGameObjectWithTag("GUIMapEventSpriteTag").GetComponent<GUIEnemy>();
+            guiAllyScript = GameObject.FindGameObjectWithTag("GUIMapEventSpriteTag").GetComponent<GUIAlly>();
+            guiItemScript = GameObject.FindGameObjectWithTag("GUIMapEventSpriteTag").GetComponent<GUIItem>();
+            guiResourceScript = GameObject.FindGameObjectWithTag("GUIMapEventSpriteTag").GetComponent<GUIResource>();
+            guiNothingScript = GameObject.FindGameObjectWithTag("GUIMapEventSpriteTag").GetComponent<GUINothing>();
+			gameplayStateMachineScript = GameObject.FindGameObjectWithTag("GamePlayStateMachineTag").GetComponent<GameplayStateMachine>();
+			guiBottomBarScript = GameObject.FindGameObjectWithTag("GamePlayStateMachineTag").GetComponent<GUIBottomBar>();
+		} // end Start
 
 
-		public void InitThis(GameObject p_PlayerEntity, string p_mapEventType, string p_result )
-			//----------------------------------------------------
-			//	own custome overloaded constructor
-			//
-			//----------------------------------------------------
+		// Initialise things sort of like a custom constructor
+        public void InitThis(GameObject player, string mapEventType, string result)
 		{
-			//get player info
-			m_PlayerEntity = p_PlayerEntity;
+			// Set the player
+			m_PlayerEntity = player;
 
-			// Holds the results of parsing.
-			m_EnumMapEvent tmpEnumMapEvent = m_EnumMapEvent.NOTHING;
+			// The results of parsing below.
+			MapEvent tmpEnumMapEvent = MapEvent.Nothing;
 
 			try
 			{
 				// Attempt to parse the string into the enum value.
-				tmpEnumMapEvent = (m_EnumMapEvent)Enum.Parse( typeof( m_EnumMapEvent ), p_mapEventType );
+                tmpEnumMapEvent = (MapEvent)Enum.Parse(typeof(MapEvent), mapEventType);
 
-			} // end try statement
+			} // end try
 			catch (Exception)
 			{
 				// The parsing failed so make sure the resource is null.
-				print( "Requested MapEvent type '" + p_mapEventType + "' was not found." );
-			} // end catch statement
+                Debug.LogWarningFormat("Requested MapEvent type '{0}' was not found.", mapEventType);
+			} // end catch
 			
-			//set to currEvent
-			m_currEnumMpEvent = tmpEnumMapEvent;
+			// Set the current event
+			currMapEvent = tmpEnumMapEvent;
 
-			//tell StateMachin action is running
-			m_isActionRunning = true;
-			m_showHideGUI = true;
+			// Tell the StateMachine that the action is running and show the onGUI UI
+            isActionRunning = true;
+			canShowGUI = true;
 
-			m_resultString = p_result;
+			// Set the resulting string
+            resultString = result;
 			
-		} //end InitThis()
+		} // end InitThis
 
 
-		public bool isActionRunning()
-			//-----------------------------------------------
-			// returs true if the map event is still running
-			// returns false if action is complete
-			//-------------------------------------------------
+		// Returns if the action is running
+        // true if running; otherwise, false
+        public bool IsActionRunning()
 		{
-			return m_isActionRunning;
-			
-		} //end public void isActionRunning()
-		
-		
-		//OnGUI called once per cycle
+			return isActionRunning;
+		} // end IsActionRunning
+
+
+        //TODO: Brent: Replace OnGUI stuff with the new In-Game UI later
+        // The old style GUI functioned using an OnGUI function; Runs each frame
 		void OnGUI()
 		{
-			//function no longer exist, using a function in GamePlaySateMachine that start this
-			//MapEvent GUI. READ COMMENTS further down on GetMapEventFunction
-			//m_currEnumMpEvent = GetMapEvent();
-			
-			
-			if (m_showHideGUI == true) 
+			// Check if we should show the OnGUI UI for the MapEvent
+            if (canShowGUI) 
 			{
 				GUIContainer();
-			}
-			
-		} //end void OnGUI()
+			} // end if
+		} // end OnGUI
 
 
-		private void GUIMapEventsMachine()
-			//----------------------------------------------------------
-			//	Switch that displays the current MapEvent
-			//		-has to be called from OnGUI() or a function within OnGUI
-			//			in order for Unity's GUI features to work.
-			//
-			//----------------------------------------------------------
+        //TODO: Damien Replace other functionality with GameMaster functionality or something later
+        //TODO: Brent: Replace OnGUI stuff with the new In-Game UI later
+        // The state machine for the MapEvent OnGUI system
+        private void GUIMapEventsMachine()
 		{
-			switch (m_currEnumMpEvent) 
+			// Switch over the current MapEvent
+            switch (currMapEvent) 
 			{
-			case m_EnumMapEvent.ENEMY:
-				if( m_initScript == false )
-				{
-					m_GUIEnemyScript.InitThis( m_PlayerEntity, m_mainStartX, m_mainStartY, m_mainWidth, m_mainHeight, m_resultString );
-					m_initScript = true;
-				}
-				break;
-				
-			case m_EnumMapEvent.ALLY:
-				if( m_initScript == false )
-				{
-					m_GUIAllyScript.InitGUIAlly( m_PlayerEntity, m_mainStartX, m_mainStartY, m_mainWidth, m_mainHeight );
-					m_initScript = true;
-				}
-				break;
-				
-			case m_EnumMapEvent.ITEM:
-				if( m_initScript == false )
-				{
-					m_GUIItemScript.InitGUIItem(m_PlayerEntity, m_mainStartX, m_mainStartY, m_mainWidth, m_mainHeight, m_resultString );
-					m_initScript = true;
-				}
-				break;
-				
-			case m_EnumMapEvent.RESOURCE:
-				if(m_initScript == false)
-				{
-					m_GameplayStateMachineScript.AnimateResourceButton(false);
-					m_GUIResourceScript.InitThis( m_mainStartX, m_mainStartY, m_mainWidth, m_mainHeight, m_resultString );
-					m_initScript = true;
-				}
-				break;
-				
-			case m_EnumMapEvent.NOTHING:
-				if(m_initScript == false)
-				{
-					m_GUINothingScript.InitThis( m_mainStartX, m_mainStartY, m_mainWidth, m_mainHeight, m_resultString );
-					m_initScript = true;
-				}
-				break;
-				
-			case m_EnumMapEvent.DONE:
-				m_showHideGUI = false;
-				m_isActionRunning = false;
-				m_initScript = false;
-				break;
+                case MapEvent.Enemy:
+                    {
+                        // Ensure we only init once
+                        if (canInitScript)
+                        {
+                            guiEnemyScript.InitThis(m_PlayerEntity, mainStartX, mainStartY, mainWidth, mainHeight, resultString);
+                            canInitScript = false;
+                        } // end if
+                        break;
+                    } // end Case Enemy
 
-			default:
-				print ("GUIMapEventsMachine is in Default");
-				break;
-			} //end switch (m_currEnumMpEvent
-			
-		} //end private void GUIMapEventsMachine()
+                case MapEvent.Ally:
+                    {
+                        // Ensure we only init once
+                        if (canInitScript)
+				        {
+                            guiAllyScript.InitGUIAlly(m_PlayerEntity, mainStartX, mainStartY, mainWidth, mainHeight);
+                            canInitScript = false;
+                        } // end if
+				        break;
+                    } // end Case Ally
+
+                case MapEvent.Item:
+                    {
+                        // Ensure we only init once
+                        if (canInitScript)
+                        {
+                            guiItemScript.InitGUIItem(m_PlayerEntity, mainStartX, mainStartY, mainWidth, mainHeight, resultString);
+                            canInitScript = false;
+                        } // end if
+                        break;
+                    } // end Case Item
+
+                case MapEvent.Resource:
+                    {
+                        // Ensure we only init once
+                        if (canInitScript)
+                        {
+                            // Animate the resource button
+                            gameplayStateMachineScript.AnimateResourceButton(false);
+                            guiResourceScript.InitThis(mainStartX, mainStartY, mainWidth, mainHeight, resultString);
+                            canInitScript = false;
+                        } // end if
+                        break;
+                    } // end Case Resource
+
+                case MapEvent.Nothing:
+                    {
+                        // Ensure we only init once
+                        if (canInitScript)
+                        {
+                            guiNothingScript.InitThis(mainStartX, mainStartY, mainWidth, mainHeight, resultString);
+                            canInitScript = false;
+                        } // end if
+                        break;
+                    } // end Case Nothing
+
+                case MapEvent.Done:
+                    {
+                        // We're done here so close the OnGUI UI, the action is no longer running, and nothing is being initialised
+                        canShowGUI = false;
+                        isActionRunning = false;
+                        canInitScript = true;
+                        break;
+                    } // end Case Done
+
+                // Shouldn't reach here, this is reached if the state isn't listed above
+                default:
+                    {
+                        Debug.LogWarning("Hit the default case in GUIMapEvents!");
+                        break;
+                    } // end Case default
+            } // end switch currMapEvent
+		} // end GUIMapEventsMachine
 
 
-		private void GUIContainer()
+        //TODO: Brent: Replace OnGUI stuff with the new In-Game UI later
+        // Creates the OnGUI systems main MapEvent container and runs the statemachine to find which UI to show
+        void GUIContainer()
 		{
-			//main container
-			GUI.Box (new Rect(m_mainStartX, m_mainStartY, m_mainWidth, m_mainHeight ), m_currEnumMpEvent.ToString() );
+			//The main container
+            GUI.Box(new Rect(mainStartX, mainStartY, mainWidth, mainHeight), currMapEvent.ToString());
 
-			//Check which GUI to Display
-			GUIMapEventsMachine(); //runs once every cycle; checks, what state we are in
-			
-		} //end private void GUIContainer()
+			// Check which GUI to Display
+            // Runs every frame to check what state we are in
+            GUIMapEventsMachine();
+		} // end GUIContainer
 
-
-		public void MapeEventDone()
+        //TODO: Brent: Replace OnGUI stuff with the new In-Game UI later
+        // The MapEvent action is finished
+		public void MapEventDone()
 		{
-			m_currEnumMpEvent = m_EnumMapEvent.DONE;
-			m_GUIBottomBarScript.StopAnimation();
-			m_GameplayStateMachineScript.StopAnimation();
-		}
-
-	}	//end public class GUIMapEvents : Monobehavior
-} //end namespace GSP
+            // Change the state to the Done state
+            currMapEvent = MapEvent.Done;
+            // Stop any animations
+			guiBottomBarScript.StopAnimation();
+			gameplayStateMachineScript.StopAnimation();
+		} // end MapEventDone
+	} // end GUIMapEvents
+} //end GSP
 
