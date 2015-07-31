@@ -28,7 +28,7 @@ namespace GSP
 		float timeHolder;					// Waiting time
 
         // Audio prefab holder
-        GameObject audioManager;
+        public GameObject audioManager;
 
 		// Menu Objects
 		GameObject introSet;				// Intro panel
@@ -57,10 +57,6 @@ namespace GSP
 		// Initialize variables
 		void Start()
 		{
-			// Init AudioManager
-            // This effectively creates the AudioManager singleton; it also allows for the access to its GameObject easily
-            audioManager = AudioManager.Instance.gameObject;
-
             // Init Menu variables
 			programState = OverallState.Intro;				// Initial beginning of game
 			menuState = MenuState.Home;						// Prevents triggers from occuring before called
@@ -117,6 +113,13 @@ namespace GSP
                 case OverallState.Intro:
                     {
                         // INTRO ENTRY POINT
+                        
+                        // Make sure an AudioManager exists
+                        if (AudioManager.Instance == null)
+                        {
+                            Instantiate(audioManager);
+                        } // end if
+                        
                         // After intro finishes, move to menu
                         if (Time.time > timeHolder)
                         {
