@@ -31,10 +31,13 @@ namespace GSP.Entities.Interfaces
         #region Properties
 
         // The health of the entity
-        int Health { get; set; }
+        int Health { get; }
 
         // The maximum health of the entity
         int MaxHealth { get; set; }
+
+        // Whether the entity is dead
+        bool IsDead { get; }
 
         #endregion
     } // end IDamageable

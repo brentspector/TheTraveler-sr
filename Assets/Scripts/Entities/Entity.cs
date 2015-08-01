@@ -112,7 +112,7 @@ namespace GSP.Entities
 					case EntityType.Porter:
 					{
                         // Get the Ally of type Porter script attached to the GameObject
-                        var script = GameObj.GetComponent<Ally2<Friendlies.Porter>>();
+                        var script = GameObj.GetComponent<Ally<Friendlies.Porter>>();
 
                         // Tell the script to destroy its GameObject
 						script.DestroyGO();
@@ -122,7 +122,7 @@ namespace GSP.Entities
 					case EntityType.Mercenary:
 					{
                         // Get the Ally of type Mercenary script attached to the GameObject
-                        var script = GameObj.GetComponent<Ally2<Friendlies.Mercenary>>();
+                        var script = GameObj.GetComponent<Ally<Friendlies.Mercenary>>();
 
                         // Tell the script to destroy its GameObject
                         script.DestroyGO();

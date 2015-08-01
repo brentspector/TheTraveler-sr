@@ -16,7 +16,7 @@ namespace GSP.Char.Allies
      * Description: Wrapper for the Porter Ally.
      * 
      *******************************************************************************/
-    public class PorterMB : Ally2<Porter>
+    public class PorterMB : Ally<Porter>
     {
         // Used for initialisation
         public override void Start()
