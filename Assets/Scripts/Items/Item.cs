@@ -1,6 +1,20 @@
-﻿
+﻿/*******************************************************************************
+ *
+ *  File Name: Item.cs
+ *
+ *  Description: The base for all item types
+ *
+ *******************************************************************************/
+
 namespace GSP.Items
 {
+    /*******************************************************************************
+     *
+     * Name: Item
+     * 
+     * Description: The base class and base logic for all item types.
+     * 
+     *******************************************************************************/
     public abstract class Item
     {
         string name;    	// Name of this item

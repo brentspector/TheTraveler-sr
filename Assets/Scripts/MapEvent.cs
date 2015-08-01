@@ -239,7 +239,7 @@ namespace GSP
             if (guiAcceptResult == "YES")
 			{
 				// Add the ally to the player's ally list
-				Ally playerAllyScript = player.GetComponent<Ally>();
+				AllyList playerAllyScript = player.GetComponent<AllyList>();
 				playerAllyScript.AddAlly(ally);
 
 				// Set and return accepted

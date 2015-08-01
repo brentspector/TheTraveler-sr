@@ -23,7 +23,7 @@ namespace GSP.Char
     public class Character : MonoBehaviour
 	{
 		ResourceList resources;		    // The ResourceList script reference
-		Ally allyScript;				// The Ally script reference
+		AllyList allyScript;				// The AllyList script reference
 		int maxWeight;					// The maximum weight the character can hold
 		int maxInventory;				// The maximum inventory (max number player can hold)
 		int currency; 					// The amount of currency the character is holding
@@ -50,7 +50,7 @@ namespace GSP.Char
 		{
 			// Initialise the variables
 			resources = GetComponent<ResourceList>();
-			allyScript = GetComponent<Ally>();
+			allyScript = GetComponent<AllyList>();
 			maxWeight = 300;
 			maxInventory = 20;
 			currency = 0;

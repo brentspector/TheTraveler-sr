@@ -1,4 +1,5 @@
-﻿/*******************************************************************************
+﻿using GSP.Char;
+/*******************************************************************************
  *
  *  File Name: Hostile.cs
  *
@@ -39,9 +40,14 @@ namespace GSP.Entities.Hostiles
 
         #endregion
 
+        AllyList allyScript;    // The ally script object
+
         // Constructor; Derived classes create an entity object
         public Hostile(int ID, GameObject gameObject) : base(ID, gameObject)
 		{
+            // Get the GameObject's ally script
+            allyScript = GameObj.GetComponent<AllyList>();
+            
             #region IEquipment Variable Initialisation
 
             // The entity isn't wearing any armour, wielding any weapon, or has any bonuses
@@ -62,6 +68,12 @@ namespace GSP.Entities.Hostiles
 
             #endregion
 		} // end Hostile
+
+        // Gets the number of allies the Hostile has
+        public int NumAllies
+        {
+            get { return allyScript.NumAllies; }
+        } // end NumAllies
 
         #region IEquipment Members
 

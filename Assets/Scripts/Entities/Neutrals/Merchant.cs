@@ -6,11 +6,12 @@
  *
  *******************************************************************************/
 using GSP.Char;
+using GSP.Core;
 using GSP.Entities.Interfaces;
 using GSP.Items;
+using GSP.Tiles;
 using System.Collections.Generic;
 using UnityEngine;
-using GSP.Tiles;
 
 namespace GSP.Entities.Neutrals
 {
@@ -55,7 +56,7 @@ namespace GSP.Entities.Neutrals
         List<Sprite> charSprites;		// The Sprite's for the Character
         SpriteRenderer spriteRenderer;  // SpriteRenderer component of the Character
 
-        Ally allyScript;				// The ally script object
+        AllyList allyScript;				// The ally script object
 
         // Creates a Merchant entity
         public Merchant(int ID, GameObject gameObject, InterfaceColors playerCoulours, string playerName) :
@@ -76,7 +77,7 @@ namespace GSP.Entities.Neutrals
             spriteRenderer = GameObj.GetComponent<SpriteRenderer>();
 
             // Get the GameObject's ally script
-            allyScript = GameObj.GetComponent<Ally>();
+            allyScript = GameObj.GetComponent<AllyList>();
 
             #region IInventory Variable Initialisation
 
@@ -117,8 +118,8 @@ namespace GSP.Entities.Neutrals
         // Setup the Character's Sprite set. This is an array of Sprites that will be used for the Character
         public void SetCharacterSprites(int playerNumber)
         {
-            // A temporary Sprite array
-            Sprite[] tmp = UnityEngine.Resources.LoadAll<Sprite>("player" + playerNumber);
+            // A temporary Sprite array; Make sure the playerNumber is within the proper range of one to MaxPlayers
+            Sprite[] tmp = UnityEngine.Resources.LoadAll<Sprite>("player" + Utility.ClampInt(playerNumber, 1, GameMaster.Instance.MaxPlayers));
 
             // Add the idle sprites for each direction
             charSprites.Add(tmp[1]);
@@ -190,7 +191,7 @@ namespace GSP.Entities.Neutrals
             get { return color; }
         } // end Color
 
-        // Gets the number of allies the Character has
+        // Gets the number of allies the Merchant has
         public int NumAllies
         {
             get { return allyScript.NumAllies; }
@@ -287,135 +288,88 @@ namespace GSP.Entities.Neutrals
         } // end SellResources
 
         // Transfers currency from the entity to another entity
-        public void TransferCurrency(GameObject other, int amount)
+        public void TransferCurrency<TInventoryEntity>(TInventoryEntity other, int amount) where TInventoryEntity : IInventory
         {
             // The clamped amount between zero and the entity's currency amount
             int transferAmount = Utility.ClampInt(amount, 0, currency);
 
-            // Get the Character script attached the the other Character GameObject
-            Character charScript = other.GetComponent<Character>();
+            // Add the amount of currency to the other Character
+            other.Currency += transferAmount;
 
-            // Check if the script exists
-            if (charScript == null)
-            {
-                // Simply return
-                return;
-            } // end if
-
-            // Only proceed if the amount is greater than zero
-            if (amt > 0)
-            {
-                // Check if the ammount is greater than the Character's currency
-                if (amt > this.Currency)
-                {
-                    // Clamp it to the character's currency if so
-                    amt = this.Currency;
-
-                } // end if
-
-                // Add the amount of currency to the other Character
-                charScript.Currency += amt;
-
-                // Subtract the amount of currency from the Character this is attached to
-                this.Currency -= amt;
-            } // end if
+            // Subtract the amount of currency from the Character this is attached to
+            currency -= transferAmount;
         } // end TransferCurrency
 
         // Transfers a resource from the entity to another entity
-        public void TransferResource(GameObject other, Resource resource)
+        public bool TransferResource<TInventoryEntity>(TInventoryEntity other, Char.Resource resource) where TInventoryEntity : IInventory
         {
-            throw new System.NotImplementedException();
+            // Check if the resource object exists
+            if (resource == null)
+            {
+                // The resource object is invalid so return failure
+                return false;
+            } // end if
+
+            // Have the other entity pickup the resource and test if it's a success
+            if (other.PickupResource(resource, 1, false))
+            {
+                // The pickup succeeded so remove the resource from the entity
+                resources.RemoveResource(resource);
+                
+                // Return success
+                return true;
+            } // end if
+            else
+            {
+                // The pickup failed for the other entity so return failure
+                Debug.Log("Transfer failed.");
+                return false;
+            }
         } // end TransferResource
 
-        // Gets and Sets the list of resources of the entity
+        // Gets the list of resources of the entity
         public ResourceList Resources
         {
-            get
-            {
-                throw new System.NotImplementedException();
-            } // end get
-            set
-            {
-                throw new System.NotImplementedException();
-            } // end set
+            get { return resources; }
         } // end Resources
 
-        // Gets and Sets the TotalWeight of the entity
+        // Gets the TotalWeight of the entity's resources
         public int TotalWeight
         {
-            get
-            {
-                throw new System.NotImplementedException();
-            } // end get
-            set
-            {
-                throw new System.NotImplementedException();
-            } // end set
+            get { return resources.TotalWeight; }
         } // end TotalWeight
 
-        // Gets and Sets the TotalSize of the entity
+        // Gets the TotalSize of the entity's resources
         public int TotalSize
         {
-            get
-            {
-                throw new System.NotImplementedException();
-            } // end get
-            set
-            {
-                throw new System.NotImplementedException();
-            } // end set
+            get { return resources.TotalSize; }
         } // end TotalSize
 
-        // Gets and Sets the TotalValue of the entity
+        // Gets the TotalValue of the entity's resources
         public int TotalValue
         {
-            get
-            {
-                throw new System.NotImplementedException();
-            } // end get
-            set
-            {
-                throw new System.NotImplementedException();
-            } // end set
+            get { return resources.TotalValue; }
         } // end TotalValue
 
         // Gets and Sets the MaxWeight of the entity
         public int MaxWeight
         {
-            get
-            {
-                throw new System.NotImplementedException();
-            } // end get
-            set
-            {
-                throw new System.NotImplementedException();
-            } // end set
+            get { return maxWeight; }
+            set { maxWeight = Utility.ZeroClampInt(value); }
         } // end MaxWeight
 
         // Gets and Sets the MaxInventorySpace of the entity
         public int MaxInventorySpace
         {
-            get
-            {
-                throw new System.NotImplementedException();
-            } // end get
-            set
-            {
-                throw new System.NotImplementedException();
-            } // end set
+            get { return maxInventory; }
+            set { maxInventory = Utility.ZeroClampInt(value); }
         } // end MaxInventorySpace
 
         // Gets and Sets the Currency of the entity
         public int Currency
         {
-            get
-            {
-                throw new System.NotImplementedException();
-            } // end get
-            set
-            {
-                throw new System.NotImplementedException();
-            } // end set
+            get { return currency; }
+            set { currency = Utility.ZeroClampInt(value); }
         } // end Currency
 
         #endregion

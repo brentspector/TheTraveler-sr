@@ -17,7 +17,7 @@ namespace GSP.Entities.Interfaces
      *              includes resources and currency.
      * 
      *******************************************************************************/
-    interface IInventory
+    public interface IInventory
     {
         #region Functions
 
@@ -31,26 +31,26 @@ namespace GSP.Entities.Interfaces
         void SellResources();
 
         // Transfer currency from one to another
-        void TransferCurrency(GameObject other, int amount);
+        void TransferCurrency<TInventoryEntity>(TInventoryEntity other, int amount) where TInventoryEntity : IInventory;
 
         // Transfer a resource from one to another
-        void TransferResource(GameObject other, Char.Resource resource);
+        bool TransferResource<TInventoryEntity>(TInventoryEntity other, Char.Resource resource) where TInventoryEntity : IInventory;
 
         #endregion
 
         #region Properties
 
         // The resource list
-        Char.ResourceList Resources { get; set; }
+        Char.ResourceList Resources { get; }
 
         // The total weight of the resources
-        int TotalWeight { get; set; }
+        int TotalWeight { get; }
 
         // The total size of the resources
-        int TotalSize { get; set; }
+        int TotalSize { get; }
 
         // The total value of the resources
-        int TotalValue { get; set; }
+        int TotalValue { get; }
 
         // The maximum weight that is able to be carried
         int MaxWeight { get; set; }

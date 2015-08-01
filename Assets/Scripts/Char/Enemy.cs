@@ -22,11 +22,12 @@ namespace GSP.Char
     {
         TSubEnemy enemy;   // Each Enemy needs its own enemy object
 
+
         // Use this for initialisation
         public virtual void Start()
         {
             //
-        }
+        } // end Start
 
         // Get the Enemy's reference
         public void GetEnemy(int ID)
@@ -40,21 +41,29 @@ namespace GSP.Char
             Destroy(this.gameObject);
         } // end DestroyGO
 
+        // Gets the enemy's entity
+        // This is used to get the entity to do things with the implemented interfaces; just cast
+        // back to the proper type first
+        public Entity Entity
+        {
+            get { return enemy; }
+        } // end Entity
+
         #region Wrapper for the enemy class
 
-        // Gets the Enemy's Name.
+        // Gets the Enemy's Name
         public string Name
         {
             get { return enemy.Name; }
             set { enemy.Name = value; }
         } // end Name
 
-        // Gets the Enemy's number of allies.
+        // Gets the Enemy's number of allies
         public int NumAllies
         {
-            get { return 0;/*enemy.NumAllies;*/ }
+            get { return enemy.NumAllies; }
         } // end NumAllies
 
         #endregion
     } // end Enemy
-} // end GSP.Chat
+} // end GSP.Char
