@@ -229,6 +229,9 @@ namespace GSP.Core
                         // Add the porter ally script
                         var script = obj.AddComponent<Char.Allies.PorterMB>();
 
+                        // Add the ResourceList script
+                        obj.AddComponent<Char.ResourceList>();
+
                         // Create the ally entity
                         Entities.EntityManager.Instance.Generator.CreateEntity(out entID, Entities.EntityType.Porter, obj);
 

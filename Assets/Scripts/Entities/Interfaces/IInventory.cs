@@ -22,7 +22,7 @@ namespace GSP.Entities.Interfaces
         #region Functions
 
         // Attempt to pickup a resource
-        void PickupResource(Char.Resource resource, int amount);
+        bool PickupResource(Char.Resource resource, int amount, bool isFromMap = true);
 
         // Sells a given resource and amount
         void SellResource(Char.Resource resource, int amount);

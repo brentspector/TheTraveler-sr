@@ -217,7 +217,7 @@ namespace GSP.Char
                         } // end case attack
                     case "defence":
                         {
-                            itemScript.Type = "Armor";
+                            itemScript.Type = "Armors";
                             itemScript.DefenceValue += value;
                             break;
                         } // end case defence

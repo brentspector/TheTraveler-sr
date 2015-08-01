@@ -7,8 +7,10 @@
  *******************************************************************************/
 using GSP.Char;
 using GSP.Entities.Interfaces;
+using GSP.Items;
 using System.Collections.Generic;
 using UnityEngine;
+using GSP.Tiles;
 
 namespace GSP.Entities.Neutrals
 {
@@ -23,19 +25,29 @@ namespace GSP.Entities.Neutrals
     {
         #region IInventory Variables
 
-        // Variables will be defined in week 4
+        int maxWeight;		    // The maximum weight the entity can hold
+        int maxInventory;       // The maximum inventory spaces (max number of spaces an entity can hold)
+        int currency; 		    // The amount of currency the entity is holding
+        ResourceList resources; // The ResourceList script reference
 
         #endregion
 
         #region IEquipment Variables
 
-        // Variables will be defined in week 4
+        int defencePower;       // The defence of the entity (from armor)
+        int attackPower;	    // The attack of the entity (from weapons)
+
+        List<Bonus> bonuses;    // The bonuses picked up (Inventory and Weight mods)
+        Armor equippedArmor;    // The piece of armor that is being worn.
+        Weapon equippedWeapon;  // The weapon that is being wielded.
 
         #endregion
 
         #region IDamageable Variables
 
-        // Variables will be defined in week 4
+        int health;     // The current health the entity has
+        int maxHealth;  // THe maximum health the entity has
+        bool isDead;    // Whether the entity is dead
 
         #endregion
 
@@ -68,19 +80,35 @@ namespace GSP.Entities.Neutrals
 
             #region IInventory Variable Initialisation
 
-            // Variable initialisation will be done in week 4
+            // The default for now - hard coded values
+            maxWeight = 300;
+            maxInventory = 20;
+            
+            // The entity starts with no currency
+            currency = 0;
+
+            // Get the ResourceList component reference
+            resources = GameObj.GetComponent<ResourceList>();
 
             #endregion
 
             #region IEquipment Variable Initialisation
 
-            // Variable initialisation will be done in week 4
+            // The entity isn't wearing any armour, wielding any weapon, or has any bonuses
+            equippedArmor = null;
+            equippedWeapon = null;
+            bonuses = new List<Bonus>();
+            attackPower = 0;
+            defencePower = 0;
 
             #endregion
 
             #region IDamageable Variable Initialisation
 
-            // Variable initialisation will be done in week 4
+            // The default hard coded values for now.
+            health = 50;
+            maxHealth = 50;
+            isDead = false;
 
             #endregion
 
@@ -168,32 +196,129 @@ namespace GSP.Entities.Neutrals
             get { return allyScript.NumAllies; }
         } // end NumAllies
 
-        // The below interfaces will be implemented in Week 4
-
         #region IInventory Members
 
         // Picks up a resource for an entity adding it to their ResourceList
-        public void PickupResource(Resource resource, int amount)
+        public bool PickupResource(Resource resource, int amount, bool isFromMap = true)
         {
-            throw new System.NotImplementedException();
+            // Check if picking up this resource will put the entity overweight
+            if ((TotalWeight + resource.WeightValue) * amount <= MaxWeight)
+            {
+                // Check if there is enough room for this resource
+                if (resources.TotalSize + resource.SizeValue <= MaxInventorySpace)
+                {
+                    // Add the resource
+                    resources.AddResource(resource, amount);
+
+                    // Check if the resource is from the map
+                    if (isFromMap)
+                    {
+                        // Get the resource's position
+                        Vector3 tmp = GameObj.transform.localPosition;
+                        // Change the z to make tiles work
+                        tmp.z = -0.01f;
+                        // Remove the resource from the map
+                        TileDictionary.RemoveResource(TileManager.ToPixels(tmp));
+                    } // end if
+
+                    // Return success
+                    return true;
+                } // end if
+                else
+                {
+                    Debug.Log("Pickup failed. Max inventory capacity reached.");
+
+                    // Return failure
+                    return false;
+                } // end else
+            } // end if
+            else
+            {
+                Debug.Log("Pickup failed. Max inventory weight reached.");
+
+                // Return failure
+                return false;
+            } // end else
         } // end PickupResource
 
         // Sells a resource for an entity removing it from their ResourceList
         public void SellResource(Resource resource, int amount)
         {
-            throw new System.NotImplementedException();
+            // A temporary list to hold the resources
+            List<Resource> tmpResources = new List<Resource>();
+
+            // The counter for the for loop below
+            int count = 0;
+
+            // Get all the resources of the given resource's type
+            tmpResources = resources.GetResourcesByType(resource.Type.ToString());
+
+            // Check if the returned number of resources is fewer than amount
+            if (tmpResources.Count < amount)
+            {
+                // Set the counter to the number of resources found
+                count = tmpResources.Count;
+            } // end if
+            else
+            {
+                // Set the counter to amount
+                count = amount;
+            } // end else
+
+            // Loop over the list until we reach count
+            for (int index = 0; index < count; index++)
+            {
+                // Credit the entity for the resource
+                currency += tmpResources[index].SellValue;
+
+                // Remove the resource from the list
+                resources.RemoveResource(tmpResources[index]);
+            } // end for
         } // end SellResource
 
         // Sells all resources for an entity clearing their ResourceList
         public void SellResources()
         {
-            throw new System.NotImplementedException();
+            // Credit the entity for the resources they are holding
+            currency += TotalValue;
+
+            // Clear the ResourceList now
+            resources.ClearResources();
         } // end SellResources
 
         // Transfers currency from the entity to another entity
         public void TransferCurrency(GameObject other, int amount)
         {
-            throw new System.NotImplementedException();
+            // The clamped amount between zero and the entity's currency amount
+            int transferAmount = Utility.ClampInt(amount, 0, currency);
+
+            // Get the Character script attached the the other Character GameObject
+            Character charScript = other.GetComponent<Character>();
+
+            // Check if the script exists
+            if (charScript == null)
+            {
+                // Simply return
+                return;
+            } // end if
+
+            // Only proceed if the amount is greater than zero
+            if (amt > 0)
+            {
+                // Check if the ammount is greater than the Character's currency
+                if (amt > this.Currency)
+                {
+                    // Clamp it to the character's currency if so
+                    amt = this.Currency;
+
+                } // end if
+
+                // Add the amount of currency to the other Character
+                charScript.Currency += amt;
+
+                // Subtract the amount of currency from the Character this is attached to
+                this.Currency -= amt;
+            } // end if
         } // end TransferCurrency
 
         // Transfers a resource from the entity to another entity
@@ -298,92 +423,101 @@ namespace GSP.Entities.Neutrals
         #region IEquipment Members
 
         // Equips a piece of armour for an entity
-        public void EquipArmor(string item)
+        public void EquipArmor(Armor armor)
         {
-            throw new System.NotImplementedException();
+            // Check if the merchant is wearing armour
+            if (equippedArmor == null)
+            {
+                // The merchant isn't wearing armor so just equip the given armour
+                defencePower += armor.DefenceValue;
+                equippedArmor = armor;
+            } // end if
+            else
+            {
+                // The merchant is already wearing armour so unequip it first
+                UnequipArmor(equippedArmor);
+
+                // Now equip the given armour
+                defencePower += armor.DefenceValue;
+                equippedArmor = armor;
+            } // end else
         } // end EquipArmor
 
         // Unequips a piece of armour for an entity
-        public void UnequipArmor(string item)
+        public void UnequipArmor(Armor armor)
         {
-            throw new System.NotImplementedException();
+            // Only unequip the armour if the merchant is wearing any
+            if (equippedArmor != null)
+            {
+                // Unequip the given armour
+                defencePower -= armor.DefenceValue;
+                equippedArmor = null;
+            } // end if
         } // end UnequipArmor
 
         // Equips a weapon for an entity
-        public void EquipWeapon(string item)
+        public void EquipWeapon(Weapon weapon)
         {
-            throw new System.NotImplementedException();
+            // Check if the merchant is wielding a weapon
+            if (equippedArmor == null)
+            {
+                // The merchant isn't wielding a weapon so just equip the given weapon
+                attackPower += weapon.AttackValue;
+                equippedWeapon = weapon;
+            } // end if
+            else
+            {
+                // The merchant is already wielding a weapon so unequip it first
+                UnequipWeapon(equippedWeapon);
+
+                // Now wield the given weapon
+                attackPower += weapon.AttackValue;
+                equippedWeapon = weapon;
+            } // end else
         } // end EquipWeapon
 
         // Unequips a weapon for the entity
-        public void UnequipWeapon(string item)
+        public void UnequipWeapon(Weapon weapon)
         {
-            throw new System.NotImplementedException();
+            // Only unequip the weapon if the merchant is wielding any
+            if (equippedWeapon != null)
+            {
+                // Unequip the given weapon
+                attackPower -= weapon.AttackValue;
+                equippedWeapon = null;
+            } // end if
         } // end UnequipWeapon
 
         // Gets and Sets the amount of defense the entity has
         public int DefencePower
         {
-            get
-            {
-                throw new System.NotImplementedException();
-            } // end get
-            set
-            {
-                throw new System.NotImplementedException();
-            } // end set
+            get { return defencePower;}
+            set { defencePower = Utility.ZeroClampInt(value);}
         } // end DefencePower
 
-        // Gets and Sets the EquippedArmor of the entity
-        public EquippedArmor EquippedArmor
+        // Gets the EquippedArmor of the entity
+        public Armor EquippedArmor
         {
-            get
-            {
-                throw new System.NotImplementedException();
-            } // end get
-            set
-            {
-                throw new System.NotImplementedException();
-            } // end set
+            get { return equippedArmor;}
         } // end EquippedArmor
 
-        // Gets and Sets the bonuses the entity has
-        public List<GameObject> Bonuses
+        // Gets the bonuses the entity has
+        public List<Bonus> Bonuses
         {
-            get
-            {
-                throw new System.NotImplementedException();
-            } // end get
-            set
-            {
-                throw new System.NotImplementedException();
-            } // end set
+            get { return bonuses; }
         } // end Bonuses
 
         // Gets and Sets the how hard the the entity hits
         public int AttackPower
         {
-            get
-            {
-                throw new System.NotImplementedException();
-            } // end get
-            set
-            {
-                throw new System.NotImplementedException();
-            } // end set
+            get { return attackPower; }
+            set { attackPower = Utility.ZeroClampInt(value); }
         } // end AttackPower
 
-        // Gets and Sets the EquppedWeapon of the entity
-        public EquippedWeapon EquippedWeapon
+        // Gets the EquippedWeapon of the entity
+        public Weapon EquippedWeapon
         {
-            get
-            {
-                throw new System.NotImplementedException();
-            } // end get
-            set
-            {
-                throw new System.NotImplementedException();
-            } // end set
+            get { return equippedWeapon; }
         } // end EquippedWeapon
 
         #endregion
@@ -393,41 +527,47 @@ namespace GSP.Entities.Neutrals
         // Causes the entity to take damage; this is call by others
         public void TakeDamage(int damage)
         {
-            throw new System.NotImplementedException();
+            // Only allow damage if the entity isn't dead
+            if (!IsDead)
+            {
+                // Dish out the damage
+                health -= damage;
+
+                // Check if the entity is dead
+                if (health == 0)
+                {
+                    // The entity is dead
+                    isDead = true;
+                } // end if health == 0
+            } // end if
         } // end TakeDamage
 
         // Resets the health of the entity
         public void ResetHealth()
         {
-            throw new System.NotImplementedException();
+            health = maxHealth;
+            isDead = false;
         } // end ResetHealth
 
-        // Gets and Sets the current health of the entity
+        // Gets the current health of the entity
         public int Health
         {
-            get
-            {
-                throw new System.NotImplementedException();
-            } // end get
-            set
-            {
-                throw new System.NotImplementedException();
-            } // end set
+            get { return health; }
         } // end Health
 
         // Gets and Sets the maximum health of the entity
         public int MaxHealth
         {
-            get
-            {
-                throw new System.NotImplementedException();
-            } // end get
-            set
-            {
-                throw new System.NotImplementedException();
-            } // end set
+            get { return maxHealth; }
+            set { maxHealth = Utility.ZeroClampInt(value); }
         } // end MaxHealth
 
+        // Gets whether the eneity is dead
+        public bool IsDead
+        {
+            get { return isDead; }
+        } // end IsDead
+
         #endregion
-    }
-}
+    } // end Merchant
+} // end GSP.Entities.Neutrals

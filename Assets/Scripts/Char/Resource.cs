@@ -24,7 +24,7 @@ namespace GSP.Char
 		int weightValue;		    // The weight value of the resource
 		int sellValue;		        // The sell value of the resource
 		int sizeValue;		        // The size value of the resource
-		ResourceType resourceType;  // The type of the resource
+		ResourceType type;  // The type of the resource
 
 		// The constructor; initialises the values for the resource
 		public Resource()
@@ -35,8 +35,8 @@ namespace GSP.Char
 			sellValue = 0;
 			sizeValue = 0;
 			
-			// Set ResourceType to None
-			resourceType = ResourceType.None;
+			// Set Type to None
+			type = ResourceType.None;
 		} // end Resource
 
 		// Sets resource to predetermined types
@@ -61,7 +61,7 @@ namespace GSP.Char
                             sellValue = 15;
                             weightValue = 10;
                             sizeValue = 5;
-                            this.resourceType = ResourceType.Wool;
+                            this.type = ResourceType.Wool;
                             return "wool";
                         }
 					case ResourceType.Wood:
@@ -71,7 +71,7 @@ namespace GSP.Char
                             sellValue = 20;
                             weightValue = 15;
                             sizeValue = 5;
-                            this.resourceType = ResourceType.Wood;
+                            this.type = ResourceType.Wood;
                             return "wood";
                         }
 					case ResourceType.Fish:
@@ -81,7 +81,7 @@ namespace GSP.Char
                             sellValue = 15;
                             weightValue = 25;
                             sizeValue = 5;
-                            this.resourceType = ResourceType.Fish;
+                            this.type = ResourceType.Fish;
                             return "fish";
                         }
 					case ResourceType.Ore:
@@ -91,7 +91,7 @@ namespace GSP.Char
                             sellValue = 10;
                             weightValue = 20;
                             sizeValue = 5;
-                            this.resourceType = ResourceType.Ore;
+                            this.type = ResourceType.Ore;
                             return "ore";
                         }
                     default:
@@ -147,10 +147,10 @@ namespace GSP.Char
             get { return sizeValue; }
         } // end SizeValue
 
-        // Gets the resource's ResourceType
-        public ResourceType ResourceType
+        // Gets the resource's Type
+        public ResourceType Type
         {
-            get { return resourceType; }
-        } // end ResourceType
+            get { return type; }
+        } // end Type
 	} // end Resource
 } // end GSP.Char

@@ -292,10 +292,10 @@ namespace GSP
                 case 2:
                     {
                         // Pick an item from the armor enumeration
-                        int itemNumber = die.Roll(1, (int)Armor.Size) - 1;
+                        int itemNumber = die.Roll(1, (int)Char.Armors.Size) - 1;
 
                         // Assign the chosen number as the item
-                        result = Enum.GetName(typeof(Armor), itemNumber);
+                        result = Enum.GetName(typeof(Armors), itemNumber);
 
                         // Equip the item on player
                         playerCharScript.EquipItem(result);

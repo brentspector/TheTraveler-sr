@@ -166,7 +166,7 @@ namespace GSP.Char
 			resources.Clear();
 		} // end ClearResources
 
-		// Gets the first resource found in the list of the given type
+		// Gets all resources found in the list of the given type
 		public List<Resource> GetResourcesByType(string resourceType)
 		{
             ResourceType tmp;   // Holds the results of parsing
@@ -179,7 +179,7 @@ namespace GSP.Char
                 tmp = (ResourceType)Enum.Parse(typeof(ResourceType), resourceType);
 				
 				// Search the list for the resource type
-                resultResources = resources.FindAll(res => res.ResourceType == tmp);
+                resultResources = resources.FindAll(res => res.Type == tmp);
 			} // end try
 			catch (Exception)
 			{

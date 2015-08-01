@@ -23,9 +23,14 @@ namespace GSP.Entities.Friendlies
 	{
         #region IInventory Variables
 
-        // Variables will be defined in week 4
+        int maxWeight;		    // The maximum weight the entity can hold
+        int maxInventory;       // The maximum inventory spaces (max number of spaces an entity can hold)
+        int currency; 		    // The amount of currency the entity is holding
+        ResourceList resources; // The ResourceList script reference
 
         #endregion
+
+        DieInput die;   // The reference to the die
 
         // Constructor used to create a Porter entity
         public Porter(int ID, GameObject gameObject) : base(ID, gameObject)
@@ -33,14 +38,24 @@ namespace GSP.Entities.Friendlies
 			// Set the entity's type to porter
 			Type = EntityType.Porter;
 
+            // Get the reference to the die script
+            die = GameObject.Find("Die").GetComponent<DieInput>();
+
             #region IInventory Variable Initialisation
 
-            // Variable initialisation will be done in week 4
+            // The entity's max weight is a random number between 6 and 120
+            maxWeight = die.Dice.Roll(1, 20) * 6;
+            // The entity's max inventory space is left at the hard-coded default
+            maxInventory = 20;
+
+            // The entity starts with no currency
+            currency = 0;
+
+            // Get the ResourceList component reference
+            resources = GameObj.GetComponent<ResourceList>();
 
             #endregion
 		}
-
-        // The below interfaces will be implemented in Week 4
 
         #region IInventory Members
 
