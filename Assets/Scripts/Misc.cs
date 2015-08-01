@@ -1,85 +1,100 @@
-﻿using UnityEngine;
+﻿/*******************************************************************************
+ *
+ *  File Name: Misc.cs
+ *
+ *  Description: Determines a winner and sorts players by place
+ *
+ *******************************************************************************/
+using GSP.Char;
 using System.Collections;
 using System.Collections.Generic;
-using GSP.Char;
 using System.Linq;
+using UnityEngine;
 
 namespace GSP
 {
-	public class Misc : MonoBehaviour
+    //TODO: Damien: Replace with the GameMaster functionality later
+    /*******************************************************************************
+     *
+     * Name: Misc
+     * 
+     * Description: Determines the winner at the end scene.
+     * 
+     *******************************************************************************/
+    public class Misc : MonoBehaviour
 	{
-		// Holds the player's currency dictionary.
-		Dictionary<int, int> m_currencyDict;
+		// The player's currency dictionary
+		Dictionary<int, int> playerCurrencies;
 
-		// Holds the sorted list of players. It's sorted by place aka 1st place etc.
-		List<KeyValuePair<int, int>> currencyList;
+		// The sorted list of players; It's sorted by place aka 1st place etc
+		List<KeyValuePair<int, int>> currencies;
 
-		// Use this for initialisation.
+		// Use this for initialisation
 		void Start()
 		{
-			// Initialises the player currency dictionary to a new dictionary.
-			m_currencyDict = new Dictionary<int, int>();
-		} // end Start function
+			// Initialises the player currency dictionary
+			playerCurrencies = new Dictionary<int, int>();
+		} // end Start
 
 		// This is called every frame.
 		void Update()
 		{
 			// Check for the 'c' key being pressed.
-			if ( Input.GetKeyDown( KeyCode.C ) )
+			if (Input.GetKeyDown(KeyCode.C))
 			{
 				// Change to the cake scene!
-				Application.LoadLevel( "cake" );
-			} // end if statement
-		} // end Update function
+                Application.LoadLevel("cake");
+			} // end if
+		} // end Update
 
-		// Determine who is the winner and fill in the sorted list.
+		// Determine who the winner is and fill in the sorted list.
 		public int DetermineWinner()
 		{
-			// Get the game object with the end scene data tag.
-			GameObject endSceneDataObject = GameObject.FindGameObjectWithTag( "EndSceneDataTag" );
+			// Get the game object with the EndSceneDataTag tag.
+            GameObject endSceneDataObject = GameObject.FindGameObjectWithTag("EndSceneDataTag");
 			
 			// Get its script.
-			EndSceneData endSceneScript = endSceneDataObject.GetComponent<EndSceneData>();
+            EndSceneData endSceneScript = endSceneDataObject.GetComponent<EndSceneData>();
 			
 			// Get the number of players.
 			int numPlayers = endSceneScript.Count;
 			
-			// Loop over the data in the end scene data script.
-			for ( int index = 0; index < numPlayers; index++ )
+			// Loop over the data in the EndSceneData script.
+			for (int index = 0; index < numPlayers; index++)
 			{
-				// Increase index by one to get the player number.
+				// Increase index by one to get the player number; this is because the the dictionaries are zero-index based
 				int playerNum = index + 1;
 				
 				// Only proceed if the player's currency hasn't been added.
-				if ( !m_currencyDict.ContainsKey( playerNum ) )
+				if (!playerCurrencies.ContainsKey(playerNum))
 				{
-					// Get the player's char data.
-					EndSceneCharData endScenechardata = endSceneScript.GetData( playerNum );
+					// Get the player's EndSceneCharData.
+                    EndSceneCharData endScenechardata = endSceneScript.GetData(playerNum);
 					
 					// Add the player's number as the key and its currency as the value to the dictionary.
-					m_currencyDict.Add( playerNum, endScenechardata.PlayerCurrency );
-				} // end if statement
-			} // end for loop
+                    playerCurrencies.Add(playerNum, endScenechardata.PlayerCurrency);
+				} // end if
+			} // end for
 			
 			// Now we sort the currency dictionary.
-			IEnumerable<KeyValuePair<int, int>> sortedCurrency = from entry in m_currencyDict orderby entry.Value descending select entry;
+			IEnumerable<KeyValuePair<int, int>> sortedCurrencies = from entry in playerCurrencies orderby entry.Value descending select entry;
 			
 			// Create a list from this ordering.
-			currencyList = sortedCurrency.ToList();
+			currencies = sortedCurrencies.ToList();
 			
-			// Now get and return the player at the front of the list as the winner.
-			// This only happens because it was sorted to have the highest at the top.
-			return currencyList[0].Key;
-		} // end DetermineWinner function
+			// Now get and return the player at the front of the list as the winner
+			// This only happens because it was sorted to have the highest at the top
+			return currencies[0].Key;
+		} // end DetermineWinner
 
 		// Gets a copy of the sorted currency list.
 		public List<KeyValuePair<int, int>> GetList()
 		{
 			// Get a copy of the sorted currency list.
-			List<KeyValuePair<int, int>> tmpList = currencyList;
+			List<KeyValuePair<int, int>> tmpCurrencies = currencies;
 
 			// Return the list.
-			return tmpList;
-		} // end GetList function
-	} // end Misc class
-} // end namespace
+			return tmpCurrencies;
+		} // end GetList
+	} // end Misc
+} // end GSP

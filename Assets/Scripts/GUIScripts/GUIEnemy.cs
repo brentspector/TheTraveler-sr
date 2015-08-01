@@ -1,104 +1,126 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿/*******************************************************************************
+ *
+ *  File Name: GUIEnemy.cs
+ *
+ *  Description: Old GUI for the Enemy MapEvent event
+ *
+ *******************************************************************************/
+using UnityEngine;
 
 namespace GSP.JAVIERGUI
 {
-
-	public class GUIEnemy : MonoBehaviour 
+    //TODO: Damien: Replace with the GameMaster functionality later.
+    //TODO: Brent: Replace this with the new In-Game UI later; probably not in the same namespace
+    /*******************************************************************************
+     *
+     * Name: GUIEnemy
+     * 
+     * Description: Creates the GUI for the Enemy MapEvent.
+     * 
+     *******************************************************************************/
+    public class GUIEnemy : MonoBehaviour 
 	{
-		GSP.GUIMapEvents m_GUIMapEventsScript;
-		GSP.MapEvent m_MapEventScript;
-		GameObject m_PlayerEntity;
-		GameObject audioSrc;
+        GUIMapEvents guiMapEventsScript;    // The GUIMapEvents script reference
+        MapEvent mapEventScript;            // The MapEvent script reference
+        GameObject playerEntity; 			// Will initialize to the actual player in InitThis
+		GameObject audioSrc;                // The AUdioSource reference
 
-		//main container values
-		int m_mainWidth = -1;
-		int	m_mainHeight = -1;
-		int m_mainStartX = -1;
-		int m_mainStartY = -1;
+		// main container values
+        int mainStartX = -1;   // The starting x value
+        int mainStartY = -1;   // The starting y value
+        int mainWidth  = -1;   // The starting width value
+        int mainHeight = -1;   // The starting height value
 
-		bool m_isActionRunning = false;
-		string m_headerString;
+        bool isActionRunning = false;           // Whether the ally action is running
+        string headerString;                    // The text in the OnGUI UI; the fight status text
 
 		// Use this for initialization
-		void Start () {
-			m_GUIMapEventsScript = GameObject.FindGameObjectWithTag ("GUIMapEventSpriteTag").GetComponent<GSP.GUIMapEvents> ();
-			m_MapEventScript = GameObject.FindGameObjectWithTag ("DieTag").GetComponent<GSP.MapEvent> ();
-			audioSrc = GameObject.FindGameObjectWithTag( "AudioSourceTag" );
-		}
+		void Start()
+        {
+			guiMapEventsScript = GameObject.FindGameObjectWithTag ("GUIMapEventSpriteTag").GetComponent<GSP.GUIMapEvents> ();
+			mapEventScript = GameObject.FindGameObjectWithTag ("DieTag").GetComponent<GSP.MapEvent> ();
+            audioSrc = GameObject.FindGameObjectWithTag("AudioSourceTag");
+		} // end Start
 
-		public void InitThis( GameObject p_PlayerEntity, int p_startX, int p_startY, int p_startWdth, int p_startHght, string p_result)
+        //TODO: Damien: Replace with the GameMaster functionality later.
+        //TODO: Brent: Replace OnGUI stuff with the new In-Game UI later
+        // Initialise things sort of like a custom constructor
+        public void InitThis(GameObject player, int startX, int startY, int startWidth, int startHeight, string result)
 		{
-			m_mainStartX = p_startX;
-			m_mainStartY = p_startY;
-			m_mainWidth = p_startWdth;
-			m_mainHeight = p_startHght;
+			mainStartX = startX;
+			mainStartY = startY;
+			mainWidth = startWidth;
+			mainHeight = startHeight;
 
-			m_PlayerEntity = p_PlayerEntity;
+			playerEntity = player;
 
-			m_isActionRunning = true;
+			isActionRunning = true;
 
-			m_headerString = m_MapEventScript.ResolveFight(m_PlayerEntity); //"Needs to call a\nfunction in Fight!\nThat returns a string.";
-		
-			#region TODO:AddSound for fight here
-			Die m_die = new Die();
-			int roll = m_die.Roll(1, 3);
-			if(roll == 1)
-			{
-				audioSrc.GetComponent<AudioSource>().PlayOneShot( GSP.AudioReference.sfxSwordHit1 ); //Play sword sound
-			} //end if
-			else if(roll == 2)
-			{
-				audioSrc.GetComponent<AudioSource>().PlayOneShot( GSP.AudioReference.sfxSwordHit2 ); //Play sword sound
-			} //end else if
-			else
-			{
-				audioSrc.GetComponent<AudioSource>().PlayOneShot( GSP.AudioReference.sfxSwordHit3 ); //Play sword sound
-			} //end else
+			headerString = mapEventScript.ResolveFight(playerEntity);
+
+            //TODO: Brent: Replace with AudioManager later
+            #region TODO:AddSound for fight here
+            //Die die = new Die();
+            //int roll = die.Roll(1, 3);
+            //if(roll == 1)
+            //{
+            //    audioSrc.GetComponent<AudioSource>().PlayOneShot(GSP.AudioReference.sfxSwordHit1); //Play sword sound
+            //} // end if
+            //else if(roll == 2)
+            //{
+            //    audioSrc.GetComponent<AudioSource>().PlayOneShot(GSP.AudioReference.sfxSwordHit2); //Play sword sound
+            //} // end else if
+            //else
+            //{
+            //    audioSrc.GetComponent<AudioSource>().PlayOneShot(GSP.AudioReference.sfxSwordHit3); //Play sword sound
+            //} // end else
 			#endregion
-		}	//end public void InitThis(blah, blah, blah, blah)
+		} // end InitThis
 
-		// Update is called once per frame
-		void OnGUI () 
+        //TODO: Brent: Replace OnGUI stuff with the new In-Game UI later
+        // The old style GUI functioned using an OnGUI function; Runs each frame
+		void OnGUI() 
 		{
-			if ( m_isActionRunning )
+            if (isActionRunning)
 			{
-				//default button color
+				// default button color
 				GUI.backgroundColor = Color.red;
 
 				ConfigHeader();
 				ConfigDoneButton();
-			}
-		}	//end void OnGUI()
+			} // end if
+		} // end OnGUI
 
 
-		private void ConfigHeader ()
+        //TODO: Brent: Replace OnGUI stuff with the new In-Game UI later
+        // Configures the header of the OnGUI UI system
+        void ConfigHeader()
 		{
-			int headWdth = m_mainWidth - 2;
-			int headHght = m_mainHeight / 5;
-			int headX = m_mainStartX + ((m_mainWidth -headWdth) /2);
-			int headY = m_mainStartY + (headHght*2);
-			
-			GUI.Box(new Rect(headX, headY, headWdth, headHght*2), m_headerString);
-		}	//end private void ConfigHeader()
+            int headWdth = mainWidth - 2;
+            int headHght = mainHeight / 5;
+            int headX = mainStartX + ((mainWidth - headWdth) / 2);
+            int headY = mainStartY + (headHght * 2);
 
-		private void ConfigDoneButton()
+            GUI.Box(new Rect(headX, headY, headWdth, headHght * 2), headerString);
+		} // end ConfigHeader
+
+        //TODO: Brent: Replace OnGUI stuff with the new In-Game UI later
+        // Configures the done button of the OnGUI UI system
+        private void ConfigDoneButton()
 		{
-			//done button
-			int doneWidth = m_mainWidth/2;
-			int doneHeight = m_mainHeight / 8;
-			int doneStartX = m_mainStartX +(m_mainWidth -doneWidth) /2;
-			int doneStartY = m_mainStartY +(doneHeight *7);
-			GUI.backgroundColor = Color.red;
-			
-			if ( GUI.Button (new Rect( doneStartX, doneStartY, doneWidth, doneHeight), "DONE") )
+			// done button
+            int doneWidth = mainWidth / 2;
+            int doneHeight = mainHeight / 8;
+            int doneStartX = mainStartX + (mainWidth - doneWidth) / 2;
+            int doneStartY = mainStartY + (doneHeight * 7);
+            GUI.backgroundColor = Color.red;
+
+            if (GUI.Button(new Rect(doneStartX, doneStartY, doneWidth, doneHeight), "DONE"))
 			{
-				m_isActionRunning = false;
-				//once nothing is happening, program returns to Controller's End Turn State
-				m_GUIMapEventsScript.MapeEventDone();
-			}
-		}
-
-	}	//END public class GUIEnemy
-
-}	//end namepsace GSP.JAVIERGUI
+				isActionRunning = false;
+				// once nothing is happening, program returns to Controller's End Turn State
+				guiMapEventsScript.MapEventDone();
+			} // end if
+        } // end ConfigDoneButton
+	} // end GUIEnemy
+} //end GSP.JAVIERGUI

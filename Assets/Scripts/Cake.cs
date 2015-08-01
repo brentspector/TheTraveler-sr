@@ -1,93 +1,110 @@
-﻿using UnityEngine;
+﻿/*******************************************************************************
+ *
+ *  File Name: Cake.cs
+ *
+ *  Description: Easter egg content
+ *
+ *******************************************************************************/
 using System.Collections;
+using UnityEngine;
 
 namespace GSP.Cake
 {
-	// NOTE: This script should only be used on the easter egg scene!
-	public class Cake : MonoBehaviour
+    /*******************************************************************************
+     *
+     * Name: Cake
+     * 
+     * Description: Adds a cake chart as an easter egg. This is part of an easter
+     *              egg scene.
+     * 
+     *******************************************************************************/
+    public class Cake : MonoBehaviour
 	{
-		GameObject m_cakeChart;			// Holds the cakechart object reference.
-		Sprite[] m_cakeSprites;			// Holds the sprites for the cake chart.
-		SpriteRenderer m_renderer;		// Holds the reference for the sprite renderer component.
-		BoxCollider2D m_boxCollider;	// Holds the reference for the box collider 2d component.
-		GameObject m_audioSource;		// Holds the audio source object reference.
-		int m_slicesLeft;				// Holds the number of slices left.
-		GameObject m_guiText;			// Holds the child object that holds the gui text.
+		GameObject cakeChart;		    // The CakeChart GameObject reference
+		Sprite[] cakeSprites;		    // The Sprite's for the CakeChart
+		SpriteRenderer spriteRenderer;  // The SpriteRenderer component reference
+		BoxCollider2D boxCollider;	    // The BoxCollider2D component reference
+		GameObject audioSource;	    	// The AudioSource GameObject reference
+		int slicesLeft;			    	// The number of slices left
+		GameObject guiTextObj;			// The child GameObject that holds the GUI text
 		
-		// Use this for initialization
+		// Used for initialisation
 		void Start()
 		{
-			// Load all the sprites for the cake chart.
-			m_cakeSprites = Resources.LoadAll<Sprite>( "cake_spritesheet" );
+			// Load all the Sprite's
+			cakeSprites = Resources.LoadAll<Sprite>("cake_spritesheet");
 			
-			// Find the object with the cake chart tag.
-			m_cakeChart = GameObject.FindGameObjectWithTag( "CakeChartTag" );
+			// Get the CakeChart
+			cakeChart = GameObject.FindGameObjectWithTag("CakeChartTag");
 
-			// Add a sprite renderer to the cake chart.
-			m_renderer = m_cakeChart.AddComponent<SpriteRenderer>();
+			// Give the CakeChart a SpriteRenderer component
+            spriteRenderer = cakeChart.AddComponent<SpriteRenderer>();
 			
-			// Default the cake chart to full.
-			m_renderer.sprite = m_cakeSprites[0];
+			// The CakeChart is whole by default
+            spriteRenderer.sprite = cakeSprites[0];
 			
-			// Add a rigid body 2d to the cake chart.
-			var rigidBody2D = m_cakeChart.AddComponent<Rigidbody2D>();
-			// Turn off gravity.
+			// Give the CakeChart a RigidBody2D component to allow for collisions
+			var rigidBody2D = cakeChart.AddComponent<Rigidbody2D>();
+			// This is a 2D project so turn off gravity.
 			rigidBody2D.gravityScale = 0.0f;
 			
-			// Add a BoxCollider2D component to the player.
-			m_boxCollider = m_cakeChart.AddComponent<BoxCollider2D>();
+			// Give the CakeChart a BoxCollider2D component to add collisions
+			boxCollider = cakeChart.AddComponent<BoxCollider2D>();
 
-			// Get the audio source by finding the object with the audio source tag.
-			m_audioSource = GameObject.FindGameObjectWithTag(  "AudioSourceTag" );
+			// Get the AudioSource
+			audioSource = GameObject.FindGameObjectWithTag("AudioSourceTag");
 
-			// Set the slices left to five.
-			m_slicesLeft = 5;
+			// The CakeChart has five slices left when whole
+			slicesLeft = 5;
 
-			// Find the gui text child.
-			m_guiText = GameObject.Find( "CakeChart/CakeText" );
+			// Get the GUIText child
+            guiTextObj = GameObject.Find("CakeChart/CakeText");
 
-			m_guiText.GetComponent<GUIText>().text = "Have some Cake Chart! (Click to eat)";
-		} // end Start function
+			// Set the GUIText
+            guiTextObj.GetComponent<GUIText>().text = "Have some Cake Chart! (Click to eat)";
+		} // end Start
 
-		void OnMouseDown()
+		// Mouse event that triggers when the mouse button is in the down position
+        void OnMouseDown()
 		{
-			// Reduce the slices left by one.
-			m_slicesLeft -= 1;
+			// Reduce the slices left
+			slicesLeft--;
 
-			// When clicked, we want to update things to progress to the next slice.
-			if ( m_slicesLeft > 0 )
+			// When clicked, update things to progress to the next slice
+			if (slicesLeft > 0 )
 			{
-				// Get the cake sprite index.
-				int cakeIndex = 5 - m_slicesLeft;
+				// Get the cake sprite index
+				int cakeIndex = 5 - slicesLeft;
 
-				// Advance the sprite.
-				m_renderer.sprite = m_cakeSprites[ cakeIndex ];
+				// Advance the sprite
+                spriteRenderer.sprite = cakeSprites[cakeIndex];
 
-				// Next we need to ajust the collider.
-				m_boxCollider.size = new Vector2( m_cakeSprites[ cakeIndex ].bounds.size.x, m_cakeSprites[ cakeIndex ].bounds.size.y );
-			}// end if statement
+				// Next we need to ajust the collider
+				boxCollider.size = new Vector2(cakeSprites[cakeIndex].bounds.size.x, cakeSprites[cakeIndex].bounds.size.y);
+			} // end if
 			else
 			{
-				m_renderer.sprite = null;
+                spriteRenderer.sprite = null;
 
-				// There are no more slices of cake left so start the quit coroutine.
-				StartCoroutine( "Quit" );
-			} // end else statement.
-		} // end OnMouseDown function
+				// There are no more slices of cake left so start the quit coroutine
+				StartCoroutine("Quit");
+			} // end else
+		} // end OnMouseDown
 
-		// Coroutine for the ending.
+		// Coroutine for the ending
 		IEnumerator Quit()
 		{
-			m_guiText.GetComponent<GUIText>().text = "The universe is ending!";
+            guiTextObj.GetComponent<GUIText>().text = "The universe is ending!";
 
-			// Play an explosion sound.
-			m_audioSource.GetComponent<AudioSource>().PlayOneShot( AudioReference.sfxExplosion );
+            //TODO: Brent: Replace with AudioManager later
+            // Play an explosion sound
+			//audioSource.GetComponent<AudioSource>().PlayOneShot(AudioReference.sfxExplosion);
 
-			// Wait for a second.
-			yield return new WaitForSeconds( 3.0f );
+			// Wait for three seconds
+			yield return new WaitForSeconds(3.0f);
 
-			// Load the menu scene.
-			Application.LoadLevel( 0 );
-		} // end Quit coroutine function
-	} // end Cake class
-} // end namespace
+			// Load the menu scene
+			Application.LoadLevel(0);
+		} // end Quit
+	} // end Cake
+} // end GSP.Cake

@@ -1,47 +1,66 @@
-﻿using System.Collections;
+﻿/*******************************************************************************
+ *
+ *  File Name: DieInput.cs
+ *
+ *  Description: Wrapper for the Die class; This is able to be placed in the
+ *               scene
+ *
+ *******************************************************************************/
 using UnityEngine;
 
 namespace GSP
 {
-	public class DieInput : MonoBehaviour
+    /*******************************************************************************
+     *
+     * Name: DieInput
+     * 
+     * Description: Add to a GameObject on the scene for a global place to access
+     *              the dice.
+     * 
+     *******************************************************************************/
+    public class DieInput : MonoBehaviour
 	{
-		// The private die reference
-		private Die m_dice;
+        Die dice;             // The Die reference
+        //Sprite[] dieFaces;  // The Die face's Sprite's
 
-		// Holds the die face references.
-		public Sprite[] m_dieFaces;
+        // Use this for initialisation
+        void Awake()
+        {
+            // Create a new Die object
+            dice = new Die();
+        } // end Awake
+        
+        //// Gets the Die face's Sprite's
+        //public Sprite GetFace(int index)
+        //{
+        //    return dieFaces[index];
+        //} // end GetFace
 
-		// Gets the Die object.
-		public Die Dice
-		{
-			get { return m_dice; }
-		}
-
-		// Use this for initialization
-		void Start()
-		{
-			// Create a die object.
-			m_dice = new Die();
-		}
-		
 		// Update is called once per frame
 		void Update()
 		{
-			// Check if the space key is pressed to roll the di(c)e.
-			if ( Input.GetKeyDown( KeyCode.Space ) )
-			{
-				// Get the die roll.
-				var dieRoll = Dice.Roll();
+			// Note: Kept in for historical reasons for now.
+            // Check if the space key is pressed to roll the dice.
+            //if (Input.GetKeyDown(KeyCode.Space))
+            //{
+            //    // Get the die roll
+            //    var dieRoll = Dice.Roll();
 
-				// Get the sprite renderer component.
-				var spriteRenderer = GetComponent<SpriteRenderer>();
+            //    // Get the sprite renderer component
+            //    var spriteRenderer = GetComponent<SpriteRenderer>();
 
-				// Set the die's sprite to the roll.
-				spriteRenderer.sprite = m_dieFaces[ dieRoll - 1 ];
+            //    // Set the die's sprite to the roll
+            //    spriteRenderer.sprite = GetFace(dieRoll - 1);
 
-				// Print the roll to the console.
-				print( "Die Roll: " +  dieRoll );
-			}
-		}
-	}
-}
+            //    // Print the roll to the console
+            //    Debug.LogFormat("Die Roll: {0}", dieRoll);
+            //} // end if
+		} // end Update
+
+        // Gets the Die object
+        public Die Dice
+        {
+            get { return dice; }
+        } // end Dice
+	} // end DieInput
+} // end GSP
