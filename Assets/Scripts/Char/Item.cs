@@ -11,15 +11,15 @@ using UnityEngine;
 namespace GSP.Char
 {
 	//Items enums
-	//NOTE!!
-	//SIZE must be the last item in the enum so that anything based
-	//on the length of the enum can be used as normal. It is best to
-	//add items to the left of SIZE but after the current 2nd to last
-	//item in the enum. For instance if the list was {SWORD, MACE, SIZE}
-	//you should enter the new item between MACE and SIZE. Create name
-	//here and then define it under "SetItem" function
+	// NOTE!!
+	// SIZE must be the last item in the enum so that anything based
+	// on the length of the enum can be used as normal. It is best to
+	// add items to the left of SIZE but after the current 2nd to last
+	// item in the enum. For instance if the list was {SWORD, MACE, SIZE}
+	// you should enter the new item between MACE and SIZE. Create name
+	// here and then define it under "SetItem" function
 	enum Weapons {Sword, Broadsword, Mace, Spear, Size};
-	enum Armor {Platebody, Chainmail, Platelegs, Chainlegs, Fullsuit, Size};
+	enum Armors {Platebody, Chainmail, Platelegs, Chainlegs, Fullsuit, Size};
 	enum Inventory {Sachel, Size};
 	enum Weight {Rubberboots, Size};
 
@@ -98,35 +98,35 @@ namespace GSP.Char
                 case "PLATEBODY":
                     {
 				        itemName = "Platebody";
-				        type = "Armor";
+				        type = "Armors";
 				        defenceValue = 8;
 				        return "defence";
                     } // end case PLATEBODY
                 case "CHAINMAIL":
                     {
 				        itemName = "Chainmail";
-				        type = "Armor";
+				        type = "Armors";
 				        defenceValue = 5;
 				        return "defence";
                     } // end case CHAINMAIL
                 case "PLATELEGS":
                     {
 				        itemName = "Platelegs";
-				        type = "Armor";
+				        type = "Armors";
 				        defenceValue = 3;
 				        return "defence";
                     }  // end case PLATELEGS
                 case "CHAINLEGS":
                     {
 				        itemName = "Chainlegs";
-				        type = "Armor";
+				        type = "Armors";
 				        defenceValue = 2;
 				        return "defence";
                     } // end case CHAINLEGS
                 case "FULLSUIT":
                     {
 				        itemName = "Full Suit";
-				        type = "Armor";
+				        type = "Armors";
 				        defenceValue = 11;
 				        return "defence";
                     } // end case FULLSUIT

@@ -36,6 +36,9 @@ namespace GSP.Core
         Dictionary<int, InterfaceColors> playerColors;  // The list of the players' colours
         Dictionary<int, GameObject> playerObjs;         // The list of players' GameObject's
         Dictionary<int, Char.Player> players;           // The list of players' Player scripts references
+        Dictionary<int, GameObject> enemies;            // The list of enemies' GameObject's
+
+        List<int> enemyIdentifiers; // The list of enemy IDs
 
         // Initialise the dictionaries
         public override void Awake()
@@ -48,6 +51,10 @@ namespace GSP.Core
             playerColors = new Dictionary<int, InterfaceColors>();
             playerObjs = new Dictionary<int, GameObject>();
             players = new Dictionary<int, Char.Player>();
+            enemies = new Dictionary<int, GameObject>();
+
+            // Create the list
+            enemyIdentifiers = new List<int>();
 
             // Set the save file information strings
             playerFilePath = Application.persistentDataPath + "/player";
@@ -57,6 +64,20 @@ namespace GSP.Core
 
         // Fill the dictionaries
         void Start()
+        {
+            // Reset the containers
+            ResetCollections();
+        } // end Start
+
+        // Called when a new level was loaded
+        void OnLevelWasLoaded(int level)
+        {
+            // Reset the containers after a level was loaded to flushout old references
+            ResetCollections();
+        }
+
+        // Resets the containers
+        public void ResetCollections()
         {
             // Loop over the players to fill the dictionaries with deafult values
             for (int i = 0; i < MaxPlayers; i++)
@@ -68,7 +89,13 @@ namespace GSP.Core
                 playerObjs.Add(playerNum, null);
                 players.Add(playerNum, null);
             } // end for
-        } // end Start
+            
+            // Clear the enemies dictionary
+            enemies.Clear();
+
+            // Clear the enemies list
+            enemyIdentifiers.Clear();
+        } // end ResetCollections
 
         // Gets the player's name with the given key
         public string GetPlayerName(int playerNum)
@@ -99,10 +126,10 @@ namespace GSP.Core
         #region Create Players
 
         // Create a new player
-        public void CreatePlayer(int playerNum)
+        public void CreatePlayer(int playerNum, bool isDataOnly = false)
         {
             Vector3 startPos = startingPos; // The starting position
-            int entID = -1;                 // The ID of the created entity.
+            int entID = -1;                 // The ID of the created entity
 
             // Get the starting position
             startPos.y -= ((playerNum + 1) * .64f);
@@ -110,6 +137,16 @@ namespace GSP.Core
             // Create the player GameObject
             GameObject obj = Instantiate(PrefabReference.prefabPlayer, startingPos, Quaternion.identity) as GameObject;
             obj.transform.localScale = new Vector3(1, 1, 1);
+
+            // Name the player in the editor for convienience
+            obj.name = GetPlayerName(playerNum);
+
+            // Check if players should be created for data only; that is without a SpriteRenderer
+            if (isDataOnly)
+            {
+                // Destroy the SpriteRenderer component
+                Destroy(playerObjs[playerNum].GetComponent<SpriteRenderer>());
+            }
 
             // Create the merchant entity
             Entities.EntityManager.Instance.Generator.CreateEntity(out entID, Entities.EntityType.Merchant, obj, playerNum);
@@ -124,17 +161,17 @@ namespace GSP.Core
             players[playerNum].GetMerchant(entID);
         } // end CreatePlayer
 
-        // Create a new player and load their settings.
-        public void CreateAndLoadPlayer(int playerNum)
+        // Create a new player and load their settings
+        public void CreateAndLoadPlayer(int playerNum, bool isDataOnly = false)
         {
             // First load the player's settings
             LoadPlayer(playerNum);
 
             // Then create the player
-            CreatePlayer(playerNum);
+            CreatePlayer(playerNum, isDataOnly);
         } // end CreateAndLoadPlayer
 
-        // Create new players.
+        // Create new players
         public void CreatePlayers()
         {
             // Loop over the dictionary to create each player; We use the player name dictionary here
@@ -146,13 +183,13 @@ namespace GSP.Core
         } // end CreatePlayers
 
         // Create new players and load their settings
-        public void CreateAndLoadPlayers()
+        public void CreateAndLoadPlayers(bool isDataOnly = false)
         {
             // Loop over the dictionary to create each player; We use the player name dictionary here
             foreach (var player in playerNames)
             {
                 // Create the current player
-                CreateAndLoadPlayer(player.Key);
+                CreateAndLoadPlayer(player.Key, isDataOnly);
             } // end foreach
         } // end CreateAndLoadPlayers
 
@@ -161,7 +198,7 @@ namespace GSP.Core
         #region Create Enemies
 
         // Create a new enemy
-        public void CreateEnemy(Entities.HostileType enemyType)
+        public void CreateEnemy(Entities.HostileType enemyType, string enemyName)
         {
             // Create the enemy GameObject
             GameObject obj = Instantiate(PrefabReference.prefabEnemy) as GameObject;
@@ -179,8 +216,14 @@ namespace GSP.Core
                         // Add the bandit enemy script
                         var script = obj.AddComponent<Char.Enemies.BanditMB>();
 
+                        // Name the GameObject in the editor for convienience sake
+                        obj.name = enemyName;
+
                         // Create the enemy entity
                         Entities.EntityManager.Instance.Generator.CreateEntity(out entID, Entities.EntityType.Bandit, obj);
+
+                        // Name the enemy entity
+                        Entities.EntityManager.Instance.GetEntity(entID).Name = enemyName;
 
                         // Give the enemy script the ID for the enemy
                         script.GetEnemy(entID);
@@ -195,8 +238,14 @@ namespace GSP.Core
                         // Add the mimic enemy script
                         var script = obj.AddComponent<Char.Enemies.BanditMB>();
 
+                        // Name the GameObject in the editor for convienience sake
+                        obj.name = enemyName;
+
                         // Create the enemy entity
                         Entities.EntityManager.Instance.Generator.CreateEntity(out entID, Entities.EntityType.Mimic, obj);
+
+                        // Name the enemy entity
+                        Entities.EntityManager.Instance.GetEntity(entID).Name = enemyName;
 
                         // Give the enemy script the ID for the enemy
                         script.GetEnemy(entID);
@@ -204,14 +253,14 @@ namespace GSP.Core
                         break;
                     } // end case Mimic
             } // end switch enemyType
-        } // end CreateAlly
+        } // end CreateEnemy
 
         #endregion
 
         #region Create Allies
 
         // Create a new ally
-        public void CreateAlly(Entities.FriendlyType allyType)
+        public void CreateAlly(Entities.FriendlyType allyType, string allyName)
         {
             // Create the ally GameObject
             GameObject obj = Instantiate(PrefabReference.prefabAlly) as GameObject;
@@ -229,8 +278,17 @@ namespace GSP.Core
                         // Add the porter ally script
                         var script = obj.AddComponent<Char.Allies.PorterMB>();
 
+                        // Name the GameObject in the editor for convienience sake
+                        obj.name = allyName;
+
+                        // Add the ResourceList script
+                        obj.AddComponent<Char.ResourceList>();
+
                         // Create the ally entity
                         Entities.EntityManager.Instance.Generator.CreateEntity(out entID, Entities.EntityType.Porter, obj);
+
+                        // Name the ally entity
+                        Entities.EntityManager.Instance.GetEntity(entID).Name = allyName;
 
                         // Give the ally script the ID for the ally
                         script.GetAlly(entID);
@@ -245,8 +303,14 @@ namespace GSP.Core
                         // Add the mercenary ally script
                         var script = obj.AddComponent<Char.Allies.MercenaryMB>();
 
+                        // Name the GameObject in the editor for convienience sake
+                        obj.name = allyName;
+
                         // Create the ally entity
                         Entities.EntityManager.Instance.Generator.CreateEntity(out entID, Entities.EntityType.Mercenary, obj);
+
+                        // Name the ally entity
+                        Entities.EntityManager.Instance.GetEntity(entID).Name = allyName;
 
                         // Give the ally script the ID for the ally
                         script.GetAlly(entID);
