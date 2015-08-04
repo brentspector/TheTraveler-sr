@@ -1,139 +1,156 @@
-﻿using UnityEngine;
+﻿/*******************************************************************************
+ *
+ *  File Name: Resource.cs
+ *
+ *  Description: Logic of a single resource
+ *
+ *******************************************************************************/
 using System;
-using System.Collections;
+using UnityEngine;
 
 namespace GSP.Char
 {
-	// Resource enums
-	// NOTE!!
-	// SIZE must be the last item in the enum so that anything based
-	// on the length of the enum can be used as normal. It is best to
-	// add items to the left of NONE but after the current 3rd to last
-	// item in the enum. For instance if the list was {SWORD, MACE, NONE, SIZE}
-	// you should enter the new item between MACE and NONE. Create name
-	// here and then define it under "SetResource" function.
-	public enum ResourceType {WOOL, WOOD, FISH, ORE, NONE, SIZE};
-	
-	public class Resource
+    //TODO: Damien: Replace with something for a better inventory later.
+    /*******************************************************************************
+     *
+     * Name: Resource
+     * 
+     * Description: Manages a single resource object.
+     * 
+     *******************************************************************************/
+    public class Resource
 	{
-		string m_resourceName;	// This is the name of the resource.
-		int m_weightValue;		// This is the weight value of the resource.
-		int m_sellValue;		// This is the sell value of the resource.
-		int m_sizeValue;		// This is the size value of the resource.
-		ResourceType m_resType;	// This is the type of the resource.
+		string name;	            // The name of the resource
+		int weightValue;		    // The weight value of the resource
+		int sellValue;		        // The sell value of the resource
+		int sizeValue;		        // The size value of the resource
+		ResourceType type;  // The type of the resource
 
-		// The constructor.
+		// The constructor; initialises the values for the resource
 		public Resource()
 		{
-			// Initialise the values.
-			m_resourceName = "NAN";
-			m_weightValue = 0;
-			m_sellValue = 0;
-			m_sizeValue = 0;
+			// Initialise the values
+			name = "NAN";
+			weightValue = 0;
+			sellValue = 0;
+			sizeValue = 0;
 			
-			// Set resource type to none.
-			m_resType = ResourceType.NONE;
-		} // end constructor
-		
-		// Gets and Sets the resource's name.
-		public string ResourceName
-		{
-			get { return m_resourceName; }
-			set { m_resourceName = value; }
-		} // end ResourceName property
-		
-		// Gets and Sets the resource's weight value.
-		public int WeightValue
-		{
-			get{ return m_weightValue; }
-			set{ m_weightValue = value; }
-		} // end WeightValue property
-		
-		// Gets and Sets the resource's sell value.
-		public int SellValue
-		{
-			get{ return m_sellValue; }
-			set
-			{ 
-				m_sellValue = value; 
+			// Set Type to None
+			type = ResourceType.None;
+		} // end Resource
 
-				// Check if the sell value is less than zero.
-				if(m_sellValue < 0)
-				{
-					// Clamp the sell value to zero.
-					m_sellValue = 0;
-				} // end if statement
-			} // end Set accessor
-		}// end SellValue property
-
-		public int SizeValue
-		{
-			get { return m_sizeValue; }
-		} // end SizeValue property
-
-		// Gets the resource's type.
-		public ResourceType ResType
-		{
-			get { return m_resType; }
-		} // end ResType property
-
-		// Sets resource to predetermined types.
-		// NOTE: These values can be changed.
+		// Sets resource to predetermined types
+		// NOTE: These values can be changed
 		public string SetResource(string resourceType)
 		{
-			// Holds the results of parsing.
+			// Holds the results of parsing
 			ResourceType tmp;
 			
 			try
 			{
-				// Attempt to parse the string into the enum value.
-				tmp = (ResourceType)Enum.Parse( typeof( ResourceType ), resourceType );
+				// Attempt to parse the string into the enum value
+                tmp = (ResourceType)Enum.Parse(typeof(ResourceType), resourceType);
 				
-				// Switch over the possible values. ToUpper() is used as a caution.
-				switch ( tmp )
+				// Switch over the possible values. ToUpper() is used as a caution
+				switch (tmp)
 				{
-					case ResourceType.WOOL:
-						// Set the values for the resource.
-						m_resourceName = "Wool";
-						m_sellValue = 15;
-						m_weightValue = 10;
-						m_sizeValue = 5;
-						m_resType = ResourceType.WOOL;
-						return "wool";
-					case ResourceType.WOOD:
-						// Set the values for the resource.
-						m_resourceName = "Wood";
-						m_sellValue = 20;
-						m_weightValue = 15;
-						m_sizeValue = 5;
-						m_resType = ResourceType.WOOD;
-						return "wood";
-					case ResourceType.FISH:
-						// Set the values for the resource.
-						m_resourceName = "Fish";
-						m_sellValue = 15;
-						m_weightValue = 25;
-						m_sizeValue = 5;
-						m_resType = ResourceType.FISH;
-						return "fish";
-					case ResourceType.ORE:
-						// Set the values for the resource.
-						m_resourceName = "Ore";
-						m_sellValue = 10;
-						m_weightValue = 20;
-						m_sizeValue = 5;
-						m_resType = ResourceType.ORE;
-						return "ore";
-					default:
-						return "NAN";
-				} // end switch statment
-			} // end try statement
+					case ResourceType.Wool:
+                        {
+                            // Set the values for the resource
+                            name = "Wool";
+                            sellValue = 15;
+                            weightValue = 10;
+                            sizeValue = 5;
+                            this.type = ResourceType.Wool;
+                            return "wool";
+                        }
+					case ResourceType.Wood:
+                        {
+                            // Set the values for the resource
+                            name = "Wood";
+                            sellValue = 20;
+                            weightValue = 15;
+                            sizeValue = 5;
+                            this.type = ResourceType.Wood;
+                            return "wood";
+                        }
+					case ResourceType.Fish:
+                        {
+                            // Set the values for the resource
+                            name = "Fish";
+                            sellValue = 15;
+                            weightValue = 25;
+                            sizeValue = 5;
+                            this.type = ResourceType.Fish;
+                            return "fish";
+                        }
+					case ResourceType.Ore:
+                        {
+                            // Set the values for the resource
+                            name = "Ore";
+                            sellValue = 10;
+                            weightValue = 20;
+                            sizeValue = 5;
+                            this.type = ResourceType.Ore;
+                            return "ore";
+                        }
+                    default:
+                        {
+                            // Invalid resource so return NAN
+                            return "NAN";
+                        }
+                } // end switch tmp
+			} // end try
 			catch (Exception)
 			{
 				// The parsing failed so return NAN.
-				Debug.Log( "Requested resource type '" + resourceType + "' was not found." );
+				Debug.LogWarningFormat("Requested resource type '{0}' was not found!", resourceType);
 				return "NAN";
-			} // end catch statement
-		} // end SetResource function
-	} // end Resource class
-} // end namespace
+			} // end catch
+		} // end SetResource
+
+        // Gets and Sets the resource's Name
+        public string Name
+        {
+            get { return name; }
+            set { name = value; }
+        } // end Name
+
+        // Gets and Sets the resource's WeightValue
+        public int WeightValue
+        {
+            get { return weightValue; }
+            set { weightValue = value; }
+        } // end WeightValue
+
+        // Gets and Sets the resource's SellValue
+        public int SellValue
+        {
+            get { return sellValue; }
+            set
+            {
+                // Set to the value
+                sellValue = value;
+
+                // Check if the sell value is less than zero
+                if (sellValue < 0)
+                {
+                    // Clamp the sell value to zero
+                    sellValue = 0;
+                } // end if
+            } // end set
+        } // end SellValue
+
+        // Gets the resource's SizeValue
+        public int SizeValue
+        {
+            get { return sizeValue; }
+        } // end SizeValue
+
+        // Gets the resource's Type
+        public ResourceType Type
+        {
+            get { return type; }
+        } // end Type
+	} // end Resource
+} // end GSP.Char

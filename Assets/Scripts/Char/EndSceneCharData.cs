@@ -1,48 +1,61 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿/*******************************************************************************
+ *
+ *  File Name: EndSceneCharData.cs
+ *
+ *  Description: Old construct for transferring character data from the game to
+ *               the end scene
+ *
+ *******************************************************************************/
+using UnityEngine;
 
 namespace GSP.Char
 {
-	public class EndSceneCharData
+    //TODO: Damien: Replace with the GameMaster functionality later.
+    /*******************************************************************************
+     *
+     * Name: EndSceneCharData
+     * 
+     * Description: Stores the character data for use in the end scene.
+     * 
+     *******************************************************************************/
+    public class EndSceneCharData
 	{
-		// Declare our private variables.
-		int m_playerNumber;		// Holds the player's number.
-		string m_PlayerName;	// Holds the player's name based of its number.
-		int m_playerCurrency;	// Holds the player's currency amount.
+		int playerNumber;	// The player's number
+		string playerName;  // The player's name based of its number
+		int playerCurrency; // The player's currency amount
 		
-		// Constructor for creating the end scene data.
-		public EndSceneCharData( int playerNum, GameObject player )
+		// Constructor for creating the EndSceneCharData
+		public EndSceneCharData(int playerNum, GameObject player)
 		{
-			// Set the player's number.
-			m_playerNumber = playerNum;
+			// Set the player's number
+			playerNumber = playerNum;
 			
-			// Set the player's name based on the above number.
-			m_PlayerName = "Player " + m_playerNumber.ToString();
+			// Set the player's name based on the above number
+			playerName = "Player " + playerNumber.ToString();
 			
-			// Get the character script of the player.
+			// Get the character script of the player
 			Character charScript = player.GetComponent<Character>();
 
-			// Set the player's currency.
-			m_playerCurrency = charScript.Currency;
-		} // end EndSceneCharData constructor
+			// Set the player's currency
+			playerCurrency = charScript.Currency;
+		} // end EndSceneCharData
 
-		// Gets the player's number.
+		// Gets the player's number
 		public int PlayerNumber
 		{
-			get { return m_playerNumber; }
-		} // end PlayerNumber property
+			get { return playerNumber; }
+		} // end PlayerNumber
 
-		// Gets the player's name.
+		// Gets the player's name
 		public string PlayerName
 		{
-			get { return m_PlayerName; }
+			get { return playerName; }
 		} // end PlayerName
 
-		// Gets the player's currency.
+		// Gets the player's curreny
 		public int PlayerCurrency
 		{
-			get { return m_playerCurrency; }
+			get { return playerCurrency; }
 		} // end PlayerCurrency
-
-	} // end EndSceneCharData class
-} // end namespace
+	} // end EndSceneCharData
+} // end GSP.Char

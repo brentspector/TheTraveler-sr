@@ -1,145 +1,153 @@
-﻿using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
+﻿/*******************************************************************************
+ *
+ *  File Name: Highlight.cs
+ *
+ *  Description: Used for showing where the player can move
+ *
+ *******************************************************************************/
 using GSP.Tiles;
 using System;
+using System.Collections.Generic;
+using UnityEngine;
 
 namespace GSP
 {
-	public static class Highlight
+    /*******************************************************************************
+     *
+     * Name: Highlight
+     * 
+     * Description: Highlight tiles that show the allowed movement space.
+     * 
+     *******************************************************************************/
+    public static class Highlight
 	{
-		static List<GameObject> m_highlightList = new List<GameObject>();
+		static List<GameObject> highlights = new List<GameObject>();    // The list of highlight GameObject's
 
-		public static void GenerateHighlight( Vector3 position, int travelDistance )
+		// Generates the highlight GameObject's based on position and allowed travel distance
+        public static void GenerateHighlight(Vector3 position, int travelDistance)
 		{
-			// Initialise the temporary position to a single tile above the player's position.
-			Vector3 tmpPos = new Vector3( position.x, position.y + TileManager.PlayerMoveDistance, position.z );
+			// Initialise the temporary position to a single tile above the player's position
+            Vector3 tmpPos = new Vector3(position.x, position.y + TileManager.PlayerMoveDistance, position.z);
 
-			// Truncate the y value now.
-			tmpPos.y = Convert.ToInt32(tmpPos.y * 100) / 100.0f;
+			// Truncate the y value now
+            tmpPos.y = Convert.ToInt32(tmpPos.y * 100) / 100.0f;
 
-			// Stretch to the north first.
-			for ( int northIndex = 0; northIndex < travelDistance; northIndex++ )
+			// Stretch to the north first
+			for (int northIndex = 0; northIndex < travelDistance; northIndex++)
 			{
-				// Check if we have hit the min height.
-				if ( tmpPos.y > TileManager.MinHeightUnits )
+				// Check if we have hit the min height
+				if (tmpPos.y > TileManager.MinHeightUnits)
 				{
-					// Reached min height so break out of the loop.
+					// Reached min height so break out of the loop
 					break;
-				} // end if statement
+				} // end if
 				else
 				{
-					// Otherwise add a highlight tile to the position.
-					AddHighlight( tmpPos );
+					// Otherwise, add a highlight GameObject to the position
+                    AddHighlight(tmpPos);
 					
-					// Advance the position to the next tile.
+					// Advance the position to the next tile
 					tmpPos.y += TileManager.PlayerMoveDistance;
-				} // end else statement
-			} // end for loop
+				} // end else
+			} // end for
 
-			// Reset the temporary vector to be a single tile to the right of the player's position.
-			tmpPos = new Vector3( position.x + TileManager.PlayerMoveDistance, position.y, position.z );
+			// Reset the temporary vector to be a single tile to the right of the player's position
+            tmpPos = new Vector3(position.x + TileManager.PlayerMoveDistance, position.y, position.z);
 
-			// Truncate the x value now.
-			tmpPos.x = Convert.ToInt32(tmpPos.x * 100) / 100.0f;
+			// Truncate the x value now
+            tmpPos.x = Convert.ToInt32(tmpPos.x * 100) / 100.0f;
 
-			// Stretch to the east next.
-			for ( int eastIndex = 0; eastIndex < travelDistance; eastIndex++ )
+			// Stretch to the east next
+			for (int eastIndex = 0; eastIndex < travelDistance; eastIndex++)
 			{
-				// Check if we have hit the max width.
-				if ( tmpPos.x > TileManager.MaxWidthUnits )
+				// Check if we have hit the max width
+				if (tmpPos.x > TileManager.MaxWidthUnits)
 				{
-					// Reached min height so break out of the loop.
+					// Reached min height so break out of the loop
 					break;
-				} // end if statement
+				} // end if
 				else
 				{
-					// Otherwise add a highlight tile to the position.
-					AddHighlight( tmpPos );
+					// Otherwise, add a highlight GameObject to the position
+                    AddHighlight(tmpPos);
 					
-					// Advance the position to the next tile.
+					// Advance the position to the next tile
 					tmpPos.x += TileManager.PlayerMoveDistance;
-				} // end else statement
-			} // end for loop
+				} // end else
+			} // end for
 
-			// Reset the temporary vector to be a single tile below the player's position.
-			tmpPos = new Vector3( position.x, position.y - TileManager.PlayerMoveDistance, position.z );
+			// Reset the temporary vector to be a single tile below the player's position
+            tmpPos = new Vector3(position.x, position.y - TileManager.PlayerMoveDistance, position.z);
 			
-			// Truncate the y value now.
+			// Truncate the y value now
 			tmpPos.y = Convert.ToInt32(tmpPos.y * 100) / 100.0f;
 			
-			// Stretch to the south next.
-			for ( int southIndex = 0; southIndex < travelDistance; southIndex++ )
+			// Stretch to the south next
+			for (int southIndex = 0; southIndex < travelDistance; southIndex++)
 			{
-				// Check if we have hit the min height.
-				if ( tmpPos.y < TileManager.MaxHeightUnits )
+				// Check if we have hit the min height
+				if (tmpPos.y < TileManager.MaxHeightUnits)
 				{
-					// Reached min height so break out of the loop.
+					// Reached min height so break out of the loop
 					break;
-				} // end if statement
+				} // end if
 				else
 				{
-					// Otherwise add a highlight tile to the position.
-					AddHighlight( tmpPos );
+					// Otherwise, add a highlight GameObject to the position
+                    AddHighlight(tmpPos);
 					
-					// Advance the position to the next tile.
+					// Advance the position to the next tile
 					tmpPos.y -= TileManager.PlayerMoveDistance;
-				} // end else statement
-			} // end for loop
+				} // end else
+			} // end for
 
-			// Reset the temporary vector to be a single tile to the left of the player's position.
-			tmpPos = new Vector3( position.x - TileManager.PlayerMoveDistance, position.y, position.z );
+			// Reset the temporary vector to be a single tile to the left of the player's position
+            tmpPos = new Vector3(position.x - TileManager.PlayerMoveDistance, position.y, position.z);
 			
-			// Truncate the x value now.
-			tmpPos.x = Convert.ToInt32(tmpPos.x * 100) / 100.0f;
+			// Truncate the x value now
+            tmpPos.x = Convert.ToInt32(tmpPos.x * 100) / 100.0f;
 			
-			// Finally, stretch to the west.
-			for ( int westIndex = 0; westIndex < travelDistance; westIndex++ )
+			// Finally, stretch to the west
+			for (int westIndex = 0; westIndex < travelDistance; westIndex++)
 			{
-				// Check if we have hit the max width.
-				if ( tmpPos.x < TileManager.MinWidthUnits )
+				// Check if we have hit the max width
+				if (tmpPos.x < TileManager.MinWidthUnits)
 				{
-					// Reached min height so break out of the loop.
+					// Reached min height so break out of the loop
 					break;
-				} // end if statement
+				} // end if
 				else
 				{
-					// Otherwise add a highlight tile to the position.
-					AddHighlight( tmpPos );
+					// Otherwise, add a highlight GameObject to the position
+                    AddHighlight(tmpPos);
 					
-					// Advance the position to the next tile.
+					// Advance the position to the next tile
 					tmpPos.x -= TileManager.PlayerMoveDistance;
-				} // end else statement
-			} // end for loop
+				} // end else
+			} // end for
+		} // end GenerateHighlight
 
-			// Create the highlight tile centered at the player's location.
-			//highlight = GameObject.Instantiate( PrefabReference.prefabHighlight, position, Quaternion.identity ) as GameObject;
-
-			// Add the highlight tile to the list.
-			//m_highlightList.Add( highlight );
-		} // end GenerateHighlight function
-
-		// Destroys the highlight objects.
-		public static void ClearHightlight()
+		// Destroys the highlight GameObject's
+		public static void ClearHighlight()
 		{
-			// Loop over the list and destroy each object.
-			foreach ( var highlight in m_highlightList )
+			// Loop over the list and destroy each GameObject.
+			foreach (var highlight in highlights)
 			{
-				GameObject.Destroy( highlight );
-			} // end foreach loop
+                GameObject.Destroy(highlight);
+			} // end foreach
 
-			// Clear the list just to be sure.
-			m_highlightList.Clear();
-		} // end ClearHighlight function
+			// Clear the list now
+			highlights.Clear();
+		} // end ClearHighlight
 
-		// Adds a highlight object to scene and to the list.
-		static void AddHighlight( Vector3 position )
+		// Adds a highlight GameObject to scene and to the list.
+		static void AddHighlight(Vector3 position)
 		{
-			// Otherwise add a highlight tile to the position.
-			GameObject highlight = GameObject.Instantiate( PrefabReference.prefabHighlight, position, Quaternion.identity ) as GameObject;
+			// Add a highlight GameObject to the scene at the position.
+            GameObject highlight = GameObject.Instantiate(PrefabReference.prefabHighlight, position, Quaternion.identity) as GameObject;
 			
-			// Add the highlight tile to the list.
-			m_highlightList.Add( highlight );
-		} // end AddHighlight function
-	} // end Highlight class
-} // end namespace
+			// Add the highlight GameObject to the list.
+            highlights.Add(highlight);
+        } // end AddHighlight
+    } // end Highlight
+} // end GSP

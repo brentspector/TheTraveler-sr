@@ -1,52 +1,66 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿/*******************************************************************************
+ *
+ *  File Name: IInventory.cs
+ *
+ *  Description: Describes a contract for inventory functionlaity
+ *
+ *******************************************************************************/
+using UnityEngine;
 
 namespace GSP.Entities.Interfaces
 {
-    interface IInventory
+    /*******************************************************************************
+     *
+     * Name: IInventory
+     * 
+     * Description: Supplies the functionality for inventory operations. This
+     *              includes resources and currency.
+     * 
+     *******************************************************************************/
+    public interface IInventory
     {
-        #region Properties
-
-        // The resource list.
-        Char.ResourceList Resources { get; set; }
-
-        // The total weight of the resources.
-        int TotalWeight { get; set; }
-
-        // The total size of the resources.
-        int TotalSize { get; set; }
-
-        // The total value of the resources.
-        int TotalValue { get; set; }
-
-        // The maximum weight that is able to be carried.
-        int MaxWeight { get; set; }
-
-        // The maximum inventory space available.
-        int MaxInventorySpace { get; set; }
-
-        // The currency currently being held.
-        int Currency { get; set; }
-        
-        #endregion
-
         #region Functions
 
-        // Attempt to pickup a resource.
-        void PickupResource(Char.Resource resource, int amount);
+        // Attempt to pickup a resource
+        bool PickupResource(Char.Resource resource, int amount, bool isFromMap = true);
 
-        // Sells a given resource and amount.
+        // Sells a given resource and amount
         void SellResource(Char.Resource resource, int amount);
 
-        // Sells all the resources being carried.
+        // Sells all the resources being carried
         void SellResources();
 
-        // Transfer currency from one to another.
-        void TransferCurrency(GameObject other, int amount);
+        // Transfer currency from one to another
+        void TransferCurrency<TInventoryEntity>(TInventoryEntity other, int amount) where TInventoryEntity : IInventory;
 
-        // Transfer a resource from one to another.
-        void TransferResource(GameObject other, Char.Resource resource);
+        // Transfer a resource from one to another
+        bool TransferResource<TInventoryEntity>(TInventoryEntity other, Char.Resource resource) where TInventoryEntity : IInventory;
 
         #endregion
-    }
-}
+
+        #region Properties
+
+        // The resource list
+        Char.ResourceList Resources { get; }
+
+        // The total weight of the resources
+        int TotalWeight { get; }
+
+        // The total size of the resources
+        int TotalSize { get; }
+
+        // The total value of the resources
+        int TotalValue { get; }
+
+        // The maximum weight that is able to be carried
+        int MaxWeight { get; set; }
+
+        // The maximum inventory space available
+        int MaxInventorySpace { get; set; }
+
+        // The currency currently being held
+        int Currency { get; set; }
+
+        #endregion
+    } // end IInventory
+} // end GSP.Entities.Interfaces

@@ -1,73 +1,69 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿/*******************************************************************************
+ *
+ *  File Name: PlayerData.cs
+ *
+ *  Description: A clean serialisable class for saving and loading player data
+ *
+ *******************************************************************************/
+using System;
+using UnityEngine;
 
 namespace GSP.Core
 {
-    // Container class for a clean version of the serialisable player data.
-    [System.Serializable]
+    /*******************************************************************************
+     *
+     * Name: PlayerData
+     * 
+     * Description: Container class for a clean version of the serialisable player
+     *              data.
+     * 
+     *******************************************************************************/
+    [Serializable]
     public class PlayerData
     {
-        string m_name;              // The player's name.
-        PlayerColours m_colour;     // The player's colour.
-        Vector3 m_positon;          // The player's position.
+        string name;            // The player's name
+        InterfaceColors color;  // The player's colour
+        Vector3 position;       // The player's position
 
-        // Default constructor.
+        // Default constructor; Creates an empty object
         public PlayerData()
         {
-            // Reset the container. This prevents the initialisation being in 2 places.
+            // Reset the container; This prevents the initialisation being in 2 places
             Reset();
-        }
+        } // end PlayerData
 
-        // Resets the contents of the container.
+        // Resets the contents of the container
         public void Reset()
         {
-            // Set the name to an empty string.
-            m_name = "";
+            // Set the name to an empty string
+            name = string.Empty;
 
-            // Set the colour to black.
-            m_colour = PlayerColours.COL_BLACK;
+            // Set the colour to black
+            color = InterfaceColors.Black;
 
             // Set the position to be zero.
-            m_positon = Vector3.zero;
-        }
+            position = Vector3.zero;
+        } // end Reset
 
-        // Gets and Sets the player's name.
-        public string PlayerName
+        // Gets and Sets the player's Name
+        public string Name
         {
-            get
-            {
-                return m_name;
-            }
-            set
-            {
-                m_name = value;
-            }
-        }
+            get { return name; }
+            set { name = value; }
+        } // end Name
 
-        // Gets and Sets the player's colour.
-        public PlayerColours PlayerColour
+        // Gets and Sets the player's Color
+        public InterfaceColors Color
         {
-            get
-            {
-                return m_colour;
-            }
-            set
-            {
-                m_colour = value;
-            }
-        }
+            get { return color;}
+            set { color = value;}
+        } // end Color
 
-        // Gets and Sets the player's position.
+        // Gets and Sets the player's Position
         public Vector3 Position
         {
-            get
-            {
-                return m_positon;
-            }
-            set
-            {
-                m_positon = value;
-            }
-        }
-    }
-}
+            get { return position;}
+            set { position = value; }
+        } // end Position
+    } // end PlayerData
+} // end GSP.Core

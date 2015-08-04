@@ -1,110 +1,116 @@
-﻿using UnityEngine;
-using System.Collections;
-using GSP.Entities.Neutrals;
+﻿/*******************************************************************************
+ *
+ *  File Name: Player.cs
+ *
+ *  Description: Wrapper for the players
+ *
+ *******************************************************************************/
 using GSP.Entities;
+using GSP.Entities.Neutrals;
+using UnityEngine;
 
 namespace GSP.Char
 {
-	public class Player : MonoBehaviour
+    /*******************************************************************************
+     *
+     * Name: Player
+     * 
+     * Description: The wrapper to the merchant entity. This is what is placed in
+     *              the scene.
+     * 
+     *******************************************************************************/
+    public class Player : MonoBehaviour
 	{
-        Merchant m_merchant;    // Each player needs a merchant object.
+        Merchant merchant;    // Each Player needs a Merchant GameObject
 
         // Called before Start()
         void Awake()
         {
             //
-        }
+        } // end Awake
         
         // Use this for initialisation
         void Start()
         {
             //
-        }
+        } // end Start
 
         public void GetMerchant(int ID)
         {
-            // Get the merchant's reference.
-            m_merchant = (Merchant)EntityManager.Instance.GetEntity(ID);
-        }
+            // Get the Merchant's reference
+            merchant = (Merchant)EntityManager.Instance.GetEntity(ID);
+        } // end GetMerchant
         
-        // Allows for collision on the market place to end the game.
+        // Allows for collision on the market place to end the game
         void OnCollisionEnter2D(Collision2D coll)
         {
-            Debug.LogError("CALLED!");
-            // Layer 8 is "Market"
+            // Layer 8 is the "Market"
             if (coll.gameObject.layer == 8)
             {
-                // Get the game object with the game state machine tag.
+                // Get the GameObject with the GameStateMachineTag tag
                 GameObject obj = GameObject.FindGameObjectWithTag("GamePlayStateMachineTag");
 
-                // Now get the state machine script.
+                // Now get the GamePlayStateMachine script
                 var stateMachineScript = obj.GetComponent<GameplayStateMachine>();
 
-                // Finally end the game by calling the end game function.
+                // Finally end the game by calling EndGame()
                 stateMachineScript.EndGame();
             }
-        }
+        } // end OnCollisionEnter2D
         
-        // Destroy the game object this script is attached to.
+        // Destroy the GameObject this script is attached to
 		public void DestroyGO()
 		{
 			Destroy(this.gameObject);
-        }
+        } // end DestroyGO
+
+        // Gets the player's entity
+        // This is used to get the entity to do things with the implemented interfaces; just cast
+        // back to the proper type first
+        public Entity Entity
+        {
+            get { return merchant; }
+        } // end Entity
 
         #region Wrapper for the merchant class
 
-        // Gets the merchant's name.
-        public string Name
-        {
-            get
-            {
-                return m_merchant.Name;
-            }
-        }
-
-        // Gets the merchant's colour.
-        public PlayerColours Colour
-        {
-            get
-            {
-                return m_merchant.Colour;
-            }
-        }
-
-        // Gets the merchant's number of allies.
-        public int NumAllies
-        {
-            get
-            {
-                return m_merchant.NumAllies;
-            }
-        }
-
-        // Gets and Sets the merchant's position.
-        public Vector3 Position
-        {
-            get
-            {
-                return m_merchant.Position;
-            }
-            set
-            {
-                m_merchant.Position = this.gameObject.transform.position;
-            }
-        }
-
-        // Setup the character's sprite set. This is an array of sprites that will be used for the character.
+        // Setup the character's sprite set; This is an array of sprites that will be used for the character
         public void SetCharacterSprites(int playerNumber)
         {
-            m_merchant.SetCharacterSprites(playerNumber);
-        }
+            merchant.SetCharacterSprites(playerNumber);
+        } // end SetCharacterSprites
 
-        // Faces the merchant in a given direction. This changes the merchant's sprite to match this.
+        // Faces the merchant in a given direction; This changes the merchant's sprite to match this
         public void Face(FacingDirection facingDirection)
         {
-            m_merchant.Face(facingDirection);
+            merchant.Face(facingDirection);
+        } // end Face
+
+        // Gets the Merchant's Name
+        public string Name
+        {
+            get { return merchant.Name; }
+        } // end Name
+
+        // Gets the Merchant's Colour
+        public InterfaceColors Color
+        {
+            get { return merchant.Color; }
+        } // end Color
+
+        // Gets the Merchant's number of allies
+        public int NumAllies
+        {
+            get { return merchant.NumAllies; }
+        } // end NumAllies
+
+        // Gets and Sets the Merchant's Position
+        public Vector3 Position
+        {
+            get { return merchant.Position; }
+            set { merchant.Position = value; }
         }
 
         #endregion
-    }
-}
+    } // end Player
+} // end GSP.Char

@@ -1,172 +1,180 @@
+/*******************************************************************************
+ *
+ *  File Name: GUIAlly.cs
+ *
+ *  Description: Old GUI logic for the Ally MapEvent event
+ *
+ *******************************************************************************/
 using UnityEngine;
-using System.Collections;
 
 namespace GSP.JAVIERGUI
 {
-	public class GUIAlly : MonoBehaviour 
-		////////////////////////////////////////////////////////////////////////
-		//	Creates the GUI for ALLY MapEvent
-		//		on Start()		
-		//			+gets informati4on from Char
-		//			+ask to add Ally
-		//				yes: addAlly, then displayResults and doneButton
-		//				no: display results and doneButton
-		//
-		//		//on DoneButton()
-		//			exit()	
-		//
-		//	Steps:
-		//		1. GetPlayer Values
-		//		2. Would you like to add Ally?
-		//		3. Yes, increase player's MAXWEIGHT
-		//		4. Show results and display done button
-		////////////////////////////////////////////////////////////////////////
+    //TODO: Brent: Replace this with the new In-Game UI later; probably not in the same namespace
+    /*******************************************************************************
+     *
+     * Name: GUIAlly
+     * 
+     * Description: Creates the GUI for Ally MapEvent.
+     * 
+     * Steps:
+     *       1. GetPlayer Values
+     *       2. Would you like to add Ally?
+     *       3. Yes, increase player's MAXWEIGHT
+     *       4. Show results and display done button
+     * 
+     *******************************************************************************/
+    public class GUIAlly : MonoBehaviour 
 	{
-		GameObject m_PlayerEntity; 							//will initialize to the actual player in InitThis.
-		//GSP.Char.Ally m_PlayerAllyScript;					//used during testing
-		//GSP.Char.Character m_PlayerCharacterScript;		//used during testing
-		GSP.GUIMapEvents m_GUIMapEventsScript;
-		GSP.MapEvent m_MapEventScript;
-		GSP.JAVIERGUI.GUIBottomBar m_GUIBottomBarScript;
+		GameObject playerEntity; 			// Will initialize to the actual player in InitThis
+		GUIMapEvents guiMapEventsScript;    // The GUIMapEvents script reference
+		MapEvent mapEventScript;            // The MapEvent script reference
+		GUIBottomBar guiBottomBarScript;    // The GUIBottomBar script reference
 		
-		const int m_AllyHelpMAXWEIGHTIncrease =150;
-		string m_headerString;
-		string m_resultsString;
+		const int allyHelpMaxWeightIncrease = 150;      // The maximum weight increase an ally can give
+		string headerString;                            // The text in the OnGUI UI; the selection question text
 
-//		int m_playerWeight = -1;
-//		int m_playerMaxWeight = -1;
+		int mainStartX 	= -1;   // The starting x value
+        int mainStartY  = -1;   // The starting y value
+        int mainWidth   = -1;   // The starting width value
+        int mainHeight  = -1;   // The starting height value
 
-		int m_mainStartX 	= -1;
-		int m_mainStartY 	= -1;
-		int m_mainWidth 	= -1;
-		int m_mainHeight	= -1;
-
-		bool m_selectionMadeAddRemove = false;	//for internal use, determines if player w to add Ally or not
-		bool m_isActionRunning = false;
+		bool hasSelectionMadeAddRemove = false;	// For internal use, determines if player wants to add Ally or not
+		bool isActionRunning = false;           // Whether the ally action is running
 
 
-		// Use this for initialization
-		void Start () {
-			m_GUIBottomBarScript = GameObject.FindGameObjectWithTag("GamePlayStateMachineTag").GetComponent<GSP.JAVIERGUI.GUIBottomBar>();
+        //TODO: Brent: Replace OnGUI stuff with the new In-Game UI later
+        // Use this for initialization
+		void Start()
+        {
+			// Get the GUIBottomBar reference
+            guiBottomBarScript = GameObject.FindGameObjectWithTag("GamePlayStateMachineTag").GetComponent<GSP.JAVIERGUI.GUIBottomBar>();
+		} // end Start
 
-		}	//end Start()
 
-
-		public void InitGUIAlly(GameObject p_PlayerEntity, int p_startX, int p_startY, int p_startWidth, int p_startHeight)
+        //TODO: Damien: Replace with the GameMaster functionality later.
+        //TODO: Brent: Replace OnGUI stuff with the new In-Game UI later
+        // Initialise things sort of like a custom constructor
+        public void InitGUIAlly(GameObject player, int startX, int startY, int startWidth, int startHeight)
 		{
-			m_PlayerEntity = p_PlayerEntity;
-//			m_PlayerAllyScript = m_PlayerEntity.GetComponent<GSP.Char.Ally>();	//-->			//used during testing
-			//m_PlayerCharacterScript = m_PlayerEntity.GetComponent<GSP.Char.Character>();
-			m_GUIMapEventsScript = GameObject.FindGameObjectWithTag("GUIMapEventSpriteTag").GetComponent<GSP.GUIMapEvents>();
-			m_MapEventScript = GameObject.FindGameObjectWithTag ("DieTag").GetComponent<GSP.MapEvent>();
+			// Get the player reference
+            playerEntity = player;
+			// Get the GUIMapEvents and MapEvent script references
+            guiMapEventsScript = GameObject.FindGameObjectWithTag("GUIMapEventSpriteTag").GetComponent<GSP.GUIMapEvents>();
+			mapEventScript = GameObject.FindGameObjectWithTag ("DieTag").GetComponent<GSP.MapEvent>();
 
-			m_isActionRunning = true;
+			// The action is running
+            isActionRunning = true;
 
-			//GUIMapEvents values transferred over
-			m_mainStartX = p_startX;
-			m_mainStartY = p_startY;
-			m_mainWidth = p_startWidth;
-			m_mainHeight = p_startHeight;
-		}
+			// GUIMapEvents values transferred over
+			mainStartX = startX;
+			mainStartY = startY;
+			mainWidth = startWidth;
+			mainHeight = startHeight;
+		} // end InitGUIAlly
 
-
-		private void getPlayerAllyValues()		//TODO: if all the ally calculations get done in mapevent, this is no longer needed.
-		{
-//			m_playerMaxWeight = m_PlayerCharacterScript.MaxWeight;
-//			m_playerWeight = m_PlayerCharacterScript.ResourceWeight;
-		}	//end private void getPlayerAllyValues()
-
-
-		void OnGUI()
+        //TODO: Brent: Replace OnGUI stuff with the new In-Game UI later
+        // The old style GUI functioned using an OnGUI function; Runs each frame
+        void OnGUI()
 		{
 			GUI.backgroundColor = Color.red;
-			if( m_isActionRunning == true )
+			// Check if the action is running
+            if (isActionRunning == true) 
 			{
-				if(m_selectionMadeAddRemove == false)
+				// Check if a selection has been made
+                if(hasSelectionMadeAddRemove == false)
 				{
-					ConfigHeader ();
-					ConfigAddButton ();
-					ConfigCancelButton ();
-				}
+                    ConfigHeader();
+                    ConfigAddButton();
+                    ConfigCancelButton();
+				} // end if
 				else
 				{
 					ConfigHeader();
 					ConfigDoneButton();
-				}
-			}
-		}	//end void OnGUI()
+				} // end else
+			} // end if
+		} // end OnGUI
 
-		private void ConfigHeader()
+        //TODO: Brent: Replace OnGUI stuff with the new In-Game UI later
+        // Configures the header of the OnGUI UI system
+        void ConfigHeader()
 		{
-			if( m_selectionMadeAddRemove == false )
+            // Check if a selection has been made
+            if (hasSelectionMadeAddRemove == false)
 			{
-				m_headerString = "Would You Like\nto Add An Ally?";
-			}
+                // Set the header string
+                headerString = "Would You Like\nto Add An Ally?";
+			} // end if
 
-			int headWdth = m_mainWidth - 2;
-			int headHght = m_mainHeight / 6;
-			int headX = m_mainStartX + ((m_mainWidth -headWdth) /2);
-			int headY = m_mainStartY + (headHght*2);
+            int headWdth = mainWidth - 2;
+            int headHght = mainHeight / 6;
+            int headX = mainStartX + ((mainWidth - headWdth) / 2);
+            int headY = mainStartY + (headHght * 2);
 
-			GUI.Box(new Rect(headX, headY, headWdth, headHght*2), m_headerString);
-		}	//end private void ConfigHeader()
+            GUI.Box(new Rect(headX, headY, headWdth, headHght * 2), headerString);
+		} // end ConfigHeader
 
-		private void ConfigAddButton()
+        //TODO: Brent: Replace OnGUI stuff with the new In-Game UI later
+        // Configures the add button of the OnGUI UI system
+        void ConfigAddButton()
 		{
-			int newWdth = m_mainWidth / 5;
-			int newHght = m_mainHeight / 6;
-			int newX = m_mainStartX + (newWdth*1);
-			int newY = m_mainStartY + (newHght*4);
-			
-			if( GUI.Button(new Rect(newX, newY, newWdth, newHght*2), "Yes") )
+            int newWdth = mainWidth / 5;
+            int newHght = mainHeight / 6;
+            int newX = mainStartX + (newWdth * 1);
+            int newY = mainStartY + (newHght * 4);
+
+            if (GUI.Button(new Rect(newX, newY, newWdth, newHght * 2), "Yes"))
 			{
 				#region Add Ally Sound
-				m_GUIBottomBarScript.AnimateAllyButton();
-				//TODO:	Ally is added here
+				guiBottomBarScript.AnimateAllyButton();
+				//TODO: Ally sound is added here?
 				#endregion
 
-				m_headerString = m_MapEventScript.ResolveAlly(m_PlayerEntity, "YES");  //"New Ally Added.\nNew Max Weight is "+m_playerMaxWeight.ToString();
+                headerString = mapEventScript.ResolveAlly(playerEntity, "YES");
 
-				m_selectionMadeAddRemove = true;
-			}
-		}	// end 	private void ConfigAddButton()
+				hasSelectionMadeAddRemove = true;
+			} // end if
+		} // end ConfigAddButton
 
-		private void ConfigCancelButton()
+        //TODO: Brent: Replace OnGUI stuff with the new In-Game UI later
+        // Configures the cancel button of the OnGUI UI system
+        void ConfigCancelButton()
 		{
-			int newWdth = m_mainWidth / 5;
-			int newHght = m_mainHeight / 6;
-			int newX = m_mainStartX + (newWdth*3);
-			int newY = m_mainStartY + (newHght*4);
-			
-			if( GUI.Button(new Rect(newX, newY, newWdth, newHght*2), "No") )
+            int newWdth = mainWidth / 5;
+            int newHght = mainHeight / 6;
+            int newX = mainStartX + (newWdth * 3);
+            int newY = mainStartY + (newHght * 4);
+
+            if (GUI.Button(new Rect(newX, newY, newWdth, newHght * 2), "No"))
 			{
-				//m_headerString = "Ally was not Added";
-				m_headerString = m_MapEventScript.ResolveAlly(m_PlayerEntity, "NO");
+                headerString = mapEventScript.ResolveAlly(playerEntity, "NO");
 
-				m_selectionMadeAddRemove = true;
-			}
-		}	//end 	private void ConfigCancelButton()
-		
+				hasSelectionMadeAddRemove = true;
+			} // end if
+		} // end ConfigCancelButton
 
-		private void ConfigDoneButton()
+
+        //TODO: Brent: Replace OnGUI stuff with the new In-Game UI later
+        // Configures the done button of the OnGUI UI system
+        private void ConfigDoneButton()
 		{
-			//done button
-			int doneWidth = m_mainWidth/2;
-			int doneHeight = m_mainHeight / 8;
-			int doneStartX = m_mainStartX +(m_mainWidth -doneWidth) /2;
-			int doneStartY = m_mainStartY +(doneHeight *7);
-			GUI.backgroundColor = Color.red;
-			
-			if ( GUI.Button (new Rect( doneStartX, doneStartY, doneWidth, doneHeight), "DONE") )
-			{
-				//stop animation
-				m_GUIBottomBarScript.StopAnimation();
+			// done button
+            int doneWidth = mainWidth / 2;
+            int doneHeight = mainHeight / 8;
+            int doneStartX = mainStartX + (mainWidth - doneWidth) / 2;
+            int doneStartY = mainStartY + (doneHeight * 7);
+            GUI.backgroundColor = Color.red;
 
-				m_isActionRunning = false;
-				m_selectionMadeAddRemove = false;
-				//once nothing is happening, program returns to Controller's End Turn State
-				m_GUIMapEventsScript.MapeEventDone();
-			}
-		}	//end private void ConfigDoneButton()
-	} //end public class GUIAlly
-} //end namespace GSP.JAVIERGUI
+            if (GUI.Button(new Rect(doneStartX, doneStartY, doneWidth, doneHeight), "DONE"))
+			{
+				// stop animation
+				guiBottomBarScript.StopAnimation();
+
+				isActionRunning = false;
+				hasSelectionMadeAddRemove = false;
+				// once nothing is happening, program returns to Controller's End Turn State
+				guiMapEventsScript.MapEventDone();
+			} // end if
+        } // end ConfigDoneButton
+    } // end GUIAlly
+} // end GSP.JAVIERGUI

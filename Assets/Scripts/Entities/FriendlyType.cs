@@ -1,11 +1,17 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿/*******************************************************************************
+ *
+ *  File Name: FriendlyType.cs
+ *
+ *  Description: The enumeration for all the types of allies in the game
+ *
+ *******************************************************************************/
 
 namespace GSP.Entities
 {
+    // Enumeration of the friendly types a.k.a. allies
     public enum FriendlyType
     {
-        FT_PORTER,
-        FT_MERCENARY
-    }
-}
+        Porter,
+        Mercenary
+    } // end FriendlyType
+} // end GSP.Entities

@@ -1,396 +1,527 @@
-﻿using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
-using GSP.Tiles;
+﻿/*******************************************************************************
+ *
+ *  File Name: Merchant.cs
+ *
+ *  Description: This is entity the player will be playing as
+ *
+ *******************************************************************************/
 using GSP.Char;
+using GSP.Core;
 using GSP.Entities.Interfaces;
+using GSP.Items;
+using GSP.Tiles;
+using System.Collections.Generic;
+using UnityEngine;
 
 namespace GSP.Entities.Neutrals
 {
-    // The enumeration of the directions a character can be facing.
-    // This is used for displaying the correct sprite.
-    public enum FacingDirection { NORTH, EAST, SOUTH, WEST };
-    
+    /*******************************************************************************
+     *
+     * Name: Merchant
+     * 
+     * Description: The Merchant class is the playable class.
+     * 
+     *******************************************************************************/
     public class Merchant : Entity, IInventory, IEquipment, IDamageable
     {
         #region IInventory Variables
 
-        // Variables will be defined in week 4.
+        int maxWeight;		    // The maximum weight the entity can hold
+        int maxInventory;       // The maximum inventory spaces (max number of spaces an entity can hold)
+        int currency; 		    // The amount of currency the entity is holding
+        ResourceList resources; // The ResourceList script reference
 
         #endregion
 
         #region IEquipment Variables
 
-        // Variables will be defined in week 4.
+        int defencePower;       // The defence of the entity (from armor)
+        int attackPower;	    // The attack of the entity (from weapons)
+
+        List<Bonus> bonuses;    // The bonuses picked up (Inventory and Weight mods)
+        Armor equippedArmor;    // The piece of armor that is being worn.
+        Weapon equippedWeapon;  // The weapon that is being wielded.
 
         #endregion
 
         #region IDamageable Variables
 
-        // Variables will be defined in week 4.
+        int health;     // The current health the entity has
+        int maxHealth;  // THe maximum health the entity has
+        bool isDead;    // Whether the entity is dead
 
         #endregion
 
-        PlayerColours   m_colour;           // Holds the colour of the merchant
-        List<Sprite> m_CharSprites;			// Holds the sprites for the character.
-        SpriteRenderer m_spriteRenderer;    // SpriteRenderer component of the character.
+        InterfaceColors color;          // The colour of the Merchant
+        List<Sprite> charSprites;		// The Sprite's for the Character
+        SpriteRenderer spriteRenderer;  // SpriteRenderer component of the Character
 
-        Ally m_allyScript;					// This is the ally script object.
+        AllyList allyScript;				// The ally script object
 
-        public Merchant(int ID, GameObject gameObject, PlayerColours playerCoulours, string playerName) :
+        // Creates a Merchant entity
+        public Merchant(int ID, GameObject gameObject, InterfaceColors playerCoulours, string playerName) :
             base(ID, gameObject)
         {
-            // Set the entity's type to merchant.
-            Type = EntityType.ENT_MERCHANT;
+            // Set the entity's type to Merchant
+            Type = EntityType.Merchant;
 
-            // Set merchant's name.
+            // Set Merchant's name
             Name = playerName;
 
-            // Set the merchant's colour.
-            m_colour = playerCoulours;
+            // Set the Merchant's colour
+            color = playerCoulours;
 
-            // Create a new list of sprites.
-            m_CharSprites = new List<Sprite>();
-            // Get the game object's sprite renderer.
-            m_spriteRenderer = GameObj.GetComponent<SpriteRenderer>();
+            // Create a new list of Sprite's
+            charSprites = new List<Sprite>();
+            // Get the GameObject's SpriteRenderer
+            spriteRenderer = GameObj.GetComponent<SpriteRenderer>();
 
-            // Get the game object's ally script.
-            m_allyScript = GameObj.GetComponent<Ally>();
+            // Get the GameObject's ally script
+            allyScript = GameObj.GetComponent<AllyList>();
 
             #region IInventory Variable Initialisation
 
-            // Variable initialisation will be done in week 4.
+            // The default for now - hard coded values
+            maxWeight = 300;
+            maxInventory = 20;
+            
+            // The entity starts with no currency
+            currency = 0;
+
+            // Get the ResourceList component reference
+            resources = GameObj.GetComponent<ResourceList>();
 
             #endregion
 
             #region IEquipment Variable Initialisation
 
-            // Variable initialisation will be done in week 4.
+            // The entity isn't wearing any armour, wielding any weapon, or has any bonuses
+            equippedArmor = null;
+            equippedWeapon = null;
+            bonuses = new List<Bonus>();
+            attackPower = 0;
+            defencePower = 0;
 
             #endregion
 
             #region IDamageable Variable Initialisation
 
-            // Variable initialisation will be done in week 4.
+            // The default hard coded values for now.
+            health = 50;
+            maxHealth = 50;
+            isDead = false;
 
             #endregion
 
         }
 
-        // Gets the merchant's colour.
-        public PlayerColours Colour
-        {
-            get
-            {
-                return m_colour;
-            }
-        }
-
-        // Setup the character's sprite set. This is an array of sprites that will be used for the character.
+        // Setup the Character's Sprite set. This is an array of Sprites that will be used for the Character
         public void SetCharacterSprites(int playerNumber)
         {
-            // A temporary sprite array.
-            Sprite[] tmp = UnityEngine.Resources.LoadAll<Sprite>("player" + playerNumber);
+            // A temporary Sprite array; Make sure the playerNumber is within the proper range of one to MaxPlayers
+            Sprite[] tmp = UnityEngine.Resources.LoadAll<Sprite>("player" + Utility.ClampInt(playerNumber, 1, GameMaster.Instance.MaxPlayers));
 
-            // Add the idle sprites for each direction.
-            m_CharSprites.Add(tmp[1]);
-            m_CharSprites.Add(tmp[4]);
-            m_CharSprites.Add(tmp[7]);
-            m_CharSprites.Add(tmp[10]);
-        }
+            // Add the idle sprites for each direction
+            charSprites.Add(tmp[1]);
+            charSprites.Add(tmp[4]);
+            charSprites.Add(tmp[7]);
+            charSprites.Add(tmp[10]);
+        } // end SetCharacterSprites
 
-        // Sets the character's sprite to the given index.
+        // Sets the Character's Sprite to the given index
         void SetSprite(int index)
         {
-            m_spriteRenderer.sprite = m_CharSprites[index];
-        } // end SetSprite function
+            spriteRenderer.sprite = charSprites[index];
+        } // end SetSprite
 
-        // Faces the merchant in a given direction. This changes the merchant's sprite to match this.
+        // Faces the Merchant in a given direction; This changes the Merchant's Sprite to match this
         public void Face(FacingDirection facingDirection)
         {
-            // Get the box collider of the character.
+            // Get the box collider of the character
             var boxCollider = GameObj.GetComponent<BoxCollider2D>();
 
-            // Set the box collider smaller to fix for the scaling fix.
+            // Set the BoxCollider2D component size smaller to fix for the scaling fix
             boxCollider.size = new Vector2(0.18f, 0.2f);
 
-            // Switch over the selection.
+            // Switch over the selection
             switch (facingDirection)
             {
-                case FacingDirection.NORTH:
-                    // Change the character's sprite to face the north direction.
-                    SetSprite(0);
+                case FacingDirection.North:
+                    {
+                        // Change the Character's Sprite to face the north direction
+                        SetSprite(0);
 
-                    // Using the object's transform, scale to fix the small sprite issue.
-                    GameObj.transform.localScale = new Vector3(1.66f, 1.56f, 1.0f);
-                    break;
-                case FacingDirection.EAST:
-                    // Change the character's sprite to face the east direction.
-                    SetSprite(1);
+                        // Using the GameObject's transform, scale to fix the small Sprite issue
+                        GameObj.transform.localScale = new Vector3(1.66f, 1.56f, 1.0f);
+                        break;
+                    } // end case North
+                case FacingDirection.East:
+                    {
+                        // Change the Character's Sprite to face the east direction
+                        SetSprite(1);
 
-                    // Using the object's transform, scale to fix the small sprite issue.
-                    GameObj.transform.localScale = new Vector3(1.41f, 1.56f, 1.0f);
-                    break;
-                case FacingDirection.SOUTH:
-                    // Change the character's sprite to face the south direction.
-                    SetSprite(2);
+                        // Using the GameObject's transform, scale to fix the small Sprite issue
+                        GameObj.transform.localScale = new Vector3(1.41f, 1.56f, 1.0f);
+                        break;
+                    } // end case East
+                case FacingDirection.South:
+                    {
+                        // Change the Character's Sprite to face the south direction
+                        SetSprite(2);
 
-                    // Using the object's transform, scale to fix the small sprite issue.
-                    GameObj.transform.localScale = new Vector3(1.66f, 1.56f, 1.0f);
-                    break;
-                case FacingDirection.WEST:
-                    // Change the character's sprite to face the west direction.
-                    SetSprite(3);
+                        // Using the GameObject's transform, scale to fix the small Sprite issue
+                        GameObj.transform.localScale = new Vector3(1.66f, 1.56f, 1.0f);
+                        break;
+                    } // end case South
+                case FacingDirection.West:
+                    {
+                        // Change the Character's Sprite to face the west direction
+                        SetSprite(3);
 
-                    // Using the object's transform, scale to fix the small sprite issue.
-                    GameObj.transform.localScale = new Vector3(1.40f, 1.56f, 1.0f);
-                    break;
-            }
-        }
+                        // Using the GameObject's transform, scale to fix the small Sprite issue
+                        GameObj.transform.localScale = new Vector3(1.40f, 1.56f, 1.0f);
+                        break;
+                    } // end case West
+            } // end switch facingDirection
+        } // end Face
 
-        #region Ally
-        // Gets the number of allies the character has.
+        // Gets the Merchant's colour
+        public InterfaceColors Color
+        {
+            get { return color; }
+        } // end Color
+
+        // Gets the number of allies the Merchant has
         public int NumAllies
         {
-            get { return m_allyScript.NumAllies; }
-        } // end NumAllies function
-        #endregion
-
-        // The below interfaces will be implemented in Week 4.
+            get { return allyScript.NumAllies; }
+        } // end NumAllies
 
         #region IInventory Members
 
-        public ResourceList Resources
+        // Picks up a resource for an entity adding it to their ResourceList
+        public bool PickupResource(Resource resource, int amount, bool isFromMap = true)
         {
-            get
+            // Check if picking up this resource will put the entity overweight
+            if ((TotalWeight + resource.WeightValue) * amount <= MaxWeight)
             {
-                throw new System.NotImplementedException();
-            }
-            set
-            {
-                throw new System.NotImplementedException();
-            }
-        }
+                // Check if there is enough room for this resource
+                if (resources.TotalSize + resource.SizeValue <= MaxInventorySpace)
+                {
+                    // Add the resource
+                    resources.AddResource(resource, amount);
 
-        public int TotalWeight
-        {
-            get
-            {
-                throw new System.NotImplementedException();
-            }
-            set
-            {
-                throw new System.NotImplementedException();
-            }
-        }
+                    // Check if the resource is from the map
+                    if (isFromMap)
+                    {
+                        // Get the resource's position
+                        Vector3 tmp = GameObj.transform.localPosition;
+                        // Change the z to make tiles work
+                        tmp.z = -0.01f;
+                        // Remove the resource from the map
+                        TileDictionary.RemoveResource(TileManager.ToPixels(tmp));
+                    } // end if
 
-        public int TotalSize
-        {
-            get
-            {
-                throw new System.NotImplementedException();
-            }
-            set
-            {
-                throw new System.NotImplementedException();
-            }
-        }
+                    // Return success
+                    return true;
+                } // end if
+                else
+                {
+                    Debug.Log("Pickup failed. Max inventory capacity reached.");
 
-        public int TotalValue
-        {
-            get
+                    // Return failure
+                    return false;
+                } // end else
+            } // end if
+            else
             {
-                throw new System.NotImplementedException();
-            }
-            set
-            {
-                throw new System.NotImplementedException();
-            }
-        }
+                Debug.Log("Pickup failed. Max inventory weight reached.");
 
-        public int MaxWeight
-        {
-            get
-            {
-                throw new System.NotImplementedException();
-            }
-            set
-            {
-                throw new System.NotImplementedException();
-            }
-        }
+                // Return failure
+                return false;
+            } // end else
+        } // end PickupResource
 
-        public int MaxInventorySpace
-        {
-            get
-            {
-                throw new System.NotImplementedException();
-            }
-            set
-            {
-                throw new System.NotImplementedException();
-            }
-        }
-
-        public int Currency
-        {
-            get
-            {
-                throw new System.NotImplementedException();
-            }
-            set
-            {
-                throw new System.NotImplementedException();
-            }
-        }
-
-        public void PickupResource(Resource resource, int amount)
-        {
-            throw new System.NotImplementedException();
-        }
-
+        // Sells a resource for an entity removing it from their ResourceList
         public void SellResource(Resource resource, int amount)
         {
-            throw new System.NotImplementedException();
-        }
+            // A temporary list to hold the resources
+            List<Resource> tmpResources = new List<Resource>();
 
+            // The counter for the for loop below
+            int count = 0;
+
+            // Get all the resources of the given resource's type
+            tmpResources = resources.GetResourcesByType(resource.Type.ToString());
+
+            // Check if the returned number of resources is fewer than amount
+            if (tmpResources.Count < amount)
+            {
+                // Set the counter to the number of resources found
+                count = tmpResources.Count;
+            } // end if
+            else
+            {
+                // Set the counter to amount
+                count = amount;
+            } // end else
+
+            // Loop over the list until we reach count
+            for (int index = 0; index < count; index++)
+            {
+                // Credit the entity for the resource
+                currency += tmpResources[index].SellValue;
+
+                // Remove the resource from the list
+                resources.RemoveResource(tmpResources[index]);
+            } // end for
+        } // end SellResource
+
+        // Sells all resources for an entity clearing their ResourceList
         public void SellResources()
         {
-            throw new System.NotImplementedException();
-        }
+            // Credit the entity for the resources they are holding
+            currency += TotalValue;
 
-        public void TransferCurrency(GameObject other, int amount)
-        {
-            throw new System.NotImplementedException();
-        }
+            // Clear the ResourceList now
+            resources.ClearResources();
+        } // end SellResources
 
-        public void TransferResource(GameObject other, Resource resource)
+        // Transfers currency from the entity to another entity
+        public void TransferCurrency<TInventoryEntity>(TInventoryEntity other, int amount) where TInventoryEntity : IInventory
         {
-            throw new System.NotImplementedException();
-        }
+            // The clamped amount between zero and the entity's currency amount
+            int transferAmount = Utility.ClampInt(amount, 0, currency);
+
+            // Add the amount of currency to the other Character
+            other.Currency += transferAmount;
+
+            // Subtract the amount of currency from the Character this is attached to
+            currency -= transferAmount;
+        } // end TransferCurrency
+
+        // Transfers a resource from the entity to another entity
+        public bool TransferResource<TInventoryEntity>(TInventoryEntity other, Char.Resource resource) where TInventoryEntity : IInventory
+        {
+            // Check if the resource object exists
+            if (resource == null)
+            {
+                // The resource object is invalid so return failure
+                return false;
+            } // end if
+
+            // Have the other entity pickup the resource and test if it's a success
+            if (other.PickupResource(resource, 1, false))
+            {
+                // The pickup succeeded so remove the resource from the entity
+                resources.RemoveResource(resource);
+                
+                // Return success
+                return true;
+            } // end if
+            else
+            {
+                // The pickup failed for the other entity so return failure
+                Debug.Log("Transfer failed.");
+                return false;
+            }
+        } // end TransferResource
+
+        // Gets the list of resources of the entity
+        public ResourceList Resources
+        {
+            get { return resources; }
+        } // end Resources
+
+        // Gets the TotalWeight of the entity's resources
+        public int TotalWeight
+        {
+            get { return resources.TotalWeight; }
+        } // end TotalWeight
+
+        // Gets the TotalSize of the entity's resources
+        public int TotalSize
+        {
+            get { return resources.TotalSize; }
+        } // end TotalSize
+
+        // Gets the TotalValue of the entity's resources
+        public int TotalValue
+        {
+            get { return resources.TotalValue; }
+        } // end TotalValue
+
+        // Gets and Sets the MaxWeight of the entity
+        public int MaxWeight
+        {
+            get { return maxWeight; }
+            set { maxWeight = Utility.ZeroClampInt(value); }
+        } // end MaxWeight
+
+        // Gets and Sets the MaxInventorySpace of the entity
+        public int MaxInventorySpace
+        {
+            get { return maxInventory; }
+            set { maxInventory = Utility.ZeroClampInt(value); }
+        } // end MaxInventorySpace
+
+        // Gets and Sets the Currency of the entity
+        public int Currency
+        {
+            get { return currency; }
+            set { currency = Utility.ZeroClampInt(value); }
+        } // end Currency
 
         #endregion
 
         #region IEquipment Members
 
+        // Equips a piece of armour for an entity
+        public void EquipArmor(Armor armor)
+        {
+            // Check if the merchant is wearing armour
+            if (equippedArmor == null)
+            {
+                // The merchant isn't wearing armor so just equip the given armour
+                defencePower += armor.DefenceValue;
+                equippedArmor = armor;
+            } // end if
+            else
+            {
+                // The merchant is already wearing armour so unequip it first
+                UnequipArmor(equippedArmor);
+
+                // Now equip the given armour
+                defencePower += armor.DefenceValue;
+                equippedArmor = armor;
+            } // end else
+        } // end EquipArmor
+
+        // Unequips a piece of armour for an entity
+        public void UnequipArmor(Armor armor)
+        {
+            // Only unequip the armour if the merchant is wearing any
+            if (equippedArmor != null)
+            {
+                // Unequip the given armour
+                defencePower -= armor.DefenceValue;
+                equippedArmor = null;
+            } // end if
+        } // end UnequipArmor
+
+        // Equips a weapon for an entity
+        public void EquipWeapon(Weapon weapon)
+        {
+            // Check if the merchant is wielding a weapon
+            if (equippedArmor == null)
+            {
+                // The merchant isn't wielding a weapon so just equip the given weapon
+                attackPower += weapon.AttackValue;
+                equippedWeapon = weapon;
+            } // end if
+            else
+            {
+                // The merchant is already wielding a weapon so unequip it first
+                UnequipWeapon(equippedWeapon);
+
+                // Now wield the given weapon
+                attackPower += weapon.AttackValue;
+                equippedWeapon = weapon;
+            } // end else
+        } // end EquipWeapon
+
+        // Unequips a weapon for the entity
+        public void UnequipWeapon(Weapon weapon)
+        {
+            // Only unequip the weapon if the merchant is wielding any
+            if (equippedWeapon != null)
+            {
+                // Unequip the given weapon
+                attackPower -= weapon.AttackValue;
+                equippedWeapon = null;
+            } // end if
+        } // end UnequipWeapon
+
+        // Gets and Sets the amount of defense the entity has
         public int DefencePower
         {
-            get
-            {
-                throw new System.NotImplementedException();
-            }
-            set
-            {
-                throw new System.NotImplementedException();
-            }
-        }
+            get { return defencePower;}
+            set { defencePower = Utility.ZeroClampInt(value);}
+        } // end DefencePower
 
-        public EquippedArmor EquippedArmour
+        // Gets the EquippedArmor of the entity
+        public Armor EquippedArmor
         {
-            get
-            {
-                throw new System.NotImplementedException();
-            }
-            set
-            {
-                throw new System.NotImplementedException();
-            }
-        }
+            get { return equippedArmor;}
+        } // end EquippedArmor
 
-        public List<GameObject> Bonuses
+        // Gets the bonuses the entity has
+        public List<Bonus> Bonuses
         {
-            get
-            {
-                throw new System.NotImplementedException();
-            }
-            set
-            {
-                throw new System.NotImplementedException();
-            }
-        }
+            get { return bonuses; }
+        } // end Bonuses
 
-        public void EquipArmour(string item)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public void UnequipArmour(string item)
-        {
-            throw new System.NotImplementedException();
-        }
-
+        // Gets and Sets the how hard the the entity hits
         public int AttackPower
         {
-            get
-            {
-                throw new System.NotImplementedException();
-            }
-            set
-            {
-                throw new System.NotImplementedException();
-            }
-        }
+            get { return attackPower; }
+            set { attackPower = Utility.ZeroClampInt(value); }
+        } // end AttackPower
 
-        public EquippedWeapon EquippedWeapon
+        // Gets the EquippedWeapon of the entity
+        public Weapon EquippedWeapon
         {
-            get
-            {
-                throw new System.NotImplementedException();
-            }
-            set
-            {
-                throw new System.NotImplementedException();
-            }
-        }
-
-        public void EquipWeapon(string item)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public void UnequipWeapon(string item)
-        {
-            throw new System.NotImplementedException();
-        }
+            get { return equippedWeapon; }
+        } // end EquippedWeapon
 
         #endregion
 
         #region IDamageable Members
 
-        public int Health
-        {
-            get
-            {
-                throw new System.NotImplementedException();
-            }
-            set
-            {
-                throw new System.NotImplementedException();
-            }
-        }
-
-        public int MaxHealth
-        {
-            get
-            {
-                throw new System.NotImplementedException();
-            }
-            set
-            {
-                throw new System.NotImplementedException();
-            }
-        }
-
+        // Causes the entity to take damage; this is call by others
         public void TakeDamage(int damage)
         {
-            throw new System.NotImplementedException();
-        }
+            // Only allow damage if the entity isn't dead
+            if (!IsDead)
+            {
+                // Dish out the damage
+                health -= damage;
 
+                // Check if the entity is dead
+                if (health == 0)
+                {
+                    // The entity is dead
+                    isDead = true;
+                } // end if health == 0
+            } // end if
+        } // end TakeDamage
+
+        // Resets the health of the entity
         public void ResetHealth()
         {
-            throw new System.NotImplementedException();
-        }
+            health = maxHealth;
+            isDead = false;
+        } // end ResetHealth
+
+        // Gets the current health of the entity
+        public int Health
+        {
+            get { return health; }
+        } // end Health
+
+        // Gets and Sets the maximum health of the entity
+        public int MaxHealth
+        {
+            get { return maxHealth; }
+            set { maxHealth = Utility.ZeroClampInt(value); }
+        } // end MaxHealth
+
+        // Gets whether the eneity is dead
+        public bool IsDead
+        {
+            get { return isDead; }
+        } // end IsDead
 
         #endregion
-    }
-}
+    } // end Merchant
+} // end GSP.Entities.Neutrals

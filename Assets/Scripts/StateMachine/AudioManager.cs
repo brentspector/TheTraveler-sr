@@ -1,125 +1,202 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿/*******************************************************************************
+ *
+ *  File Name: AudioManager.cs
+ *
+ *  Description: Deals with all the audio in the game
+ *
+ *******************************************************************************/
+using UnityEngine;
 
 namespace GSP
 {
-	public class AudioManager : MonoBehaviour 
+    /*******************************************************************************
+     *
+     * Name: AudioManager
+     * 
+     * Description: Manages all the game's audio effects and music.
+     * 
+     *******************************************************************************/
+    public class AudioManager : MonoBehaviour
 	{
-		public AudioSource sfxSource;					//Sound effects player
-		public AudioSource musicSource;					//Background music player
-		public AudioClip menuMusic;						//Main Menu music
-		public AudioClip desertMusic;					//Desert map music
-		public AudioClip snowMusic;						//Snow map music
-		public AudioClip euroMusic;						//European map music
-		public AudioClip metroMusic;					//Metropolis map music
-		public AudioClip victoryMusic;					//Victory music
-		public AudioClip drawMusic;						//Tie/Draw music
-		public AudioClip lossMusic;						//Loss music
-		public static AudioManager instance = null;		//Singleton reference
-		public float lowPitchRange = 0.95f;				//Low end of change spectrum
-		public float highPitchRange = 1.05f;			//High end of change spectrum
+        public AudioSource sfxSource;			// Sound effects player
+        public AudioSource musicSource;			// Background music player
+        public AudioClip menuMusic;				// Main Menu music
+        public AudioClip desertMusic;			// Desert map music
+        public AudioClip snowMusic;				// Snow map music
+        public AudioClip euroMusic;				// European map music
+        public AudioClip metroMusic;			// Metropolis map music
+        public AudioClip victoryMusic;			// Victory music
+        public AudioClip drawMusic;				// Tie/Draw music
+        public AudioClip lossMusic;				// Loss music
+        public AudioClip coinSFX;				// Coin Jangling SFX
+        public AudioClip walkingSFX;			// Walking noise SFX
+        public AudioClip swordHit1SFX;			// One variation of a sword clash
+        public AudioClip swordHit2SFX;			// Second variation of a sword clash
+        public AudioClip swordHit3SFX;			// Third variation of a sword clash
+        public AudioClip diceSFX;				// Rolling dice SFX
+        public AudioClip fishingSFX;			// Fish catch SFX
+        public AudioClip miningSFX;				// Ore mining SFX
+        public AudioClip shearingSFX;			// Wool shearing SFX
+        public AudioClip woodSFX;				// Woodcutting SFX
+        public AudioClip explosionSFX;			// Cake chart explosion
+		static AudioManager instance = null;    // Singleton reference
+        public float lowPitchRange = 0.95f;		// Low end of change spectrum
+        public float highPitchRange = 1.05f;	// High end of change spectrum
 		
 		// Use this for initialization
-		void Awake () 
+		void Awake() 
 		{
-			//Set instance if one does not exist
+			// Set instance if one does not exist
 			if(instance == null)
 			{
 				instance = this;
 
-				//Play menu music
-				playMenu();
-			} //end if
+				// Play menu music
+				PlayMenu();
+			} // end if
 			
-			//If one does exist, and it does not equal this, destroy this new object
+			// If one does exist, and it does not equal this, destroy this new object
 			else if (instance != this)
 			{
 				Destroy(gameObject);
-			} //end else if
+			} // end else if
 			
-			//Protect SoundManager from destruction each restart
-			DontDestroyOnLoad (gameObject);
-		} //end Awake()
+			// Protect AudioManager from destruction each restart
+            DontDestroyOnLoad(gameObject);
+		} // end Awake
 
-		//SFX clip functions
-		//Sets a single passed clip to source clip and plays it
-		public void playSingle (AudioClip clip)
+		// Note: Function names always start with a capital letter - Damien
+        
+        // SFX clip functions
+		// Sets a single passed clip to a source clip and plays it
+		public void PlaySingle(AudioClip clip)
 		{
-			sfxSource.pitch = Random.Range (lowPitchRange, highPitchRange);
+            sfxSource.pitch = Random.Range(lowPitchRange, highPitchRange);
 			sfxSource.clip = clip;
-			sfxSource.Play ();
-		} //end playSingle (AudioClip clip)
+            sfxSource.Play();
+		} // end PlaySingle
 		
-		//Picks one clip out of parameter and plays it as the source clip
-		public void randomizeSFX(params AudioClip [] clips)
+		// Picks one clip out of the parameters and plays it as the source clip
+		public void RandomizeSFX(params AudioClip [] clips)
 		{
-			//Select random clip
-			int randomIndex = Random.Range (0, clips.Length);
+			// Select random clip
+            int randomIndex = Random.Range(0, clips.Length);
 			
-			//Select random pitch so sounds don't get old
-			float randomPitch = Random.Range (lowPitchRange, highPitchRange);
+			// Select random pitch so sounds don't get old
+            float randomPitch = Random.Range(lowPitchRange, highPitchRange);
 			
-			//Apply and play clip
+			// Apply and play clip
 			sfxSource.pitch = randomPitch;
-			sfxSource.clip = clips [randomIndex];
-			sfxSource.Play ();
-		} //end randomizeSFX (params AudioClip [] clips)
+            sfxSource.clip = clips[randomIndex];
+            sfxSource.Play();
+		} // end RandomizeSFX
 
-		//Background music functions
-		public void playMenu()
+		// Background music functions
+		public void PlayMenu()
 		{
-			musicSource.Stop ();
+			musicSource.Stop();
 			musicSource.clip = menuMusic;
-			musicSource.PlayDelayed (1.0f);
-		} //end playMenu
+            musicSource.PlayDelayed(1.0f);
+		} // end PlayMenu
 
-		public void playDesert()
+		public void PlayDesert()
 		{
-			musicSource.Stop ();
+            musicSource.Stop();
 			musicSource.clip = desertMusic;
-			musicSource.PlayDelayed (1.0f);
-		} //end playDesert
+            musicSource.PlayDelayed(1.0f);
+		} // end PlayDesert
 
-		public void playSnow()
+		public void PlaySnow()
 		{
-			musicSource.Stop ();
+            musicSource.Stop();
 			musicSource.clip = snowMusic;
-			musicSource.PlayDelayed (1.0f);
-		} //end playSnow
+            musicSource.PlayDelayed(1.0f);
+		} // end PlaySnow
 
-		public void playEuro()
+		public void PlayEuro()
 		{
-			musicSource.Stop ();
+            musicSource.Stop();
 			musicSource.clip = euroMusic;
-			musicSource.PlayDelayed (1.0f);
-		} //end playEuro
+            musicSource.PlayDelayed(1.0f);
+		} // end PlayEuro
 
-		public void playMetro()
+		public void PlayMetro()
 		{
-			musicSource.Stop ();
+            musicSource.Stop();
 			musicSource.clip = metroMusic;
-			musicSource.PlayDelayed (1.0f);
-		} //end playMetro
+            musicSource.PlayDelayed(1.0f);
+		} // end PlayMetro
 
-		public void playVictory()
+		public void PlayVictory()
 		{
-			musicSource.Stop ();
+            musicSource.Stop();
 			musicSource.clip = victoryMusic;
-			musicSource.PlayDelayed (1.0f);
-		} //end playDesert
+            musicSource.PlayDelayed(1.0f);
+		} // end PlayDesert
 
-		public void playDraw()
+		public void PlayDraw()
 		{
-			musicSource.Stop ();
-			musicSource.clip = drawMusic;
-			musicSource.PlayDelayed (1.0f);
-		} //end playDraw
+            musicSource.Stop();
+            musicSource.clip = drawMusic;
+            musicSource.PlayDelayed(1.0f);
+		} // end PlayDraw
 
-		public void playLoss()
+		public void PlayLoss()
 		{
-			musicSource.Stop ();
+            musicSource.Stop();
 			musicSource.clip = lossMusic;
-			musicSource.PlayDelayed (1.0f);
-		} //end playLoss
-	} //end AudioManager class
-} //end namespace GSP
+            musicSource.PlayDelayed(1.0f);
+		} // end PlayLoss
+
+        public void PlayCoin()
+        {
+            PlaySingle(coinSFX);
+        } // end PlayCoin
+
+        public void PlayWalk()
+        {
+            PlaySingle(walkingSFX);
+        } // end PlayWalk
+
+        public void PlaySword()
+        {
+            RandomizeSFX(swordHit1SFX, swordHit2SFX, swordHit3SFX);
+        } // end PlaySword
+
+        public void PlayDie()
+        {
+            PlaySingle(diceSFX);
+        } // end PlayDie
+
+        public void PlayFish()
+        {
+            PlaySingle(fishingSFX);
+        } // end PlayFish
+
+        public void PlayMine()
+        {
+            PlaySingle(miningSFX);
+        } // end PlayMine
+
+        public void PlayShear()
+        {
+            PlaySingle(shearingSFX);
+        } // end PlayShear
+
+        public void PlayWood()
+        {
+            PlaySingle(woodSFX);
+        } // end PlayWood
+
+        public void PlayExplosion()
+        {
+            PlaySingle(explosionSFX);
+        } // end PlayExplosion
+
+        // Gets the AudioManger instance reference
+        public static AudioManager Instance
+        {
+            get { return instance; }
+        } // end Instance
+	} // end AudioManager
+} // end GSP

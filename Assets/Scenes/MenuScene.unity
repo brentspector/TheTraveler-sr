@@ -412,7 +412,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 263507808}
-        m_MethodName: desertMap
+        m_MethodName: DesertMap
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -725,8 +725,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 40dd1c1a0ed906149a6d3e13890a8f5a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  audioManager: {fileID: 164814, guid: 68608c25d4417844bb7964dbd7d2e460, type: 2}
-  m_mapSelection: 
+  audioManager: {fileID: 180450, guid: f6bd2579e88206f4ba901c37e88155e4, type: 2}
 --- !u!1 &319034181
 GameObject:
   m_ObjectHideFlags: 0
@@ -951,52 +950,6 @@ CanvasRenderer:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 506528851}
---- !u!1001 &508629600
-Prefab:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 452888, guid: 68608c25d4417844bb7964dbd7d2e460, type: 2}
-      propertyPath: m_LocalPosition.x
-      value: 406.136139
-      objectReference: {fileID: 0}
-    - target: {fileID: 452888, guid: 68608c25d4417844bb7964dbd7d2e460, type: 2}
-      propertyPath: m_LocalPosition.y
-      value: 162.781998
-      objectReference: {fileID: 0}
-    - target: {fileID: 452888, guid: 68608c25d4417844bb7964dbd7d2e460, type: 2}
-      propertyPath: m_LocalPosition.z
-      value: -5.0625
-      objectReference: {fileID: 0}
-    - target: {fileID: 452888, guid: 68608c25d4417844bb7964dbd7d2e460, type: 2}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 452888, guid: 68608c25d4417844bb7964dbd7d2e460, type: 2}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 452888, guid: 68608c25d4417844bb7964dbd7d2e460, type: 2}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 452888, guid: 68608c25d4417844bb7964dbd7d2e460, type: 2}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 452888, guid: 68608c25d4417844bb7964dbd7d2e460, type: 2}
-      propertyPath: m_RootOrder
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 8257668, guid: 68608c25d4417844bb7964dbd7d2e460, type: 2}
-      propertyPath: m_PlayOnAwake
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-  m_ParentPrefab: {fileID: 100100000, guid: 68608c25d4417844bb7964dbd7d2e460, type: 2}
-  m_IsPrefabParent: 0
 --- !u!1 &571337282
 GameObject:
   m_ObjectHideFlags: 0
@@ -1136,7 +1089,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 263507808}
-        m_MethodName: credits
+        m_MethodName: Credits
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1312,7 +1265,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 263507808}
-        m_MethodName: quitGame
+        m_MethodName: QuitGame
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1427,7 +1380,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 263507808}
-        m_MethodName: euroMap
+        m_MethodName: EuroMap
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1608,7 +1561,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 263507808}
-        m_MethodName: back
+        m_MethodName: Back
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1881,6 +1834,48 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.ScrollRect+ScrollRectEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
+--- !u!1001 &955730469
+Prefab:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 430358, guid: f6bd2579e88206f4ba901c37e88155e4, type: 2}
+      propertyPath: m_LocalPosition.x
+      value: 406.136139
+      objectReference: {fileID: 0}
+    - target: {fileID: 430358, guid: f6bd2579e88206f4ba901c37e88155e4, type: 2}
+      propertyPath: m_LocalPosition.y
+      value: 162.781998
+      objectReference: {fileID: 0}
+    - target: {fileID: 430358, guid: f6bd2579e88206f4ba901c37e88155e4, type: 2}
+      propertyPath: m_LocalPosition.z
+      value: -5.0625
+      objectReference: {fileID: 0}
+    - target: {fileID: 430358, guid: f6bd2579e88206f4ba901c37e88155e4, type: 2}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 430358, guid: f6bd2579e88206f4ba901c37e88155e4, type: 2}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 430358, guid: f6bd2579e88206f4ba901c37e88155e4, type: 2}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 430358, guid: f6bd2579e88206f4ba901c37e88155e4, type: 2}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 430358, guid: f6bd2579e88206f4ba901c37e88155e4, type: 2}
+      propertyPath: m_RootOrder
+      value: 3
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_ParentPrefab: {fileID: 100100000, guid: f6bd2579e88206f4ba901c37e88155e4, type: 2}
+  m_IsPrefabParent: 0
 --- !u!1 &969689558
 GameObject:
   m_ObjectHideFlags: 0
@@ -1957,7 +1952,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 263507808}
-        m_MethodName: metroMap
+        m_MethodName: MetroMap
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2072,7 +2067,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 263507808}
-        m_MethodName: multiGame
+        m_MethodName: MultiGame
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2929,7 +2924,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 263507808}
-        m_MethodName: help
+        m_MethodName: Help
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -3077,7 +3072,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 263507808}
-        m_MethodName: snowMap
+        m_MethodName: SnowMap
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -3494,7 +3489,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 263507808}
-        m_MethodName: soloGame
+        m_MethodName: SoloGame
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
