@@ -29,7 +29,9 @@ namespace GSP.Core
         // The first tile
         static Vector3 startingPos = new Vector3(.32f, -(GSP.Tiles.TileManager.MaxHeightUnits / 2.0f), -1.6f);
 
-        static readonly int m_maxPlayers = 4;   // Max number of players
+        static readonly int maxPlayers = 4;   // Max number of players
+
+        int numPlayers; // The current number of players
         
         // The variables here are through dictionaries. The key is the player number.
         Dictionary<int, string> playerNames;            // The list of the players' names
@@ -65,6 +67,9 @@ namespace GSP.Core
         // Fill the dictionaries
         void Start()
         {
+            // Initialise the number of players to zero
+            numPlayers = 0;
+
             // Reset the containers
             ResetCollections();
         } // end Start
@@ -96,6 +101,25 @@ namespace GSP.Core
             // Clear the enemies list
             enemyIdentifiers.Clear();
         } // end ResetCollections
+
+        // Removes an enemy ID from the enemyIdentifiers list
+        public void RemoveEnemyIdentifier(int ID)
+        {
+            int position; // The position in the list the ID is
+
+            // Get the position in the list the ID is
+            position = enemyIdentifiers.IndexOf(ID);
+
+            // Check if the ID is valid
+            if (position == -1)
+            {
+                // Simply return
+                return;
+            } // end if
+
+            // Remove the ID at the found index
+            enemyIdentifiers.RemoveAt(position);
+        } // end RemoveEnemyIdentifier
 
         // Gets the player's name with the given key
         public string GetPlayerName(int playerNum)
@@ -225,6 +249,9 @@ namespace GSP.Core
                         // Name the enemy entity
                         Entities.EntityManager.Instance.GetEntity(entID).Name = enemyName;
 
+                        // Add the ID to the enemyIdentifiers list
+                        enemyIdentifiers.Add(entID);
+
                         // Give the enemy script the ID for the enemy
                         script.GetEnemy(entID);
 
@@ -246,6 +273,9 @@ namespace GSP.Core
 
                         // Name the enemy entity
                         Entities.EntityManager.Instance.GetEntity(entID).Name = enemyName;
+                        
+                        // Add the ID to the enemyIdentifiers list
+                        enemyIdentifiers.Add(entID);
 
                         // Give the enemy script the ID for the enemy
                         script.GetEnemy(entID);
@@ -487,7 +517,27 @@ namespace GSP.Core
         // Gets the max number of players allowed
         public int MaxPlayers
         {
-            get { return m_maxPlayers; }
+            get { return maxPlayers; }
         } // end MaxPlayers
+
+        // Gets the current number of players
+        public int NumPlayers
+        {
+            get { return numPlayers; }
+            set { numPlayers = Utility.ClampInt(value, 1, MaxPlayers); }
+        } // end NumPlayers
+
+        // Gets a copy of the enemyIdentifiers list
+        public List<int> EnemyIdentifiers
+        {
+            get
+            {
+                // Create a copy of the list
+                List<int> tmp = new List<int>(enemyIdentifiers);
+
+                // Return the copy
+                return tmp;
+            } // end get
+        } // end EnemyIdentifiers
     } // end GameMaster
 } // end GSP.Core

@@ -39,8 +39,8 @@ namespace GSP
 		// Update is called once per frame
 		void Update()
 		{
-			// Note: Kept in for historical reasons for now.
-            // Check if the space key is pressed to roll the dice.
+			// Note: Kept in for historical reasons for now
+            // Check if the space key is pressed to roll the dice
             //if (Input.GetKeyDown(KeyCode.Space))
             //{
             //    // Get the die roll

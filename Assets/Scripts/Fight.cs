@@ -6,6 +6,9 @@
  *
  *******************************************************************************/
 using GSP.Char;
+using GSP.Core;
+using GSP.Entities;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace GSP
@@ -22,7 +25,29 @@ namespace GSP
 		// Used when player character fights an enemy
 		public string CharacterFight(GameObject enemy, GameObject player)
 		{
-			// Get the Character scripts for both the enemy and player
+			// Get the enemyID from the list of enemy IDs; since this a 1v1 fight there should only be a single ID
+            int enemyID = GameMaster.Instance.EnemyIdentifiers[0];
+
+            // Get the enemy's type
+            var enemyType = EntityManager.Instance.GetEntity(enemyID).Type;
+
+            // Switch over the enemyType
+            switch (enemyType)
+            {
+                case EntityType.Bandit:
+                    {
+                        break;
+                    } // end case Bandit
+                case EntityType.Mimic:
+                    {
+                        break;
+                    } // end case Mimic
+            } // end enemyType
+
+            // Get the enemy script from the enemy GameObject
+            var enemyS = "";
+            
+            // Get the Character scripts for both the enemy and player
             Character enemyScript = enemy.GetComponent<Character>();
 			Character playerScript = player.GetComponent<Character>();
 
