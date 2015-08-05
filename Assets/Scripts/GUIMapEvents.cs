@@ -11,7 +11,6 @@ using UnityEngine;
 
 namespace GSP
 {
-    //TODO: Damien: Replace with the GameMaster functionality later.
     //TODO: Brent: Replace this with the new In-Game UI later
     /*******************************************************************************
      *
@@ -23,23 +22,12 @@ namespace GSP
     public class GUIMapEvents : MonoBehaviour
 	{
         // Enumeration for the types of MapEvent events
-        enum MapEvent
-		{
-			Enemy, Ally, Resource, Item, Weather, Nothing, Done
-		};
-		
-		// Enumeration for the types of resources
-        enum ResourceType
-		{
-			Wool, Wood, Fish, Ore, Size
-		};
+        enum MapEvent { Enemy, Ally, Resource, Item, Nothing, Done };
 		
 		MapEvent currMapEvent;  // The current map event
 
 		bool canShowGUI = false;        // Whether to show or hise the OnGUI UI
 		bool isActionRunning = true;    // Whether the MapEvent action is running
-		
-		GameObject m_PlayerEntity;  // The player GaneObject
 		
 		bool canInitScript = true;                          // Ensures each script is initialized only once per state
         GUIEnemy guiEnemyScript;                            // The GUIEnemy component reference
@@ -74,11 +62,8 @@ namespace GSP
 
 
 		// Initialise things sort of like a custom constructor
-        public void InitThis(GameObject player, string mapEventType, string result)
+        public void InitThis(string mapEventType, string result)
 		{
-			// Set the player
-			m_PlayerEntity = player;
-
 			// The results of parsing below.
 			MapEvent tmpEnumMapEvent = MapEvent.Nothing;
 
@@ -127,7 +112,6 @@ namespace GSP
 		} // end OnGUI
 
 
-        //TODO: Damien Replace other functionality with GameMaster functionality or something later
         //TODO: Brent: Replace OnGUI stuff with the new In-Game UI later
         // The state machine for the MapEvent OnGUI system
         private void GUIMapEventsMachine()
@@ -140,7 +124,7 @@ namespace GSP
                         // Ensure we only init once
                         if (canInitScript)
                         {
-                            guiEnemyScript.InitThis(m_PlayerEntity, mainStartX, mainStartY, mainWidth, mainHeight, resultString);
+                            guiEnemyScript.InitThis(mainStartX, mainStartY, mainWidth, mainHeight, resultString);
                             canInitScript = false;
                         } // end if
                         break;
@@ -151,7 +135,7 @@ namespace GSP
                         // Ensure we only init once
                         if (canInitScript)
 				        {
-                            guiAllyScript.InitGUIAlly(m_PlayerEntity, mainStartX, mainStartY, mainWidth, mainHeight);
+                            guiAllyScript.InitGUIAlly(mainStartX, mainStartY, mainWidth, mainHeight);
                             canInitScript = false;
                         } // end if
 				        break;
@@ -162,7 +146,7 @@ namespace GSP
                         // Ensure we only init once
                         if (canInitScript)
                         {
-                            guiItemScript.InitGUIItem(m_PlayerEntity, mainStartX, mainStartY, mainWidth, mainHeight, resultString);
+                            guiItemScript.InitGUIItem(mainStartX, mainStartY, mainWidth, mainHeight, resultString);
                             canInitScript = false;
                         } // end if
                         break;

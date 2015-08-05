@@ -110,6 +110,22 @@ namespace GSP.Entities.Hostiles
             } // end if
         } // end UnequipArmor
 
+        // Note: The Hostile class doesn't implement IInventory so the bonuses are only added to the list
+        // Equips a bonus item
+        public void EquipBonus(Bonus bonus)
+        {
+            // Add the bonus to the list
+            bonuses.Add(bonus);
+        } // end EquipBonus
+
+        // Note: The Hostile class doesn't implement IInventory so the bonuses are only added to the list
+        // Unequips a bonus item
+        public void UnequipBonus(Bonus bonus)
+        {
+            // Remove the bonus from the list
+            bonuses.Remove(bonus);
+        } // end UnequipBonus
+
         // Equips a weapon for an entity
         public void EquipWeapon(Weapon weapon)
         {
@@ -159,7 +175,14 @@ namespace GSP.Entities.Hostiles
         // Gets the bonuses the entity has
         public List<Bonus> Bonuses
         {
-            get { return bonuses; }
+            get
+            {
+                // Get a temp list
+                var tmp = new List<Bonus>(bonuses);
+
+                // Return the temp list
+                return tmp;
+            } // end get
         } // end Bonuses
 
         // Gets and Sets the how hard the the entity hits

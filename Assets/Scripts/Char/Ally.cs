@@ -18,7 +18,6 @@ namespace GSP.Char
      * Description: The base class for the wrapper to the ally entities.
      * 
      *******************************************************************************/
-    // This class name won't have a number later
     public class Ally<TSubAlly> : MonoBehaviour where TSubAlly : Friendly
     {
         TSubAlly ally;   // Each Ally needs its own ally object

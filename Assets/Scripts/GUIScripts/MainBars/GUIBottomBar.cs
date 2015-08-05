@@ -6,11 +6,11 @@
  *
  *******************************************************************************/
 using GSP.Char;
+using GSP.Entities.Neutrals;
 using UnityEngine;
 
 namespace GSP.JAVIERGUI
 {
-    //TODO: Damien: Replace with the GameMaster functionality later.
     //TODO: Brent: Replace this with the new In-Game UI later; probably not in the same namespace
     /*******************************************************************************
      *
@@ -23,7 +23,7 @@ namespace GSP.JAVIERGUI
     public class GUIBottomBar : MonoBehaviour 
 	{
 		// ...Scripts...
-		Character characterScript;
+		Merchant playerMerchant;    // The player's Merchant script reference
 
 		// ....Bottom Bar Configuration values....
 		int gapInYdirection;    // The gap between the buttons on the y-axis
@@ -50,12 +50,10 @@ namespace GSP.JAVIERGUI
 			ReScaleValues();
 		} // end Awake
 
-		//TODO: Damien: Replace with the GameMaster functionality later.
         // Sets the Character script reference to the Character component of the given player
-        public void RefreshBottomBarGUI(GameObject player)
+        public void RefreshBottomBarGUI(Player player)
 		{
-			characterScript = player.GetComponent<Character>();
-			
+            playerMerchant = (Merchant)player.Entity;
 		} // end RefreshBottomBarGUI
 
 
@@ -152,16 +150,16 @@ namespace GSP.JAVIERGUI
 			{
 				int row = 0;
 				int col = 0;
-                string resultString = (characterScript.AttackPower).ToString();
+                string resultString = playerMerchant.AttackPower.ToString();
                 GUI.Box(new Rect(startX + (col * startWidth), startY + (row * startHeight), startWidth, startHeight), "AP: " + resultString);
 
 				col++;
-				resultString = (characterScript.DefencePower).ToString();
+				resultString = playerMerchant.DefencePower.ToString();
                 GUI.Box(new Rect(startX + (col * startWidth), startY + (row * startHeight), startWidth, startHeight), "DP: " + resultString);
 
 				col++;
-                resultString = (characterScript.ResourceValue.ToString() + "/" + characterScript.MaxInventory.ToString());
-                GUI.Box(new Rect(startX + (col * startWidth), startY + (row * startHeight), startWidth, startHeight), "DP: " + resultString);
+                resultString = playerMerchant.TotalSize.ToString() + "/" + playerMerchant.MaxInventorySpace.ToString();
+                GUI.Box(new Rect(startX + (col * startWidth), startY + (row * startHeight), startWidth, startHeight), "IS: " + resultString);
 			} // end if
 		} // end ConfigItemBarDisplay
 
@@ -207,7 +205,7 @@ namespace GSP.JAVIERGUI
 			{
 				int row = 0;
 				int col = 0;
-                string resultString = (characterScript.NumAllies).ToString();
+                string resultString = (playerMerchant.NumAllies).ToString();
                 GUI.Box(new Rect(startX + (col * startWidth), startY + (row * startHeight), startWidth, startHeight), "# of Allies: " + resultString);
 			} // end if
 

@@ -9,7 +9,6 @@ using UnityEngine;
 
 namespace GSP.JAVIERGUI
 {
-    //TODO: Damien: Replace with the GameMaster functionality later.
     //TODO: Brent: Replace this with the new In-Game UI later; probably not in the same namespace
     /*******************************************************************************
      *
@@ -22,7 +21,6 @@ namespace GSP.JAVIERGUI
 	{
         GUIMapEvents guiMapEventsScript;    // The GUIMapEvents script reference
         MapEvent mapEventScript;            // The MapEvent script reference
-        GameObject playerEntity; 			// Will initialize to the actual player in InitThis
 		GameObject audioSrc;                // The AUdioSource reference
 
 		// main container values
@@ -42,21 +40,18 @@ namespace GSP.JAVIERGUI
             audioSrc = GameObject.FindGameObjectWithTag("AudioSourceTag");
 		} // end Start
 
-        //TODO: Damien: Replace with the GameMaster functionality later.
         //TODO: Brent: Replace OnGUI stuff with the new In-Game UI later
         // Initialise things sort of like a custom constructor
-        public void InitThis(GameObject player, int startX, int startY, int startWidth, int startHeight, string result)
+        public void InitThis(int startX, int startY, int startWidth, int startHeight, string result)
 		{
 			mainStartX = startX;
 			mainStartY = startY;
 			mainWidth = startWidth;
 			mainHeight = startHeight;
 
-			playerEntity = player;
-
 			isActionRunning = true;
 
-			headerString = mapEventScript.ResolveFight(playerEntity);
+			headerString = mapEventScript.ResolveFight();
 
             //TODO: Brent: Replace with AudioManager later
             #region TODO:AddSound for fight here

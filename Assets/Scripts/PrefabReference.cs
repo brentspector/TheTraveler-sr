@@ -19,11 +19,8 @@ namespace GSP
     public static class PrefabReference
 	{
 		/*
-		 * Object Prefabs.
+		 * Object Prefabs
 		 */
-
-		// This is the reference to the character prefab.
-        public static GameObject prefabCharacter = Resources.Load("Character") as GameObject;
 
         // This is the reference to the player prefab.
         public static GameObject prefabPlayer = Resources.Load("Player") as GameObject;
@@ -48,9 +45,6 @@ namespace GSP
 
 		// This is the reference to the fish resource prefab.
         public static GameObject prefabResource_Fish = Resources.Load("Resource_Fish") as GameObject;
-
-		// This is the reference to the item prefab.
-        public static GameObject prefabItem = Resources.Load("Item") as GameObject;
 
 		// This is the reference to the item prefab.
         public static GameObject prefabHighlight = Resources.Load("Highlight") as GameObject;

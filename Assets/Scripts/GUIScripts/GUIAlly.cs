@@ -25,7 +25,6 @@ namespace GSP.JAVIERGUI
      *******************************************************************************/
     public class GUIAlly : MonoBehaviour 
 	{
-		GameObject playerEntity; 			// Will initialize to the actual player in InitThis
 		GUIMapEvents guiMapEventsScript;    // The GUIMapEvents script reference
 		MapEvent mapEventScript;            // The MapEvent script reference
 		GUIBottomBar guiBottomBarScript;    // The GUIBottomBar script reference
@@ -51,13 +50,10 @@ namespace GSP.JAVIERGUI
 		} // end Start
 
 
-        //TODO: Damien: Replace with the GameMaster functionality later.
         //TODO: Brent: Replace OnGUI stuff with the new In-Game UI later
         // Initialise things sort of like a custom constructor
-        public void InitGUIAlly(GameObject player, int startX, int startY, int startWidth, int startHeight)
+        public void InitGUIAlly(int startX, int startY, int startWidth, int startHeight)
 		{
-			// Get the player reference
-            playerEntity = player;
 			// Get the GUIMapEvents and MapEvent script references
             guiMapEventsScript = GameObject.FindGameObjectWithTag("GUIMapEventSpriteTag").GetComponent<GSP.GUIMapEvents>();
 			mapEventScript = GameObject.FindGameObjectWithTag ("DieTag").GetComponent<GSP.MapEvent>();
@@ -130,7 +126,7 @@ namespace GSP.JAVIERGUI
 				//TODO: Ally sound is added here?
 				#endregion
 
-                headerString = mapEventScript.ResolveAlly(playerEntity, "YES");
+                headerString = mapEventScript.ResolveAlly("YES");
 
 				hasSelectionMadeAddRemove = true;
 			} // end if
@@ -147,7 +143,7 @@ namespace GSP.JAVIERGUI
 
             if (GUI.Button(new Rect(newX, newY, newWdth, newHght * 2), "No"))
 			{
-                headerString = mapEventScript.ResolveAlly(playerEntity, "NO");
+                headerString = mapEventScript.ResolveAlly("NO");
 
 				hasSelectionMadeAddRemove = true;
 			} // end if
