@@ -92,7 +92,7 @@ namespace GSP.Core
         void OnLevelWasLoaded(int level)
         {
             // Reset the containers after a level was loaded to flushout old references
-            ResetCollections();
+            Instance.ResetCollections();
         }
 
         // Resets the containers
@@ -362,6 +362,9 @@ namespace GSP.Core
                         // Name the ally entity
                         Entities.EntityManager.Instance.GetEntity(entID).Name = allyName;
 
+                        // Add the ID to the tempAllyIdentifiers list
+                        tempAllyIdentifiers.Add(entID);
+
                         // Give the ally script the ID for the ally
                         script.GetAlly(entID);
 
@@ -383,6 +386,9 @@ namespace GSP.Core
 
                         // Name the ally entity
                         Entities.EntityManager.Instance.GetEntity(entID).Name = allyName;
+
+                        // Add the ID to the tempAllyIdentifiers list
+                        tempAllyIdentifiers.Add(entID);
 
                         // Give the ally script the ID for the ally
                         script.GetAlly(entID);

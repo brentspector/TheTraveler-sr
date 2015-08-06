@@ -18,6 +18,7 @@ namespace GSP.Char
     // item in the enum. For instance if the list was {Wool, Fish, None, Size}
     // you should enter the new item between Fish and None. Create name
     // here and then define it under "SetResource" function.
+    // NOTE: DON'T EDIT THIS LIST BECAUSE IT SCREWS UP THE RESOURCES ON THE MAP :P
     public enum ResourceType
     {
         Wool,

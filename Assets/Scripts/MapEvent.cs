@@ -53,8 +53,8 @@ namespace GSP
 		//NOTE: These should add up to less than 100 so that 
 		//there is a chance nothing occurs. Minimum chance of
 		//one or else there will be problems
-		int enemyChance = 25;   // The minimum chance for the MapEvent to an enemy
-        int allyChance = 0;//15;    // The minimum chance for the MapEvent to an ally
+        int enemyChance = 25;   // The minimum chance for the MapEvent to an enemy
+        int allyChance = 15;    // The minimum chance for the MapEvent to an ally
         int itemChance = 15;    // The minimum chance for the MapEvent to an item
 		
 		string guiResult; // The MapEvent summary
@@ -125,7 +125,7 @@ namespace GSP
 			// Otherwise, the tile is a resource
 			else
 			{
-				// Create a temp resource
+                // Create a temp resource
 				Resource temp = new Resource();
 				
 				// Turn temp into a type of resource
@@ -251,16 +251,35 @@ namespace GSP
 			// Check if the player accepts the ally
             if (guiAcceptResult == "YES")
 			{
+                bool addResult; // The result of trying to add the ally
+                
                 // Get the enemy entity
                 Porter allyEntity = (Porter)EntityManager.Instance.GetEntity(allyID);
 
                 // Get the player's AllyList component
                 AllyList playerAllyScript = player.GetComponent<AllyList>();
                 // Add the ally to the player's ally list
-				playerAllyScript.AddAlly(allyEntity.GameObj);
+				addResult = playerAllyScript.AddAlly(allyEntity.GameObj);
 
-				// Set and return accepted
-				guiResult = "Ally was added.";
+                // Check if the add was successful
+                if (addResult)
+                {
+                    // Set the ally was accepted
+                    guiResult = "Ally was added.";
+                } // end if
+                else
+                {
+                    // Otherwise, the ally failed to add because the limit was reached
+                    guiResult = "Ally limit reached.\nAdd denied.";
+
+                    // Remove the ally entity
+                    EntityManager.Instance.RemoveEntity(allyID);
+                } // end else
+
+                // Clear the TempAllyIdentifiers now
+                GameMaster.Instance.ClearAllyIdentifiers();
+
+                // Return the result
 				return guiResult;
 			}
 
@@ -269,6 +288,9 @@ namespace GSP
 			{
 				// Remove the ally entity
                 EntityManager.Instance.RemoveEntity(allyID);
+
+                // Clear the TempAllyIdentifiers now
+                GameMaster.Instance.ClearAllyIdentifiers();
 
 				// Set and return declined
 				guiResult = "Ally was declined.";
@@ -286,7 +308,7 @@ namespace GSP
 			string result;
 			
 			// Determine what item was found
-			int itemType = die.Roll(1, 4);
+			int itemType = die.Roll(1, 3);
 
             // Switch ove the itemType
             switch (itemType)
