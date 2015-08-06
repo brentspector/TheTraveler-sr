@@ -10,8 +10,6 @@ using UnityEngine;
 
 namespace GSP
 {
-
-    //TODO: Damien: Replace with the GameMaster functionality later.
     //TODO: Brent: Replace this with the new In-Game UI later; probably not in the same namespace
     /*******************************************************************************
      *
@@ -23,11 +21,10 @@ namespace GSP
     public class GUIMovement : MonoBehaviour
     {
 		bool isInSelectPathToTakeState = false;                 // This value is rturned to the GameplayStateMachine, when false, it means ends turn
-		GameObject playerEntity;                                // The current player object
 		int selectState = (int)GamePlayState.SelectPathToTake;  // This is the state we are concerned about
 		GameplayStateMachine gameplayStateMachineScript;        // Script to access state machine 
 		Movement movementScript;                                // The movement script reference
-        Character playerCharacterScript;                        // This is the current player's Character script.
+        Player playerScript;                                    // This is the current player's Player script
 		GameObject audioSrc;                                    // The AudioSource
 
 		Vector3 displacementVector; // value player moves relative to Space.World
@@ -45,13 +42,12 @@ namespace GSP
 
 		} // end Start
 
-        //TODO: Damien: Replace with the GameMaster functionality later.
         //TODO: Brent: Replace OnGUI stuff with the new In-Game UI later
         // Initialise things sort of like a custom constructor
-		public void InitThis(GameObject player, int travelDistance)
+		public void InitThis(Player player, int travelDistance)
 		{
-			// player entity
-			playerEntity = player;
+			// player script
+            playerScript = player;
 
 			// turn just started
 			isInSelectPathToTakeState = true;
@@ -66,14 +62,8 @@ namespace GSP
 			// resetDisplacement Value
             displacementVector = Vector3.zero;
 
-			// Player Character script
-			playerCharacterScript = playerEntity.GetComponent<Character>();
-
 			// Generate the initial set of highlight objects
             Highlight.GenerateHighlight(origPlayerPosition, currTravelDist);
-
-			//movement script
-
 		} // end InitThis
 
         //TODO: Brent: Replace OnGUI stuff with the new In-Game UI later
@@ -109,14 +99,14 @@ namespace GSP
 				// left
                 if (GUI.Button(new Rect((Screen.width - (3 * width) + gridXShift), (Screen.height - (2 * height) + gridYShift), width, height), "<"))
 				{
-					displacementVector = movementScript.MoveLeft(playerEntity.transform.position);
+                    displacementVector = movementScript.MoveLeft(playerScript.gameObject.transform.position);
                     // Face the character to the west which is to the left
-                    playerCharacterScript.Face(FacingDirection.West);
+                    playerScript.Face(FacingDirection.West);
 					MovePlayer();
                     // Clear the highlight objects
                     Highlight.ClearHighlight();
                     // Recreate the highlights with the new values
-                    Highlight.GenerateHighlight(playerEntity.transform.position, currTravelDist);
+                    Highlight.GenerateHighlight(playerScript.gameObject.transform.position, currTravelDist);
                     //TODO: Brent: Replace with AudioManager later
                     //Play walking sound
                     //audioSrc.GetComponent<AudioSource>().PlayOneShot(GSP.AudioReference.sfxWalking);
@@ -124,14 +114,14 @@ namespace GSP
 				// right
                 if (GUI.Button(new Rect((Screen.width - (1 * width) + gridXShift), (Screen.height - (2 * height) + gridYShift), width, height), ">"))
 				{
-					displacementVector = movementScript.MoveRight(playerEntity.transform.position);
+                    displacementVector = movementScript.MoveRight(playerScript.gameObject.transform.position);
                     // Face the character to the east which is to the right
-                    playerCharacterScript.Face(FacingDirection.East);
+                    playerScript.Face(FacingDirection.East);
 					MovePlayer();
                     // Clear the highlight objects
                     Highlight.ClearHighlight();
                     // Recreate the highlights with the new values
-                    Highlight.GenerateHighlight(playerEntity.transform.position, currTravelDist);
+                    Highlight.GenerateHighlight(playerScript.gameObject.transform.position, currTravelDist);
                     //TODO: Brent: Replace with AudioManager later
                     //Play walking sound
                     //audioSrc.GetComponent<AudioSource>().PlayOneShot(GSP.AudioReference.sfxWalking);
@@ -140,13 +130,13 @@ namespace GSP
                 if (GUI.Button(new Rect((Screen.width - (2 * width) + gridXShift), (Screen.height - (2 * height) + gridYShift), width, height), "X"))
 				{
                     // Face the character to the south; This is the default facing
-                    playerCharacterScript.Face(FacingDirection.South);
+                    playerScript.Face(FacingDirection.South);
 					// Move Back To Orig Position
 					CancelMove();
                     // Clear the highlight objects
                     Highlight.ClearHighlight();
                     // Recreate the highlights with the new values
-                    Highlight.GenerateHighlight(playerEntity.transform.position, currTravelDist);
+                    Highlight.GenerateHighlight(playerScript.gameObject.transform.position, currTravelDist);
                     //TODO: Brent: Replace with AudioManager later
                     //Play walking sound
                     //audioSrc.GetComponent<AudioSource>().PlayOneShot(GSP.AudioReference.sfxWalking);
@@ -154,14 +144,14 @@ namespace GSP
 				// up
                 if (GUI.Button(new Rect((Screen.width - (2 * width) + gridXShift), (Screen.height - (3 * height) + gridYShift), width, height), "^"))
 				{
-					displacementVector = movementScript.MoveUp(playerEntity.transform.position);
+                    displacementVector = movementScript.MoveUp(playerScript.gameObject.transform.position);
                     // Face the character to the north which is up
-                    playerCharacterScript.Face(FacingDirection.North);
+                    playerScript.Face(FacingDirection.North);
 					MovePlayer();
                     // Clear the highlight objects
                     Highlight.ClearHighlight();
                     // Recreate the highlights with the new values
-                    Highlight.GenerateHighlight(playerEntity.transform.position, currTravelDist);
+                    Highlight.GenerateHighlight(playerScript.gameObject.transform.position, currTravelDist);
                     //TODO: Brent: Replace with AudioManager later
                     //Play walking sound
                     //audioSrc.GetComponent<AudioSource>().PlayOneShot(GSP.AudioReference.sfxWalking);
@@ -169,14 +159,14 @@ namespace GSP
 				// down
                 if (GUI.Button(new Rect((Screen.width - (2 * width) + gridXShift), (Screen.height - (1 * height) + gridYShift), width, height), "v"))
 				{
-					displacementVector = movementScript.MoveDown(playerEntity.transform.position);
+                    displacementVector = movementScript.MoveDown(playerScript.gameObject.transform.position);
                     // Face the character to the south which is down
-                    playerCharacterScript.Face(FacingDirection.South);
+                    playerScript.Face(FacingDirection.South);
 					MovePlayer();
                     // Clear the highlight objects
                     Highlight.ClearHighlight();
                     // Recreate the highlights with the new values
-                    Highlight.GenerateHighlight(playerEntity.transform.position, currTravelDist);
+                    Highlight.GenerateHighlight(playerScript.gameObject.transform.position, currTravelDist);
                     //TODO: Brent: Replace with AudioManager later
                     //Play walking sound
                     //audioSrc.GetComponent<AudioSource>().PlayOneShot(GSP.AudioReference.sfxWalking);
@@ -187,20 +177,18 @@ namespace GSP
                 if (GUI.Button(new Rect((Screen.width - (2 * width) + gridXShift), (Screen.height - (2 * height) + gridYShift), width, height), "X"))
 				{
                     // Face the character to the south; This is the default facing
-                    playerCharacterScript.Face(FacingDirection.South);
-					//TODO: CANCEL MOVE, MOVE BACK TO ORIG POSITION
+                    playerScript.Face(FacingDirection.South);
 					CancelMove();
                     // Clear the highlight objects.
                     Highlight.ClearHighlight();
-                    // Recreate the highlights with the new values.
-                    Highlight.GenerateHighlight(playerEntity.transform.position, currTravelDist);
+                    // Recreate the highlights with the new values
+                    Highlight.GenerateHighlight(playerScript.gameObject.transform.position, currTravelDist);
 				} // end if
 				// display travel distance is 0
                 GUI.Box(new Rect((Screen.width - (3 * width) + gridXShift), (Screen.height - (3 * height) + gridYShift), 3 * width, height), "Out of Distance.");
             } // end else
 		} // end GUIMovementPads
 
-        //TODO: Damien: Replace with the GameMaster functionality later.
         // Moves the player
         void MovePlayer()
 		{
@@ -218,22 +206,26 @@ namespace GSP
 			}
 
 			// move player
-            playerEntity.transform.Translate(displacementVector, Space.World);
+            playerScript.gameObject.transform.Translate(displacementVector, Space.World);
+            // Update the entity's position
+            playerScript.Position = playerScript.gameObject.transform.position;
 			// reset
 			displacementVector = Vector3.zero;
 			isMoving = false;
 		} // end MovePlayer
 
-        //TODO: Damien: Replace with the GameMaster functionality later.
         // Cancels a move sending the player back to the original position
         private void CancelMove()
 		{
-			playerEntity.transform.position = origPlayerPosition;
+            playerScript.gameObject.transform.position = origPlayerPosition;
+            // Update the entity's position
+            playerScript.Position = playerScript.gameObject.transform.position;
 			currTravelDist = initialTravelDist;
 			isMoving = false;
 			displacementVector = Vector3.zero;
 		} // end CancelMove
 
+        // Gets the current travel distance remaining
         public int RemainingTravelDistance
         {
             get { return currTravelDist; }

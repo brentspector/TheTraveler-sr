@@ -6,8 +6,10 @@
  *
  *******************************************************************************/
 using GSP.Char;
+using GSP.Core;
+using GSP.Entities.Neutrals;
+using GSP.Items;
 using GSP.Tiles;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace GSP
@@ -34,7 +36,7 @@ namespace GSP
 		string guiActionString;			        // Changes the String in the Action button According to State player is in
 		string mapEventString; 			        // The type of action event will occur
 		string mapEventResultString; 		    // If mapEvent is Item, what Resource is picked up? Null if not a resource event
-		int guiPlayerTurn = 0;	                // Whos turn is it
+		int guiPlayerTurn;  	                // Whos turn is it
 		int guiGoldVal = -1;		            // The player's Gold Value; if GUI displays -1, value was not received from player
         int guiWeight = -1;		                // The player's actual weight; if GUI displays -1, value was not received from player
         int guiMaxWeight = -1;	                // The player's max weight; if GUI displays -1, value was not received from player
@@ -43,7 +45,7 @@ namespace GSP
         int guiWood = -1;			            // The player's number of wood; if GUI displays -1, value was not received from player
         int guiFish = -1;			            // The player's number of fish; if GUI displays -1, value was not received from player
         int guiDiceDistVal = 0;	                // The dice value which is then onverted into a distance value
-        int guiNumOfPlayers = 2; 	            // The number of players playing
+        int guiNumOfPlayers = 0; 	            // The number of players playing
 		
 		DieInput dieScript;                         // The DieInput script reference
 		GUIMapEvents guiMapEventsScript;            // The GUIMapEvent script reference
@@ -51,14 +53,8 @@ namespace GSP
         MapEvent mapEventScript;                    // The MapEvent script reference
 		JAVIERGUI.GUIBottomBar guiBottomBarScript;  // The GUIBottomBat reference that contains the item and ally buttons
 
-        GameObject endSceneCharData;    // The GameObject reference for the EndSceneCharData
         bool canRunEndStuff;            // Whether the end scene stuff should be ran during that state.
 		
-		GameObject playerEntity;                            // The player GameObject
-        List<GameObject> players;                           // The list of the player GameObject's
-		List<GSP.Char.Character> playerScripts;             // The list of the player's Character scripts
-		List<GSP.Char.ResourceList> playerResourceLists;    // The list of the player's ResourceList scripts
-
 		GameObject audioSrc;    // The GameObject that contains the AudioSource
 
 		// Runs when the object if first instantiated, because this object will occur once through the game,
@@ -73,42 +69,14 @@ namespace GSP
 			TileManager.SetDimensions(64, 20, 16);
 			TileManager.GenerateAndAddTiles();
 
-            //TODO: Damien: Replace with the GameMaster functionality later.
-            // Create an empty GameObject for the EndSceneCharData
-            endSceneCharData = new GameObject("EndSceneCharData");
-            // Tag it as EndSceneCharData
-            endSceneCharData.tag = "EndSceneCharDataTag";
-            // Add the EndSceneCharData component
-            endSceneCharData.AddComponent<EndSceneData>();
-            // Set it to not destroy on load
-            DontDestroyOnLoad(endSceneCharData);
             // Running the end stuff defaults to true
             canRunEndStuff = true;
 
-            //TODO: Damien: Replace with the GameMaster functionality later.
-            // Get the GameObject with the MenuDataTag tag
-			GameObject menuData = GameObject.FindGameObjectWithTag("MenuDataTag");
-            // Only proceed if the MenuData object isn't null
-			if (menuData != null)
-			{
-				// Get its MenuData script reference
-				MenuData menuDataScript = menuData.GetComponent<MenuData>();
-				
-				// Copy the value into the state machine
-				guiNumOfPlayers = menuDataScript.NumberPlayers;
-			}
-			// Finally, destroy the menu data object
-			Destroy(menuData);
+            // Get the number of players
+            guiNumOfPlayers = GameMaster.Instance.NumPlayers;
 
-            //TODO: Damien: Replace with the GameMaster functionality later
-            // Initialise the lists
-			players = new List<GameObject>();
-			playerScripts = new List<Character>();
-            playerResourceLists = new List<ResourceList>();
-
-            //TODO: Damien: Replace with the GameMaster functionality later
-            // Add the player instances
-			AddPlayers(guiNumOfPlayers);
+            // Set the turn
+            guiPlayerTurn = GameMaster.Instance.Turn;
 
 			// Get script references
 			dieScript = GameObject.FindGameObjectWithTag("DieTag").GetComponent<DieInput>();
@@ -142,159 +110,152 @@ namespace GSP
 		// Initialises things after the Start() function runs
         void InitAfterStart()
 		{
-			// Add the player instances
+            // Add the player instances
+            AddPlayers(guiNumOfPlayers);
+            
+            // Add the player instances
 			AddItems(guiNumOfPlayers);
 		} // end InitAfterStart
 
-        //TODO: Damien: Replace with the GameMaster functionality later
         // Adds the players to the game
         void AddPlayers(int numPlayers)
 		{
-			Vector3 startingPos = new Vector3(.32f, -(TileManager.MaxHeight / 2.0f), -1.6f);   // The first tile
+			// Create the players
+            GameMaster.Instance.CreatePlayers();
 
-			// Loop over the number of players to add their instances
+            // Loop over the number of players to add their instances
             for (int count = 0; count < numPlayers; count++) 
 			{
-				// Calculate the y starting position
-                startingPos.y = .32f -((count + 1) * .64f); 
-				// Create the player
-				playerEntity = Instantiate(PrefabReference.prefabCharacter, startingPos, Quaternion.identity) as GameObject;
-				playerEntity.transform.localScale = new Vector3(1, 1, 1);
+                //TODO: Damien: Change this later when you do the player renaming
+                int playerNum = count + 1;
+                GameMaster.Instance.SetPlayerName(count, playerNum.ToString());
+                
+                // Set the player's script
+                Player playerScript = GameMaster.Instance.GetPlayerScript(count);
 
-				// Give the player a RigidBody2D component to allow for collisions
-				var rigidBody2D = playerEntity.AddComponent<Rigidbody2D>();
-				// This is a 2D game so turn off gravity
-				rigidBody2D.gravityScale = 0.0f;
+                // Set the players's sprite sheet sprites
+                playerScript.SetCharacterSprites(count + 1);
 
-				// Give the player a BoxCollider2D component to add collisions
-				playerEntity.AddComponent<BoxCollider2D>();
-
-                // Add the player to the players list
-                players.Add(playerEntity);
-				
-				// Add the player's character script to the playerScripts list
-                playerScripts.Add(playerEntity.GetComponent<Character>());
-                // Add the player's character script to the playerResourceLists list
-				playerResourceLists.Add(playerEntity.GetComponent<ResourceList>());
-
-				// Set the character's sprite sheet sprites
-				playerScripts[count].SetCharacterSprites(count + 1);
-
-				// Set the character's facing
-				playerScripts[count].Face(FacingDirection.South);
+                // Set the player's facing
+                playerScript.Face(FacingDirection.South);
 			} // end for
 		} // end AddPlayers
 
-		//TODO: Damien: Replace with the GameMaster functionality later
         // Adds the starting items to the players
         void AddItems(int numPlayers)
 		{
 			// Loop over the number of players to give them the items
             for (int count = 0; count < numPlayers; count++) 
 			{
-				playerScripts[count].EquipItem("SWORD", 0);
-				playerScripts[count].EquipItem("CHAINLEGS", 0);
+                // Set the player's merchant entity
+                Merchant playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(count).Entity;
+
+                // Equip a sword and chainlegs on the player
+                playerMerchant.EquipWeapon(GameMaster.Instance.CreateWeapon(WeaponType.Sword));
+                playerMerchant.EquipArmor(GameMaster.Instance.CreateArmor(ArmorType.Chainlegs));
 			} // end for
 		} // end AddItems
 
-		//TODO: Damien: Replace with the GameMaster functionality later
         //TODO: Brent: Replace OnGUI stuff with the new In-Game UI later
         // Gets the player's values for display on the In-Game UI; At the beginning of each turn the values are grabbed
         // from each player and stored into respective GUI variables.
         void GetPlayerValues()
 		{
-			// The gold value
-            guiGoldVal = playerScripts[guiPlayerTurn].Currency;
+            // Set the player's merchant entity
+            Merchant playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(guiPlayerTurn).Entity;
+            
+            // The gold value
+            guiGoldVal = playerMerchant.Currency;
 
 			// The Weight Values; Max and Current weight
-            guiMaxWeight = playerScripts[guiPlayerTurn].MaxWeight;
-            guiWeight = playerScripts[guiPlayerTurn].ResourceWeight;
+            guiMaxWeight = playerMerchant.MaxWeight;
+            guiWeight = playerMerchant.TotalWeight;
+
+            // Get the ResourceList script reference
+            ResourceList playerResourceList = playerMerchant.GameObj.GetComponent<ResourceList>();
 			
 			// The resource values
-            guiOre = playerResourceLists[guiPlayerTurn].GetResourcesByType("Ore").Count;
-            guiWool = playerResourceLists[guiPlayerTurn].GetResourcesByType("Wool").Count;
-            guiWood = playerResourceLists[guiPlayerTurn].GetResourcesByType("Wood").Count;
-            guiFish = playerResourceLists[guiPlayerTurn].GetResourcesByType("Fish").Count;
+            guiOre = playerResourceList.GetResourcesByType("Ore").Count;
+            guiWool = playerResourceList.GetResourcesByType("Wool").Count;
+            guiWood = playerResourceList.GetResourcesByType("Wood").Count;
+            guiFish = playerResourceList.GetResourcesByType("Fish").Count;
 		} // end GetPlayerValues
 
-        //TODO: Damien Replace other functionality with GameMaster functionality or something later
+        // Updates the state machine and things; runs every frame
+        void Update()
+        {
+            // This was set to true at the end of Start()
+            if (canInitAfterStart)
+            {
+                // DON'T change this value to true. ever! This is meant to only run once.
+                canInitAfterStart = false;
+
+                // Initialise stuff after start
+                InitAfterStart();
+            } // end if
+            else
+            {
+                // Update any values that affect GUI before creating GUI
+                StateMachine();
+            } // end else
+        } // end Update
+
         //TODO: Brent: Replace OnGUI stuff with the new In-Game UI later
         // The old style GUI functioned using an OnGUI function; Runs each frame
         void OnGUI()
 		{
-            // This was set to true at the end of Start()
-            if(canInitAfterStart)
-			{
-				// Initialise stuff after start
-                InitAfterStart();
-
-                // DON'T change this value to true. ever! This is meant to only run once.
-                canInitAfterStart = false;
-			} // end if
-			else
-			{
-				// Otherwise, Check if it's the end of the game
-                IsItEndOfGame();
-
-                // Update any values that affect GUI before creating GUI
-                StateMachine();
+		    // Buttons will be red
+		    GUI.backgroundColor = Color.red;
 				
-				// Buttons will be red
-				GUI.backgroundColor = Color.red;
+		    // This is the tool bar container
+		    GUI.Box(new Rect(0, 0, Screen.width ,64), " ");
 				
-				// This is the tool bar container
-				GUI.Box(new Rect(0, 0, Screen.width ,64), " ");
+		    //Scalable values for GUI mini-containers
+		    int gap = 2;
+		    int width = (Screen.width / 4) - 2;
+		    int height = 28;
 				
-				//Scalable values for GUI mini-containers
-				int gap = 2;
-				int width = (Screen.width / 4) - 2;
-				int height = 28;
+		    //..................................
+		    //   ...PLAYER AND GOLD COLUMN...
+		    //..................................
+		    int col = 0;
+		    GUIFirstColumn(col, gap, width, height);
 				
-				//..................................
-				//   ...PLAYER AND GOLD COLUMN...
-				//..................................
-				int col = 0;
-				GUIFirstColumn(col, gap, width, height);
-				
-				//..................................
-				// ...WEIGHT AND RESOURCE COLUMN...
-				//..................................
-				col++;
-				GUISecondColumn(col, gap , width, height);
+		    //..................................
+		    // ...WEIGHT AND RESOURCE COLUMN...
+		    //..................................
+		    col++;
+		    GUISecondColumn(col, gap , width, height);
 
 				
-				//..................................
-				//      ...DICE ROLL COLUMN...
-				//..................................
-				col++;
-				GUIThirdColumn(col, gap, width, height);
+		    //..................................
+		    //      ...DICE ROLL COLUMN...
+		    //..................................
+		    col++;
+		    GUIThirdColumn(col, gap, width, height);
 
 				
-				//..................................
-				//      ...ACTION COLUMN...
-				//..................................
-				col++;
-				GUIFourthColumn(col, gap, width, height);
-			} // end else
+		    //..................................
+		    //      ...ACTION COLUMN...
+		    //..................................
+		    col++;
+		    GUIFourthColumn(col, gap, width, height);
 		} // end OnGUI
 
-        //TODO: Damien: Replace with the GameMaster functionality later
         //TODO: Brent: Replace OnGUI stuff with the new In-Game UI later
         // The first column for the OnGUI system
         void GUIFirstColumn (int col, int gap, int width, int height)
 		{
-			// Temporary player based on the turn
-            int tmpPlayer = guiPlayerTurn + 1;
+            // Get the player's name
+            string playerName = GameMaster.Instance.GetPlayerName(guiPlayerTurn);
 
 			// The player container tells whos turn it is
-			GUI.Box(new Rect((col * width) + (col + 1) * gap, 2, width, height), "Player: " + tmpPlayer.ToString());
+			GUI.Box(new Rect((col * width) + (col + 1) * gap, 2, width, height), "Player: " + playerName);
 
 			// The gold Container tell how much gold they have
 			GUI.Box(new Rect((col * width) + (col + 1) * gap, 32, width, height), "Gold: $" + guiGoldVal.ToString());
-		
 		} // end GUIFirstColumn
 
-        //TODO: Damien: Replace with the GameMaster functionality later
         //TODO: Brent: Replace OnGUI stuff with the new In-Game UI later
         // The second column for the OnGUI system
         void GUISecondColumn (int col, int gap, int width, int height)
@@ -309,7 +270,6 @@ namespace GSP
 			ShowResources();
 		} // end GUISecondColumn
 
-        //TODO: Damien: Replace with the GameMaster functionality later
         //TODO: Brent: Replace OnGUI stuff with the new In-Game UI later
         // The third column of the OnGUI system
         void GUIThirdColumn (int col, int gap, int width, int height)
@@ -318,7 +278,6 @@ namespace GSP
             DiceBoxConfig(gap, col, width, height);	
 		} // end GUIThirdColumn
 
-        //TODO: Damien: Replace with the GameMaster functionality later
         //TODO: Brent: Replace OnGUI stuff with the new In-Game UI later
         // The fourth column of the OnGUI system
         void GUIFourthColumn (int col, int gap, int width, int height)
@@ -327,12 +286,11 @@ namespace GSP
             ActionButtonConfig (gap, col, width, height);
 		} // end GUIFourthColumn
 
-        //TODO: Damien: Replace with the GameMaster functionality later
         //TODO: Brent: Replace OnGUI stuff with the new In-Game UI later
         // Shows or hides the resources UI for the OnGUI system
         void ShowResources()
 		{
-			// Show we show the resources UI?
+			// Should we show the resources UI?
             if (canGUIShowResources) 
 			{
 				// Resources GUI container attributes
@@ -365,7 +323,6 @@ namespace GSP
 				col++;
                 GUI.Box(new Rect((col * width) + (col + 1) * gap, 64, width, height), "Fish: " + guiFish.ToString());
 			} // end if
-			
 		} // end ShowResources
 
         //TODO: Brent: Replace OnGUI stuff with the new In-Game UI later
@@ -434,25 +391,12 @@ namespace GSP
 			} // end else
 		} // end ActionButtonConfig
 
-		//TODO: I think this is obsolete, don't need a key to end the game anymore
-        // Checks if the end of the game
-        void IsItEndOfGame()
-		{
-			// Check if the q key has been pressed
-            if (Input.GetKeyDown(KeyCode.Q))
-			{
-				// Trigger the end of the game
-				EndGame();
-			} // end if
-		} // end IsItEndOfGame
-
 		// Changes the state to EndGame which ends the game.
         public void EndGame()
 		{
 			gamePlayState = GamePlayState.EndGame;
 		} // end EndGame
 
-        //TODO: Damien: Replace with the GameMaster functionality later
         //TODO: Brent: Replace OnGUI stuff with the new In-Game UI later
         // Controls the flow of the game through various states
         void StateMachine()
@@ -466,9 +410,9 @@ namespace GSP
                 // The player begins their turn.
                 case GamePlayState.BeginTurn:
                     {
-                        //Get the player's values and update them
+                        // Get the player's values and update them
                         GetPlayerValues();
-                        guiBottomBarScript.RefreshBottomBarGUI(players[guiPlayerTurn]);
+                        guiBottomBarScript.RefreshBottomBarGUI(GameMaster.Instance.GetPlayerScript(guiPlayerTurn));
 
                         // Switch the state to the RollDie state
                         gamePlayState = GamePlayState.RollDice;
@@ -478,11 +422,8 @@ namespace GSP
                 // The player rolls the dice
                 case GamePlayState.RollDice:
                     {
-                        // The players list is zero-index based but the GUI needs to start Display with player "1"
-                        int tmpPlayerTurn = guiPlayerTurn + 1;
-
                         // Set the state text
-                        state.text = "Player " + tmpPlayerTurn.ToString() + " roll dice";
+                        state.text = "Player " + guiPlayerTurn.ToString() + " roll dice";
 
                         // Set the action button's text to roll dice
                         guiActionString = "Action\nRoll Dice";
@@ -529,6 +470,9 @@ namespace GSP
                 // Display the distance allowed to travel
                 case GamePlayState.DisplayDistance:
                     {
+                        // Set the player's Player script
+                        Player player = GameMaster.Instance.GetPlayerScript(guiPlayerTurn);
+
                         // Set the state text
                         state.text = "DisplayDistance";
 
@@ -536,7 +480,7 @@ namespace GSP
                         gamePlayState = GamePlayState.SelectPathToTake;
 
                         // Display the movement arrows
-                        guiMovementScript.InitThis(players[guiPlayerTurn], guiDiceDistVal);
+                        guiMovementScript.InitThis(player, guiDiceDistVal);
                         break;
                     } // end Case DisplayDistance
                 
@@ -544,7 +488,7 @@ namespace GSP
                 case GamePlayState.SelectPathToTake:
                     {
                         // Set the state text
-                        state.text = "Select Path To Take\nPress Action butotn to End Turn\nor X to start over.";
+                        state.text = "Select Path To Take\nPress Action button to End Turn\nor X to start over.";
                         // Set the action button's text to end turn
                         guiActionString = "End Turn";
 
@@ -558,10 +502,10 @@ namespace GSP
                             gamePlayState = GamePlayState.DoAction;
 
                             // Determine the MapEvent event
-                            mapEventString = mapEventScript.DetermineEvent(players[guiPlayerTurn]);
+                            mapEventString = mapEventScript.DetermineEvent(guiPlayerTurn);
                             mapEventResultString = mapEventScript.GetResultString();
                             // Initialise the OnGUI UI for the MapEvent event
-                            guiMapEventsScript.InitThis(players[guiPlayerTurn], mapEventString, mapEventResultString);
+                            guiMapEventsScript.InitThis(mapEventString, mapEventResultString);
                         } // end if
                         break;
                     } // end Case SelectPathToTake
@@ -578,7 +522,7 @@ namespace GSP
                         // Check if a MapEvent's action is running
                         if (!guiMapEventsScript.IsActionRunning())
                         {
-                            // The MapEvent's action isn't running so reset the values.
+                            // The MapEvent's action isn't running so reset the values
                             mapEventString = "Nothing";
                             mapEventResultString = string.Empty;
 
@@ -596,18 +540,11 @@ namespace GSP
                         // Set the state text
                         state.text = "End Turn";
 
-                        // Clear the board of any highlight tiles.
+                        // Clear the board of any highlight tiles
                         Highlight.ClearHighlight();
 
-                        // Its now thw next players turn
-                        guiPlayerTurn++;
-
-                        // Loop back to player 1 if we reached the end of the players turns
-                        if (guiPlayerTurn >= guiNumOfPlayers)
-                        {
-                            // The player's list is zero-index based so setting to zero is player 1.
-                            guiPlayerTurn = 0;
-                        }
+                        // It's the next player's turn; update the turn
+                        guiPlayerTurn = GameMaster.Instance.NextTurn();
 
                         // Change the state to the BeginTurn state
                         gamePlayState = GamePlayState.BeginTurn;
@@ -626,32 +563,19 @@ namespace GSP
                             // Only run this once
                             canRunEndStuff = false;
 
-                            // Get the number of players
-                            int numPlayers = GetNumOfPlayers();
-
                             // Loop through and sell the character's resources and their ally's resources
-                            for (int playerSellIndex = 0; playerSellIndex < numPlayers; playerSellIndex++)
+                            // Note: Ally resources are not setup to pickup or sell right now
+                            for (int playerSellIndex = 0; playerSellIndex < guiNumOfPlayers; playerSellIndex++)
                             {
+                                // Set the player's merchant entity
+                                Merchant playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(playerSellIndex).Entity;
+                                
                                 // We need to access the character script at the given index and sell the resources
-                                playerScripts[playerSellIndex].SellResource();
+                                playerMerchant.SellResources();
                             } // end for
 
-                            // Get the EndSceneData object's script
-                            EndSceneData endSceneScript = endSceneCharData.GetComponent<EndSceneData>();
-
-                            // Loop over the number of players and add the player stuff
-                            for (int endSceneIndex = 0; endSceneIndex < numPlayers; endSceneIndex++)
-                            {
-                                // Add the current player to the EndScenedata object
-                                // Note: Be sure to add 1 to index to get the player number correct. This is because the players list is zero-index based
-                                int playerNum = endSceneIndex + 1;
-
-                                // Check if the key doesn't exist. Only proceed if it doesn't.
-                                if (!endSceneScript.KeyExists(playerNum))
-                                {
-                                    endSceneScript.AddData(playerNum, players[endSceneIndex]);
-                                } // end if
-                            } // end for
+                            // Save the players
+                            GameMaster.Instance.SavePlayers();
 
                             // Finally, load the end scene
                             Application.LoadLevel("EndScene");
@@ -699,7 +623,6 @@ namespace GSP
 		} // end EndTurn
 
 
-        //TODO: Damien: Replace with the GameMaster functionality later; probably obsolete
         //TODO: Brent: Replace OnGUI stuff with the new In-Game UI later; probably obsolete
         // Resets values at the end of a turn right before a new player's turn
         void ResetValues()
@@ -715,36 +638,28 @@ namespace GSP
             guiDiceDistVal = 0;
 		} // end ResetValues
 
-        //TODO: Damien: Replace with the GameMaster functionality later; probably obsolete
         //TODO: Brent: Replace OnGUI stuff with the new In-Game UI later; probably obsolete
         // Gets the current player from the players list
         public GameObject GetCurrentPlayer()
 		{
-			return	players[guiPlayerTurn];
+			return	GameMaster.Instance.GetPlayerObject(guiPlayerTurn);
 		} // end GetCurrentPlayer
 
-        //TODO: Damien: Replace with the GameMaster functionality later; probably obsolete
-        // Gets the number of players
-        public int GetNumOfPlayers()
-		{
-			return guiNumOfPlayers;
-		} // end GetNumOfPlayers
-	
-		//TODO: probably obsolete
+		//TODO: Brent: Probably obsolete
         // Animates the action button for the OnGUI system
         public void AnimateActionButton(bool isPlayRed)
 		{
 			isColorActionButtonDefault = isPlayRed;
 		} // end AnimateActionButton
 
-        //TODO: probably obsolete
+        //TODO: Brent: Probably obsolete
         // Animates the resource button for the OnGUI system
         public void AnimateResourceButton(bool isPlayRed)
 		{
 			isColorResourceButtonDefault = isPlayRed;
 		} // end AnimateResourceButton
 
-		// TODO: probably obsolete
+        //TODO: Brent: Probably obsolete
         // Times the animation between switching background colours for the OnGUI system
         void AnimTimer(bool isAnimating)
 		{
@@ -770,7 +685,7 @@ namespace GSP
 			} // end else
 		} // end AnimTimer
 
-        // TODO: probably obsolete
+        //TODO: Brent: Probably obsolete
         // Stops the animation for the OnGUI system
         public void StopAnimation()
 		{

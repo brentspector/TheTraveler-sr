@@ -52,7 +52,7 @@ namespace GSP.Cake
 			boxCollider = cakeChart.AddComponent<BoxCollider2D>();
 
 			// Get the AudioSource
-			audioSource = GameObject.FindGameObjectWithTag("AudioSourceTag");
+            audioSource = GameObject.Find("AudioSrc");
 
 			// The CakeChart has five slices left when whole
 			slicesLeft = 5;

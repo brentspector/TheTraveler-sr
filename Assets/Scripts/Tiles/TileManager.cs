@@ -55,7 +55,7 @@ namespace GSP.Tiles
 
 					// Add the Tile to the dictionary
                     TileDictionary.AddEntry(key, newTile);
-				} // end inner for loop
+				} // end inner for
 			} // end outer for
 
             // Now loop over the resourceObjects array and set the Tiles to resources
@@ -63,11 +63,8 @@ namespace GSP.Tiles
 			{
                 Vector3 key = ToPixels(resourceObjects[index].transform.position);
 
-				// Get the ResourceTile component
-				ResourceTile resTile = resourceObjects[index].GetComponent<ResourceTile>();
-
 				// Holds the Tile's ResourceType
-				ResourceType resourceType = resTile.Type;
+                ResourceType resourceType = resourceObjects[index].GetComponent<ResourceTile>().Type;
 
 				// Update the tile at the given key
                 TileDictionary.UpdateTile(key, resourceType, resourceObjects[index]);

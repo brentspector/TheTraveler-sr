@@ -5,7 +5,9 @@
  *  Description: Old list of allies for the character
  *
  *******************************************************************************/
-//TODO: Damien: Replace this with Ally later
+using GSP.Char.Allies;
+using GSP.Entities.Friendlies;
+using GSP.Entities.Neutrals;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -46,7 +48,8 @@ namespace GSP.Char
 		} // end GetIndex
 
 		// Adds an ally to the list
-		public void AddAlly(GameObject ally)
+        // Note: This is hard-coded for a single ally for now; it'll work for now :P
+		public bool AddAlly(GameObject ally)
 		{
 			// Ensure the character isn't at their max number of allies
             if(NumAllies != maxAllies)
@@ -54,32 +57,39 @@ namespace GSP.Char
 				// Add the ally to the list
                 allies.Add(ally);
 
-				// Get the Character script of the GameObject this is attached to
-				var playerCharScript = GetComponent<Character>();
-				// Also get the Character script for the ally
-				var allyCharScript = ally.GetComponent<Character>();
+				// Get the merchant script of the player
+                var playerEntity = (Merchant)GetComponent<Player>().Entity;
+				// Get the porter script of the ally
+                var allyEntity = (Porter)ally.GetComponent<PorterMB>().Entity;
 
 				// Add the ally's values to the player directly
-				playerCharScript.MaxWeight += allyCharScript.MaxWeight;
-				playerCharScript.MaxInventory += allyCharScript.MaxInventory;
+                // Note: this will be done differently later
+                playerEntity.MaxWeight += allyEntity.MaxWeight;
+                playerEntity.MaxInventorySpace += allyEntity.MaxInventorySpace;
+
+                // Return sucess
+                return true;
 			} // end if
 			else
 			{
+                // Return failure
                 Debug.Log("Ally limit reached. Add denied.");
+                return false;
 			} // end else
 		} // end AddAlly
 
 		// Removes an ally from the list by its GameObject
 		public void RemoveAlly(GameObject ally)
 		{
-			// Get the Character script of the GameObject this is attached to
-			var playerCharScript = GetComponent<Character>();
-			// Also get the Character script for the ally
-			var allyCharScript = ally.GetComponent<Character>();
-			
-			// Remove the ally's values from the player directly
-			playerCharScript.MaxWeight -= allyCharScript.MaxWeight;
-			playerCharScript.MaxInventory -= allyCharScript.MaxInventory;
+            // Get the merchant script of the player
+            var playerEntity = (Merchant)GetComponent<Player>().Entity;
+            // Get the porter script of the ally
+            var allyEntity = (Porter)ally.GetComponent<PorterMB>().Entity;
+
+            // Remove the ally's values from the player directly
+            // Note: this will be done differently later
+            playerEntity.MaxWeight -= allyEntity.MaxWeight;
+            playerEntity.MaxInventorySpace -= allyEntity.MaxInventorySpace;
 
 			// Remove the ally from the list
             allies.Remove(ally);
@@ -89,14 +99,15 @@ namespace GSP.Char
 		// ISSUE: Doesn't seem to work all that well
 		public void RemoveAlly(int index)
 		{
-            // Get the Character script of the GameObject this is attached to
-			var playerCharScript = GetComponent<Character>();
-            // Also get the Character script for the ally
-			var allyCharScript = this[index].GetComponent<Character>();
+            // Get the merchant script of the player
+            var playerEntity = (Merchant)GetComponent<Player>().Entity;
+            // Get the porter script of the ally
+            var allyEntity = (Porter)this[index].GetComponent<PorterMB>().Entity;
 
             // Remove the ally's values from the player directly
-			playerCharScript.MaxWeight -= allyCharScript.MaxWeight;
-			playerCharScript.MaxInventory -= allyCharScript.MaxInventory;
+            // Note: this will be done differently later
+            playerEntity.MaxWeight -= allyEntity.MaxWeight;
+            playerEntity.MaxInventorySpace -= allyEntity.MaxInventorySpace;
 
 			// Get the number of allies for later
 			int temp = NumAllies;
@@ -127,18 +138,7 @@ namespace GSP.Char
         public int NumAllies
         {
             get { return allies.Count; }
-            set
-            {
-                // Apply value
-                maxAllies = value;
-
-                // Check if maxAllies is less than zero
-                if (maxAllies < 0)
-                {
-                    // Clmap to zero
-                    maxAllies = 0;
-                } // end if
-            } // end set
+            set { maxAllies = Utility.ZeroClampInt(value); }
         } // end NumAllies
 	} // end AllyList
 } // end GSP.Char

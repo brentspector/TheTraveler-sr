@@ -28,6 +28,12 @@ namespace GSP.Entities.Interfaces
         // Unequip a piece of armour
         void UnequipArmor(Armor armor);
 
+        // Equip a bonus
+        void EquipBonus(Bonus bonus);
+
+        // Unequip a piece of armour
+        void UnequipBonus(Bonus bonus);
+
         #endregion
 
         #region Properties
