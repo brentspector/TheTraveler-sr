@@ -95,8 +95,6 @@ GameObject:
   serializedVersion: 4
   m_Component:
   - 4: {fileID: 1464764041}
-  - 114: {fileID: 1464764043}
-  - 114: {fileID: 1464764042}
   - 114: {fileID: 1464764044}
   - 114: {fileID: 1464764045}
   m_Layer: 0
@@ -118,28 +116,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 1
---- !u!114 &1464764042
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1464764040}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0b5206eb31f35b648a32508305f68a7d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &1464764043
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1464764040}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 05f8f81f0c9595746b22e1797922ca84, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &1464764044
 MonoBehaviour:
   m_ObjectHideFlags: 0

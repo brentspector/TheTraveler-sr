@@ -409,6 +409,28 @@ namespace GSP.Entities.Neutrals
             } // end if
         } // end UnequipArmor
 
+        // Equips a bonus item
+        public void EquipBonus(Bonus bonus)
+        {
+            // Add the bonus to the list
+            bonuses.Add(bonus);
+
+            // Add the stats of the bonus
+            maxWeight += bonus.WeightValue;
+            maxInventory += bonus.InventoryValue;
+        } // end EquipBonus
+
+        // Unequips a bonus item
+        public void UnequipBonus(Bonus bonus)
+        {
+            // Remove the stats of the bonus
+            maxWeight -= bonus.WeightValue;
+            maxInventory -= bonus.InventoryValue;
+
+            // Remove the bonus from the list
+            bonuses.Remove(bonus);
+        } // end UnequipBonus
+
         // Equips a weapon for an entity
         public void EquipWeapon(Weapon weapon)
         {
@@ -458,7 +480,14 @@ namespace GSP.Entities.Neutrals
         // Gets the bonuses the entity has
         public List<Bonus> Bonuses
         {
-            get { return bonuses; }
+            get
+            { 
+                // Get a temp list
+                var tmp = new List<Bonus>(bonuses);
+                
+                // Return the temp list
+                return tmp; 
+            } // end get
         } // end Bonuses
 
         // Gets and Sets the how hard the the entity hits

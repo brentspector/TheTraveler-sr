@@ -5,6 +5,7 @@
  *  Description: An ally capable of helping fight
  *
  *******************************************************************************/
+using GSP.Char.Allies;
 using GSP.Entities.Interfaces;
 using GSP.Items;
 using System.Collections.Generic;
@@ -31,12 +32,17 @@ namespace GSP.Entities.Friendlies
         Weapon equippedWeapon;  // The weapon that is being wielded.
 
         #endregion
+
+        MercenaryMB script;    // THe script reference for the Mimic enemy.
         
         // Constructor used to create a Mercenary entity
         public Mercenary(int ID, GameObject gameObject) : base(ID, gameObject)
 		{
 			// Set the entity's type to Mercenary
 			Type = EntityType.Mercenary;
+
+            // Set the entity's script reference
+            script = GameObj.GetComponent<MercenaryMB>();
 
             #region IEquipment Variable Initialisation
 
@@ -49,6 +55,12 @@ namespace GSP.Entities.Friendlies
 
             #endregion
 		} // end Mercenary
+
+        // Gets the entity's script reference
+        public MercenaryMB Script
+        {
+            get { return script; }
+        } // end Script
 
         #region IEquipment Members
 
@@ -84,6 +96,22 @@ namespace GSP.Entities.Friendlies
                 equippedArmor = null;
             } // end if
         } // end UnequipArmor
+
+        // Note: The Mercenary class doesn't implement IInventory so the bonuses are only removed to the list
+        // Equips a bonus item
+        public void EquipBonus(Bonus bonus)
+        {
+            // Add the bonus to the list
+            bonuses.Add(bonus);
+        } // end EquipBonus
+
+        // Note: The Mercenary class doesn't implement IInventory so the bonuses are only removed to the list
+        // Unequips a bonus item
+        public void UnequipBonus(Bonus bonus)
+        {
+            // Remove the bonus from the list
+            bonuses.Remove(bonus);
+        } // end UnequipBonus
 
         // Equips a weapon for an entity
         public void EquipWeapon(Weapon weapon)
@@ -134,7 +162,14 @@ namespace GSP.Entities.Friendlies
         // Gets the bonuses the entity has
         public List<Bonus> Bonuses
         {
-            get { return bonuses; }
+            get
+            {
+                // Get a temp list
+                var tmp = new List<Bonus>(bonuses);
+
+                // Return the temp list
+                return tmp;
+            } // end get
         } // end Bonuses
 
         // Gets and Sets the how hard the the entity hits
