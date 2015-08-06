@@ -124,8 +124,8 @@ namespace GSP
                         // Ensure we only init once
                         if (canInitScript)
                         {
-                            guiEnemyScript.InitThis(mainStartX, mainStartY, mainWidth, mainHeight, resultString);
                             canInitScript = false;
+                            guiEnemyScript.InitThis(mainStartX, mainStartY, mainWidth, mainHeight, resultString);
                         } // end if
                         break;
                     } // end Case Enemy
@@ -135,8 +135,8 @@ namespace GSP
                         // Ensure we only init once
                         if (canInitScript)
 				        {
-                            guiAllyScript.InitGUIAlly(mainStartX, mainStartY, mainWidth, mainHeight);
                             canInitScript = false;
+                            guiAllyScript.InitGUIAlly(mainStartX, mainStartY, mainWidth, mainHeight);
                         } // end if
 				        break;
                     } // end Case Ally
@@ -146,8 +146,8 @@ namespace GSP
                         // Ensure we only init once
                         if (canInitScript)
                         {
-                            guiItemScript.InitGUIItem(mainStartX, mainStartY, mainWidth, mainHeight, resultString);
                             canInitScript = false;
+                            guiItemScript.InitGUIItem(mainStartX, mainStartY, mainWidth, mainHeight, resultString);
                         } // end if
                         break;
                     } // end Case Item
@@ -157,10 +157,10 @@ namespace GSP
                         // Ensure we only init once
                         if (canInitScript)
                         {
+                            canInitScript = false;
                             // Animate the resource button
                             gameplayStateMachineScript.AnimateResourceButton(false);
                             guiResourceScript.InitThis(mainStartX, mainStartY, mainWidth, mainHeight, resultString);
-                            canInitScript = false;
                         } // end if
                         break;
                     } // end Case Resource
@@ -170,8 +170,8 @@ namespace GSP
                         // Ensure we only init once
                         if (canInitScript)
                         {
-                            guiNothingScript.InitThis(mainStartX, mainStartY, mainWidth, mainHeight, resultString);
                             canInitScript = false;
+                            guiNothingScript.InitThis(mainStartX, mainStartY, mainWidth, mainHeight, resultString);
                         } // end if
                         break;
                     } // end Case Nothing

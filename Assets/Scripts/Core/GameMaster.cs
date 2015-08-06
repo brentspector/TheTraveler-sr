@@ -24,16 +24,16 @@ namespace GSP.Core
      *******************************************************************************/
     public class GameMaster : BaseSingleton<GameMaster>
     {
-        static string playerFilePath;       // The player's save file prefix
-        static string highScoreFilePath;    // The highscores save file
-        static string saveFileExt;          // The save file's extension
+        string playerFilePath;       // The player's save file prefix
+        string highScoreFilePath;    // The highscores save file
+        string saveFileExt;          // The save file's extension
 
         // The first tile
-        static Vector3 startingPos = new Vector3(.32f, -(GSP.Tiles.TileManager.MaxHeightUnits / 2.0f), -1.6f);
+        Vector3 startingPos = new Vector3(0.32f, -(GSP.Tiles.TileManager.MaxHeightUnits / 2.0f), -1.6f);
 
-        static readonly int maxPlayers = 4; // Max number of players
-        static int turn;                    // Who's turn it is
-        static int numPlayers;              // The current number of players
+        readonly int maxPlayers = 4; // Max number of players
+        int turn;                    // Who's turn it is
+        int numPlayers;              // The current number of players
         
         // The variables here are through dictionaries. The key is the player number.
         Dictionary<int, string> playerNames;            // The list of the players' names
@@ -44,11 +44,14 @@ namespace GSP.Core
         List<int> enemyIdentifiers;     // The list of enemy IDs
         List<int> tempAllyIdentifiers;  // A temporary list of identifiers for newly created allies
 
-        // Initialise the dictionaries
+        // Initialise the dictionaries and other values
         public override void Awake()
         {
             // Call the parent's Awake() first
             base.Awake();
+
+            // Set the object's name
+            gameObject.name = "GameMaster";
             
             // Create the dictionaries
             playerNames = new Dictionary<int, string>();
@@ -64,27 +67,25 @@ namespace GSP.Core
             playerFilePath = Application.persistentDataPath + "/player";
             highScoreFilePath = Application.persistentDataPath + "/highscores";
             saveFileExt = ".sav";
-
-            // Loop over the players to fill the dictionaries with deafult values
-            for (int i = 0; i < MaxPlayers; i++)
-            {
-                // Dictionaries are zero-index based so add one to get the player's number
-                int playerNum = i + 1;
-                playerNames.Add(playerNum, string.Empty);
-                playerColors.Add(playerNum, InterfaceColors.Black);
-                playerObjs.Add(playerNum, null);
-                players.Add(playerNum, null);
-            } // end for
         } // end Awake
 
-        // Fill the dictionaries
+        // Fill the dictionaries and initialise the values
         void Start()
         {
+            // Loop over the players to fill the dictionaries with deafult values
+            for (int index = 0; index < MaxPlayers; index++)
+            {
+                playerNames.Add(index, string.Empty);
+                playerColors.Add(index, InterfaceColors.Black);
+                playerObjs.Add(index, null);
+                players.Add(index, null);
+            } // end for
+
             // Initialise the number of players to zero
             numPlayers = 0;
 
-            // Initialise the current turn to one
-            turn = 1;
+            // Initialise the current turn to zero
+            turn = 0;
         } // end Start
 
         // Called when a new level was loaded
@@ -95,17 +96,15 @@ namespace GSP.Core
         }
 
         // Resets the containers
-        public void ResetCollections()
+        void ResetCollections()
         {
             // Loop over the players to reset the dictionaries to deafult values
-            for (int i = 0; i < MaxPlayers; i++)
+            for (int index = 0; index < MaxPlayers; index++)
             {
-                // Dictionaries are zero-index based so add one to get the player's number
-                int playerNum = i + 1;
-                playerNames[playerNum] = string.Empty;
-                playerColors[playerNum] = InterfaceColors.Black;
-                playerObjs[playerNum] = null;
-                players[playerNum] = null;
+                playerNames[index] = string.Empty;
+                playerColors[index] = InterfaceColors.Black;
+                playerObjs[index] = null;
+                players[index] = null;
             } // end for
 
             // Clear the lists
@@ -148,13 +147,16 @@ namespace GSP.Core
         public void SetPlayerName(int playerNum, string playerName)
         {
             playerNames[playerNum] = playerName;
-        } //end SetPlayerName
+
+            //TODO: Damien: Change this later when you do the player renaming
+            playerObjs[playerNum].name = "Player " + playerName;
+        } // end SetPlayerName
 
         // Gets the player's colour with the given key
         public InterfaceColors GetPlayerColor(int playerNum)
         {
             return playerColors[playerNum];
-        } //end GetPlayerColor
+        } // end GetPlayerColor
 
         // Sets the player's colour with the given key
         public void SetPlayerColor(int playerNum, InterfaceColors playerColor)
@@ -185,10 +187,10 @@ namespace GSP.Core
             int entID = -1;                 // The ID of the created entity
 
             // Get the starting position
-            startPos.y -= ((playerNum + 1) * .64f);
+            startPos.y = 0.32f - ((playerNum + 1) * 0.64f);
 
             // Create the player GameObject
-            GameObject obj = Instantiate(PrefabReference.prefabPlayer, startingPos, Quaternion.identity) as GameObject;
+            GameObject obj = Instantiate(PrefabReference.prefabPlayer) as GameObject;
             obj.transform.localScale = new Vector3(1, 1, 1);
 
             // Name the player in the editor for convienience
@@ -203,6 +205,9 @@ namespace GSP.Core
 
             // Create the merchant entity
             Entities.EntityManager.Instance.Generator.CreateEntity(out entID, Entities.EntityType.Merchant, obj, playerNum);
+
+            // Set the Entity's position thus setting the GameObject's position
+            Entities.EntityManager.Instance.GetEntity(entID).Position = startPos;
 
             // Set the game obj for the given player
             playerObjs[playerNum] = obj;
@@ -425,6 +430,9 @@ namespace GSP.Core
             
             // Set the player's colour
             playerData.Color = GetPlayerColor(playerNum);
+
+            // Set the player's position
+            playerData.Position = GetPlayerScript(playerNum).Entity.Position;
 
             // Now write the data to the file
             binaryFormatter.Serialize(fileStream, playerData);
@@ -669,10 +677,10 @@ namespace GSP.Core
             turn++;
 
             // Loop back to player 1 if we reached the end of the players turns
-            if (turn > numPlayers)
+            if (turn >= numPlayers)
             {
                 // The player's list is zero-index based so setting to zero is player 1.
-                turn = 1;
+                turn = 0;
             }
 
             // Return the turn

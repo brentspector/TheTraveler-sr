@@ -56,17 +56,14 @@ namespace GSP
 			// Loop over the number of players
 			for (int index = 0; index < numPlayers; index++)
 			{
-				// Increase index by one to get the player number; this is because the the dictionaries are zero-index based
-				int playerNum = index + 1;
-
                 // Get the player's merchant entity
-                Merchant playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(playerNum).Entity;
+                Merchant playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(index).Entity;
 				
 				// Only proceed if the player's currency hasn't been added
-				if (!playerCurrencies.ContainsKey(playerNum))
+                if (!playerCurrencies.ContainsKey(index))
 				{
                     // Add the player's number as the key and their currency as the value to the dictionary
-                    playerCurrencies.Add(playerNum, playerMerchant.Currency);
+                    playerCurrencies.Add(index, playerMerchant.Currency);
 				} // end if
 			} // end for
 			

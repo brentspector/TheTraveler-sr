@@ -52,7 +52,7 @@ namespace GSP.Core
                         // No instance so create one
                         GameObject obj = new GameObject();
                         // Make the GameObject hidden
-                        obj.hideFlags = HideFlags.HideAndDontSave;
+                        //obj.hideFlags = HideFlags.HideAndDontSave;
                         // Add the component to the GameObject and set the instance to it
                         instance = obj.AddComponent<T>();
                     } // end if instance == null

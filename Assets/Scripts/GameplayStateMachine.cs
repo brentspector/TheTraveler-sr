@@ -75,9 +75,6 @@ namespace GSP
             // Get the number of players
             guiNumOfPlayers = GameMaster.Instance.NumPlayers;
 
-            // Add the player instances
-			AddPlayers(guiNumOfPlayers);
-
             // Set the turn
             guiPlayerTurn = GameMaster.Instance.Turn;
 
@@ -113,35 +110,31 @@ namespace GSP
 		// Initialises things after the Start() function runs
         void InitAfterStart()
 		{
-			// Add the player instances
+            // Add the player instances
+            AddPlayers(guiNumOfPlayers);
+            
+            // Add the player instances
 			AddItems(guiNumOfPlayers);
 		} // end InitAfterStart
 
         // Adds the players to the game
         void AddPlayers(int numPlayers)
 		{
-			Vector3 startingPos = new Vector3(0.32f, -(TileManager.MaxHeight / 2.0f), -1.6f);   // The first tile
-
 			// Create the players
             GameMaster.Instance.CreatePlayers();
-            
+
             // Loop over the number of players to add their instances
             for (int count = 0; count < numPlayers; count++) 
 			{
-                // The player number; add one to it because collections are zero index based
+                //TODO: Damien: Change this later when you do the player renaming
                 int playerNum = count + 1;
-
+                GameMaster.Instance.SetPlayerName(count, playerNum.ToString());
+                
                 // Set the player's script
-                Player playerScript = GameMaster.Instance.GetPlayerScript(playerNum);
-
-                // Calculate the y starting position
-                startingPos.y = 0.32f - (playerNum * 0.64f);
-
-                // Set the player's position
-                playerScript.Position = startingPos;
+                Player playerScript = GameMaster.Instance.GetPlayerScript(count);
 
                 // Set the players's sprite sheet sprites
-                playerScript.SetCharacterSprites(playerNum);
+                playerScript.SetCharacterSprites(count + 1);
 
                 // Set the player's facing
                 playerScript.Face(FacingDirection.South);
@@ -154,11 +147,8 @@ namespace GSP
 			// Loop over the number of players to give them the items
             for (int count = 0; count < numPlayers; count++) 
 			{
-                // The player number; add one to it because collections are zero index based
-                int playerNum = count + 1;
-
                 // Set the player's merchant entity
-                Merchant playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(playerNum).Entity;
+                Merchant playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(count).Entity;
 
                 // Equip a sword and chainlegs on the player
                 playerMerchant.EquipWeapon(GameMaster.Instance.CreateWeapon(WeaponType.Sword));
@@ -197,11 +187,11 @@ namespace GSP
             // This was set to true at the end of Start()
             if (canInitAfterStart)
             {
-                // Initialise stuff after start
-                InitAfterStart();
-
                 // DON'T change this value to true. ever! This is meant to only run once.
                 canInitAfterStart = false;
+
+                // Initialise stuff after start
+                InitAfterStart();
             } // end if
             else
             {
@@ -407,7 +397,6 @@ namespace GSP
 			gamePlayState = GamePlayState.EndGame;
 		} // end EndGame
 
-        //TODO: Damien: Replace with the GameMaster functionality later
         //TODO: Brent: Replace OnGUI stuff with the new In-Game UI later
         // Controls the flow of the game through various states
         void StateMachine()
@@ -578,11 +567,8 @@ namespace GSP
                             // Note: Ally resources are not setup to pickup or sell right now
                             for (int playerSellIndex = 0; playerSellIndex < guiNumOfPlayers; playerSellIndex++)
                             {
-                                // The player number; add one to it because collections are zero index based
-                                int playerNum = playerSellIndex + 1;
-
                                 // Set the player's merchant entity
-                                Merchant playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(playerNum).Entity;
+                                Merchant playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(playerSellIndex).Entity;
                                 
                                 // We need to access the character script at the given index and sell the resources
                                 playerMerchant.SellResources();

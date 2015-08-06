@@ -73,6 +73,13 @@ namespace GSP
             DisableCredits();
             backButton.SetActive(false);
             guideText.gameObject.SetActive(false);
+
+            // Initialise the GameMaster in the menu
+            // Note: Don't remove this
+            if (GameMaster.Instance != null)
+            {
+                // Leave this empty. :P
+            } // end if
 		} // end Start
 		
 		// Main function for controlling game
@@ -139,7 +146,7 @@ namespace GSP
                                         // Pick player amount
                                         // Set the number of players to one for solo mode
                                         GameMaster.Instance.NumPlayers = 1;
-
+                                        
                                         // Display loading text
                                         guideText.text = "Loading, please wait.";
 

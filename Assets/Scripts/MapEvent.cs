@@ -54,7 +54,7 @@ namespace GSP
 		//there is a chance nothing occurs. Minimum chance of
 		//one or else there will be problems
 		int enemyChance = 25;   // The minimum chance for the MapEvent to an enemy
-        int allyChance = 15;    // The minimum chance for the MapEvent to an ally
+        int allyChance = 0;//15;    // The minimum chance for the MapEvent to an ally
         int itemChance = 15;    // The minimum chance for the MapEvent to an item
 		
 		string guiResult; // The MapEvent summary
@@ -190,32 +190,48 @@ namespace GSP
 			if(result.Contains("Enemy wins"))
 			{
                 // The player lost the fight, remove its resources or its weapon
-                // The player has no resources so remove its weapon
 				if(playerMerchant.TotalWeight <= 0)
 				{
-                    playerMerchant.UnequipWeapon(playerMerchant.EquippedWeapon);
+                    // Check if the player has a weapon
+                    if (playerMerchant.EquippedWeapon != null)
+                    {
+                        // The player has no resources so remove its weapon
+                        result += "\nAs a result, you lost your " + playerMerchant.EquippedWeapon.Name;
+                        playerMerchant.UnequipWeapon(playerMerchant.EquippedWeapon);
+                    } // end if playerMerchant.EquippedWeapon != null
 				} // end if
 				// Otherwise, the player has resources so remove a random resource
 				else
 				{
 					// Get the player's resource list script
 					ResourceList tempList = player.GetComponent<ResourceList>();
-					
-					// Choose a resource; need to subtract 2 from the die roll maximum to account for ResourceType.None
-                    int resourceNumber = die.Roll(1, (int)ResourceType.Size) - 2;
+
+                    /* Choose a resource;
+                     * Choose a number between one and the integer value of Resource.None
+                     * Then subtract one to get a random number between zero and the integer value before Resource.None
+                     * Example: Die roll of one to four; random number is between zero and three
+                     */
+                    int resourceNumber = die.Roll(1, (int)ResourceType.None) - 1;
                     Debug.LogFormat("Resource number is {0}", resourceNumber);
 
 					// Get the list of resources of that type
                     List<Resource> resList = tempList.GetResourcesByType(Enum.GetName(typeof(ResourceType), resourceNumber));
-					
-					// Remove the resources by list
-                    tempList.RemoveResources(resList);
-					result += " \nAs a result, you lost all your " + Enum.GetName(typeof(ResourceType), resourceNumber);
+
+					// Check if the player has the resource; Don't display the message if they don't have the resource
+                    if (resList.Count != 0)
+                    {
+                        // Remove the resources by list
+                        tempList.RemoveResources(resList);
+                        result += " \nAs a result, you lost all your " + Enum.GetName(typeof(ResourceType), resourceNumber);
+                    } // end if resList.Count != 0
 				} // end else
 			} // end if
 
 			// Remove the enemy entity
             EntityManager.Instance.RemoveEntity(enemyID);
+
+            // Remove the entity from the list of identifiers.
+            GameMaster.Instance.RemoveEnemyIdentifier(enemyID);
 
 			// Set the summary and return it
 			guiResult = result;
