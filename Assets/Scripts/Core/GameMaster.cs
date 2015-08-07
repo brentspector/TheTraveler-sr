@@ -674,6 +674,40 @@ namespace GSP.Core
             return bonus;
         } // end CreateBonus
 
+        // Creates and returns a resource object
+        public Resource CreateResource(ResourceType resourceType)
+        {
+           Resource resource = null;   // The created resource
+
+            // Switch over the resourceType for the correct resource
+            switch (resourceType)
+            {
+                case ResourceType.Fish:
+                    {
+                        resource = new Resource("Fish", ResourceType.Fish, 25, 5, 15);
+                        break;
+                    } // end case Fish
+                case ResourceType.Ore:
+                    {
+                        resource = new Resource("Ore", ResourceType.Ore, 20, 5, 10);
+                        break;
+                    } // end case Ore
+                case ResourceType.Wood:
+                    {
+                        resource = new Resource("Wood", ResourceType.Wood, 15, 5, 20);
+                        break;
+                    } // end case Wood
+                case ResourceType.Wool:
+                    {
+                        resource = new Resource("Wool", ResourceType.Wool, 10, 5, 15);
+                        break;
+                    } // end case Wool
+            } // end switch resourceType
+
+            // Finally return the resource
+            return resource;
+        } // end CreateResource
+
         #endregion
 
         // Switches turns through the number of players and returns the current turn

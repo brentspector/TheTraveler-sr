@@ -5,6 +5,7 @@
  *  Description: Describes a contract for inventory functionlaity
  *
  *******************************************************************************/
+using GSP.Items;
 using UnityEngine;
 
 namespace GSP.Entities.Interfaces
@@ -22,10 +23,10 @@ namespace GSP.Entities.Interfaces
         #region Functions
 
         // Attempt to pickup a resource
-        bool PickupResource(Char.Resource resource, int amount, bool isFromMap = true);
+        bool PickupResource(Resource resource, int amount, bool isFromMap = true);
 
         // Sells a given resource and amount
-        void SellResource(Char.Resource resource, int amount);
+        void SellResource(Resource resource, int amount);
 
         // Sells all the resources being carried
         void SellResources();
@@ -34,7 +35,7 @@ namespace GSP.Entities.Interfaces
         void TransferCurrency<TInventoryEntity>(TInventoryEntity other, int amount) where TInventoryEntity : IInventory;
 
         // Transfer a resource from one to another
-        bool TransferResource<TInventoryEntity>(TInventoryEntity other, Char.Resource resource) where TInventoryEntity : IInventory;
+        bool TransferResource<TInventoryEntity>(TInventoryEntity other, Resource resource) where TInventoryEntity : IInventory;
 
         #endregion
 

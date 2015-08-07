@@ -6,6 +6,7 @@
  *
  *******************************************************************************/
 using GSP.Char;
+using GSP.Items;
 using System.Collections.Generic;
 using UnityEngine;
 

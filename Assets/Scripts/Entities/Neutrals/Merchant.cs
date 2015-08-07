@@ -203,10 +203,10 @@ namespace GSP.Entities.Neutrals
         public bool PickupResource(Resource resource, int amount, bool isFromMap = true)
         {
             // Check if picking up this resource will put the entity overweight
-            if ((TotalWeight + resource.WeightValue) * amount <= MaxWeight)
+            if ((TotalWeight + resource.Weight) * amount <= MaxWeight)
             {
                 // Check if there is enough room for this resource
-                if (resources.TotalSize + resource.SizeValue <= MaxInventorySpace)
+                if (resources.TotalSize + resource.Size <= MaxInventorySpace)
                 {
                     // Add the resource
                     resources.AddResource(resource, amount);
@@ -270,7 +270,7 @@ namespace GSP.Entities.Neutrals
             for (int index = 0; index < count; index++)
             {
                 // Credit the entity for the resource
-                currency += tmpResources[index].SellValue;
+                currency += tmpResources[index].Worth;
 
                 // Remove the resource from the list
                 resources.RemoveResource(tmpResources[index]);
@@ -301,7 +301,7 @@ namespace GSP.Entities.Neutrals
         } // end TransferCurrency
 
         // Transfers a resource from the entity to another entity
-        public bool TransferResource<TInventoryEntity>(TInventoryEntity other, Char.Resource resource) where TInventoryEntity : IInventory
+        public bool TransferResource<TInventoryEntity>(TInventoryEntity other, Resource resource) where TInventoryEntity : IInventory
         {
             // Check if the resource object exists
             if (resource == null)
