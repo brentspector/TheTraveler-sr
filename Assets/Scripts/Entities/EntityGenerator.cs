@@ -22,13 +22,13 @@ namespace GSP.Entities
      *******************************************************************************/
     public class EntityGenerator
 	{
-		static int m_entID; // The next ID used for giving each entity a unique ID upon their creation
+		static int nextId; // The next ID used for giving each entity a unique ID upon their creation
 
 		// Constructor; creates a new object
         public EntityGenerator()
 		{
 			// Initialise the ID to zero
-			m_entID = 0;
+			nextId = 0;
 		} // end EntityGenerator
 
 		public bool CreateEntity(out int entID, EntityType type, GameObject gameObject, int playerNum = 0)
@@ -42,7 +42,7 @@ namespace GSP.Entities
 				case EntityType.Merchant:
 				    {
 					    // Create the entity
-                        Merchant merchant = new Merchant(m_entID, gameObject, GameMaster.Instance.GetPlayerColor(playerNum), GameMaster.Instance.GetPlayerName(playerNum));
+                        Merchant merchant = new Merchant(nextId, gameObject, GameMaster.Instance.GetPlayerColor(playerNum), GameMaster.Instance.GetPlayerName(playerNum));
 					
 					    // Now try to add the entity to the manager
 					    if (!EntityManager.Instance.AddEntity(merchant))
@@ -59,7 +59,7 @@ namespace GSP.Entities
 				case EntityType.Porter:
 				    {
 					    // Create the entity
-					    Porter porter = new Porter(m_entID, gameObject);
+					    Porter porter = new Porter(nextId, gameObject);
 					
 					    // Now try to add the entity to the manager
 					    if (!EntityManager.Instance.AddEntity(porter))
@@ -76,7 +76,7 @@ namespace GSP.Entities
 				case EntityType.Mercenary:
 				    {
 					    // Create the entity
-					    Mercenary mercenary = new Mercenary(m_entID, gameObject);
+					    Mercenary mercenary = new Mercenary(nextId, gameObject);
 					
 					    // Now try to add the entity to the manager
 					    if (!EntityManager.Instance.AddEntity(mercenary))
@@ -93,7 +93,7 @@ namespace GSP.Entities
 				case EntityType.Bandit:
 				    {
 					    // Create the entity
-					    Bandit bandit = new Bandit(m_entID, gameObject);
+					    Bandit bandit = new Bandit(nextId, gameObject);
 					
 					    // Now try to add the entity to the manager
 					    if (!EntityManager.Instance.AddEntity(bandit))
@@ -110,7 +110,7 @@ namespace GSP.Entities
 				case EntityType.Mimic:
                     {
 					    // Create the entity
-					    Mimic mimic = new Mimic(m_entID, gameObject);
+					    Mimic mimic = new Mimic(nextId, gameObject);
 					
 					    // Now try to add the entity to the manager
 					    if (!EntityManager.Instance.AddEntity(mimic))
@@ -127,10 +127,10 @@ namespace GSP.Entities
             } // end switch type
 
             // Set the out ID variable
-            entID = m_entID;
+            entID = nextId;
 
 			// Increment to the next ID
-			m_entID++;
+			nextId++;
 
 			// Return the result
 			return result;

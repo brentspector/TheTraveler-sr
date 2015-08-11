@@ -5,7 +5,7 @@
  *  Description: Special type of tile signifying a resource
  *
  *******************************************************************************/
-using GSP.Char;
+using GSP.Items;
 using UnityEngine;
 
 namespace GSP.Tiles

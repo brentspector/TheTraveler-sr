@@ -5,6 +5,7 @@
  *  Description: A collection for resources
  *
  *******************************************************************************/
+using GSP.Items;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -56,9 +57,9 @@ namespace GSP.Char
                 resources.Add(resource);
 				
 				// Add the resource's values.
-				totalValue += resource.SellValue;
-				totalWeight += resource.WeightValue;
-				totalSize += resource.SizeValue;
+				totalValue += resource.Worth;
+				totalWeight += resource.Weight;
+				totalSize += resource.Size;
 			} // end for
 		} // end AddResource
 		
@@ -66,41 +67,10 @@ namespace GSP.Char
 		// This removes a single resource
 		public void RemoveResource(Resource resource)
 		{
-			// Check if the operation will bring the total value to zero or less
-			if ((totalValue - resource.SellValue) <= 0)
-			{
-				// Clamp to zero
-				totalValue = 0;
-			} // end if
-			else
-			{
-				// Otherwise subtract the given value
-				totalValue -= resource.SellValue;
-			} // end else
-			
-			// Check if the operation will bring the weight value to zero or less
-			if ((totalWeight - resource.WeightValue) <= 0)
-			{
-				// Clamp to zero
-				totalWeight = 0;
-			} // end if
-			else
-			{
-				// Otherwise subtract the given value
-				totalWeight -= resource.WeightValue;
-			} // end else
-			
-			// Check if the operation will bring the size value to zero or less
-			if ((totalSize - resource.SizeValue) <= 0)
-			{
-				// Clamp to zero
-				totalSize = 0;
-			} // end if
-			else
-			{
-				// Otherwise subtract the given value
-				totalSize -= resource.SizeValue;
-			} // end else
+			// Subtract the given values while clamping to zero
+            totalValue = Utility.ZeroClampInt(totalValue - resource.Worth);
+            totalWeight = Utility.ZeroClampInt(totalWeight - resource.Weight);
+            totalSize = Utility.ZeroClampInt(totalSize - resource.Size);
 			
 			// Remove the resource from the list
             resources.Remove(resource);
@@ -110,46 +80,15 @@ namespace GSP.Char
 		public void RemoveResources(List<Resource> resourceList)
 		{
 			// Loop over the resource list.
-			foreach (var item in resourceList)
+			foreach (var resource in resourceList)
 			{
-                // Check if the operation will bring the total value to zero or less
-                if ((totalValue - item.SellValue) <= 0)
-                {
-                    // Clamp to zero
-                    totalValue = 0;
-                } // end if
-                else
-                {
-                    // Otherwise subtract the given value
-                    totalValue -= item.SellValue;
-                } // end else
-
-                // Check if the operation will bring the weight value to zero or less
-                if ((totalWeight - item.WeightValue) <= 0)
-                {
-                    // Clamp to zero
-                    totalWeight = 0;
-                } // end if
-                else
-                {
-                    // Otherwise subtract the given value
-                    totalWeight -= item.WeightValue;
-                } // end else
-
-                // Check if the operation will bring the size value to zero or less
-                if ((totalSize - item.SizeValue) <= 0)
-                {
-                    // Clamp to zero
-                    totalSize = 0;
-                } // end if
-                else
-                {
-                    // Otherwise subtract the given value
-                    totalSize -= item.SizeValue;
-                } // end else
+                // Subtract the given values while clamping to zero
+                totalValue = Utility.ZeroClampInt(totalValue - resource.Worth);
+                totalWeight = Utility.ZeroClampInt(totalWeight - resource.Weight);
+                totalSize = Utility.ZeroClampInt(totalSize - resource.Size);
 
 				// Remove the resource from the list
-                resources.Remove(item);
+                resources.Remove(resource);
 			} // end foreach
 		} // end RemoveResources
 		
@@ -179,12 +118,12 @@ namespace GSP.Char
                 tmp = (ResourceType)Enum.Parse(typeof(ResourceType), resourceType);
 				
 				// Search the list for the resource type
-                resultResources = resources.FindAll(res => res.Type == tmp);
+                resultResources = resources.FindAll(res => res.ResourceType == tmp);
 			} // end try
 			catch (Exception)
 			{
 				// The parsing failed
-                Debug.LogWarningFormat("Requested resource type '{0}'", resourceType);
+                Debug.LogErrorFormat("Requested resource type '{0}'", resourceType);
 			} // end catch
 
 			// Otherwise, return the object

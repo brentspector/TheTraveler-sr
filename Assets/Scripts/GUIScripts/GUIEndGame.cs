@@ -46,8 +46,8 @@ namespace GSP.JAVIERGUI
         // Use this for initialization
 		void Start() 
 		{
-			// Create the players in data only mode
-            GameMaster.Instance.CreatePlayers(true);
+            // Create the players in data only mode
+            GameMaster.Instance.LoadPlayers(true);
             
             // scripts
 			miscScript = this.GetComponent<GSP.Misc>(); 
@@ -168,7 +168,8 @@ namespace GSP.JAVIERGUI
 			{
 				isActionRunning = false;
 				Destroy(AudioManager.Instance.gameObject);
-				Application.LoadLevel(0);
+				// Tell the GameMaster to load a level
+                GameMaster.Instance.LoadLevel(0);
 			} // end if
 		} // end ConfigOKButton
 		

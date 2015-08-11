@@ -16,11 +16,11 @@ namespace GSP.Items
      * Description: The logic of the weapon type items.
      * 
      *******************************************************************************/
-    public class Weapon : Item
+    public class Weapon : Equipment
     {
         // Create a weapon
-        public Weapon(string name, WeaponType type, int attack, int cost) :
-            base(name, type.ToString(), attack, 0, 0, 0, cost)
+        public Weapon(string itemName, WeaponType itemType, int attack, int cost) :
+            base(itemName, itemType.ToString(), attack, 0, 0, 0, cost)
         {
             // Leave empty
         } // end Weapon constructor

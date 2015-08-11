@@ -34,6 +34,12 @@ namespace GSP.Char
             ally = (TSubAlly)EntityManager.Instance.GetEntity(ID);
         } // end GetAlly
 
+        // Updates the GameObject reference on the entity
+        public void UpdateGameObject(GameObject obj)
+        {
+            ally.UpdateGameObject(obj);
+        } // end UpdateGameObject
+
         // Destroy the game object this script is attached to
         public void DestroyGO()
         {

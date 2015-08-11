@@ -5,14 +5,11 @@
  *  Description: Custom importer for the Tiled2Unity library
  *
  *******************************************************************************/
+using GSP.Items;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using UnityEngine;
-using UnityEditor;
 using Tiled2Unity;
-using GSP.Char;
+using UnityEngine;
 
 /*
  * This file must remain in an Editor folder to work

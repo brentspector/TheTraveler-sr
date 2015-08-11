@@ -5,7 +5,7 @@
  *  Description: Deals with the logic of the tiles
  *
  *******************************************************************************/
-using GSP.Char;
+using GSP.Items;
 using System;
 using UnityEngine;
 

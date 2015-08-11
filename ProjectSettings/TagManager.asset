@@ -28,6 +28,7 @@ TagManager:
   - MetroMap
   - EuroMap
   - CakeChartTag
+  - Inventory
   layers:
   - Default
   - TransparentFX
