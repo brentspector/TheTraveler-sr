@@ -16,8 +16,6 @@ public class TestBattle : MonoBehaviour
 	Text player1Health;
 	Text player2Health;
 	Text fightBoxText;
-	RectTransform player1Bar;
-	RectTransform player2Bar;
 	int linesOfText;
 	Vector3 originalPos;
 	List<string> verbs;
@@ -30,8 +28,6 @@ public class TestBattle : MonoBehaviour
 		player2Name = GameObject.Find ("Battler2Name").GetComponent<Text> ();
 		player1Health = GameObject.Find ("Battler1Health").GetComponent<Text> ();
 		player2Health = GameObject.Find ("Battler2Health").GetComponent<Text> ();
-		player1Bar = GameObject.Find ("Battler1HealthLeft").GetComponent<RectTransform> ();
-		player2Bar = GameObject.Find ("Battler2HealthLeft").GetComponent<RectTransform> ();
 		fightBoxText = GameObject.Find ("FightText").GetComponent<Text> ();
 		fightBoxText.text = "The battlers square off!";
 		linesOfText = 1;
@@ -41,7 +37,7 @@ public class TestBattle : MonoBehaviour
 		verbs.Add ("retaliated against");
 		verbs.Add ("hammered");
 		verbs.Add ("struck");
-		verbs.Add ("feinted at");
+		verbs.Add("feinted at");
 		verbs.Add ("lashed at");
 		InvokeRepeating ("Fight", 2, 1.2f);
 	}
@@ -61,9 +57,7 @@ public class TestBattle : MonoBehaviour
 			fightBoxText.text += "\n" + player1Name.text + " " + verbs [randomVerb] + " " +
 				player2Name.text + " for " + randomDamage;
 			int tempHealth = int.Parse(player2Health.text) - randomDamage;
-			float test = (float)tempHealth/20.0f;
 			player2Health.text = tempHealth.ToString();
-			player2Bar.localScale = new Vector3(test, 1f, 1f);
 			player1Turn = false;
 		}
 		else
@@ -78,9 +72,7 @@ public class TestBattle : MonoBehaviour
 			fightBoxText.text += "\n" + player2Name.text + " " + verbs [randomVerb] + " " +
 				player1Name.text + " for " + randomDamage;
 			int tempHealth = int.Parse(player1Health.text) - randomDamage;
-			float test = (float)tempHealth/20.0f;
 			player1Health.text = tempHealth.ToString();
-			player1Bar.localScale = new Vector3(test, 1.0f, 1.0f);
 			player1Turn = true;
 		}
 		linesOfText++;
@@ -95,8 +87,6 @@ public class TestBattle : MonoBehaviour
 			fightBoxText.transform.position = originalPos;
 			fightBoxText.text = player2Name.text + " wins!\nThe battlers square off.";
 			player1Health.text = "20";
-			player1Bar.localScale = new Vector3(1.0f, 1.0f, 1.0f);
-			player2Bar.localScale = new Vector3(1.0f, 1.0f, 1.0f);
 			player2Health.text = "20";
 			linesOfText = 1;
 		}
@@ -106,8 +96,6 @@ public class TestBattle : MonoBehaviour
 			fightBoxText.text = player1Name.text + " wins!\nThe battlers square off.";
 			player1Health.text = "20";
 			player2Health.text = "20";
-			player1Bar.localScale = new Vector3(1.0f, 1.0f, 1.0f);
-			player2Bar.localScale = new Vector3(1.0f, 1.0f, 1.0f);
 			linesOfText = 1;
 		}
 	}

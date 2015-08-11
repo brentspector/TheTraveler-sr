@@ -526,7 +526,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1286205519}
   m_Direction: 2
   m_Value: 1
-  m_Size: .222222224
+  m_Size: .666666687
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -823,8 +823,8 @@ RectTransform:
   m_RootOrder: 0
   m_AnchorMin: {x: .5, y: .5}
   m_AnchorMax: {x: .5, y: .5}
-  m_AnchoredPosition: {x: -10, y: -350}
-  m_SizeDelta: {x: 380, y: 900}
+  m_AnchoredPosition: {x: -10, y: -50}
+  m_SizeDelta: {x: 380, y: 300}
   m_Pivot: {x: .5, y: .5}
 --- !u!114 &470385192
 MonoBehaviour:
@@ -877,32 +877,7 @@ MonoBehaviour:
 
     Draw - "Evening Melodrama"
 
-    Loss - "Hero Down"
-
-
-    Art:
-
-    Desert Battle Background - Created by VectorOpenStock.com. Obtained from http://www.freevector.com/desert-vector-art/
-
-
-    European Battle Background - Created by VectorOpenStock.com and freevector. Meadow
-    obtained from http://www.freevector.com/sunny-field/ and Sky Design obtained from
-    http://www.vecteezy.com/vector-art/73689-insect-with-flowers
-
-
-    Metropolis Battle Background - Created by Options-Connect. Obtained from http://all-free-download.com/free-vector/download/sunrise_background_vector_40676.html
-
-
-    Snow Battle Background - Created by dapino-colada.nl. Obtained from http://www.freevector.com/winter-landscape-vector/
-
-
-    Armor - Created by Clint Bellanger, Blarumyrran, crowline (CrowLineStudio), and
-    Justin Nichol.
-
-    Obtained from http://opengameart.org/content/armor-icons-by-equipment-slot
-
-
-    Weapons - Mod/Created by VWolfdog. Obtained from http://opengameart.org/content/32x32-icons-flare-compatible'
+    Loss - "Hero Down"'
 --- !u!222 &470385193
 CanvasRenderer:
   m_ObjectHideFlags: 0
