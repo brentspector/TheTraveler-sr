@@ -17,11 +17,11 @@ namespace GSP.Items
      *              inventory and weight mods.
      * 
      *******************************************************************************/
-    public class Bonus : Item
+    public class Bonus : Equipment
     {
         // Create a bonus item
-        public Bonus(string name, BonusType type, int space, int weight, int cost) :
-            base(name, type.ToString(), 0, 0, space, weight, cost)
+        public Bonus(string itemName, BonusType itemType, int space, int weight, int cost) :
+            base(itemName, itemType.ToString(), 0, 0, space, weight, cost)
         {
             // Leave empty
         } // end Bonus constructor

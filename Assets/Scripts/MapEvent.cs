@@ -126,10 +126,7 @@ namespace GSP
 			else
 			{
                 // Create a temp resource
-				Resource temp = new Resource();
-				
-				// Turn temp into a type of resource
-				temp.SetResource(currentTile.ResourceType.ToString());
+                Resource temp = GameMaster.Instance.CreateResource(currentTile.ResourceType);
 				
 				// Pick up the resource
                 playerMerchant.PickupResource(temp, 1);

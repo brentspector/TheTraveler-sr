@@ -17,26 +17,29 @@ namespace GSP.Items
      *******************************************************************************/
     public abstract class Item
     {
+        static int nextId; // The next ID used for giving each entity a unique ID upon their creation
+        
+        int id;             // The ID of the item
         string name;    	// Name of this item
         string type;		// Type of item (don't forget to make enum of new types)
-        int attackValue;	// Attack value this item adds/removes
-        int defenceValue;	// Defence value this item adds/removes
-        int inventoryValue; // Inventory value this item adds/removes
-        int weightValue;	// Weight value this item adds/removes
-        int costValue;		// Cost value of this item
 
         // Dervived classes use this to create an item
-        public Item(string itemName, string itemType, int attack, int defence, int space, int weight, int cost)
+        public Item(string itemName, string itemType)
         {
             // Initialise the item to the given parameters
+            id = nextId;
             name = itemName;
             type = itemType;
-            attackValue = attack;
-            defenceValue = defence;
-            inventoryValue = space;
-            weightValue = weight;
-            costValue = cost;
+
+            // Increment the ID for the next item
+            nextId++;
         } // end Item
+
+        // Gets the Item's Id
+        public int Id
+        {
+            get { return id; }
+        }
 
         // Gets and Sets the Item's Name
         public string Name
@@ -50,40 +53,5 @@ namespace GSP.Items
         {
             get { return type; }
         } // end Type
-
-        // Gets and Protected Sets the Item's AttackValue
-        public int AttackValue
-        {
-            get { return attackValue; }
-            protected set { attackValue = value; }
-        } // end AttackValue
-
-        // Gets and Protected Sets the Item's DefenceValue
-        public int DefenceValue
-        {
-            get { return defenceValue; }
-            protected set { defenceValue = value; }
-        } // end DefenceValue
-
-        // Gets and Protected Sets the Item's WeightValue
-        public int WeightValue
-        {
-            get { return weightValue; }
-            protected set { weightValue = value; }
-        } // end WeightValue
-
-        // Gets and Protected Sets the Item's CostValue
-        public int CostValue
-        {
-            get { return costValue; }
-            protected set { costValue = Utility.ZeroClampInt(value); }
-        } // end CostValue
-
-        // Gets and Protected Sets the item's InventoryValue
-        public int InventoryValue
-        {
-            get { return inventoryValue; }
-            protected set { inventoryValue = Utility.ZeroClampInt(value); }
-        } // end InventoryValue
     }
 }

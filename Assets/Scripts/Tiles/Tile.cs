@@ -5,7 +5,7 @@
  *  Description: Simulates tiles on the map
  *
  *******************************************************************************/
-using GSP.Char;
+using GSP.Items;
 using UnityEngine;
 
 namespace GSP.Tiles
