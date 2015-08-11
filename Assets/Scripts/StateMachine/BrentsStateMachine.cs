@@ -283,8 +283,8 @@ namespace GSP
                             AudioManager.Instance.PlayMenu();
                         } // end else
 
-                        // Load selected level
-                        Application.LoadLevel(mapSelection);
+                        // Tell the GameMaster to load selected level
+                        GameMaster.Instance.LoadLevel(mapSelection);
                         break;
                     } // end case Game
 				// End

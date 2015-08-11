@@ -577,8 +577,8 @@ namespace GSP
                             // Save the players
                             GameMaster.Instance.SavePlayers();
 
-                            // Finally, load the end scene
-                            Application.LoadLevel("EndScene");
+                            // Finally, tell the GameMaster to load the end scene
+                            GameMaster.Instance.LoadLevel("EndScene");
                         }
                         break;
                     } // end Case EndGame

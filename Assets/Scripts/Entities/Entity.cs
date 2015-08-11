@@ -19,7 +19,7 @@ namespace GSP.Entities
      *******************************************************************************/
     public abstract class Entity : System.IDisposable
 	{
-		int			entID;		// The Entity's ID
+		int			entId;		// The Entity's ID
 		Vector3		position;   // The Entity's position
 
 		EntityType	type;		// The Entity's type
@@ -34,14 +34,21 @@ namespace GSP.Entities
             type = EntityType.None;
             
             // Set the other variables
-            entID = ID;
+            entId = ID;
 			gameObj = gameObject;
 		} // end Entity
 
-        // Gets the ID of the Entity
-        public int ID
+        // Updates the reference to the GameObject stored due to loading scenes
+        public void UpdateGameObject(GameObject obj)
         {
-            get { return entID; }
+            // Set the GameObject reference to the new one
+            gameObj = obj;
+        } // end UpdateGameObject
+
+        // Gets the ID of the Entity
+        public int Id
+        {
+            get { return entId; }
         } // end ID
         
         // Gets and Sets the Entity's Position. (not always used)

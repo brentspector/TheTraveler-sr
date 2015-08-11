@@ -25,15 +25,14 @@ namespace GSP.Char
 		List<GameObject> allies;    // The list of allies
 		int maxAllies;				// The maximum number of allies allowed
 
-		// Use this for initialisation
-		void Start()
-		{
-			// Initialise our list here
-			allies = new List<GameObject>();
+		void Awake()
+        {
+            // Initialise our list here
+            allies = new List<GameObject>();
 
-			// A maximum of a single ally for now
-			maxAllies = 1;
-		} // end Start
+            // A maximum of a single ally for now
+            maxAllies = 1;
+        } // end Awake
 		
 		// Return and ally GameObject reference
 		public GameObject GetObject(int index)
@@ -51,10 +50,10 @@ namespace GSP.Char
         // Note: This is hard-coded for a single ally for now; it'll work for now :P
 		public bool AddAlly(GameObject ally)
 		{
-			// Ensure the character isn't at their max number of allies
+            // Ensure the character isn't at their max number of allies
             if(NumAllies != maxAllies)
 			{
-				// Add the ally to the list
+                // Add the ally to the list
                 allies.Add(ally);
 
 				// Get the merchant script of the player

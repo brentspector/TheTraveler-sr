@@ -43,6 +43,9 @@ namespace GSP.Entities.Friendlies
 			// Set the entity's type to porter
 			Type = EntityType.Porter;
 
+            // Also set the entity's friendly type
+            FriendlyType = Entities.FriendlyType.Porter;
+
             // Get the reference to the die script
             die = GameObject.Find("Die").GetComponent<DieInput>();
 

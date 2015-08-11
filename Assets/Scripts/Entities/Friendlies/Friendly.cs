@@ -26,6 +26,8 @@ namespace GSP.Entities.Friendlies
         bool isDead;    // Whether the entity is dead
 
         #endregion
+
+        FriendlyType friendlyType;  // Holds the type value from the FriendlyType enumeration
         
         // Constructor; Derived classes create an entity object
         public Friendly(int ID, GameObject gameObject) : base(ID, gameObject)
@@ -39,6 +41,13 @@ namespace GSP.Entities.Friendlies
 
             #endregion
 		} // end Friendly
+
+        // Gets and protected sets the entity's FriendlyType
+        public FriendlyType FriendlyType
+        {
+            get { return friendlyType; }
+            protected set { friendlyType = value; }
+        } // end FriendlyType
 
         #region IDamageable Members
 

@@ -115,6 +115,16 @@ namespace GSP.Entities.Neutrals
 
         }
 
+        // Updates the script refereneces that depended upon the GameObject
+        public void UpdateScriptReferences()
+        {
+            // Update the sprite renderer
+            spriteRenderer = GameObj.GetComponent<SpriteRenderer>();
+
+            // Update the ally script
+            allyScript = GameObj.GetComponent<AllyList>();
+        } // end UpdateScriptReferences
+
         // Setup the Character's Sprite set. This is an array of Sprites that will be used for the Character
         public void SetCharacterSprites(int playerNumber)
         {

@@ -40,6 +40,18 @@ namespace GSP.Char
             // Get the Merchant's reference
             merchant = (Merchant)EntityManager.Instance.GetEntity(ID);
         } // end GetMerchant
+
+        // Updates the GameObject reference on the entity
+        public void UpdateGameObject(GameObject obj)
+        {
+            merchant.UpdateGameObject(obj);
+        } // end UpdateGameObject
+
+        // Updates the script references on the entity
+        public void UpdateScriptReferences()
+        {
+            merchant.UpdateScriptReferences();
+        } // end UpdateScriptReferences
         
         // Allows for collision on the market place to end the game
         void OnCollisionEnter2D(Collision2D coll)

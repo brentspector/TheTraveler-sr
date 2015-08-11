@@ -7,6 +7,9 @@
  *
  *******************************************************************************/
 using GSP.Char;
+using GSP.Char.Allies;
+using GSP.Entities;
+using GSP.Entities.Friendlies;
 using GSP.Items;
 using System.Collections.Generic;
 using System.IO;
@@ -92,7 +95,7 @@ namespace GSP.Core
         void OnLevelWasLoaded(int level)
         {
             // Reset the containers after a level was loaded to flushout old references
-            Instance.ResetCollections();
+            //Instance.ResetCollections();
         }
 
         // Resets the containers
@@ -101,8 +104,6 @@ namespace GSP.Core
             // Loop over the players to reset the dictionaries to deafult values
             for (int index = 0; index < MaxPlayers; index++)
             {
-                playerNames[index] = string.Empty;
-                playerColors[index] = InterfaceColors.Black;
                 playerObjs[index] = null;
                 players[index] = null;
             } // end for
@@ -181,7 +182,7 @@ namespace GSP.Core
         #region Create Players
 
         // Create a new player
-        public void CreatePlayer(int playerNum, bool isDataOnly = false)
+        public void CreatePlayer(int playerNum)
         {
             Vector3 startPos = startingPos; // The starting position
             int entID = -1;                 // The ID of the created entity
@@ -195,13 +196,6 @@ namespace GSP.Core
 
             // Name the player in the editor for convienience
             obj.name = GetPlayerName(playerNum);
-
-            // Check if players should be created for data only; that is without a SpriteRenderer
-            if (isDataOnly)
-            {
-                // Destroy the SpriteRenderer component
-                Destroy(playerObjs[playerNum].GetComponent<SpriteRenderer>());
-            }
 
             // Create the merchant entity
             Entities.EntityManager.Instance.Generator.CreateEntity(out entID, Entities.EntityType.Merchant, obj, playerNum);
@@ -219,18 +213,8 @@ namespace GSP.Core
             players[playerNum].GetMerchant(entID);
         } // end CreatePlayer
 
-        // Create a new player and load their settings
-        public void CreateAndLoadPlayer(int playerNum, bool isDataOnly = false)
-        {
-            // First load the player's settings
-            LoadPlayer(playerNum);
-
-            // Then create the player
-            CreatePlayer(playerNum, isDataOnly);
-        } // end CreateAndLoadPlayer
-
         // Create new players
-        public void CreatePlayers(bool isDataOnly = false)
+        public void CreatePlayers()
         {
             // Loop over the dictionary to create each player; We use the player name dictionary here
             foreach (var player in playerNames)
@@ -244,20 +228,37 @@ namespace GSP.Core
             } // end foreach
         } // end CreatePlayers
 
-        // Create new players and load their settings
-        public void CreateAndLoadPlayers(bool isDataOnly = false)
+        // Creates a player from a save file
+        void CreatePlayerFromSave(int playerNum, int merchantId, bool isDataOnly = false)
         {
-            // Loop over the dictionary to create each player; We use the player name dictionary here
-            foreach (var player in playerNames)
+            // Create the player GameObject
+            GameObject obj = Instantiate(PrefabReference.prefabPlayer) as GameObject;
+            obj.transform.localScale = Vector3.one;
+
+            // Name the player in the editor for convienience
+            obj.name = GetPlayerName(playerNum);
+
+            // Set the game obj for the given player
+            playerObjs[playerNum] = obj;
+
+            // Set the player script for the given player
+            players[playerNum] = playerObjs[playerNum].GetComponent<Char.Player>();
+
+            // Give the player script the ID for the merchant
+            players[playerNum].GetMerchant(merchantId);
+
+            // Update the GameObject reference
+            players[playerNum].UpdateGameObject(obj);
+
+            // Update the entity's script references
+            players[playerNum].UpdateScriptReferences();
+
+            if (isDataOnly)
             {
-                // Check if the player is playing
-                if (player.Key < numPlayers)
-                {
-                    // Create the current player
-                    CreateAndLoadPlayer(player.Key, isDataOnly);
-                } // end if
-            } // end foreach
-        } // end CreateAndLoadPlayers
+                // If in data-only mode, destroy the sprite renderer
+                Destroy(GetPlayerObject(playerNum).GetComponent<SpriteRenderer>());
+            } // end if
+        } // end CreatePlayer
 
         #endregion
 
@@ -398,6 +399,56 @@ namespace GSP.Core
             } // end allyType
         } // end CreateAlly
 
+        // Create a new ally from a save file
+        GameObject CreateAllyFromSave(Entities.FriendlyType allyType, string allyName, int allyId)
+        {
+            // Create the ally GameObject
+            GameObject obj = Instantiate(PrefabReference.prefabAlly) as GameObject;
+
+            // Switch over the ally types
+            switch (allyType)
+            {
+                case Entities.FriendlyType.Porter:
+                    {
+                        // Add the porter ally script
+                        var script = obj.AddComponent<Char.Allies.PorterMB>();
+
+                        // Name the GameObject in the editor for convienience sake
+                        obj.name = allyName;
+
+                        // Add the ResourceList script
+                        obj.AddComponent<Char.ResourceList>();
+
+                        // Give the ally script the ID for the ally
+                        script.GetAlly(allyId);
+
+                        // Update the GameObject reference
+                        script.UpdateGameObject(obj);
+
+                        break;
+                    } // end case Porter
+                case Entities.FriendlyType.Mercenary:
+                    {
+                        // Add the mercenary ally script
+                        var script = obj.AddComponent<Char.Allies.MercenaryMB>();
+
+                        // Name the GameObject in the editor for convienience sake
+                        obj.name = allyName;
+
+                        // Give the ally script the ID for the ally
+                        script.GetAlly(allyId);
+
+                        // Update the GameObject reference
+                        script.UpdateGameObject(obj);
+
+                        break;
+                    } // end case Mercenary
+            } // end switch allyType
+
+            // Return the GameObject
+            return obj;
+        } // end CreateAlly
+
         #endregion
 
         #endregion
@@ -432,13 +483,32 @@ namespace GSP.Core
             PlayerData playerData = new PlayerData();
 
             // Set the player's name
-            playerData.Name = GetPlayerName(playerNum);
+            playerData.Name = Instance.GetPlayerName(playerNum);
             
             // Set the player's colour
-            playerData.Color = GetPlayerColor(playerNum);
+            playerData.Color = Instance.GetPlayerColor(playerNum);
 
             // Set the player's position
-            playerData.Position = GetPlayerScript(playerNum).Entity.Position;
+            playerData.Position = Instance.GetPlayerScript(playerNum).Entity.Position;
+
+            // Set the player's merchant entity ID
+            playerData.MerchantId = Instance.GetPlayerScript(playerNum).Entity.Id;
+
+            // Check if the player has an ally
+            if (Instance.GetPlayerScript(playerNum).NumAllies > 0)
+            {
+                // Get the Ally's GameObject
+                GameObject ally = Instance.GetPlayerObject(playerNum).GetComponent<AllyList>()[0];
+
+                //TODO: Damien: This is hard-coded for the Porter ally
+                // Set the player's ally entity ID
+                playerData.AllyId = ally.GetComponent<PorterMB>().Entity.Id;
+            } // end if
+            else
+            {
+                // Otherwise set the player's ally entity ID to negative one
+                playerData.AllyId = -1;
+            } // end else
 
             // Now write the data to the file
             binaryFormatter.Serialize(fileStream, playerData);
@@ -457,13 +527,13 @@ namespace GSP.Core
                 if (player.Key < numPlayers)
                 {
                     // Save the current player
-                    SavePlayer(player.Key);
+                    Instance.SavePlayer(player.Key);
                 } // end if
             } // end foreach
         } // end SavePlayers
 
         // Loads a player with the given key
-        public void LoadPlayer(int playerNum)
+        public void LoadPlayer(int playerNum, bool isDataOnly = false)
         {
             // The player's personal save path
             string playerSavePath = playerFilePath + playerNum + saveFileExt;
@@ -483,16 +553,36 @@ namespace GSP.Core
                 // Now close the file stream
                 fileStream.Close();
 
-                // Load the player's name
-                SetPlayerName(playerNum, playerData.Name);
+                // Create the player
+                Instance.CreatePlayerFromSave(playerNum, playerData.MerchantId, isDataOnly);
 
-                // Load the player's colour
-                SetPlayerColor(playerNum, playerData.Color);
+                // Set the player's name
+                //Instance.SetPlayerName(playerNum, playerData.Name);
+
+                // Set the player's colour
+                //Instance.SetPlayerColor(playerNum, playerData.Color);
+
+                // Set the player's position
+                Instance.GetPlayerScript(playerNum).Position = playerData.Position;
+
+                // Check if the player had an ally
+                if (playerData.AllyId >= 0)
+                {
+                    // Get the ally's FriendlyType
+                    Friendly ally = (Friendly)EntityManager.Instance.GetEntity(playerData.AllyId);
+
+                    // The player had an ally so create it for them
+                    GameObject allyObj = Instance.CreateAllyFromSave(ally.FriendlyType, ally.Name, playerData.AllyId);
+
+                    // Add the add to the player
+                    var list = Instance.GetPlayerObject(playerNum).GetComponent<AllyList>();
+                    list.AddAlly(allyObj);
+                }
             } // end if
         } // end LoadPlayer
 
         // Loads all players
-        public void LoadPlayers()
+        public void LoadPlayers(bool isDataOnly = false)
         {
             // Loop over the dictionary to load each player; We use the player name dictionary here
             foreach (var player in playerNames)
@@ -501,7 +591,7 @@ namespace GSP.Core
                 if (player.Key < numPlayers)
                 {
                     // Save the current player
-                    LoadPlayer(player.Key);
+                    Instance.LoadPlayer(player.Key, isDataOnly);
                 } // end if
             } // end foreach
         } // end LoadPlayers
@@ -571,6 +661,26 @@ namespace GSP.Core
             } // end if
         } // end LoadHighScores
 
+        // Loads a level by its index
+        public void LoadLevel(int level)
+        {
+            // Reset the collections first
+            Instance.ResetCollections();
+
+            // Then load the level
+            Application.LoadLevel(level);
+        } // end LoadLevel
+
+        // Loads a level by its name
+        public void LoadLevel(string level)
+        {
+            // Reset the collections first
+            Instance.ResetCollections();
+
+            // Then load the level
+            Application.LoadLevel(level);
+        } // end LoadLevel
+
         #endregion
 
         #region Create Items
@@ -587,22 +697,22 @@ namespace GSP.Core
             {
                 case WeaponType.Broadsword:
                     {
-                        weapon = new Weapon("Broadsword", WeaponType.Broadsword, 9, 1);
+                        weapon = new Weapon("Broadsword", WeaponType.Broadsword, null, 9, 1);
                         break;
                     } // end case Broadsword
                 case WeaponType.Mace:
                     {
-                        weapon = new Weapon("Mace", WeaponType.Mace, 7, 1);
+                        weapon = new Weapon("Mace", WeaponType.Mace, null, 7, 1);
                         break;
                     } // end case Mace
                 case WeaponType.Spear:
                     {
-                        weapon = new Weapon("Spear", WeaponType.Spear, 8, 1);
+                        weapon = new Weapon("Spear", WeaponType.Spear, null, 8, 1);
                         break;
                     } // end case Spear
                 case WeaponType.Sword:
                     {
-                        weapon = new Weapon("Sword", WeaponType.Sword, 5, 1);
+                        weapon = new Weapon("Sword", WeaponType.Sword, null, 5, 1);
                         break;
                     } // end case Sword
             } // end switch weaponType
@@ -621,27 +731,27 @@ namespace GSP.Core
             {
                 case ArmorType.Chainlegs:
                     {
-                        armor = new Armor("Chainlegs", ArmorType.Chainlegs, 2, 1);
+                        armor = new Armor("Chainlegs", ArmorType.Chainlegs, null, 2, 1);
                         break;
                     } // end case Chainlegs
                 case ArmorType.Chainmail:
                     {
-                        armor = new Armor("Chainmail", ArmorType.Chainmail, 5, 1);
+                        armor = new Armor("Chainmail", ArmorType.Chainmail, null, 5, 1);
                         break;
                     } // end case Chainmail
                 case ArmorType.Fullsuit:
                     {
-                        armor = new Armor("Fullsuit", ArmorType.Fullsuit, 11, 1);
+                        armor = new Armor("Fullsuit", ArmorType.Fullsuit, null, 11, 1);
                         break;
                     } // end case Fullsuit
                 case ArmorType.Platebody:
                     {
-                        armor = new Armor("Platebody", ArmorType.Platebody, 8, 1);
+                        armor = new Armor("Platebody", ArmorType.Platebody, null, 8, 1);
                         break;
                     } // end case Platebody
                 case ArmorType.Platelegs:
                     {
-                        armor = new Armor("Platelegs", ArmorType.Platelegs, 3, 1);
+                        armor = new Armor("Platelegs", ArmorType.Platelegs, null, 3, 1);
                         break;
                     } // end case Platelegs
             } // end switch armorType
@@ -660,12 +770,12 @@ namespace GSP.Core
             {
                 case BonusType.RubberBoots:
                     {
-                        bonus = new Bonus("RubberBoots", BonusType.RubberBoots, 0, 10, 1);
+                        bonus = new Bonus("RubberBoots", BonusType.RubberBoots, null, 0, 10, 1);
                         break;
                     } // end case RubberBoots
                 case BonusType.Sachel:
                     {
-                        bonus = new Bonus("Sachel", BonusType.Sachel, 3, 0, 1);
+                        bonus = new Bonus("Sachel", BonusType.Sachel, null, 3, 0, 1);
                         break;
                     } // end case Sachel
             } // end switch bonusType
@@ -684,22 +794,22 @@ namespace GSP.Core
             {
                 case ResourceType.Fish:
                     {
-                        resource = new Resource("Fish", ResourceType.Fish, 25, 5, 15);
+                        resource = new Resource("Fish", ResourceType.Fish, null, 25, 5, 15);
                         break;
                     } // end case Fish
                 case ResourceType.Ore:
                     {
-                        resource = new Resource("Ore", ResourceType.Ore, 20, 5, 10);
+                        resource = new Resource("Ore", ResourceType.Ore, null, 20, 5, 10);
                         break;
                     } // end case Ore
                 case ResourceType.Wood:
                     {
-                        resource = new Resource("Wood", ResourceType.Wood, 15, 5, 20);
+                        resource = new Resource("Wood", ResourceType.Wood, null, 15, 5, 20);
                         break;
                     } // end case Wood
                 case ResourceType.Wool:
                     {
-                        resource = new Resource("Wool", ResourceType.Wool, 10, 5, 15);
+                        resource = new Resource("Wool", ResourceType.Wool, null, 10, 5, 15);
                         break;
                     } // end case Wool
             } // end switch resourceType

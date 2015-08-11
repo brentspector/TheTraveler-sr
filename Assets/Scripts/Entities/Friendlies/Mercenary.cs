@@ -41,6 +41,9 @@ namespace GSP.Entities.Friendlies
 			// Set the entity's type to Mercenary
 			Type = EntityType.Mercenary;
 
+            // Also set the entity's friendly type
+            FriendlyType = Entities.FriendlyType.Mercenary;
+
             // Set the entity's script reference
             script = GameObj.GetComponent<MercenaryMB>();
 
