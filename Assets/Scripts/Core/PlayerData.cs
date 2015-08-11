@@ -21,9 +21,9 @@ namespace GSP.Core
     [Serializable]
     public class PlayerData
     {
-        string name;            // The player's name
-        InterfaceColors color;  // The player's colour
-        Vector3 position;       // The player's position
+        string name;                    // The player's name
+        InterfaceColors color;          // The player's colour
+        SerializableVector3 position;   // The player's position
 
         // Default constructor; Creates an empty object
         public PlayerData()

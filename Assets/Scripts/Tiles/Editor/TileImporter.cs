@@ -49,7 +49,7 @@ namespace GSP.Tiles
 			{
 				// Attempt to parse the string into the enum value
                 tmp = (ResourceType)Enum.Parse(typeof(ResourceType), customProperties["ResType"]);
-				
+
 				// Switch over the possible values
 				switch (tmp)
 				{
@@ -124,7 +124,7 @@ namespace GSP.Tiles
 			catch (Exception ex)
 			{
 				// The parsing failed so set the instance to null
-				Debug.LogFormat("Something went wrong. Exception: {0}", ex.Message);
+				Debug.LogErrorFormat("Something went wrong. Exception: {0}", ex.Message);
 				instance = null;
 			} // end catch
 
@@ -142,7 +142,7 @@ namespace GSP.Tiles
             instance.transform.parent = gameObject.transform;
             instance.transform.localPosition = new Vector3(0.0f, 0.0f, -1.0f);
 
-			// Scale by a factor of 100. For some reason they're 1/100th the size and this make them big enought o be visible
+			// Scale by a factor of 100. For some reason they're 1/100th the size and this make them big enough to be visible
             instance.transform.localScale = new Vector3(100.0f, 100.0f, 0.0f);
 
 			// Add to the parent transform's local position. This corrects the placement

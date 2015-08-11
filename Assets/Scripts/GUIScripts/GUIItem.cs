@@ -9,7 +9,6 @@ using UnityEngine;
 
 namespace GSP.JAVIERGUI
 {
-    //TODO: Damien: Replace with the GameMaster functionality later.
     //TODO: Brent: Replace this with the new In-Game UI later; probably not in the same namespace
     /*******************************************************************************
      *
@@ -21,7 +20,6 @@ namespace GSP.JAVIERGUI
     public class GUIItem : MonoBehaviour
     {
 
-        GameObject playerEntity; 			// Will initialize to the actual player in InitThis
         GUIMapEvents guiMapEventsScript;    // The GUIMapEvents script reference
         MapEvent mapEventScript;            // The MapEvent script reference
         GUIBottomBar guiBottomBarScript;    // The GUIBottomBar script reference
@@ -44,12 +42,10 @@ namespace GSP.JAVIERGUI
             guiBottomBarScript = GameObject.FindGameObjectWithTag("GamePlayStateMachineTag").GetComponent<GSP.JAVIERGUI.GUIBottomBar>();
 		} // end Start
 
-        //TODO: Damien: Replace with the GameMaster functionality later.
         //TODO: Brent: Replace OnGUI stuff with the new In-Game UI later
         // Initialise things sort of like a custom constructor
-        public void InitGUIItem(GameObject player, int startX, int startY, int startWidth, int startHeight, string resultMapEvent)
+        public void InitGUIItem(int startX, int startY, int startWidth, int startHeight, string resultMapEvent)
 		{
-			playerEntity = player;
             guiMapEventsScript = GameObject.FindGameObjectWithTag("GUIMapEventSpriteTag").GetComponent<GSP.GUIMapEvents>();
             mapEventScript = GameObject.FindGameObjectWithTag("DieTag").GetComponent<GSP.MapEvent>();
 
@@ -118,7 +114,7 @@ namespace GSP.JAVIERGUI
 				guiBottomBarScript.AnimateItemButton();
 
 				// Get item result from the MapEvent
-				headerString = mapEventScript.ResolveItem(playerEntity);
+				headerString = mapEventScript.ResolveItem();
 
 				hasSelectionMadeAddRemove = true;
 			} // end if

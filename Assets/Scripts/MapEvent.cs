@@ -6,6 +6,12 @@
  *
  *******************************************************************************/
 using GSP.Char;
+using GSP.Core;
+using GSP.Entities;
+using GSP.Entities.Friendlies;
+using GSP.Entities.Hostiles;
+using GSP.Entities.Neutrals;
+using GSP.Items;
 using GSP.Tiles;
 using System;
 using System.Collections.Generic;
@@ -13,7 +19,6 @@ using UnityEngine;
 
 namespace GSP
 {
-    //TODO: Damien: Replace with the GameMaster functionality later.
     /*******************************************************************************
      *
      * Name: MapEvent
@@ -26,7 +31,8 @@ namespace GSP
         Die die; // Die reference
 		
 		GameObject player;          // The player's GameObject reference
-		Character playerCharScript; // The player's Character script component reference
+		Player playerScript;        // The player's Character script component reference
+        Merchant playerMerchant;    // The player's merchant Entity for convienience
 
         GameObject audioSrc;    // The AudioSource GameObject reference
 		
@@ -47,7 +53,7 @@ namespace GSP
 		//NOTE: These should add up to less than 100 so that 
 		//there is a chance nothing occurs. Minimum chance of
 		//one or else there will be problems
-		int enemyChance = 25;   // The minimum chance for the MapEvent to an enemy
+        int enemyChance = 25;   // The minimum chance for the MapEvent to an enemy
         int allyChance = 15;    // The minimum chance for the MapEvent to an ally
         int itemChance = 15;    // The minimum chance for the MapEvent to an item
 		
@@ -66,13 +72,14 @@ namespace GSP
             audioSrc = GameObject.FindGameObjectWithTag("AudioSourceTag");
 		}
 
-        //TODO: Damien: Replace with the GameMaster functionality later.
         //Calls map event and returns string
-		public string DetermineEvent(GameObject playerEntity)
+		public string DetermineEvent(int playerNum)
 		{
-			// Set the player GameObject and its Character script
-			player = playerEntity;
-			playerCharScript = player.GetComponent<Character>();
+			// Set the player GameObject and its Player script
+            player = GameMaster.Instance.GetPlayerObject(playerNum);
+            playerScript = GameMaster.Instance.GetPlayerScript(playerNum);
+            // Set the Merchant entity for convienience
+            playerMerchant = (Merchant)playerScript.Entity;
 			
 			// Get the tile at the player's position
 			Vector3 tmp = player.transform.localPosition;
@@ -104,14 +111,13 @@ namespace GSP
 					return "Ally";
 				} // end else if
 				// Check for an item
-                else if(dieResult < itemChance + allyChance + enemyChance
-				        && dieResult >= allyChance + enemyChance)
+                else if(dieResult < itemChance + allyChance + enemyChance && dieResult >= allyChance + enemyChance)
 				{
 					return "Item";
 				} // end else if
 				else
 				{
-					// The MapEvent was nothing so return "Die roll was " + dieResult + ".\nNo map event occured.";
+					// The MapEvent was nothing
 					guiResult = "No map event occured.";
 					return "Nothing";
 				} // end else
@@ -119,14 +125,14 @@ namespace GSP
 			// Otherwise, the tile is a resource
 			else
 			{
-				// Create a temp resource
+                // Create a temp resource
 				Resource temp = new Resource();
 				
 				// Turn temp into a type of resource
 				temp.SetResource(currentTile.ResourceType.ToString());
 				
 				// Pick up the resource
-                playerCharScript.PickupResource(temp, 1);
+                playerMerchant.PickupResource(temp, 1);
 				
 				// Declare what was landed on
 				guiResult = "You got a resource:\n" + temp.Name;
@@ -157,101 +163,134 @@ namespace GSP
 			} // end else
 		} // end DetermineEvent
 
-        //TODO: Damien: Replace with the GameMaster functionality later.
+        // NOTE: Hard-coded for now to work with only 1 enemy type; it works for now. :P
         // Resolves a fight when the enemy MapEvent spawns
-        public string ResolveFight(GameObject player)
+        public string ResolveFight()
 		{
 			// Create the enemy
-            GameObject enemy = Instantiate(PrefabReference.prefabCharacter, 
-                new Vector3(0.7f, 0.5f, 0.0f), new Quaternion()) as GameObject;
+            GameMaster.Instance.CreateEnemy(HostileType.Bandit, "Bandit");
 
-			// Remove the SpriteRenderer component. This makes the enemy not shown in the scene.
-            Destroy(enemy.GetComponent<SpriteRenderer>());
-			
-			// Get the character script attached to the enemy
-			Character enemyScript = enemy.GetComponent<Character>();
+            // Get the enemyID from the list of enemy IDs; since this a 1v1 fight there should only be a single ID
+            int enemyID = GameMaster.Instance.EnemyIdentifiers[0];
+            
+            // Get the enemy entity
+            Bandit enemyEntity = (Bandit)EntityManager.Instance.GetEntity(enemyID);
 			
 			// Set the stats of the enemy
-			enemyScript.AttackPower = die.Roll(1, 9);
-			enemyScript.DefencePower = die.Roll(1, 9);
+			enemyEntity.AttackPower = die.Roll(1, 9);
+			enemyEntity.DefencePower = die.Roll(1, 9);
 			
 			//TODO: Brent: Add Battle Scene
 			
 			//Battle characters
 			Fight fighter = new Fight();
-			string result = fighter.CharacterFight(enemy, player);
+			string result = fighter.CharacterFight<Bandit>(playerScript);
 			
 			// Check if the player lost the fight
 			if(result.Contains("Enemy wins"))
 			{
                 // The player lost the fight, remove its resources or its weapon
-                // The player has no resources so remove its weapon weapon
-				if(playerCharScript.ResourceWeight <= 0)
+				if(playerMerchant.TotalWeight <= 0)
 				{
-					playerCharScript.RemoveItem("attack");
+                    // Check if the player has a weapon
+                    if (playerMerchant.EquippedWeapon != null)
+                    {
+                        // The player has no resources so remove its weapon
+                        result += "\nAs a result, you lost your " + playerMerchant.EquippedWeapon.Name;
+                        playerMerchant.UnequipWeapon(playerMerchant.EquippedWeapon);
+                    } // end if playerMerchant.EquippedWeapon != null
 				} // end if
 				// Otherwise, the player has resources so remove a random resource
 				else
 				{
 					// Get the player's resource list script
 					ResourceList tempList = player.GetComponent<ResourceList>();
-					
-					// Choose a resource
-                    int resourceNumber = die.Roll(1, (int)ResourceType.Size) - 1;
+
+                    /* Choose a resource;
+                     * Choose a number between one and the integer value of Resource.None
+                     * Then subtract one to get a random number between zero and the integer value before Resource.None
+                     * Example: Die roll of one to four; random number is between zero and three
+                     */
+                    int resourceNumber = die.Roll(1, (int)ResourceType.None) - 1;
                     Debug.LogFormat("Resource number is {0}", resourceNumber);
 
 					// Get the list of resources of that type
-                    List<Resource> resList = tempList.GetResourcesByType(
-                        Enum.GetName(typeof(ResourceType), resourceNumber));
-					
-					// Remove the resources by list
-                    tempList.RemoveResources(resList);
-					result += " \nAs a result, you lost all your " + Enum.GetName(typeof(ResourceType), resourceNumber);
+                    List<Resource> resList = tempList.GetResourcesByType(Enum.GetName(typeof(ResourceType), resourceNumber));
+
+					// Check if the player has the resource; Don't display the message if they don't have the resource
+                    if (resList.Count != 0)
+                    {
+                        // Remove the resources by list
+                        tempList.RemoveResources(resList);
+                        result += " \nAs a result, you lost all your " + Enum.GetName(typeof(ResourceType), resourceNumber);
+                    } // end if resList.Count != 0
 				} // end else
 			} // end if
 
-			// Destroy the enemy GameObject
-			Destroy(enemy);
+			// Remove the enemy entity
+            EntityManager.Instance.RemoveEntity(enemyID);
+
+            // Remove the entity from the list of identifiers.
+            GameMaster.Instance.RemoveEnemyIdentifier(enemyID);
 
 			// Set the summary and return it
 			guiResult = result;
 			return guiResult;
 		} // end ResolveFight
 
-        //TODO: Damien: Replace with the GameMaster functionality later.
+        // NOTE: Hard-coded for now to work with only 1 ally type; it works for now. :P
         // Resolves an ally when the ally MapEvent spawns
-        public string ResolveAlly(GameObject player, string guiAcceptResult)
+        public string ResolveAlly(string guiAcceptResult)
 		{
 			// Create the ally
-            GameObject ally = Instantiate(PrefabReference.prefabCharacter,
-                player.transform.position, new Quaternion()) as GameObject;
+            GameMaster.Instance.CreateAlly(FriendlyType.Porter, "Porter");
 
-			// Remove the SpriteRenderer component. This makes the ally not shown in the scene.
-            Destroy(ally.GetComponent<SpriteRenderer>());
-
-            // Get the character script attached to the ally
-			Character allyScript = ally.GetComponent<Character>();
-			
-			// Set the ally's max weight
-            allyScript.MaxWeight = die.Roll(1, 20) * 6;
+            // Get the allyID from the temporary list of ally IDs; since there is only one ally there should only be a single ID
+            int allyID = GameMaster.Instance.TempAllyIdentifiers[0];
 
 			// Check if the player accepts the ally
             if (guiAcceptResult == "YES")
 			{
-				// Add the ally to the player's ally list
-				AllyList playerAllyScript = player.GetComponent<AllyList>();
-				playerAllyScript.AddAlly(ally);
+                bool addResult; // The result of trying to add the ally
+                
+                // Get the enemy entity
+                Porter allyEntity = (Porter)EntityManager.Instance.GetEntity(allyID);
 
-				// Set and return accepted
-				guiResult = "Ally was added.";
+                // Get the player's AllyList component
+                AllyList playerAllyScript = player.GetComponent<AllyList>();
+                // Add the ally to the player's ally list
+				addResult = playerAllyScript.AddAlly(allyEntity.GameObj);
+
+                // Check if the add was successful
+                if (addResult)
+                {
+                    // Set the ally was accepted
+                    guiResult = "Ally was added.";
+                } // end if
+                else
+                {
+                    // Otherwise, the ally failed to add because the limit was reached
+                    guiResult = "Ally limit reached.\nAdd denied.";
+
+                    // Remove the ally entity
+                    EntityManager.Instance.RemoveEntity(allyID);
+                } // end else
+
+                // Clear the TempAllyIdentifiers now
+                GameMaster.Instance.ClearAllyIdentifiers();
+
+                // Return the result
 				return guiResult;
 			}
 
 			//Check if the player declines the ally
             else if (guiAcceptResult == "NO")
 			{
-				// Destroy the ally GameObject
-				Destroy(ally);
+				// Remove the ally entity
+                EntityManager.Instance.RemoveEntity(allyID);
+
+                // Clear the TempAllyIdentifiers now
+                GameMaster.Instance.ClearAllyIdentifiers();
 
 				// Set and return declined
 				guiResult = "Ally was declined.";
@@ -262,15 +301,14 @@ namespace GSP
 			return "No choice was made.";
 		} // end ResolveAlly
 
-        //TODO: Damien: Replace with the GameMaster functionality later.
         // Resolves an item when the item MapEvent spawns
-        public string ResolveItem(GameObject player)
+        public string ResolveItem()
 		{
 			// String to return for display
 			string result;
 			
 			// Determine what item was found
-			int itemType = die.Roll(1, 4);
+			int itemType = die.Roll(1, 3);
 
             // Switch ove the itemType
             switch (itemType)
@@ -279,54 +317,41 @@ namespace GSP
                 case 1:
                     {
                         // Pick an item from the weapons enumeration
-                        int itemNumber = die.Roll(1, (int)Weapons.Size) - 1;
+                        int itemNumber = die.Roll(1, (int)WeaponType.Size) - 1;
 
                         // Assign the chosen number as the item
-                        result = Enum.GetName(typeof(Weapons), itemNumber);
+                        result = Enum.GetName(typeof(WeaponType), itemNumber);
 
-                        // Equip the item on player
-                        playerCharScript.EquipItem(result);
+                        // Equip the weapon on the player
+                        playerMerchant.EquipWeapon(GameMaster.Instance.CreateWeapon((WeaponType)itemNumber));
                         break;
                     } // end case 1
                 // Am armour item
                 case 2:
                     {
                         // Pick an item from the armor enumeration
-                        int itemNumber = die.Roll(1, (int)Char.Armors.Size) - 1;
+                        int itemNumber = die.Roll(1, (int)ArmorType.Size) - 1;
 
                         // Assign the chosen number as the item
-                        result = Enum.GetName(typeof(Armors), itemNumber);
+                        result = Enum.GetName(typeof(ArmorType), itemNumber);
 
-                        // Equip the item on player
-                        playerCharScript.EquipItem(result);
+                        // Equip the armour on the player
+                        playerMerchant.EquipArmor(GameMaster.Instance.CreateArmor((ArmorType)itemNumber));
                         break;
                     } // end case 2
-                // An inventory item
+                // A bonus item (inventory/weight
                 case 3:
                     {
                         // Pick an item from the inventory enumeration
-                        int itemNumber = die.Roll(1, (int)Inventory.Size) - 1;
+                        int itemNumber = die.Roll(1, (int)BonusType.Size) - 1;
 
                         // Assign the chosen number as the item
-                        result = Enum.GetName(typeof(Inventory), itemNumber);
+                        result = Enum.GetName(typeof(BonusType), itemNumber);
 
-                        // Equip the item on player
-                        playerCharScript.EquipItem(result);
+                        // Equip the bonus item on the player
+                        playerMerchant.EquipBonus(GameMaster.Instance.CreateBonus((BonusType)itemNumber));
                         break;
                     } // end case 3
-                // A weight item
-                case 4:
-                    {
-                        // Pick an item from the weight enumeration
-                        int itemNumber = die.Roll(1, (int)Weight.Size) - 1;
-
-                        // Assign the chosen number as the item
-                        result = Enum.GetName(typeof(Weight), itemNumber);
-
-                        // Equip the item on player
-                        playerCharScript.EquipItem(result);
-                        break;
-                    } // end case 4
                 // An invalid item
                 default:
                     {

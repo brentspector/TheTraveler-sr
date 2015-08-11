@@ -5,6 +5,7 @@
  *  Description: Brains of the menu's logic; controls the flow of the menu
  *
  *******************************************************************************/
+using GSP.Core;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -43,16 +44,6 @@ namespace GSP
 		bool isCreditsDisplayed;			// Whether Credits are displayed or not
 		string mapSelection;		        // Scene name of map
 		bool isMapsDisplayed;				// Whether selection maps are displayed or not
-
-		#region Menu Data Declaration Stuff
-
-		// The reference to the MenuData GameObject
-		GameObject menuData;
-
-		// The reference to the menuData's script
-		MenuData menuDataScript;
-
-		#endregion
 		
 		// Initialize variables
 		void Start()
@@ -83,24 +74,12 @@ namespace GSP
             backButton.SetActive(false);
             guideText.gameObject.SetActive(false);
 
-			#region Menu Data Initialisation Stuff
-			
-			// Create the empty GameObject
-            menuData = new GameObject("MenuData");
-			
-			// Tag it as MenuDataTag
-			menuData.tag = "MenuDataTag";
-			
-			// Add the MenuData component
-			menuData.AddComponent<MenuData>();
-			
-			// Set it to not destroy on load
-            DontDestroyOnLoad(menuData);
-
-			// Get the MenuData GameObject's script
-            menuDataScript = menuData.GetComponent<MenuData>();
-
-			#endregion
+            // Initialise the GameMaster in the menu
+            // Note: Don't remove this
+            if (GameMaster.Instance != null)
+            {
+                // Leave this empty. :P
+            } // end if
 		} // end Start
 		
 		// Main function for controlling game
@@ -165,13 +144,9 @@ namespace GSP
                                     if (mapSelection != "nothing")
                                     {
                                         // Pick player amount
-                                        #region Menu Data Adding Stuff
-
                                         // Set the number of players to one for solo mode
-                                        menuDataScript.NumberPlayers = 1;
-
-                                        #endregion
-
+                                        GameMaster.Instance.NumPlayers = 1;
+                                        
                                         // Display loading text
                                         guideText.text = "Loading, please wait.";
 
@@ -207,21 +182,21 @@ namespace GSP
                                         // Set number of players
                                         if (Input.GetKeyDown(KeyCode.Alpha2) || Input.GetKeyDown(KeyCode.Keypad2))
                                         {
-                                            menuDataScript.NumberPlayers = 2;
+                                            GameMaster.Instance.NumPlayers = 2;
                                         } //end if
                                         else if (Input.GetKeyDown(KeyCode.Alpha3) || Input.GetKeyDown(KeyCode.Keypad3))
                                         {
-                                            menuDataScript.NumberPlayers = 3;
+                                            GameMaster.Instance.NumPlayers = 3;
                                         } //end else if
                                         else if (Input.GetKeyDown(KeyCode.Alpha4) || Input.GetKeyDown(KeyCode.Keypad4))
                                         {
-                                            menuDataScript.NumberPlayers = 4;
+                                            GameMaster.Instance.NumPlayers = 4;
                                         } //end else if
                                         #endregion
                                         
                                         // Note: No need to repeat code if it's the same and not dependent on things inside such circumstances- Damien
                                         // Note: I screwed this up previously, but it still shouldn't have to be repeated so do a simple conditional check
-                                        if (menuDataScript.NumberPlayers >= 2 && menuDataScript.NumberPlayers <= 4)
+                                        if (GameMaster.Instance.NumPlayers >= 2 && GameMaster.Instance.NumPlayers <= 4)
                                         {
                                             // Display loading text
                                             guideText.text = "Loading, please wait.";

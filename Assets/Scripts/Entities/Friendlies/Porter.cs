@@ -6,6 +6,7 @@
  *
  *******************************************************************************/
 using GSP.Char;
+using GSP.Char.Allies;
 using GSP.Entities.Interfaces;
 using GSP.Tiles;
 using System.Collections.Generic;
@@ -32,7 +33,8 @@ namespace GSP.Entities.Friendlies
 
         #endregion
 
-        DieInput die;   // The reference to the die
+        PorterMB script;    // THe script reference for the Mimic enemy.
+        DieInput die;       // The reference to the die
 
         // Constructor used to create a Porter entity
         public Porter(int ID, GameObject gameObject) : base(ID, gameObject)
@@ -42,6 +44,9 @@ namespace GSP.Entities.Friendlies
 
             // Get the reference to the die script
             die = GameObject.Find("Die").GetComponent<DieInput>();
+
+            // Set the entity's script reference
+            script = GameObj.GetComponent<PorterMB>();
 
             #region IInventory Variable Initialisation
 
@@ -57,7 +62,13 @@ namespace GSP.Entities.Friendlies
             resources = GameObj.GetComponent<ResourceList>();
 
             #endregion
-		}
+		} // end Porter
+
+        // Gets the entity's script reference
+        public PorterMB Script
+        {
+            get { return script; }
+        } // end Script
 
         #region IInventory Members
 

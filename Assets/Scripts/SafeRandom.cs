@@ -52,13 +52,13 @@ namespace GSP
 		uint _y;
 		uint _z;
 
-		// Initializes a new instance of the SafeRandom class.
+		// Initializes a new instance of the SafeRandom class
 		public SafeRandom() : this( (int)TickCount.Now )
 		{
-            // Leave empty.
+            // Leave empty
 		} // end SafeRandom
 
-		// Initializes a new instance of the SafeRandom class.
+		// Initializes a new instance of the SafeRandom class
 		public SafeRandom(int seed)
 		{
             Reseed(seed);
@@ -98,18 +98,18 @@ namespace GSP
 			{
 				// If range is less than zero then an overflow has occured and must resort to using long integer
                 // arithmetic instead (slower). We also must use all 32 bits of precision, instead of the normal
-                // 31, which again is slower.
+                // 31, which again is slower
                 return minValue + (int)((_realUnitUInt * NextUInt()) * ((long)maxValue - minValue));
 			} // end if
 
 			// 31 bits of precision will suffice if range is less than or equal to int32.MaxValue. This allows us to
-            // cast to an int and gain a little more performance.
+            // cast to an int and gain a little more performance
             return minValue + (int)((_realUnitInt * (int)(0x7FFFFFFF & NextUInt())) * range);
 		} // end Next
 
         // Returns a 32-bit signed integer greater than or equal to zero, and less than Int32.MaxValue;
         // that is, the range of return values ordinarily includes zero but not Int32.MaxValue. However, if Int32.MxnValue
-        // equals zero, Int32.MaxValue is returned.
+        // equals zero, Int32.MaxValue is returned
 		public override int Next(int maxValue)
 		{
 			// Check if the max is less than zero which is impossible
@@ -143,7 +143,7 @@ namespace GSP
             return (_bitBuffer & (_bitMask >>= 1)) == 0;
 		} // end NextBool
 
-        // Fills the elements of a specified array of bytes with random numbers.
+        // Fills the elements of a specified array of bytes with random numbers
 		public override void NextBytes(byte[] buffer)
 		{
 			if ( buffer == null )
@@ -205,13 +205,13 @@ namespace GSP
 			_w = w;
 		} // end NextBytes
 
-        // Returns a double-precision floating point number greater than or equal to zero, and less than one.
+        // Returns a double-precision floating point number greater than or equal to zero, and less than one
 		public override double NextDouble()
 		{
 			return _realUnitInt * NextInt();
 		} // end NextDouble
 
-        // Returns a random number in the range of zero to Int32.MaxValue, inclusive.
+        // Returns a random number in the range of zero to Int32.MaxValue, inclusive
         int NextInt()
 		{
 			var t = ( _x ^ ( _x << 11 ) );
@@ -231,7 +231,7 @@ namespace GSP
 			return ( _w = ( _w ^ ( _w >> 19 ) ) ^ ( t ^ ( t >> 8 ) ) );
 		} // end NextUInt
 
-        // Reinitializes the object using the specified seed value.
+        // Reinitializes the object using the specified seed value
 		public void Reseed( int seed )
 		{
 			// The only stipulation stated for the xorshift RNG is that at least one of
