@@ -5,6 +5,7 @@
  *  Description: The base for all equipement types; derives from Item.
  *
  *******************************************************************************/
+using UnityEngine;
 
 namespace GSP.Items
 {
@@ -24,8 +25,8 @@ namespace GSP.Items
         int costValue;		// Cost value of this item
 
         // Create a piece of equipment
-        public Equipment(string itemName, string itemType, int attack, int defence, int space, int weight, int cost) : 
-            base(itemName, itemType.ToString())
+        public Equipment(string itemName, string itemType, Sprite itemIcon, int attack, int defence, int space, int weight, int cost) : 
+            base(itemName, itemType.ToString(), itemIcon)
         {
             // Initialise the item to the given parameters
             attackValue = attack;

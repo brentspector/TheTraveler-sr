@@ -10,8 +10,8 @@ namespace GSP.Items
         int sizeValue;		// The size value of the resource
         
         // Create a resource
-        public Resource(string itemName, ResourceType itemType, int weight, int size, int worth) :
-            base(itemName, itemType.ToString())
+        public Resource(string itemName, ResourceType itemType, Sprite itemIcon, int weight, int size, int worth) :
+            base(itemName, itemType.ToString(), itemIcon)
         {
             // Initialise the item to the given parameters
             weightValue = weight;

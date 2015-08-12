@@ -6,6 +6,7 @@
  *
  *******************************************************************************/
 using GSP.Core;
+using GSP.Items.Inventory;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -76,10 +77,11 @@ namespace GSP
 
             // Initialise the GameMaster in the menu
             // Note: Don't remove this
-            if (GameMaster.Instance != null)
-            {
-                // Leave this empty. :P
-            } // end if
+            if (GameMaster.Instance != null) {/* Leave this empty. :P */}
+
+            // Initialise the ItemDatabase in the menu
+            // Note: Don't remove this
+            if (ItemDatabase.Instance != null) { /* Leave this empty. :P */}
 		} // end Start
 		
 		// Main function for controlling game
