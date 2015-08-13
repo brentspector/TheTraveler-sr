@@ -15,30 +15,20 @@ namespace GSP.Items.Inventory
      *
      * Name: InventorySlot
      * 
-     * Description: The logic of each slot in the inventory.
+     * Description: The functionality of each slot in the inventory. This is done
+     *              through Unity's EventSystems interfaces.
      * 
      *******************************************************************************/
-    public class InventorySlot : Slot, IPointerEnterHandler, IPointerDownHandler, IPointerExitHandler
+    public class InventorySlot : Slot, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler
     {
-        #region IPointerDownHandler Members
-
-        // Handler for mouse clicks
-        public void OnPointerDown(PointerEventData pointerEventData)
-        {
-            Debug.LogFormat("The slot '{0}' was clicked!", transform.name);
-        } // end OnPointerDown
-
-        #endregion
-
         #region IPointerEnterHandler Members
 
+        // Event triggers when the mouse enters the slot's space
         public void OnPointerEnter(PointerEventData pointerEventData)
         {
             // Check if there is an item in the slot
             if (inventory.GetItem(slotId).Name != string.Empty)
             {
-                Debug.LogFormat("The mouse has entered slot '{0}'!", transform.name);
-
                 // Show the tooltip window while hovering over an item
                 inventory.ShowTooltip(inventory.GetItem(slotId));
             } // end if
@@ -48,17 +38,68 @@ namespace GSP.Items.Inventory
 
         #region IPointerExitHandler Members
 
+        // Event triggers when the mouse leaves the slot's space
         public void OnPointerExit(PointerEventData pointerEventData)
         {
             // Check if there is an item in the slot
             if (inventory.GetItem(slotId).Name != string.Empty)
             {
-                Debug.LogFormat("The mouse has left slot '{0}'!", transform.name);
-
                 // Show the tooltip window while not hovering over an item
                 inventory.ShowTooltip(null, false);
             } // end if
         } // end OnPointerEnter
+
+        #endregion
+
+        #region IPointerDownHandler Members
+
+        // Event triggers when a mouse button is pressed in the slot's space
+        public void OnPointerDown(PointerEventData pointerEventData)
+        {
+            // Leave empty for now; used to detect mouse so it can detect mouse up
+        } // end OnPointerDown
+
+        #endregion
+
+        #region IPointerUpHandler Members
+
+        // Event triggers when a mouse button is released in the slot's space
+        public void OnPointerUp(PointerEventData pointerEventData)
+        {
+            // Check if there is an item in the slot
+            if (inventory.GetItem(slotId).Name != string.Empty)
+            {
+                // Check if the button was the right mouse
+                if (pointerEventData.pointerId == -2)
+                {
+                    // Get the item that was right clicked
+                    Item item = inventory.GetItem(slotId);
+
+                    // Check if the item is a piece of equipment
+                    if (item is Equipment)
+                    {
+                        // The item is a piece of equipment so equip it
+                        inventory.EquipItem((Equipment)item);
+
+                        // Check if the item is a bonus item and that we're right clicking it from the bonus slot range.
+                        if (item is Bonus && (slotId >= inventory.BonusSlotBegin && slotId < inventory.BonusSlotEnd))
+                        {
+                            int freeSlot;   // The first slot that is free
+                            
+                            // Check if there's space for the item
+                            if ((freeSlot = inventory.FindFreeSlot(SlotType.Inventory)) >= 0)
+                            {
+                                // Swap the bonus item with the item at the free slot
+                                inventory.SwapItem(item, inventory.GetItem(freeSlot));
+
+                                // Disable the tooltip
+                                inventory.ShowTooltip(null, false);
+                            }
+                        } // end if item is Bonus && (slotId >= inventory.BonusSlotBegin && slotId < inventory.BonusSlotEnd)
+                    } // end if item is Equipment
+                } // end if pointerEventData.pointerId == -2
+            } // end if
+        } // end OnPointerUp
 
         #endregion
     } // end InventorySlot

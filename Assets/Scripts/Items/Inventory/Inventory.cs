@@ -23,18 +23,13 @@ namespace GSP.Items.Inventory
     public class Inventory : MonoBehaviour
     {
 
-        List<GameObject> inventorySlots;    // The list of inventory slots for the inventory
-        List<GameObject> equipmentSlots;    // The list of equipment slots for the inventory
-        List<GameObject> bonusSlots;        // The list of bonus slots for the inventory
-        List<Item> inventoryItems;          // The list of items for the inventory
-        List<Item> equipmentItems;          // The list of items for the inventory's equipment
-        List<Item> bonusItems;              // The list of items for the inventory's bonus items
-        int numInventorySlotsCreate;        // The number of inventory slots to create
-        int numEquipmentSlotsCreate;        // The number of equipment slots to create
-        int numBonusSlotsCreate;            // The number of bonus slots to create
-        int numInventorySlots;              // The number of inventory slots currently created
-        int numEquipmentSlots;              // The number of equipment slots currently created
-        int numBonusSlots;                  // The number of bonus slots currently created
+        List<GameObject> slots;         // The list of inventory slots for the inventory
+        List<Item> items;               // The list of items for the inventory
+        int numInventorySlotsCreate;    // The number of inventory slots to create
+        int numEquipmentSlotsCreate;    // The number of equipment slots to create
+        int numBonusSlotsCreate;        // The number of bonus slots to create
+        int equipmentSlots;             // The slot number after where the equipment slots end
+        int bonusSlots;                 // The slot number after where the bonus slots end
         
         bool canShowTooltip;        // Whether the tooltip is show
         Transform bottomGrid;       // The Inentory's Bottom Panel
@@ -86,96 +81,60 @@ namespace GSP.Items.Inventory
             tooltipRect = tooltip.GetComponent<RectTransform>();
 
             // Initialise the lists
-            inventorySlots = new List<GameObject>();
-            equipmentSlots = new List<GameObject>();
-            bonusSlots = new List<GameObject>();
-            inventoryItems = new List<Item>();
-            equipmentItems = new List<Item>();
-            bonusItems = new List<Item>();
+            slots = new List<GameObject>();
+            items = new List<Item>();
 
             // Initialise the number of slots to create
             numInventorySlotsCreate = 28;
             numEquipmentSlotsCreate = 2;
             numBonusSlotsCreate = 7;
 
-            // Initalise the number of slots to zero
-            numInventorySlots = 0;
-            numEquipmentSlots = 0;
-            numBonusSlots = 0;
+            // Calculate the equipment and bonus slot ends
+            equipmentSlots = numInventorySlotsCreate + numEquipmentSlotsCreate;
+            bonusSlots = equipmentSlots + numBonusSlotsCreate;
 
             // Loop to create the inventory slots
-            for (int index = 0; index < numInventorySlotsCreate; index++)
+            for (int index = 0; index < bonusSlots; index++)
             {
                 // Create the slot
-                GameObject slot = Instantiate(PrefabReference.prefabSlot) as GameObject;
+                GameObject slot = Instantiate(PrefabReference.prefabInventorySlot) as GameObject;
 
-                // Parent the slot to the Inventory's Bottom panel
-                slot.transform.SetParent(bottomGrid);
+                // Check if the index is in the range of the inventory slots
+                if (index >= 0 && index < numInventorySlotsCreate)
+                {
+                    // Inventory slots are parented to the Inventory's Bottom panel
+                    slot.transform.SetParent(bottomGrid);
 
-                // Name the slot in the editor for convienience
-                slot.name = "InventorySlot " + (index + 1);
+                    // Name the slot in the editor for convienience
+                    slot.name = "InventorySlot " + (index + 1) + " (" + index + ")";
+                } // end if
+                // Check if the index is in the range of the equipment slots
+                else if (index >= numInventorySlotsCreate && index < equipmentSlots)
+                {
+                    // Equipment slots are parented to the Inventory's Top/Equipment panel
+                    slot.transform.SetParent(equipmentPanel);
 
-                // Change the slotId
-                slot.GetComponent<InventorySlot>().SlotId = numInventorySlots;
+                    // Name the slot in the editor for convienience
+                    slot.name = "EquipmentSlot " + ((index - numInventorySlotsCreate) + 1) + " (" + index + ")";
+                } // end else if
+                // Check if the index is in the range of the bonus slots
+                else if (index >= equipmentSlots && index < bonusSlots)
+                {
+                    // Bonus slots are parented to the Inventory's Top/Bonus panel
+                    slot.transform.SetParent(bonusPanel);
 
-                // Add the slot to the list
-                inventorySlots.Add(slot);
-
-                // Add an empty item to the list for the slot
-                inventoryItems.Add(new EmptyItem());
-
-                // Increment the number of slots
-                numInventorySlots++;
-            } // end for
-
-            // Loop to create the equipment slots
-            for (int index = 0; index < numEquipmentSlotsCreate; index++)
-            {
-                // Create the slot
-                GameObject slot = Instantiate(PrefabReference.prefabSlot) as GameObject;
-
-                // Parent the slot to the Inventory's Bottom panel
-                slot.transform.SetParent(equipmentPanel);
-
-                // Name the slot in the editor for convienience
-                slot.name = "EquipmentSlot " + (index + 1);
+                    // Name the slot in the editor for convienience
+                    slot.name = "BonusSlot " + ((index - equipmentSlots) + 1) + " (" + index + ")";
+                } // end else if
 
                 // Change the slotId
-                slot.GetComponent<InventorySlot>().SlotId = numEquipmentSlots;
+                slot.GetComponent<InventorySlot>().SlotId = index;
 
                 // Add the slot to the list
-                equipmentSlots.Add(slot);
+                slots.Add(slot);
 
                 // Add an empty item to the list for the slot
-                equipmentItems.Add(new EmptyItem());
-
-                // Increment the number of slots
-                numEquipmentSlots++;
-            } // end for
-
-            // Loop to create the bonus slots
-            for (int index = 0; index < numBonusSlotsCreate; index++)
-            {
-                // Create the slot
-                GameObject slot = Instantiate(PrefabReference.prefabSlot) as GameObject;
-
-                // Parent the slot to the Inventory's Bottom panel
-                slot.transform.SetParent(bonusPanel);
-
-                // Name the slot in the editor for convienience
-                slot.name = "BonusSlot " + (index + 1);
-
-                // Change the slotId
-                slot.GetComponent<InventorySlot>().SlotId = numBonusSlots;
-
-                // Add the slot to the list
-                bonusSlots.Add(slot);
-
-                // Add an empty item to the list for the slot
-                bonusItems.Add(new EmptyItem());
-
-                // Increment the number of slots
-                numEquipmentSlots++;
+                items.Add(new EmptyItem());
             } // end for
 
             StartCoroutine(Add());
@@ -195,7 +154,7 @@ namespace GSP.Items.Inventory
             } // end if
         } // end Update
 
-        // Add an item to the inventory
+        // Add an item to the inventory for the given SlotType
         public bool AddItem(int itemId)
         {
             // Get the list of items from the ItemDatabase
@@ -207,13 +166,13 @@ namespace GSP.Items.Inventory
                 int freeSlot;   // The first slot that is free
                 
                 // Check if there's space for the item
-                if ((freeSlot = FindFreeInventorySlot()) >= 0)
+                if ((freeSlot = FindFreeSlot(SlotType.Inventory)) >= 0)
                 {
                     // Get the item from the database
                     Item tempItem = database[database.FindIndex(item => item.Id == itemId)];
 
                     // Place it in the free slot
-                    inventoryItems[freeSlot] = tempItem;
+                    items[freeSlot] = tempItem;
 
                     // Return success
                     return true;
@@ -231,31 +190,175 @@ namespace GSP.Items.Inventory
             } // end else
         } // end AddItem
 
-        // Gets the first empty inventory slot
-        public int FindFreeInventorySlot()
+        // Equips an Equipment item
+        public bool EquipItem(Equipment item)
         {
-            // Return the first empty slot.
-            return inventoryItems.FindIndex(item => item.Name == string.Empty);
-        } // end FindFreeInventorySlot
+            // Get the weapon and armor slots
+            // Note: Since there's only two slots and this is a minimal inventory, the first slot starts after the inventory
+            // slots and the second slot starts one slot before the bonus slots begin
+            int weaponSlot = numInventorySlotsCreate;
+            int armorSlot = equipmentSlots - 1;
 
-        // Gets the first empty inventory slot
-        public int FindFreeEquipmentSlot()
-        {
-            // Return the first empty slot.
-            return equipmentItems.FindIndex(item => item.Name == string.Empty);
-        } // end FindFreeEquipmentSlot
+            // Get the list of items from the ItemDatabase
+            List<Item> database = ItemDatabase.Instance.Items;
+            
+            // Only proceed if the ID exists in the database
+            if (database.Exists(tempItem => tempItem.Id == item.Id))
+            {
+                // Check if the item is a piece of armour
+                if (item is Armor)
+                {
+                    // Get the item in the armour slot
+                    Item armor = items[armorSlot];
 
-        // Gets the first empty inventory slot
-        public int FindFreeBonusSlot()
+                    // The item is armour so check if there's already armour equipped
+                    if (armor.Name == string.Empty)
+                    {
+                        // There is no armour already equipped; Swap slot places with the item
+                        SwapItem(armor, item);
+
+                        // Disable the tooltip
+                        ShowTooltip(null, false);
+
+                        // Then deal the the equipping
+                        //TODO: Damien: Get the merchant and call Equip on the item later
+                    } // end if
+                    else
+                    {
+                        // Otherwise there is already armour equipped; Swap slot places with the item
+                        SwapItem(items[armorSlot], item);
+
+                        // Update the tooltip
+                        ShowTooltip(armor);
+
+                        // Then deal with the unequipping and equipping
+                        //TODO: Damien: Get the merchant and call Unequip/Equip on the item later
+                    } // end else
+
+                    // Return success
+                    return true;
+                } // end if
+                // Check if the item is a weapon
+                else if (item is Weapon)
+                {
+                    // Get the item in the weapon slot
+                    Item weapon = items[weaponSlot];
+
+                    // The item is a weapon so check if there's already a weapon equipped
+                    if (weapon.Name == string.Empty)
+                    {
+                        // There is no a weapon already equipped; Swap slot places with the item
+                        SwapItem(weapon, item);
+
+                        // Disable the tooltip
+                        ShowTooltip(null, false);
+
+                        // Then deal the the equipping
+                        //TODO: Damien: Get the merchant and call Equip on the item later
+                    } // end if
+                    else
+                    {
+                        // Otherwise there is already a weapon equipped; Swap slot places with the item
+                        SwapItem(items[weaponSlot], item);
+
+                        // Update the tooltip
+                        ShowTooltip(weapon);
+
+                        // Then deal with the unequipping and equipping
+                        //TODO: Damien: Get the merchant and call Unequip/Equip on the item later
+                    } // end else
+
+                    // Return success
+                    return true;
+                } // end if
+                // Check if the item is a bonus item
+                else if (item is Bonus)
+                {
+                    int freeSlot;   // The first slot that is free in the bonus inventory
+
+                    // Make sure there's enough enough space
+                    if ((freeSlot = FindFreeSlot(SlotType.Bonus)) >= 0)
+                    {
+                        // Swap slot places with the item
+                        SwapItem(items[freeSlot], item);
+
+                        // Disable the tooltip
+                        ShowTooltip(null, false);
+
+                        // Then deal with the equipping
+                        //TODO: Damien: Get the merchant and call Equip on the item later
+
+                        // Return success
+                        return true;
+                    }
+                } // end if
+                
+                // Otherwise, return failure as there isn't enough space
+                Debug.LogFormat("No space for item of Id '{0}' in the bonus inventory.", item.Id);
+                return false;
+            } // end if
+            else
+            {
+                // The item didn't exist in the database to return failure
+                Debug.LogErrorFormat("The Id '{0}' does not exist in the ItemDatabase!", item.Id);
+                return false;
+            } // end if
+        } // end EquipItem
+
+        // Swaps an item's place in the inventory with another slot
+        public void SwapItem(Item a, Item b)
         {
-            // Return the first empty slot.
-            return bonusItems.FindIndex(item => item.Name == string.Empty);
-        } // end FindFreeBonusSlot
+            int aSlot;  // The slot item a resides in
+            int bSlot;  // The slot item b resides in
+
+            // Get the item's indices
+            aSlot = items.FindIndex(aItem => aItem.Id == a.Id);
+            bSlot = items.FindIndex(bItem => bItem.Id == b.Id);
+
+            // Now swap the items
+            items[aSlot] = b;
+            items[bSlot] = a;
+        } // end SwapItem
+
+        // Gets the first empty slot of the given SlotType
+        public int FindFreeSlot(SlotType slotType)
+        {
+            int freeSlot = -1;  // The next free slot of the given type
+            int totalFreeSlot;  // The slot free between the inventory and bonus inventory
+            
+            // Check if the slot type is bonus
+            if (slotType == SlotType.Bonus)
+            {
+                // Start the free slot search at the bonus inventory's start index
+                totalFreeSlot = items.FindIndex(equipmentSlots, item => item.Name == string.Empty);
+            } // end if
+            else
+            {
+                // Otherwise start the free slot search at the beginning
+                totalFreeSlot = items.FindIndex(item => item.Name == string.Empty);
+            } // end else
+
+            // Check if the free slot is in the range of the inventory slots
+            if (slotType == SlotType.Inventory && (totalFreeSlot >= 0 && totalFreeSlot < numInventorySlotsCreate))
+            {
+                // The free slot is in the correct range so return it
+                freeSlot = totalFreeSlot;
+            } // end if
+            // Check if the free slot is in the range of the bonus slots
+            else if (slotType == SlotType.Bonus && (totalFreeSlot >= equipmentSlots && totalFreeSlot < bonusSlots))
+            {
+                // The free slot is in the correct range so return it
+                freeSlot = totalFreeSlot;
+            } // end if
+
+            // Return the first empty slot
+            return freeSlot;
+        } // end FindFreeSlot
 
         // Gets an item at the given index
         public Item GetItem(int itemId)
         {
-            return inventoryItems[itemId];
+            return items[itemId];
         } // end GetItem
 
         // Shows the tooltip window for item information
@@ -329,5 +432,17 @@ namespace GSP.Items.Inventory
                 tooltip.SetActive(false);
             } // end else
         } // end ShowTooltip
+
+        // Gets the beginning of the bonus slots
+        public int BonusSlotBegin
+        {
+            get { return equipmentSlots; }
+        } // end BonusSlotBegin
+
+        // Gets the end of the bonus slots
+        public int BonusSlotEnd
+        {
+            get { return bonusSlots - 1; }
+        } // end BonusSlotEnd
     } // end GSP.Items.Inventory
 } // end GSP.Items
