@@ -24,6 +24,7 @@ namespace GSP.Items.Inventory
         protected Image itemIcon;         // The Image component reference of the slot; this is where the item's image goes
         protected int slotId;             // The ID of the slot
         protected Inventory inventory;    // The inventory where the items are stored
+        protected int playerNum;
 
         // Use this for initialization
         void Start()
@@ -33,23 +34,27 @@ namespace GSP.Items.Inventory
 
             // Get the Image component reference
             itemIcon = gameObject.transform.GetChild(0).GetComponent<Image>();
+
+            playerNum = inventory.playerNum;
         } // end Start
 
         // Update is called once per frame
         void Update()
         {
             // Check if the slot contains an item
-            if (inventory.GetItem(slotId).Name != string.Empty)
+            if (inventory.GetItem(playerNum, slotId).Name != string.Empty)
             {
                 // Enable the component
                 itemIcon.enabled = true;
-                itemIcon.sprite = inventory.GetItem(slotId).Icon;
+                itemIcon.sprite = inventory.GetItem(playerNum, slotId).Icon;
             } // end if
             else
             {
                 // Disable the component
                 itemIcon.enabled = false;
             } // end else
+
+            playerNum = inventory.playerNum;
         } // end Update
 
         // Gets and Sets the ID of the slot

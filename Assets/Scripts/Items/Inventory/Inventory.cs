@@ -22,9 +22,11 @@ namespace GSP.Items.Inventory
      *******************************************************************************/
     public class Inventory : MonoBehaviour
     {
+        public int playerNum = 0;
+
+        Dictionary<int, List<Item>> items;  // The list of items for the inventory
 
         List<GameObject> slots;         // The list of inventory slots for the inventory
-        List<Item> items;               // The list of items for the inventory
         int numInventorySlotsCreate;    // The number of inventory slots to create
         int numEquipmentSlotsCreate;    // The number of equipment slots to create
         int numBonusSlotsCreate;        // The number of bonus slots to create
@@ -52,9 +54,18 @@ namespace GSP.Items.Inventory
             // Get the items from the database
             List<Item> database = ItemDatabase.Instance.Items;
 
-            for (int index = 0; index < database.Count; index++)
+            System.Random random = new System.Random();
+            Die die = new Die();
+            die.Reseed(System.Environment.TickCount * random.Next(10));
+
+            for (int i = 0; i < 4; i++)
             {
-                AddItem(ItemDatabase.Instance.Items[index].Id);
+                int roll = die.Roll(1, database.Count);
+
+                for (int j = 0; j < roll; j++)
+                {
+                    AddItem(i, ItemDatabase.Instance.Items[j].Id);
+                }
             }
         }
 
@@ -80,9 +91,11 @@ namespace GSP.Items.Inventory
             // Get the reference to the tooltips RectTransform
             tooltipRect = tooltip.GetComponent<RectTransform>();
 
-            // Initialise the lists
+            // Initialise the list
             slots = new List<GameObject>();
-            items = new List<Item>();
+
+            // Initialise the dictionary
+            items = new Dictionary<int, List<Item>>();
 
             // Initialise the number of slots to create
             numInventorySlotsCreate = 28;
@@ -132,10 +145,18 @@ namespace GSP.Items.Inventory
 
                 // Add the slot to the list
                 slots.Add(slot);
-
-                // Add an empty item to the list for the slot
-                items.Add(new EmptyItem());
             } // end for
+
+            // Add all the EmptyItem's for all the players to match the slots
+            for (int key = 0; key < 4; key++)
+            {
+                items.Add(key, new List<Item>());
+
+                for (int index = 0; index < bonusSlots; index++)
+                {
+                    items[key].Add(new EmptyItem());
+                } // end for index
+            } // end for key
 
             StartCoroutine(Add());
         } // end Start
@@ -154,8 +175,8 @@ namespace GSP.Items.Inventory
             } // end if
         } // end Update
 
-        // Add an item to the inventory for the given SlotType
-        public bool AddItem(int itemId)
+        // Add an item to the inventory for the given player
+        public bool AddItem(int playerNum, int itemId)
         {
             // Get the list of items from the ItemDatabase
             List<Item> database = ItemDatabase.Instance.Items;
@@ -166,13 +187,13 @@ namespace GSP.Items.Inventory
                 int freeSlot;   // The first slot that is free
                 
                 // Check if there's space for the item
-                if ((freeSlot = FindFreeSlot(SlotType.Inventory)) >= 0)
+                if ((freeSlot = FindFreeSlot(playerNum, SlotType.Inventory)) >= 0)
                 {
                     // Get the item from the database
                     Item tempItem = database[database.FindIndex(item => item.Id == itemId)];
 
                     // Place it in the free slot
-                    items[freeSlot] = tempItem;
+                    items[playerNum][freeSlot] = tempItem;
 
                     // Return success
                     return true;
@@ -191,7 +212,7 @@ namespace GSP.Items.Inventory
         } // end AddItem
 
         // Equips an Equipment item
-        public bool EquipItem(Equipment item)
+        public bool EquipItem(int playerNum, Equipment item)
         {
             // Get the weapon and armor slots
             // Note: Since there's only two slots and this is a minimal inventory, the first slot starts after the inventory
@@ -209,13 +230,13 @@ namespace GSP.Items.Inventory
                 if (item is Armor)
                 {
                     // Get the item in the armour slot
-                    Item armor = items[armorSlot];
+                    Item armor = items[playerNum][armorSlot];
 
                     // The item is armour so check if there's already armour equipped
                     if (armor.Name == string.Empty)
                     {
                         // There is no armour already equipped; Swap slot places with the item
-                        SwapItem(armor, item);
+                        SwapItem(playerNum, armor, item);
 
                         // Disable the tooltip
                         ShowTooltip(null, false);
@@ -226,7 +247,7 @@ namespace GSP.Items.Inventory
                     else
                     {
                         // Otherwise there is already armour equipped; Swap slot places with the item
-                        SwapItem(items[armorSlot], item);
+                        SwapItem(playerNum, items[playerNum][armorSlot], item);
 
                         // Update the tooltip
                         ShowTooltip(armor);
@@ -242,13 +263,13 @@ namespace GSP.Items.Inventory
                 else if (item is Weapon)
                 {
                     // Get the item in the weapon slot
-                    Item weapon = items[weaponSlot];
+                    Item weapon = items[playerNum][weaponSlot];
 
                     // The item is a weapon so check if there's already a weapon equipped
                     if (weapon.Name == string.Empty)
                     {
                         // There is no a weapon already equipped; Swap slot places with the item
-                        SwapItem(weapon, item);
+                        SwapItem(playerNum, weapon, item);
 
                         // Disable the tooltip
                         ShowTooltip(null, false);
@@ -259,7 +280,7 @@ namespace GSP.Items.Inventory
                     else
                     {
                         // Otherwise there is already a weapon equipped; Swap slot places with the item
-                        SwapItem(items[weaponSlot], item);
+                        SwapItem(playerNum, items[playerNum][weaponSlot], item);
 
                         // Update the tooltip
                         ShowTooltip(weapon);
@@ -277,10 +298,10 @@ namespace GSP.Items.Inventory
                     int freeSlot;   // The first slot that is free in the bonus inventory
 
                     // Make sure there's enough enough space
-                    if ((freeSlot = FindFreeSlot(SlotType.Bonus)) >= 0)
+                    if ((freeSlot = FindFreeSlot(playerNum, SlotType.Bonus)) >= 0)
                     {
                         // Swap slot places with the item
-                        SwapItem(items[freeSlot], item);
+                        SwapItem(playerNum, items[playerNum][freeSlot], item);
 
                         // Disable the tooltip
                         ShowTooltip(null, false);
@@ -306,22 +327,22 @@ namespace GSP.Items.Inventory
         } // end EquipItem
 
         // Swaps an item's place in the inventory with another slot
-        public void SwapItem(Item a, Item b)
+        public void SwapItem(int playerNum, Item a, Item b)
         {
             int aSlot;  // The slot item a resides in
             int bSlot;  // The slot item b resides in
 
             // Get the item's indices
-            aSlot = items.FindIndex(aItem => aItem.Id == a.Id);
-            bSlot = items.FindIndex(bItem => bItem.Id == b.Id);
+            aSlot = items[playerNum].FindIndex(aItem => aItem.Id == a.Id);
+            bSlot = items[playerNum].FindIndex(bItem => bItem.Id == b.Id);
 
             // Now swap the items
-            items[aSlot] = b;
-            items[bSlot] = a;
+            items[playerNum][aSlot] = b;
+            items[playerNum][bSlot] = a;
         } // end SwapItem
 
         // Gets the first empty slot of the given SlotType
-        public int FindFreeSlot(SlotType slotType)
+        public int FindFreeSlot(int playerNum, SlotType slotType)
         {
             int freeSlot = -1;  // The next free slot of the given type
             int totalFreeSlot;  // The slot free between the inventory and bonus inventory
@@ -330,12 +351,12 @@ namespace GSP.Items.Inventory
             if (slotType == SlotType.Bonus)
             {
                 // Start the free slot search at the bonus inventory's start index
-                totalFreeSlot = items.FindIndex(equipmentSlots, item => item.Name == string.Empty);
+                totalFreeSlot = items[playerNum].FindIndex(equipmentSlots, item => item.Name == string.Empty);
             } // end if
             else
             {
                 // Otherwise start the free slot search at the beginning
-                totalFreeSlot = items.FindIndex(item => item.Name == string.Empty);
+                totalFreeSlot = items[playerNum].FindIndex(item => item.Name == string.Empty);
             } // end else
 
             // Check if the free slot is in the range of the inventory slots
@@ -356,9 +377,9 @@ namespace GSP.Items.Inventory
         } // end FindFreeSlot
 
         // Gets an item at the given index
-        public Item GetItem(int itemId)
+        public Item GetItem(int playerNum, int itemId)
         {
-            return items[itemId];
+            return items[playerNum][itemId];
         } // end GetItem
 
         // Shows the tooltip window for item information
