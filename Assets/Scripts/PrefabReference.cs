@@ -50,7 +50,7 @@ namespace GSP
         public static GameObject prefabHighlight = Resources.Load("Highlight") as GameObject;
 
         // This is the reference to the item prefab
-        public static GameObject prefabSlot = Resources.Load("Inventory/Slot") as GameObject;
+        public static GameObject prefabSlot = Resources.Load("Inventory/InventorySlot") as GameObject;
 	} // end PrefabReference
 } // end GSP
 
