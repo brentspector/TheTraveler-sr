@@ -1,8 +1,23 @@
-﻿using System;
+﻿/*******************************************************************************
+ *
+ *  File Name: Resource.cs
+ *
+ *  Description: Logic for using resources as an item. Used in conjunction with
+ *               the Inventory system.
+ *
+ *******************************************************************************/
+using System;
 using UnityEngine;
 
 namespace GSP.Items
 {
+    /*******************************************************************************
+     *
+     * Name: Resource
+     * 
+     * Description: The new resource class. Logic for resources as an item.
+     * 
+     *******************************************************************************/
     public class Resource : Item
     {
         int weightValue;    // The weight value of the resource
@@ -10,8 +25,8 @@ namespace GSP.Items
         int sizeValue;		// The size value of the resource
         
         // Create a resource
-        public Resource(string itemName, ResourceType itemType, int weight, int size, int worth) :
-            base(itemName, itemType.ToString())
+        public Resource(string itemName, ResourceType itemType, Sprite itemIcon, int weight, int size, int worth) :
+            base(itemName, itemType.ToString(), itemIcon)
         {
             // Initialise the item to the given parameters
             weightValue = weight;

@@ -15,22 +15,22 @@
   <image source="GSP362_TeamA_ResourceTiles_64x64.png" width="256" height="256"/>
   <tile id="0">
    <properties>
-    <property name="ResType" value="ORE"/>
+    <property name="ResType" value="Ore"/>
    </properties>
   </tile>
   <tile id="1">
    <properties>
-    <property name="ResType" value="WOOD"/>
+    <property name="ResType" value="Wood"/>
    </properties>
   </tile>
   <tile id="2">
    <properties>
-    <property name="ResType" value="WOOL"/>
+    <property name="ResType" value="Wool"/>
    </properties>
   </tile>
   <tile id="3">
    <properties>
-    <property name="ResType" value="FISH"/>
+    <property name="ResType" value="Fish"/>
    </properties>
   </tile>
  </tileset>

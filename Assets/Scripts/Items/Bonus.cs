@@ -6,6 +6,7 @@
  *               mods
  *
  *******************************************************************************/
+using UnityEngine;
 
 namespace GSP.Items
 {
@@ -20,8 +21,8 @@ namespace GSP.Items
     public class Bonus : Equipment
     {
         // Create a bonus item
-        public Bonus(string itemName, BonusType itemType, int space, int weight, int cost) :
-            base(itemName, itemType.ToString(), 0, 0, space, weight, cost)
+        public Bonus(string itemName, BonusType itemType, Sprite itemIcon, int space, int weight, int cost) :
+            base(itemName, itemType.ToString(), itemIcon, 0, 0, space, weight, cost)
         {
             // Leave empty
         } // end Bonus constructor
