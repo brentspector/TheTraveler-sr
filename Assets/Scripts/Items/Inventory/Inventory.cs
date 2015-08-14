@@ -6,7 +6,8 @@
  *               functional that the old system, but it's still pretty minimal.
  *
  *******************************************************************************/
-using System.Collections;
+using GSP.Core;
+using GSP.Entities.Neutrals;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -22,8 +23,6 @@ namespace GSP.Items.Inventory
      *******************************************************************************/
     public class Inventory : MonoBehaviour
     {
-        public int playerNum = 0;
-
         Dictionary<int, List<Item>> items;  // The list of items for the inventory
 
         List<GameObject> slots;         // The list of inventory slots for the inventory
@@ -37,49 +36,28 @@ namespace GSP.Items.Inventory
         Transform bottomGrid;       // The Inentory's Bottom Panel
         Transform equipmentPanel;   // The Inventory's Top/Equipment Panel
         Transform bonusPanel;       // The Inventory's Top/Bonus Panel
+        Transform statusLeft;       // The Inventory's Top/StatusLeft Panel
+        Transform statusRight;       // The Inventory's Top/StatusRight Panel
         GameObject tooltip;         // The tooltip's GameObjectn
         RectTransform tooltipRect;  // The transform of the tooltip
-
-        void Awake()
-        {
-            if (ItemDatabase.Instance == null) { }
-        }
-
-        IEnumerator Add()
-        {
-            Debug.Log("Waiting");
-            yield return new WaitForSeconds(3);
-            Debug.Log("Done");
-
-            // Get the items from the database
-            List<Item> database = ItemDatabase.Instance.Items;
-
-            System.Random random = new System.Random();
-            Die die = new Die();
-            die.Reseed(System.Environment.TickCount * random.Next(10));
-
-            for (int i = 0; i < 4; i++)
-            {
-                int roll = die.Roll(1, database.Count);
-
-                for (int j = 0; j < roll; j++)
-                {
-                    AddItem(i, ItemDatabase.Instance.Items[j].Id);
-                }
-            }
-        }
 
         // Use this for initialisation
         void Start()
         {
             // Get Inventory's Bottom panel
-            Transform bottomGrid = GameObject.Find("Inventory/Bottom").transform;
+            bottomGrid = GameObject.Find("Inventory/Bottom").transform;
 
             // Get the Inventory's Top/Equipment panel
-            Transform equipmentPanel = GameObject.Find("Inventory/Top/Equipment").transform;
+            equipmentPanel = GameObject.Find("Inventory/Top/Equipment").transform;
 
             // Get the Inventory's Top/Bonus panel
-            Transform bonusPanel = GameObject.Find("Inventory/Top/Bonus").transform;
+            bonusPanel = GameObject.Find("Inventory/Top/Bonus").transform;
+
+            // Get the Inventory's Top/StatusLeft panel
+            statusLeft = GameObject.Find("Inventory/Top/StatusLeft").transform;
+
+            // Get the Inventory's Top/StatusRight panel
+            statusRight = GameObject.Find("Inventory/Top/StatusRight").transform;
 
             // Get the tooltip GameObject
             tooltip = GameObject.Find("Tooltip");
@@ -154,11 +132,10 @@ namespace GSP.Items.Inventory
 
                 for (int index = 0; index < bonusSlots; index++)
                 {
-                    items[key].Add(new EmptyItem());
+                    items[key].Add(ItemDatabase.Instance.Items.Find(item => item.Type == "Empty"));
                 } // end for index
             } // end for key
 
-            StartCoroutine(Add());
         } // end Start
 
         // Runs each frame; used to update the tooltip's position
@@ -211,6 +188,32 @@ namespace GSP.Items.Inventory
             } // end else
         } // end AddItem
 
+        // Add an item to the inventory for a given player from a save file
+        public bool AddItemFromSave(int playerNum, int itemId, int slotNum)
+        {
+            // Get the list of items from the ItemDatabase
+            List<Item> database = ItemDatabase.Instance.Items;
+            
+            // Only proceed if the ID exists in the database
+            if (database.Exists(item => item.Id == itemId))
+            {
+                // Get the item from the database
+                Item tempItem = database[database.FindIndex(item => item.Id == itemId)];
+
+                // Place it in the given slot
+                items[playerNum][slotNum] = tempItem;
+
+                // Return success
+                return true;
+            } // end if
+            else
+            {
+                // The item didn't exist in the database to return failure
+                Debug.LogErrorFormat("The Id '{0}' does not exist in the ItemDatabase!", itemId);
+                return false;
+            } // end else
+        } // end AddItemFromSave
+
         // Equips an Equipment item
         public bool EquipItem(int playerNum, Equipment item)
         {
@@ -242,18 +245,21 @@ namespace GSP.Items.Inventory
                         ShowTooltip(null, false);
 
                         // Then deal the the equipping
-                        //TODO: Damien: Get the merchant and call Equip on the item later
+                        Merchant playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(playerNum).Entity;
+                        playerMerchant.EquipArmor((Armor)item);
                     } // end if
                     else
                     {
                         // Otherwise there is already armour equipped; Swap slot places with the item
-                        SwapItem(playerNum, items[playerNum][armorSlot], item);
+                        SwapItem(playerNum, armor, item);
 
                         // Update the tooltip
                         ShowTooltip(armor);
 
                         // Then deal with the unequipping and equipping
-                        //TODO: Damien: Get the merchant and call Unequip/Equip on the item later
+                        Merchant playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(playerNum).Entity;
+                        playerMerchant.UnequipArmor((Armor)armor);
+                        playerMerchant.EquipArmor((Armor)item);
                     } // end else
 
                     // Return success
@@ -280,13 +286,15 @@ namespace GSP.Items.Inventory
                     else
                     {
                         // Otherwise there is already a weapon equipped; Swap slot places with the item
-                        SwapItem(playerNum, items[playerNum][weaponSlot], item);
+                        SwapItem(playerNum, weapon, item);
 
                         // Update the tooltip
                         ShowTooltip(weapon);
 
                         // Then deal with the unequipping and equipping
-                        //TODO: Damien: Get the merchant and call Unequip/Equip on the item later
+                        Merchant playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(playerNum).Entity;
+                        playerMerchant.UnequipWeapon((Weapon)weapon);
+                        playerMerchant.EquipWeapon((Weapon)item);
                     } // end else
 
                     // Return success
@@ -307,7 +315,8 @@ namespace GSP.Items.Inventory
                         ShowTooltip(null, false);
 
                         // Then deal with the equipping
-                        //TODO: Damien: Get the merchant and call Equip on the item later
+                        Merchant playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(playerNum).Entity;
+                        playerMerchant.EquipBonus((Bonus)item);
 
                         // Return success
                         return true;
@@ -325,6 +334,16 @@ namespace GSP.Items.Inventory
                 return false;
             } // end if
         } // end EquipItem
+
+        // Removes an item from the inventory
+        public void Remove(int playerNum, int slotNum)
+        {
+            // Remove the item at the given slot
+            items[playerNum][slotNum] = ItemDatabase.Instance.Items.Find(item => item.Type == "Empty");
+
+            // Disable the tooltip
+            ShowTooltip(null, false);
+        } // end Remove
 
         // Swaps an item's place in the inventory with another slot
         public void SwapItem(int playerNum, Item a, Item b)
@@ -377,9 +396,9 @@ namespace GSP.Items.Inventory
         } // end FindFreeSlot
 
         // Gets an item at the given index
-        public Item GetItem(int playerNum, int itemId)
+        public Item GetItem(int playerNum, int slotNum)
         {
-            return items[playerNum][itemId];
+            return items[playerNum][slotNum];
         } // end GetItem
 
         // Shows the tooltip window for item information
@@ -395,10 +414,10 @@ namespace GSP.Items.Inventory
                 tooltip.SetActive(true);
 
                 // Get the Title Text child
-                Text tooltipTitleText = tooltip.transform.GetChild(0).GetComponent<Text>();
+                Text tooltipTitleText = tooltip.transform.GetChild(0).GetChild(0).GetComponent<Text>();
 
                 // Get the Body Text Child
-                Text tooltipBodyText = tooltip.transform.GetChild(1).GetComponent<Text>();
+                Text tooltipBodyText = tooltip.transform.GetChild(0).GetChild(1).GetComponent<Text>();
 
                 // Set the tooltip's title text
                 tooltipTitleText.text = item.Name;
@@ -453,6 +472,76 @@ namespace GSP.Items.Inventory
                 tooltip.SetActive(false);
             } // end else
         } // end ShowTooltip
+
+        // Sets the player's inventory colour to their interface colour
+        void SetInventoryColor(InterfaceColors interfaceColor)
+        {
+            // Get the colour for the player's interface colour
+            Color color = Utility.InterfaceColorToColor(interfaceColor);
+            
+            // Get the Image component of the inventory and set its colour
+            GetComponent<Image>().color = color;
+
+            // Get the Image component of the tooltip and set its colour
+            tooltip.GetComponent<Image>().color = color;
+        } // end SetInventoryColor
+
+        // Sets the player's stats for the status panels
+        void SetStats(Merchant player)
+        {
+            // Set the title's value
+            transform.GetChild(0).GetChild(0).GetComponent<Text>().text = player.Name + "'s Inventory";
+            
+            // Set the Health status line's value
+            statusLeft.GetChild(0).GetChild(1).GetComponent<Text>().text = player.Health.ToString() + "/" + player.MaxHealth.ToString();
+
+            // Set the Attack status line's value
+            statusLeft.GetChild(1).GetChild(1).GetComponent<Text>().text = player.AttackPower.ToString();
+
+            // Set the Defence status line's value
+            statusLeft.GetChild(2).GetChild(1).GetComponent<Text>().text = player.DefencePower.ToString();
+
+            // Set the Weight status line's value
+            statusLeft.GetChild(3).GetChild(1).GetComponent<Text>().text = player.TotalWeight.ToString() + "/" + player.MaxWeight.ToString();
+
+            // Set the Gold status line's value
+            statusRight.GetChild(0).GetChild(1).GetComponent<Text>().text = player.Currency.ToString();
+
+            // For the profit status line, we have to do a calculation
+            // First find all the resources in the inventory
+            List<Item> resources = ItemDatabase.Instance.Items.FindAll(item => item is Resource);
+            // We need a variable to hold the result
+            int profit = 0;
+
+            // Then check if we found anything
+            if (resources.Count > 0)
+            {
+                // Finally, loop over the list and add each resources worth
+                foreach (Resource resource in resources)
+                {
+                    profit += resource.Worth;
+                } // end foreach
+            } // end if
+
+            // Set the Profit status line's value
+            statusRight.GetChild(1).GetChild(1).GetComponent<Text>().text = profit.ToString();
+        } // end SetStats
+
+        // Sets the inventory up for the current player
+        public void SetPlayer(int playerNum)
+        {
+            // Set the inventory's colour
+            SetInventoryColor(GameMaster.Instance.GetPlayerColor(playerNum));
+
+            // Set the player's stats
+            SetStats((Merchant)GameMaster.Instance.GetPlayerScript(playerNum).Entity);
+
+            // Loop over the slots to set their player number
+            foreach (var slot in slots)
+            {
+                slot.GetComponent<Slot>().PlayerNumber = playerNum;
+            } // end foreach
+        } // end SetPlayer
 
         // Gets the beginning of the bonus slots
         public int BonusSlotBegin

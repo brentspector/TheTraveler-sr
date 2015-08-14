@@ -37,6 +37,7 @@ namespace GSP.Items.Inventory
         void Start()
         {
             // Add the items to the list
+            items.Add(new EmptyItem());
             items.Add(new Weapon("Broadsword", WeaponType.Broadsword, SpriteReference.spriteBroadsword, 9, 1));
             items.Add(new Weapon("Mace", WeaponType.Mace, SpriteReference.spriteMace, 7, 1));
             items.Add(new Weapon("Spear", WeaponType.Spear, SpriteReference.spriteSpear, 8, 1));

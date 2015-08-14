@@ -11,6 +11,7 @@ using GSP.Char.Allies;
 using GSP.Entities;
 using GSP.Entities.Friendlies;
 using GSP.Items;
+using GSP.Items.Inventory;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -91,13 +92,6 @@ namespace GSP.Core
             turn = 0;
         } // end Start
 
-        // Called when a new level was loaded
-        void OnLevelWasLoaded(int level)
-        {
-            // Reset the containers after a level was loaded to flushout old references
-            //Instance.ResetCollections();
-        }
-
         // Resets the containers
         void ResetCollections()
         {
@@ -151,6 +145,14 @@ namespace GSP.Core
 
             //TODO: Damien: Change this later when you do the player renaming
             playerObjs[playerNum].name = "Player " + playerName;
+
+            // Check if player script exists
+            Player player;
+            if ((player = Instance.GetPlayerScript(playerNum)) != null)
+            {
+                // Set the merchant's name as well
+                player.Entity.Name = playerName;
+            } // end if
         } // end SetPlayerName
 
         // Gets the player's colour with the given key
@@ -510,6 +512,15 @@ namespace GSP.Core
                 playerData.AllyId = -1;
             } // end else
 
+            // Get the Inventory component
+            Inventory inventory = GameObject.Find("Inventory").GetComponent<Inventory>();
+
+            // Loop over the player's inventory to store their item IDs
+            for (int index = 0; index < (inventory.BonusSlotEnd + 1); index++)
+            {
+                playerData.AddItemId(inventory.GetItem(playerNum, index).Id);
+            } // end for
+
             // Now write the data to the file
             binaryFormatter.Serialize(fileStream, playerData);
 
@@ -556,12 +567,6 @@ namespace GSP.Core
                 // Create the player
                 Instance.CreatePlayerFromSave(playerNum, playerData.MerchantId, isDataOnly);
 
-                // Set the player's name
-                //Instance.SetPlayerName(playerNum, playerData.Name);
-
-                // Set the player's colour
-                //Instance.SetPlayerColor(playerNum, playerData.Color);
-
                 // Set the player's position
                 Instance.GetPlayerScript(playerNum).Position = playerData.Position;
 
@@ -578,6 +583,15 @@ namespace GSP.Core
                     var list = Instance.GetPlayerObject(playerNum).GetComponent<AllyList>();
                     list.AddAlly(allyObj);
                 }
+
+                // Get the Inventory component
+                Inventory inventory = GameObject.Find("Inventory").GetComponent<Inventory>();
+
+                // Loop over the player's inventory to restore it
+                for (int index = 0; index < (inventory.BonusSlotEnd + 1); index++)
+                {
+                    inventory.AddItemFromSave(playerNum, playerData.GetItemId(index), index);
+                } // end for
             } // end if
         } // end LoadPlayer
 

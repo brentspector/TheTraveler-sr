@@ -6,6 +6,7 @@
  *               Inventory system
  *
  *******************************************************************************/
+using GSP.Core;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -20,11 +21,12 @@ namespace GSP.Items.Inventory
      *******************************************************************************/
     public abstract class Slot : MonoBehaviour
     {
-        // Variables are set to protected so the derived classes can access them while other can't
-        protected Image itemIcon;         // The Image component reference of the slot; this is where the item's image goes
-        protected int slotId;             // The ID of the slot
-        protected Inventory inventory;    // The inventory where the items are stored
-        protected int playerNum;
+        // Variables are set to protected so the derived classes can access them while others can't
+        protected Image itemIcon;       // The Image component reference of the slot; this is where the item's image goes
+        protected Inventory inventory;  // The inventory where the items are stored
+        
+        int slotId;     // The ID of the slot
+        int playerNum;  // The current player's turn
 
         // Use this for initialization
         void Start()
@@ -34,13 +36,14 @@ namespace GSP.Items.Inventory
 
             // Get the Image component reference
             itemIcon = gameObject.transform.GetChild(0).GetComponent<Image>();
-
-            playerNum = inventory.playerNum;
         } // end Start
 
         // Update is called once per frame
         void Update()
         {
+            // Get the player number from GameMaster
+            playerNum = GameMaster.Instance.Turn;
+
             // Check if the slot contains an item
             if (inventory.GetItem(playerNum, slotId).Name != string.Empty)
             {
@@ -53,8 +56,6 @@ namespace GSP.Items.Inventory
                 // Disable the component
                 itemIcon.enabled = false;
             } // end else
-
-            playerNum = inventory.playerNum;
         } // end Update
 
         // Gets and Sets the ID of the slot
@@ -63,5 +64,12 @@ namespace GSP.Items.Inventory
             get { return slotId; }
             set { slotId = value; }
         } // end SlotId
+
+        // Gets and Sets the Player's Number
+        public int PlayerNumber
+        {
+            get { return playerNum; }
+            set { playerNum = value; }
+        } // end PlayerNumber
     } // end InventorySlot
 } // end GSP.Items.Inventory

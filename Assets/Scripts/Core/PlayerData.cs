@@ -6,6 +6,7 @@
  *
  *******************************************************************************/
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace GSP.Core
@@ -26,10 +27,14 @@ namespace GSP.Core
         SerializableVector3 position;   // The player's position
         int merchantId;                 // The player's merchant entity ID
         int allyId;                     // The player's ally entity ID
+        List<int> itemIds;              // The player's list of item IDs in their inventory
 
         // Default constructor; Creates an empty object
         public PlayerData()
         {
+            // Initialise the list
+            itemIds = new List<int>();
+
             // Reset the container; This prevents the initialisation being in 2 places
             Reset();
         } // end PlayerData
@@ -49,7 +54,22 @@ namespace GSP.Core
             // Set the entity ID's to negative one
             merchantId = -1;
             allyId = -1;
+
+            // Clear the list
+            itemIds.Clear();
         } // end Reset
+
+        // Gets an itemId at the given index
+        public int GetItemId(int index)
+        {
+            return itemIds[index];
+        } // end GetItemId
+
+        // Adds an itemId to the list
+        public void AddItemId(int itemId)
+        {
+            itemIds.Add(itemId);
+        } // end AddItemId
 
         // Gets and Sets the player's Name
         public string Name

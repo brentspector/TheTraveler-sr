@@ -27,10 +27,10 @@ namespace GSP.Items.Inventory
         public void OnPointerEnter(PointerEventData pointerEventData)
         {
             // Check if there is an item in the slot
-            if (inventory.GetItem(playerNum, slotId).Name != string.Empty)
+            if (inventory.GetItem(PlayerNumber, SlotId).Name != string.Empty)
             {
                 // Show the tooltip window while hovering over an item
-                inventory.ShowTooltip(inventory.GetItem(playerNum, slotId));
+                inventory.ShowTooltip(inventory.GetItem(PlayerNumber, SlotId));
             } // end if
         } // end OnPointerEnter
 
@@ -42,7 +42,7 @@ namespace GSP.Items.Inventory
         public void OnPointerExit(PointerEventData pointerEventData)
         {
             // Check if there is an item in the slot
-            if (inventory.GetItem(playerNum, slotId).Name != string.Empty)
+            if (inventory.GetItem(PlayerNumber, SlotId).Name != string.Empty)
             {
                 // Show the tooltip window while not hovering over an item
                 inventory.ShowTooltip(null, false);
@@ -67,30 +67,30 @@ namespace GSP.Items.Inventory
         public void OnPointerUp(PointerEventData pointerEventData)
         {
             // Check if there is an item in the slot
-            if (inventory.GetItem(playerNum, slotId).Name != string.Empty)
+            if (inventory.GetItem(PlayerNumber, SlotId).Name != string.Empty)
             {
                 // Check if the button was the right mouse
                 if (pointerEventData.pointerId == -2)
                 {
                     // Get the item that was right clicked
-                    Item item = inventory.GetItem(playerNum, slotId);
+                    Item item = inventory.GetItem(PlayerNumber, SlotId);
 
                     // Check if the item is a piece of equipment
                     if (item is Equipment)
                     {
                         // The item is a piece of equipment so equip it
-                        inventory.EquipItem(playerNum, (Equipment)item);
+                        inventory.EquipItem(PlayerNumber, (Equipment)item);
 
                         // Check if the item is a bonus item and that we're right clicking it from the bonus slot range.
-                        if (item is Bonus && (slotId >= inventory.BonusSlotBegin && slotId < inventory.BonusSlotEnd))
+                        if (item is Bonus && (SlotId >= inventory.BonusSlotBegin && SlotId < inventory.BonusSlotEnd))
                         {
                             int freeSlot;   // The first slot that is free
                             
                             // Check if there's space for the item
-                            if ((freeSlot = inventory.FindFreeSlot(playerNum, SlotType.Inventory)) >= 0)
+                            if ((freeSlot = inventory.FindFreeSlot(PlayerNumber, SlotType.Inventory)) >= 0)
                             {
                                 // Swap the bonus item with the item at the free slot
-                                inventory.SwapItem(playerNum, item, inventory.GetItem(playerNum, freeSlot));
+                                inventory.SwapItem(PlayerNumber, item, inventory.GetItem(PlayerNumber, freeSlot));
 
                                 // Disable the tooltip
                                 inventory.ShowTooltip(null, false);
