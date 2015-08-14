@@ -636,11 +636,21 @@ namespace GSP.Core
 
             // Create a new high scores instance
             HighScores highScores = new HighScores();
-            
-            /*
-             * Fill in the high scores stuff to save
-             */
 
+            // Get the HighScoreTable script component
+            HighScoreTable table = GameObject.Find("HighScoresTable").GetComponent<HighScoreTable>();
+
+            // Loop over the table MaxScores times
+            for (int index = 0; index < table.MaxScores; index++)
+            {
+                // Get the entry
+                var entry = table.GetScore(index);
+
+                // Add it to the HighScores instance
+                highScores.AddName(entry.First);
+                highScores.AddScore(entry.Second);
+            } // end for
+            
             // Now write the data to the file
             binaryFormatter.Serialize(fileStream, highScores);
 
@@ -669,9 +679,19 @@ namespace GSP.Core
                 // Now close the file stream
                 fileStream.Close();
 
-                /*
-                 * Load high scores stuff here
-                 */
+                // Get the HighScoreTable script component
+                HighScoreTable table = GameObject.Find("HighScoresTable").GetComponent<HighScoreTable>();
+
+                // Loop over the HighScores instance MaxScores times
+                for (int index = 0; index < table.MaxScores; index++)
+                {
+                    // Get the name and score of the entry
+                    string name = highScores.GetName(index);
+                    int score = highScores.GetScore(index);
+
+                    // Add it to the table
+                    table.AddScoreFromSave(name, score);
+                } // end for
             } // end if
         } // end LoadHighScores
 
