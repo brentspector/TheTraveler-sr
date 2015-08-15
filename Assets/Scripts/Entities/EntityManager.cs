@@ -84,18 +84,18 @@ namespace GSP.Entities
 		public bool AddEntity(Entity entity)
 		{
 			// We don't want to add an entity with an ID that already exists
-			var exists = entities.ContainsKey(entity.ID);
+			var exists = entities.ContainsKey(entity.Id);
 
 			// Does the given entity 's ID already exist?
 			if (exists)
 			{
 				// The ID already exixts so log it and return failure
-				Debug.LogWarningFormat("Entity of ID '{0}' already exists!", entity.ID);
+				Debug.LogWarningFormat("Entity of Id '{0}' already exists!", entity.Id);
 				return false;
 			} // end if
 
 			// It doesn't exist so add the entity and return success
-			entities.Add(entity.ID, entity);
+			entities.Add(entity.Id, entity);
 			return true;
 		} // end AddEntity
 
@@ -109,7 +109,7 @@ namespace GSP.Entities
 			if (ent == null)
 			{
 				// The entity doesn't exist so log it and return failure
-				Debug.LogWarningFormat("Entity of ID '{0}' was not found!", entityID);
+				Debug.LogWarningFormat("Entity of Id '{0}' was not found!", entityID);
                 return false;
 			}
 

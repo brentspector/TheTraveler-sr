@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <!--Tiled2Unity generated xml data-->
 <!--Do not modify by hand-->
-<!--Last exported: 12/6/2014 11:43:20 AM-->
+<!--Last exported: 8/6/2015 5:05:28 AM-->
 <Tiled2Unity version="0.9.7.2">
   <AssignMaterial mesh="mesh_[00]_[00]" material="GSP362_TeamA_Desert_Tiles_64x64" sortingLayerName="" sortingOrder="0" />
   <Prefab name="GSP362_TeamA_Desert_TiledMap" numTilesWide="20" numTilesHigh="16" tileWidth="64" tileHeight="64" scale="0.01">
@@ -16,49 +16,49 @@
     </GameObject>
     <GameObject name="Resource">
       <GameObject name="TileObject" x="192" y="-320">
-        <Property name="ResType" value="WOOD" />
+        <Property name="ResType" value="Wood" />
       </GameObject>
       <GameObject name="TileObject" x="1088" y="-320">
-        <Property name="ResType" value="WOOD" />
+        <Property name="ResType" value="Wood" />
       </GameObject>
       <GameObject name="TileObject" x="448" y="-512">
-        <Property name="ResType" value="WOOD" />
+        <Property name="ResType" value="Wood" />
       </GameObject>
       <GameObject name="TileObject" x="704" y="-256">
-        <Property name="ResType" value="WOOL" />
+        <Property name="ResType" value="Wool" />
       </GameObject>
       <GameObject name="TileObject" x="832" y="-704">
-        <Property name="ResType" value="WOOL" />
+        <Property name="ResType" value="Wool" />
       </GameObject>
       <GameObject name="TileObject" x="896" y="-384">
-        <Property name="ResType" value="FISH" />
+        <Property name="ResType" value="Fish" />
       </GameObject>
       <GameObject name="TileObject" x="640" y="-448">
-        <Property name="ResType" value="FISH" />
+        <Property name="ResType" value="Fish" />
       </GameObject>
       <GameObject name="TileObject" x="256" y="-640">
-        <Property name="ResType" value="ORE" />
+        <Property name="ResType" value="Ore" />
       </GameObject>
       <GameObject name="TileObject" x="512" y="-192">
-        <Property name="ResType" value="ORE" />
+        <Property name="ResType" value="Ore" />
       </GameObject>
       <GameObject name="TileObject" x="896" y="-192">
-        <Property name="ResType" value="ORE" />
+        <Property name="ResType" value="Ore" />
       </GameObject>
       <GameObject name="TileObject" x="1216" y="-192">
-        <Property name="ResType" value="ORE" />
+        <Property name="ResType" value="Ore" />
       </GameObject>
       <GameObject name="TileObject" x="64" y="-768">
-        <Property name="ResType" value="ORE" />
+        <Property name="ResType" value="Ore" />
       </GameObject>
       <GameObject name="TileObject" x="1216" y="-704">
-        <Property name="ResType" value="ORE" />
+        <Property name="ResType" value="Ore" />
       </GameObject>
       <GameObject name="TileObject" x="960" y="-640">
-        <Property name="ResType" value="ORE" />
+        <Property name="ResType" value="Ore" />
       </GameObject>
       <GameObject name="TileObject" x="0" y="-1024">
-        <Property name="ResType" value="ORE" />
+        <Property name="ResType" value="Ore" />
       </GameObject>
     </GameObject>
   </Prefab>

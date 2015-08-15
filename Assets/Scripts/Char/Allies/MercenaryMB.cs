@@ -16,7 +16,7 @@ namespace GSP.Char.Allies
      * Description: Wrapper for the Mercenary Ally.
      * 
      *******************************************************************************/
-    public class MercenaryMB : Ally2<Mercenary>
+    public class MercenaryMB : Ally<Mercenary>
     {
         // Used for initialisation
         public override void Start()

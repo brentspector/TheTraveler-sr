@@ -5,7 +5,7 @@
  *  Description: Special type of tile signifying a resource
  *
  *******************************************************************************/
-using GSP.Char;
+using GSP.Items;
 using UnityEngine;
 
 namespace GSP.Tiles
@@ -20,7 +20,7 @@ namespace GSP.Tiles
     public class ResourceTile : MonoBehaviour
     {
         // The ResourceType the resource on the map is; This is set inside the exporter
-		ResourceType resourceType;
+		public ResourceType resourceType;
         
         // Gets and Sets the resource's type
         public ResourceType Type

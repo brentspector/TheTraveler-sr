@@ -6,6 +6,7 @@
  *
  *******************************************************************************/
 using GSP.Char;
+using GSP.Items;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -49,7 +50,7 @@ namespace GSP.Tiles
 		// Update a Tile's ResourceType and GameObject
 		public static void UpdateTile(Vector3 key, ResourceType resourceType, GameObject resource)
 		{
-			// Get the Tile at key
+            // Get the Tile at key
             Tile tile = GetTile(key);
 
 			// Update the Tile

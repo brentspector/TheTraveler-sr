@@ -5,8 +5,9 @@
  *  Description: An ally capable of helping fight
  *
  *******************************************************************************/
-using GSP.Char;
+using GSP.Char.Allies;
 using GSP.Entities.Interfaces;
+using GSP.Items;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -23,9 +24,16 @@ namespace GSP.Entities.Friendlies
 	{
         #region IEquipment Variables
 
-        // Variables will be defined in week 4
+        int defencePower;       // The defence of the entity (from armor)
+        int attackPower;	    // The attack of the entity (from weapons)
+
+        List<Bonus> bonuses;    // The bonuses picked up (Inventory and Weight mods)
+        Armor equippedArmor;    // The piece of armor that is being worn.
+        Weapon equippedWeapon;  // The weapon that is being wielded.
 
         #endregion
+
+        MercenaryMB script;    // THe script reference for the Mimic enemy.
         
         // Constructor used to create a Mercenary entity
         public Mercenary(int ID, GameObject gameObject) : base(ID, gameObject)
@@ -33,104 +41,151 @@ namespace GSP.Entities.Friendlies
 			// Set the entity's type to Mercenary
 			Type = EntityType.Mercenary;
 
+            // Also set the entity's friendly type
+            FriendlyType = Entities.FriendlyType.Mercenary;
+
+            // Set the entity's script reference
+            script = GameObj.GetComponent<MercenaryMB>();
+
             #region IEquipment Variable Initialisation
 
-            // Variable initialisation will be done in week 4
+            // The entity isn't wearing any armour, wielding any weapon, or has any bonuses
+            equippedArmor = null;
+            equippedWeapon = null;
+            bonuses = new List<Bonus>();
+            attackPower = 0;
+            defencePower = 0;
 
             #endregion
 		} // end Mercenary
 
-        // The below interfaces will be implemented in Week 4
+        // Gets the entity's script reference
+        public MercenaryMB Script
+        {
+            get { return script; }
+        } // end Script
 
         #region IEquipment Members
 
         // Equips a piece of armour for an entity
-        public void EquipArmor(string item)
+        public void EquipArmor(Armor armor)
         {
-            throw new System.NotImplementedException();
+            // Check if the merchant is wearing armour
+            if (equippedArmor == null)
+            {
+                // The merchant isn't wearing armor so just equip the given armour
+                defencePower += armor.DefenceValue;
+                equippedArmor = armor;
+            } // end if
+            else
+            {
+                // The merchant is already wearing armour so unequip it first
+                UnequipArmor(equippedArmor);
+
+                // Now equip the given armour
+                defencePower += armor.DefenceValue;
+                equippedArmor = armor;
+            } // end else
         } // end EquipArmor
 
         // Unequips a piece of armour for an entity
-        public void UnequipArmor(string item)
+        public void UnequipArmor(Armor armor)
         {
-            throw new System.NotImplementedException();
+            // Only unequip the armour if the merchant is wearing any
+            if (equippedArmor != null)
+            {
+                // Unequip the given armour
+                defencePower -= armor.DefenceValue;
+                equippedArmor = null;
+            } // end if
         } // end UnequipArmor
 
-        // Equips a weapon for an entity
-        public void EquipWeapon(string item)
+        // Note: The Mercenary class doesn't implement IInventory so the bonuses are only removed to the list
+        // Equips a bonus item
+        public void EquipBonus(Bonus bonus)
         {
-            throw new System.NotImplementedException();
+            // Add the bonus to the list
+            bonuses.Add(bonus);
+        } // end EquipBonus
+
+        // Note: The Mercenary class doesn't implement IInventory so the bonuses are only removed to the list
+        // Unequips a bonus item
+        public void UnequipBonus(Bonus bonus)
+        {
+            // Remove the bonus from the list
+            bonuses.Remove(bonus);
+        } // end UnequipBonus
+
+        // Equips a weapon for an entity
+        public void EquipWeapon(Weapon weapon)
+        {
+            // Check if the merchant is wielding a weapon
+            if (equippedArmor == null)
+            {
+                // The merchant isn't wielding a weapon so just equip the given weapon
+                attackPower += weapon.AttackValue;
+                equippedWeapon = weapon;
+            } // end if
+            else
+            {
+                // The merchant is already wielding a weapon so unequip it first
+                UnequipWeapon(equippedWeapon);
+
+                // Now wield the given weapon
+                attackPower += weapon.AttackValue;
+                equippedWeapon = weapon;
+            } // end else
         } // end EquipWeapon
 
         // Unequips a weapon for the entity
-        public void UnequipWeapon(string item)
+        public void UnequipWeapon(Weapon weapon)
         {
-            throw new System.NotImplementedException();
+            // Only unequip the weapon if the merchant is wielding any
+            if (equippedWeapon != null)
+            {
+                // Unequip the given weapon
+                attackPower -= weapon.AttackValue;
+                equippedWeapon = null;
+            } // end if
         } // end UnequipWeapon
-        
+
         // Gets and Sets the amount of defense the entity has
         public int DefencePower
         {
-            get
-            {
-                throw new System.NotImplementedException();
-            } // end get
-            set
-            {
-                throw new System.NotImplementedException();
-            } // end set
+            get { return defencePower; }
+            set { defencePower = Utility.ZeroClampInt(value); }
         } // end DefencePower
 
-        // Gets and Sets the EquippedArmor of the entity
-        public EquippedArmor EquippedArmor
+        // Gets the EquippedArmor of the entity
+        public Armor EquippedArmor
         {
-            get
-            {
-                throw new System.NotImplementedException();
-            } // end get
-            set
-            {
-                throw new System.NotImplementedException();
-            } // end set
+            get { return equippedArmor; }
         } // end EquippedArmor
 
-        // Gets and Sets the bonuses the entity has
-        public List<GameObject> Bonuses
+        // Gets the bonuses the entity has
+        public List<Bonus> Bonuses
         {
             get
             {
-                throw new System.NotImplementedException();
+                // Get a temp list
+                var tmp = new List<Bonus>(bonuses);
+
+                // Return the temp list
+                return tmp;
             } // end get
-            set
-            {
-                throw new System.NotImplementedException();
-            } // end set
         } // end Bonuses
-        
+
         // Gets and Sets the how hard the the entity hits
         public int AttackPower
         {
-            get
-            {
-                throw new System.NotImplementedException();
-            } // end get
-            set
-            {
-                throw new System.NotImplementedException();
-            } // end set
+            get { return attackPower; }
+            set { attackPower = Utility.ZeroClampInt(value); }
         } // end AttackPower
 
-        // Gets and Sets the EquppedWeapon of the entity
-        public EquippedWeapon EquippedWeapon
+        // Gets the EquippedWeapon of the entity
+        public Weapon EquippedWeapon
         {
-            get
-            {
-                throw new System.NotImplementedException();
-            } // end get
-            set
-            {
-                throw new System.NotImplementedException();
-            } // end set
+            get { return equippedWeapon; }
         } // end EquippedWeapon
 
         #endregion

@@ -5,16 +5,14 @@
  *  Description: Old GUI for the end game screen
  *
  *******************************************************************************/
-using GSP;
-using GSP.Char;
-using System.Collections;
+using GSP.Core;
+using GSP.Entities.Neutrals;
 using System.Collections.Generic;
 using UnityEngine;
 
 
 namespace GSP.JAVIERGUI
 {
-    //TODO: Damien: Replace with the GameMaster functionality later.
     //TODO: Brent: Replace this with the new In-Game UI later; probably not in the same namespace
     /*******************************************************************************
      *
@@ -30,9 +28,7 @@ namespace GSP.JAVIERGUI
 		
 		
 		// scripts
-		EndSceneData endSceneDataScript;            // The EndSceneData script reference
 		Misc miscScript;                            // The misc script reference; used for sorting the winner
-		EndSceneCharData endSceneCharDataObject;    // The EndSceneCharData script reference
 
         // main container values//65 is just below the main GUI, and I added a gap of 32 from the end of that
         int mainStartX  = -1;   // The starting x value
@@ -46,29 +42,41 @@ namespace GSP.JAVIERGUI
 		string m_bodyString;            // The text in the OnGUI UI; the other places
 
 
-        //TODO: Damien: Replace with the GameMaster functionality later.
         //TODO: Brent: Replace OnGUI stuff with the new In-Game UI later
         // Use this for initialization
 		void Start() 
 		{
-			// scripts
-			endSceneDataScript = this.GetComponent<GSP.EndSceneData>();
+            // Create the players in data only mode
+            GameMaster.Instance.LoadPlayers(true);
+            
+            // scripts
 			miscScript = this.GetComponent<GSP.Misc>(); 
 			
 			ScaleValues();
 
-            endSceneCharDataObject = endSceneDataScript.GetData(miscScript.DetermineWinner());
+            // Get the winning player
+            int winningPlayer = miscScript.DetermineWinner();
 
-            headerString = "Player " + (endSceneCharDataObject.PlayerNumber).ToString() + " is the Winner!\n"
-                + "Player " + (endSceneCharDataObject.PlayerNumber).ToString() + " collected " + (endSceneCharDataObject.PlayerCurrency).ToString() + " Gold.";
+            // Get the winnning player's name and merchant script
+            string winningPlayerName = GameMaster.Instance.GetPlayerName(winningPlayer);
+            Merchant winningPlayerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(winningPlayer).Entity;
+
+            // Set the heading string
+            headerString = "Player " + winningPlayerName + " is the Winner!\n" + "Player " + winningPlayerName + " collected " +
+                winningPlayerMerchant.Currency.ToString() + " Gold.";
 			AudioManager.Instance.PlayVictory();
 
             List<KeyValuePair<int, int>> playerList = miscScript.GetList();
-            for (int index = 1; index <= (endSceneDataScript.Count - 1); index++)
+            for (int index = 1; index < playerList.Count; index++)
 			{
-				endSceneCharDataObject = endSceneDataScript.GetData(playerList[index].Key);
+                // Get the current player name
+                string playerName = GameMaster.Instance.GetPlayerName(playerList[index].Key);
+                // Get the current player merchant script
+                Merchant playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(playerList[index].Key).Entity;
+
+                // Set the body string
                 m_bodyString = m_bodyString + "[" + (index + 1).ToString() + " Place] "
-                    + "Player " + (endSceneCharDataObject.PlayerNumber).ToString() + " collected " + (endSceneCharDataObject.PlayerCurrency).ToString() + " Gold.\n";
+                    + "Player " + playerName + " collected " + playerMerchant.Currency.ToString() + " Gold.\n";
 			} // end for
 			
 			isActionRunning = true;
@@ -111,8 +119,6 @@ namespace GSP.JAVIERGUI
         // Scales the values to fit with the OnGui UI system
         void ScaleValues()
 		{
-            endSceneDataScript = this.GetComponent<GSP.EndSceneData>();
-
             mainWidth = Screen.width / 2;
             mainHeight = Screen.height / 1;
             mainStartX = (Screen.width / 2) - (mainWidth / 2);
@@ -162,7 +168,8 @@ namespace GSP.JAVIERGUI
 			{
 				isActionRunning = false;
 				Destroy(AudioManager.Instance.gameObject);
-				Application.LoadLevel(0);
+				// Tell the GameMaster to load a level
+                GameMaster.Instance.LoadLevel(0);
 			} // end if
 		} // end ConfigOKButton
 		

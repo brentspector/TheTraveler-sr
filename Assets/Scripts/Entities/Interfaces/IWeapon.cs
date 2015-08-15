@@ -5,6 +5,7 @@
  *  Description: Describes a contract for weapon functionality
  *
  *******************************************************************************/
+using GSP.Items;
 
 namespace GSP.Entities.Interfaces
 {
@@ -21,10 +22,10 @@ namespace GSP.Entities.Interfaces
         #region Functions
 
         // Equip a weapon
-        void EquipWeapon(string item);
+        void EquipWeapon(Weapon weapon);
 
         // Unequip a weapon
-        void UnequipWeapon(string item);
+        void UnequipWeapon(Weapon weapon);
 
         #endregion
 
@@ -34,7 +35,7 @@ namespace GSP.Entities.Interfaces
         int AttackPower { get; set; }
 
         // The weapon object equipped
-        Char.EquippedWeapon EquippedWeapon { get; set; }
+        Weapon EquippedWeapon { get; }
 
         #endregion
     } // end IWeapon

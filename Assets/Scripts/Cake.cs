@@ -5,6 +5,7 @@
  *  Description: Easter egg content
  *
  *******************************************************************************/
+using GSP.Core;
 using System.Collections;
 using UnityEngine;
 
@@ -52,7 +53,7 @@ namespace GSP.Cake
 			boxCollider = cakeChart.AddComponent<BoxCollider2D>();
 
 			// Get the AudioSource
-			audioSource = GameObject.FindGameObjectWithTag("AudioSourceTag");
+            audioSource = GameObject.Find("AudioSrc");
 
 			// The CakeChart has five slices left when whole
 			slicesLeft = 5;
@@ -103,8 +104,11 @@ namespace GSP.Cake
 			// Wait for three seconds
 			yield return new WaitForSeconds(3.0f);
 
-			// Load the menu scene
-			Application.LoadLevel(0);
+            // Destroy the AudioManager
+            Destroy(AudioManager.Instance.gameObject);
+
+            // Tell the GameMaster to load a level
+            GameMaster.Instance.LoadLevel(0);
 		} // end Quit
 	} // end Cake
 } // end GSP.Cake

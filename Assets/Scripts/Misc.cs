@@ -5,7 +5,8 @@
  *  Description: Determines a winner and sorts players by place
  *
  *******************************************************************************/
-using GSP.Char;
+using GSP.Core;
+using GSP.Entities.Neutrals;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +14,6 @@ using UnityEngine;
 
 namespace GSP
 {
-    //TODO: Damien: Replace with the GameMaster functionality later
     /*******************************************************************************
      *
      * Name: Misc
@@ -36,50 +36,41 @@ namespace GSP
 			playerCurrencies = new Dictionary<int, int>();
 		} // end Start
 
-		// This is called every frame.
+		// This is called every frame
 		void Update()
 		{
 			// Check for the 'c' key being pressed.
 			if (Input.GetKeyDown(KeyCode.C))
 			{
-				// Change to the cake scene!
-                Application.LoadLevel("cake");
+				// Tell the GameMaster to change to the cake scene!
+                GameMaster.Instance.LoadLevel("cake");
 			} // end if
 		} // end Update
 
-		// Determine who the winner is and fill in the sorted list.
+		// Determine who the winner is and fill in the sorted list
 		public int DetermineWinner()
 		{
-			// Get the game object with the EndSceneDataTag tag.
-            GameObject endSceneDataObject = GameObject.FindGameObjectWithTag("EndSceneDataTag");
+			// Get the number of players
+            int numPlayers = GameMaster.Instance.NumPlayers;
 			
-			// Get its script.
-            EndSceneData endSceneScript = endSceneDataObject.GetComponent<EndSceneData>();
-			
-			// Get the number of players.
-			int numPlayers = endSceneScript.Count;
-			
-			// Loop over the data in the EndSceneData script.
+			// Loop over the number of players
 			for (int index = 0; index < numPlayers; index++)
 			{
-				// Increase index by one to get the player number; this is because the the dictionaries are zero-index based
-				int playerNum = index + 1;
+                // Get the player's merchant entity
+                Merchant playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(index).Entity;
 				
-				// Only proceed if the player's currency hasn't been added.
-				if (!playerCurrencies.ContainsKey(playerNum))
+				// Only proceed if the player's currency hasn't been added
+                if (!playerCurrencies.ContainsKey(index))
 				{
-					// Get the player's EndSceneCharData.
-                    EndSceneCharData endScenechardata = endSceneScript.GetData(playerNum);
-					
-					// Add the player's number as the key and its currency as the value to the dictionary.
-                    playerCurrencies.Add(playerNum, endScenechardata.PlayerCurrency);
+                    // Add the player's number as the key and their currency as the value to the dictionary
+                    playerCurrencies.Add(index, playerMerchant.Currency);
 				} // end if
 			} // end for
 			
-			// Now we sort the currency dictionary.
+			// Now we sort the currency dictionary
 			IEnumerable<KeyValuePair<int, int>> sortedCurrencies = from entry in playerCurrencies orderby entry.Value descending select entry;
 			
-			// Create a list from this ordering.
+			// Create a list from this ordering
 			currencies = sortedCurrencies.ToList();
 			
 			// Now get and return the player at the front of the list as the winner
@@ -87,13 +78,13 @@ namespace GSP
 			return currencies[0].Key;
 		} // end DetermineWinner
 
-		// Gets a copy of the sorted currency list.
+		// Gets a copy of the sorted currency list
 		public List<KeyValuePair<int, int>> GetList()
 		{
-			// Get a copy of the sorted currency list.
-			List<KeyValuePair<int, int>> tmpCurrencies = currencies;
+			// Get a copy of the sorted currency list
+			List<KeyValuePair<int, int>> tmpCurrencies = new List<KeyValuePair<int,int>>(currencies);
 
-			// Return the list.
+			// Return the temp list
 			return tmpCurrencies;
 		} // end GetList
 	} // end Misc

@@ -17,7 +17,7 @@ namespace GSP
      *******************************************************************************/
     public class Die
 	{
-		SafeRandom rand;  // The class used for generating the numbers.
+		SafeRandom rand;  // The class used for generating the numbers
 
 		// Constructor.
 		public Die()
@@ -36,15 +36,15 @@ namespace GSP
 		} // end Roll
 
 		// Roll the die which takes the number of dice and its number of sides.
-		// Stuff can be done to the result after this is called.
+		// Stuff can be done to the result after this is called
 		public int Roll(int numDie, int numSides)
 		{
 			// Since the algorithm we are using excludes the maximum value, we need to add one to it
-            // The minimum value is always one.
+            // The minimum value is always one
 			var dieMinValue = 1;
 			var dieMaxValue = numSides + 1;
 
-			// The sum of all the dice rolled in this call.
+			// The sum of all the dice rolled in this call
 			var dieSum = 0;
 
 			// Roll the die for each die
@@ -58,10 +58,10 @@ namespace GSP
 			return dieSum;
 		} // end Roll
 
-		// Reseeds the Die's random number generator.
+		// Reseeds the Die's random number generator
 		public void Reseed(int seed)
 		{
-			// Call the reseed funtion of the random generator.
+			// Call the reseed funtion of the random generator
 			rand.Reseed(seed);
 		} // end Reseed
 

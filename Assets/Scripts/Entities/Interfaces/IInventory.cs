@@ -5,6 +5,7 @@
  *  Description: Describes a contract for inventory functionlaity
  *
  *******************************************************************************/
+using GSP.Items;
 using UnityEngine;
 
 namespace GSP.Entities.Interfaces
@@ -17,40 +18,40 @@ namespace GSP.Entities.Interfaces
      *              includes resources and currency.
      * 
      *******************************************************************************/
-    interface IInventory
+    public interface IInventory
     {
         #region Functions
 
         // Attempt to pickup a resource
-        void PickupResource(Char.Resource resource, int amount);
+        bool PickupResource(Resource resource, int amount, bool isFromMap = true);
 
         // Sells a given resource and amount
-        void SellResource(Char.Resource resource, int amount);
+        void SellResource(Resource resource, int amount);
 
         // Sells all the resources being carried
         void SellResources();
 
         // Transfer currency from one to another
-        void TransferCurrency(GameObject other, int amount);
+        void TransferCurrency<TInventoryEntity>(TInventoryEntity other, int amount) where TInventoryEntity : IInventory;
 
         // Transfer a resource from one to another
-        void TransferResource(GameObject other, Char.Resource resource);
+        bool TransferResource<TInventoryEntity>(TInventoryEntity other, Resource resource) where TInventoryEntity : IInventory;
 
         #endregion
 
         #region Properties
 
         // The resource list
-        Char.ResourceList Resources { get; set; }
+        Char.ResourceList Resources { get; }
 
         // The total weight of the resources
-        int TotalWeight { get; set; }
+        int TotalWeight { get; }
 
         // The total size of the resources
-        int TotalSize { get; set; }
+        int TotalSize { get; }
 
         // The total value of the resources
-        int TotalValue { get; set; }
+        int TotalValue { get; }
 
         // The maximum weight that is able to be carried
         int MaxWeight { get; set; }

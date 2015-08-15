@@ -5,8 +5,8 @@
  *  Description: Describes a contract for armour functionality
  *
  *******************************************************************************/
+using GSP.Items;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace GSP.Entities.Interfaces
 {
@@ -22,11 +22,17 @@ namespace GSP.Entities.Interfaces
     {
         #region Functions
 
-        // Equip a piece of armour.
-        void EquipArmor(string item);
+        // Equip a piece of armour
+        void EquipArmor(Armor armor);
 
-        // Unequip a piece of armour.
-        void UnequipArmor(string item);
+        // Unequip a piece of armour
+        void UnequipArmor(Armor armor);
+
+        // Equip a bonus
+        void EquipBonus(Bonus bonus);
+
+        // Unequip a piece of armour
+        void UnequipBonus(Bonus bonus);
 
         #endregion
 
@@ -35,11 +41,11 @@ namespace GSP.Entities.Interfaces
         // The defense power given from the armour
         int DefencePower { get; set; }
 
-        // The armour object equipped.
-        Char.EquippedArmor EquippedArmor { get; set; }
+        // The armour object equipped
+        Armor EquippedArmor { get; }
 
         // The list of bonuses granted by the armour
-        List<GameObject> Bonuses { get; set; }
+        List<Bonus> Bonuses { get; }
 
         #endregion
     } // end IArmor
