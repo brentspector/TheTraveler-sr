@@ -34,8 +34,8 @@ namespace GSP.Entities.Friendlies
 
         #endregion
 
-        PorterMB script;    // THe script reference for the Mimic enemy.
-        DieInput die;       // The reference to the die
+        PorterMB script;    // The script reference for the Mimic enemy.
+        Die die;      		// The die object
 
         // Constructor used to create a Porter entity
         public Porter(int ID, GameObject gameObject) : base(ID, gameObject)
@@ -47,7 +47,7 @@ namespace GSP.Entities.Friendlies
             FriendlyType = Entities.FriendlyType.Porter;
 
             // Get the reference to the die script
-            die = GameObject.Find("Die").GetComponent<DieInput>();
+            die = new Die();
 
             // Set the entity's script reference
             script = GameObj.GetComponent<PorterMB>();
@@ -55,7 +55,7 @@ namespace GSP.Entities.Friendlies
             #region IInventory Variable Initialisation
 
             // The entity's max weight is a random number between 6 and 120
-            maxWeight = die.Dice.Roll(1, 20) * 6;
+            maxWeight = die.Roll(1, 20) * 6;
             // The entity's max inventory space is left at the hard-coded default
             maxInventory = 20;
 

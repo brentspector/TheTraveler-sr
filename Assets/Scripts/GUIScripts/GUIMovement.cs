@@ -7,6 +7,7 @@
  *******************************************************************************/
 using GSP.Char;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace GSP
 {
@@ -20,212 +21,234 @@ namespace GSP
      *******************************************************************************/
     public class GUIMovement : MonoBehaviour
     {
-		bool isInSelectPathToTakeState = false;                 // This value is rturned to the GameplayStateMachine, when false, it means ends turn
-		int selectState = (int)GamePlayState.SelectPathToTake;  // This is the state we are concerned about
-		GameplayStateMachine gameplayStateMachineScript;        // Script to access state machine 
-		Movement movementScript;                                // The movement script reference
-        Player playerScript;                                    // This is the current player's Player script
-		GameObject audioSrc;                                    // The AudioSource
-
+        Player playerScript;        // This is the current player's Player script
 		Vector3 displacementVector; // value player moves relative to Space.World
-		Vector3 origPlayerPosition; //if player cancels movement, player resets to this original poisition
-		int initialTravelDist;      // initial dice roll
-		int currTravelDist;         // dice roll left
-		bool isMoving = false;      // if the player is moving, one dice roll value is taken off
-
-		// Use this for initialization
-		void Start()
-        {
-            gameplayStateMachineScript = GameObject.FindGameObjectWithTag("GamePlayStateMachineTag").GetComponent<GameplayStateMachine>();
-            movementScript = GameObject.FindGameObjectWithTag("GUIMovementTag").GetComponent<Movement>();
-            audioSrc = GameObject.FindGameObjectWithTag("AudioSourceTag");
-
-		} // end Start
+		Vector3 origPlayerPosition; // If player cancels movement, player resets to this original poisition
+		int initialTravelDist;      // Initial dice roll
+		int currTravelDist;         // Dice roll left
+		bool isMoving = false;      // If the player is moving, one dice roll value is taken off
+		Button upButton;		
+		Button downButton;
+		Button leftButton;
+		Button rightButton;
 
         //TODO: Brent: Replace OnGUI stuff with the new In-Game UI later
         // Initialise things sort of like a custom constructor
 		public void InitThis(Player player, int travelDistance)
 		{
-			// player script
+			// Get HUD Arrows
+			upButton = GameObject.Find ("UpButton").GetComponent<Button> ();
+			downButton = GameObject.Find ("DownButton").GetComponent<Button> ();
+			leftButton = GameObject.Find ("LeftButton").GetComponent<Button> ();
+			rightButton = GameObject.Find ("RightButton").GetComponent<Button> ();
+
+			// Make sure they are enabled
+			upButton.interactable = true;
+			downButton.interactable = true;
+			leftButton.interactable = true;
+			rightButton.interactable = true;
+
+			// Player script
             playerScript = player;
 
-			// turn just started
-			isInSelectPathToTakeState = true;
-
-			// store orig position
+			// Store original position
 			origPlayerPosition = player.transform.position;
 
-			// how much can the player move
+			// How much can the player move
 			initialTravelDist = travelDistance;
 			currTravelDist = initialTravelDist;
 
-			// resetDisplacement Value
-            displacementVector = Vector3.zero;
+			// Initialize displacement vector
+			displacementVector = Vector3.zero;
 
 			// Generate the initial set of highlight objects
             Highlight.GenerateHighlight(origPlayerPosition, currTravelDist);
 		} // end InitThis
 
-        //TODO: Brent: Replace OnGUI stuff with the new In-Game UI later
-        // The old style GUI functioned using an OnGUI function; Runs each frame
-        void OnGUI()
+		public void MoveUp()
 		{
-			// listen for change in state on the GameplayStateMachine
-            if (gameplayStateMachineScript.GetState() != selectState)
+			//If we're not at the top end of the map, allow movement
+			if(playerScript.gameObject.transform.position.y < GSP.Tiles.TileManager.MinHeightUnits)
 			{
-				isInSelectPathToTakeState = false;
-			} // end if
-
-			// if the GameplayStateMachine is in SelectPathToTake state, show gui
-			if (isInSelectPathToTakeState)
-			{
-				GUIMovementPads();
-			} // end if
-		} // end OnGUI()
-
-        //TODO: Brent: Replace OnGUI stuff with the new In-Game UI later
-        // Configures the movement pads of the OnGUI UI system
-        private void GUIMovementPads()
-		{
-            int width = 32;
-            int height = 32;
-            int gridXShift = -8;
-            int gridYShift = -8;
-
-			// Button color
-			GUI.backgroundColor = Color.red;
-			if(currTravelDist > 0)
-			{
-				// left
-                if (GUI.Button(new Rect((Screen.width - (3 * width) + gridXShift), (Screen.height - (2 * height) + gridYShift), width, height), "<"))
-				{
-                    displacementVector = movementScript.MoveLeft(playerScript.gameObject.transform.position);
-                    // Face the character to the west which is to the left
-                    playerScript.Face(FacingDirection.West);
-					MovePlayer();
-                    // Clear the highlight objects
-                    Highlight.ClearHighlight();
-                    // Recreate the highlights with the new values
-                    Highlight.GenerateHighlight(playerScript.gameObject.transform.position, currTravelDist);
-                    //TODO: Brent: Replace with AudioManager later
-                    //Play walking sound
-                    //audioSrc.GetComponent<AudioSource>().PlayOneShot(GSP.AudioReference.sfxWalking);
-				} // end if
-				// right
-                if (GUI.Button(new Rect((Screen.width - (1 * width) + gridXShift), (Screen.height - (2 * height) + gridYShift), width, height), ">"))
-				{
-                    displacementVector = movementScript.MoveRight(playerScript.gameObject.transform.position);
-                    // Face the character to the east which is to the right
-                    playerScript.Face(FacingDirection.East);
-					MovePlayer();
-                    // Clear the highlight objects
-                    Highlight.ClearHighlight();
-                    // Recreate the highlights with the new values
-                    Highlight.GenerateHighlight(playerScript.gameObject.transform.position, currTravelDist);
-                    //TODO: Brent: Replace with AudioManager later
-                    //Play walking sound
-                    //audioSrc.GetComponent<AudioSource>().PlayOneShot(GSP.AudioReference.sfxWalking);
-				} // end if
-				// cancel
-                if (GUI.Button(new Rect((Screen.width - (2 * width) + gridXShift), (Screen.height - (2 * height) + gridYShift), width, height), "X"))
-				{
-                    // Face the character to the south; This is the default facing
-                    playerScript.Face(FacingDirection.South);
-					// Move Back To Orig Position
-					CancelMove();
-                    // Clear the highlight objects
-                    Highlight.ClearHighlight();
-                    // Recreate the highlights with the new values
-                    Highlight.GenerateHighlight(playerScript.gameObject.transform.position, currTravelDist);
-                    //TODO: Brent: Replace with AudioManager later
-                    //Play walking sound
-                    //audioSrc.GetComponent<AudioSource>().PlayOneShot(GSP.AudioReference.sfxWalking);
-				} // end if
-				// up
-                if (GUI.Button(new Rect((Screen.width - (2 * width) + gridXShift), (Screen.height - (3 * height) + gridYShift), width, height), "^"))
-				{
-                    displacementVector = movementScript.MoveUp(playerScript.gameObject.transform.position);
-                    // Face the character to the north which is up
-                    playerScript.Face(FacingDirection.North);
-					MovePlayer();
-                    // Clear the highlight objects
-                    Highlight.ClearHighlight();
-                    // Recreate the highlights with the new values
-                    Highlight.GenerateHighlight(playerScript.gameObject.transform.position, currTravelDist);
-                    //TODO: Brent: Replace with AudioManager later
-                    //Play walking sound
-                    //audioSrc.GetComponent<AudioSource>().PlayOneShot(GSP.AudioReference.sfxWalking);
-				} // end if
-				// down
-                if (GUI.Button(new Rect((Screen.width - (2 * width) + gridXShift), (Screen.height - (1 * height) + gridYShift), width, height), "v"))
-				{
-                    displacementVector = movementScript.MoveDown(playerScript.gameObject.transform.position);
-                    // Face the character to the south which is down
-                    playerScript.Face(FacingDirection.South);
-					MovePlayer();
-                    // Clear the highlight objects
-                    Highlight.ClearHighlight();
-                    // Recreate the highlights with the new values
-                    Highlight.GenerateHighlight(playerScript.gameObject.transform.position, currTravelDist);
-                    //TODO: Brent: Replace with AudioManager later
-                    //Play walking sound
-                    //audioSrc.GetComponent<AudioSource>().PlayOneShot(GSP.AudioReference.sfxWalking);
-				} // end if down button
-			} // end if
+				displacementVector = new Vector3(0, GSP.Tiles.TileManager.PlayerMoveDistance, 0);
+			} //end if
 			else
 			{
-                if (GUI.Button(new Rect((Screen.width - (2 * width) + gridXShift), (Screen.height - (2 * height) + gridYShift), width, height), "X"))
-				{
-                    // Face the character to the south; This is the default facing
-                    playerScript.Face(FacingDirection.South);
-					CancelMove();
-                    // Clear the highlight objects.
-                    Highlight.ClearHighlight();
-                    // Recreate the highlights with the new values
-                    Highlight.GenerateHighlight(playerScript.gameObject.transform.position, currTravelDist);
-				} // end if
-				// display travel distance is 0
-                GUI.Box(new Rect((Screen.width - (3 * width) + gridXShift), (Screen.height - (3 * height) + gridYShift), 3 * width, height), "Out of Distance.");
-            } // end else
-		} // end GUIMovementPads
+				displacementVector = Vector3.zero;
+			} //end else
+
+			// Face the character to the north (up), and move them
+			playerScript.Face(FacingDirection.North);
+			MovePlayer();
+
+			// Clear the highlight objects
+			Highlight.ClearHighlight();
+
+			// Recreate the highlights with the new values
+			Highlight.GenerateHighlight(playerScript.gameObject.transform.position, currTravelDist);
+
+			//Play walking sound
+			AudioManager.Instance.PlayWalk ();
+		} //end MoveUp
+
+		public void MoveDown()
+		{
+			//If we're not at the bottom end of the map, allow movement
+			if(playerScript.gameObject.transform.position.y > GSP.Tiles.TileManager.MaxHeightUnits)
+			{
+				displacementVector = new Vector3(0, -GSP.Tiles.TileManager.PlayerMoveDistance, 0);
+			} //end if
+			else
+			{
+				displacementVector = Vector3.zero;
+			} //end else
+
+			// Face the character to the south (down), and move them
+			playerScript.Face(FacingDirection.South);
+			MovePlayer();
+
+			// Clear the highlight objects
+			Highlight.ClearHighlight();
+
+			// Recreate the highlights with the new values
+			Highlight.GenerateHighlight(playerScript.gameObject.transform.position, currTravelDist);
+
+			//Play walking sound
+			AudioManager.Instance.PlayWalk ();
+		} //end MoveDown
+
+		public void MoveLeft()
+		{
+			//If we're not at the left end of the map, allow movement
+			if(playerScript.gameObject.transform.position.x > GSP.Tiles.TileManager.MinWidthUnits)
+			{
+				displacementVector = new Vector3(-GSP.Tiles.TileManager.PlayerMoveDistance, 0, 0);
+			} //end if
+			else
+			{
+				displacementVector = Vector3.zero;
+			} //end else
+
+			// Face the character to the west (left), and move them
+			playerScript.Face(FacingDirection.West);
+			MovePlayer();
+
+			// Clear the highlight objects
+			Highlight.ClearHighlight();
+
+			// Recreate the highlights with the new values
+			Highlight.GenerateHighlight(playerScript.gameObject.transform.position, currTravelDist);
+
+			//Play walking sound
+			AudioManager.Instance.PlayWalk ();
+		} //end MoveLeft
+
+		public void MoveRight()
+		{
+			// If we're not at the right end of the map, allow movement
+			if(playerScript.gameObject.transform.position.x < GSP.Tiles.TileManager.MaxWidthUnits)
+			{
+				displacementVector = new Vector3(GSP.Tiles.TileManager.PlayerMoveDistance, 0, 0);
+			} //end if
+			else
+			{
+				displacementVector = Vector3.zero;
+			} //end else
+
+			// Face the character to the east (right), and move them
+			playerScript.Face(FacingDirection.East);
+			MovePlayer();
+
+			// Clear the highlight objects
+			Highlight.ClearHighlight();
+
+			// Recreate the highlights with the new values
+			Highlight.GenerateHighlight(playerScript.gameObject.transform.position, currTravelDist);
+
+			//Play walking sound
+			AudioManager.Instance.PlayWalk ();
+		} //end MoveRight
+
+		// Cancels a move sending the player back to the original position
+		public void CancelMove()
+		{
+			// Enable movement arrows
+			upButton.interactable = true;
+			downButton.interactable = true;
+			leftButton.interactable = true;
+			rightButton.interactable = true;
+
+			// Face the character to the south; This is the default facing
+			playerScript.Face(FacingDirection.South);
+
+			// Return player to original position
+			playerScript.gameObject.transform.position = origPlayerPosition;
+
+			// Update the entity's position
+			playerScript.Position = playerScript.gameObject.transform.position;
+
+			// Return to original distance
+			currTravelDist = initialTravelDist;
+
+			// Make sure player is not moving
+			isMoving = false;
+			displacementVector = Vector3.zero;
+
+			// Clear the highlight objects
+			Highlight.ClearHighlight();
+
+			// Recreate the highlights with the new values
+			Highlight.GenerateHighlight(playerScript.gameObject.transform.position, currTravelDist);
+
+			//Play walking sound
+			AudioManager.Instance.PlayWalk ();
+		} // end CancelMove
 
         // Moves the player
         void MovePlayer()
 		{
+			// If no move is possible, end the function
             if (displacementVector == Vector3.zero)
 			{
 				isMoving = false;
 				return;
 			} // end if
 
-			// player started moving take off a dice roll value
+			// If player is not already moving, allow them to move and remove a movement unit
 			if (!isMoving)
 			{
 				isMoving = true;
 				currTravelDist = currTravelDist -1;
-			}
+			} //end if
 
-			// move player
+			// Move player
             playerScript.gameObject.transform.Translate(displacementVector, Space.World);
+
             // Update the entity's position
             playerScript.Position = playerScript.gameObject.transform.position;
-			// reset
+
+			// Reset movement to none and return player to not moving state
 			displacementVector = Vector3.zero;
 			isMoving = false;
+
+			//See if player still has distance to travel
+			TravelDistanceLeft ();
 		} // end MovePlayer
 
-        // Cancels a move sending the player back to the original position
-        private void CancelMove()
+		// Disable buttons if out of travel distance
+		private void TravelDistanceLeft()
 		{
-            playerScript.gameObject.transform.position = origPlayerPosition;
-            // Update the entity's position
-            playerScript.Position = playerScript.gameObject.transform.position;
-			currTravelDist = initialTravelDist;
-			isMoving = false;
-			displacementVector = Vector3.zero;
-		} // end CancelMove
+			//If out of distance to move, disable movement arrows
+			if(currTravelDist <= 0)
+			{
+				upButton.interactable = false;
+				downButton.interactable = false;
+				leftButton.interactable = false;
+				rightButton.interactable = false;
+			} //end if
+		} //end TravelDistanceLeft
 
-        // Gets the current travel distance remaining
+		// Gets the current travel distance remaining
         public int RemainingTravelDistance
         {
             get { return currTravelDist; }
