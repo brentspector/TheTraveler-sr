@@ -125,7 +125,7 @@ namespace GSP.Entities.Neutrals
             allyScript = GameObj.GetComponent<AllyList>();
         } // end UpdateScriptReferences
 
-        // Setup the Character's Sprite set. This is an array of Sprites that will be used for the Character
+        // Setup the Merchant's Sprite set. This is an array of Sprites that will be used for the Merchant
         public void SetCharacterSprites(int playerNumber)
         {
             // A temporary Sprite array; Make sure the playerNumber is within the proper range of one to MaxPlayers
@@ -138,11 +138,19 @@ namespace GSP.Entities.Neutrals
             charSprites.Add(tmp[10]);
         } // end SetCharacterSprites
 
-        // Sets the Character's Sprite to the given index
+        // Sets the Merchant's Sprite to the given index
         void SetSprite(int index)
         {
             spriteRenderer.sprite = charSprites[index];
         } // end SetSprite
+
+        // Gets the Merchant's Sprite for the given index
+        // Note: The direction is North, East, South, West
+        Sprite GetSprite(int index)
+        {
+            // Ensure a valid index was given; clamp it
+            return charSprites[Utility.ClampInt(index, 0, (charSprites.Count - 1))];
+        } // end GetSprite
 
         // Faces the Merchant in a given direction; This changes the Merchant's Sprite to match this
         public void Face(FacingDirection facingDirection)

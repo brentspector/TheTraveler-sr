@@ -38,6 +38,9 @@ namespace GSP.Core
         readonly int maxPlayers = 4; // Max number of players
         int turn;                    // Who's turn it is
         int numPlayers;              // The current number of players
+
+        BattleMap battleMap;    // The map used for the battle scene
+        bool isNew;             // Whether the game is new or loaded
         
         // The variables here are through dictionaries. The key is the player number.
         Dictionary<int, string> playerNames;            // The list of the players' names
@@ -889,6 +892,20 @@ namespace GSP.Core
             get { return numPlayers; }
             set { numPlayers = Utility.ClampInt(value, 1, MaxPlayers); }
         } // end NumPlayers
+
+        // Gets and Sets the type of map used for the battle scene
+        public BattleMap BattleMap
+        {
+            get { return battleMap; }
+            set { battleMap = value; }
+        } // end BattleMap
+
+        // Gets and Sets whether the game is new or loaded
+        public bool IsNew
+        {
+            get { return IsNew; }
+            set { isNew = value; }
+        } // end IsNew
 
         // Gets a copy of the enemyIdentifiers list
         public List<int> EnemyIdentifiers
