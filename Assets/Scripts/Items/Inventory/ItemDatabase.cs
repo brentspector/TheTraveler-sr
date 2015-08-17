@@ -29,6 +29,9 @@ namespace GSP.Items.Inventory
             // Call Awake on the parent first
             base.Awake();
 
+            // Set the object's name
+            gameObject.name = "ItemDatabase";
+
             // Initialise our list
             items = new List<Item>();
         } // end Awake

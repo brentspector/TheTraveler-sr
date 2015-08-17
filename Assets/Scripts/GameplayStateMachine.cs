@@ -140,6 +140,9 @@ namespace GSP
             // Add the player instances
 			AddItems(guiNumOfPlayers);
 
+            // The game is no longer new
+            GameMaster.Instance.IsNew = false;
+
 			// Update the "All Players" HUD to match active players
 			// Disable unused players
 			for(int i = 3; i > guiNumOfPlayers - 1 ; i--)
@@ -163,40 +166,53 @@ namespace GSP
         // Adds the players to the game
         void AddPlayers(int numPlayers)
 		{
-			// Create the players
-            GameMaster.Instance.CreatePlayers();
+			// Check is this is a new game
+            if (GameMaster.Instance.IsNew)
+            {
+                // Create the players
+                GameMaster.Instance.CreatePlayers();
 
-            // Loop over the number of players to add their instances
-            for (int count = 0; count < numPlayers; count++) 
-			{
-                //TODO: Damien: Change this later when you do the player renaming
-                int playerNum = count + 1;
-                GameMaster.Instance.SetPlayerName(count, playerNum.ToString());
-                
-                // Set the player's script
-                Player playerScript = GameMaster.Instance.GetPlayerScript(count);
+                // Loop over the number of players to add their instances
+                for (int count = 0; count < numPlayers; count++)
+                {
+                    //TODO: Damien: Change this later when you do the player renaming
+                    int playerNum = count + 1;
+                    GameMaster.Instance.SetPlayerName(count, playerNum.ToString());
 
-                // Set the players's sprite sheet sprites
-                playerScript.SetCharacterSprites(count + 1);
+                    // Set the player's script
+                    Player playerScript = GameMaster.Instance.GetPlayerScript(count);
 
-                // Set the player's facing
-                playerScript.Face(FacingDirection.South);
-			} // end for
+                    // Set the players's sprite sheet sprites
+                    playerScript.SetCharacterSprites(count + 1);
+
+                    // Set the player's facing
+                    playerScript.Face(FacingDirection.South);
+                } // end for
+            } // end if
+            else
+            {
+                // Load the players
+                GameMaster.Instance.LoadPlayers();
+            } // end else
 		} // end AddPlayers
 
         // Adds the starting items to the players
         void AddItems(int numPlayers)
 		{
-			// Loop over the number of players to give them the items
-            for (int count = 0; count < numPlayers; count++) 
-			{
-                // Set the player's merchant entity
-                Merchant playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(count).Entity;
+            // Check is this is a new game
+            if (GameMaster.Instance.IsNew)
+            {
+                // Loop over the number of players to give them the items
+                for (int count = 0; count < numPlayers; count++)
+                {
+                    // Set the player's merchant entity
+                    Merchant playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(count).Entity;
 
-                // Equip a sword and chainlegs on the player
-                playerMerchant.EquipWeapon(GameMaster.Instance.CreateWeapon(WeaponType.Sword));
-                playerMerchant.EquipArmor(GameMaster.Instance.CreateArmor(ArmorType.Chainlegs));
-			} // end for
+                    // Equip a sword and chainlegs on the player
+                    playerMerchant.EquipWeapon(GameMaster.Instance.CreateWeapon(WeaponType.Sword));
+                    playerMerchant.EquipArmor(GameMaster.Instance.CreateArmor(ArmorType.Chainlegs));
+                } // end for
+            } // end if
 		} // end AddItems
 
         // Gets the player's values for display on the In-Game UI; At the beginning of each turn the values are grabbed

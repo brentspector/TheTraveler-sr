@@ -145,6 +145,9 @@ namespace GSP
                                     // Only continue once a map has been chosen
                                     if (mapSelection != "nothing")
                                     {
+                                        // This is a new game
+                                        GameMaster.Instance.IsNew = true;
+                                        
                                         // Pick player amount
                                         // Set the number of players to one for solo mode
                                         GameMaster.Instance.NumPlayers = 1;
@@ -176,6 +179,9 @@ namespace GSP
                                     // Only continue once a map has been chosen
                                     if (mapSelection != "nothing")
                                     {
+                                        // This is a new game
+                                        GameMaster.Instance.IsNew = true;
+                                        
                                         // Pick player amount
                                         guideText.text = "Please select a map...Done!\nPlease enter the number of players [2-4]";
 
@@ -266,18 +272,30 @@ namespace GSP
                         // Play correct background music
                         if (mapSelection == "area01")
                         {
+                            // Set the BattleMap
+                            GameMaster.Instance.BattleMap = BattleMap.Desert;
+
                             AudioManager.Instance.PlayDesert();
                         } // end if
                         else if (mapSelection == "area02")
                         {
+                            // Set the BattleMap
+                            GameMaster.Instance.BattleMap = BattleMap.Euro;
+                            
                             AudioManager.Instance.PlayEuro();
                         } // end else if
                         else if (mapSelection == "area03")
                         {
+                            // Set the BattleMap
+                            GameMaster.Instance.BattleMap = BattleMap.Metro;
+                            
                             AudioManager.Instance.PlayMetro();
                         } // end else if
                         else if (mapSelection == "area04")
                         {
+                            // Set the BattleMap
+                            GameMaster.Instance.BattleMap = BattleMap.Snowy;
+                            
                             AudioManager.Instance.PlaySnow();
                         } // end else if 
                         else
