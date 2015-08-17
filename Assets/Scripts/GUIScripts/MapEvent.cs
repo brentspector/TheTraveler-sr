@@ -28,14 +28,10 @@ namespace GSP
      *******************************************************************************/
     public class MapEvent : MonoBehaviour
 	{
-        Die die; // Die reference
-		
 		GameObject player;          // The player's GameObject reference
 		Player playerScript;        // The player's Character script component reference
         Merchant playerMerchant;    // The player's merchant Entity for convienience
 
-        GameObject audioSrc;    // The AudioSource GameObject reference
-		
 		//NOTE!!
 		//SIZE must be the last item in the enum so that anything based
 		//on the length of the enum can be used as normal. It is best to
@@ -59,30 +55,19 @@ namespace GSP
 		
 		string guiResult; // The MapEvent summary
 
-		// Used for initialisation
-		void Start()
-		{
-			// Initialise the die here.
-			die = new Die();
-			
-			// Reseed the die.
-			die.Reseed(Environment.TickCount);
-
-            // Get the AudioSource
-            audioSrc = GameObject.FindGameObjectWithTag("AudioSourceTag");
-		}
-
         //Calls map event and returns string
-		public string DetermineEvent(int playerNum)
+		public string DetermineEvent(int playerNum, Die die)
 		{
 			// Set the player GameObject and its Player script
             player = GameMaster.Instance.GetPlayerObject(playerNum);
             playerScript = GameMaster.Instance.GetPlayerScript(playerNum);
+
             // Set the Merchant entity for convienience
             playerMerchant = (Merchant)playerScript.Entity;
 			
 			// Get the tile at the player's position
 			Vector3 tmp = player.transform.localPosition;
+
 			// Fix the z-axis; change by Damien to get the tiles to work again.
 			tmp.z = -0.01f;
             Tile currentTile = TileDictionary.GetTile(TileManager.ToPixels(tmp));
@@ -103,7 +88,7 @@ namespace GSP
                 // Check for an enemy
 				if(dieResult < enemyChance)
 				{
-					return "Enemy";
+					return ResolveFight(die);
 				} // end if
 				// Check for an ally
                 else if (dieResult < allyChance + enemyChance && dieResult >= enemyChance)
@@ -113,7 +98,7 @@ namespace GSP
 				// Check for an item
                 else if(dieResult < itemChance + allyChance + enemyChance && dieResult >= allyChance + enemyChance)
 				{
-					return "Item";
+					return ResolveItem(die);
 				} // end else if
 				else
 				{
@@ -134,35 +119,34 @@ namespace GSP
 				// Declare what was landed on
 				guiResult = "You got a resource:\n" + temp.Name;
 
-                //TODO: Brent: Replace with AudioManager later
-                //// Play found for what was landed on
-                //if(temp.ResourceName == "Fish")
-                //{
-                //    // Play fish sound
-                //    audioSrc.GetComponent<AudioSource>().PlayOneShot(GSP.AudioReference.sfxFishing);
-                //} // end if
-                //else if(temp.ResourceName == "Wood")
-                //{
-                //    // Play wood sound
-                //    audioSrc.GetComponent<AudioSource>().PlayOneShot( GSP.AudioReference.sfxWoodcutting );
-                //} // end else if
-                //else if(temp.ResourceName == "Wool")
-                //{
-                //    // Play wool sound
-                //    audioSrc.GetComponent<AudioSource>().PlayOneShot( GSP.AudioReference.sfxShearing );
-                //} // end else if
-                //else
-                //{
-                //    // Play ore sound
-                //    audioSrc.GetComponent<AudioSource>().PlayOneShot( GSP.AudioReference.sfxMining );
-                //} // end else
-				return "Resource";
+                // Play found for what was landed on
+                if(temp.Name == "Fish")
+                {
+                    // Play fish sound
+					AudioManager.Instance.PlayFish();
+                } // end if
+                else if(temp.Name == "Wood")
+                {
+                    // Play wood sound
+					AudioManager.Instance.PlayWood();
+                } // end else if
+                else if(temp.Name == "Wool")
+                {
+                    // Play wool sound
+					AudioManager.Instance.PlayShear();
+                } // end else if
+                else
+                {
+                    // Play ore sound
+					AudioManager.Instance.PlayMine();
+                } // end else
+				return guiResult;
 			} // end else
 		} // end DetermineEvent
 
         // NOTE: Hard-coded for now to work with only 1 enemy type; it works for now. :P
         // Resolves a fight when the enemy MapEvent spawns
-        public string ResolveFight()
+        public string ResolveFight(Die die)
 		{
 			// Create the enemy
             GameMaster.Instance.CreateEnemy(HostileType.Bandit, "Bandit");
@@ -196,7 +180,11 @@ namespace GSP
                         result += "\nAs a result, you lost your " + playerMerchant.EquippedWeapon.Name;
                         playerMerchant.UnequipWeapon(playerMerchant.EquippedWeapon);
                     } // end if playerMerchant.EquippedWeapon != null
-				} // end if
+					else
+					{
+						result += "...but\n you weren't worth mugging.";
+					} //end else
+				} // end if playerMerchant.TotalWeight <= 0
 				// Otherwise, the player has resources so remove a random resource
 				else
 				{
@@ -242,7 +230,8 @@ namespace GSP
 			// Create the ally
             GameMaster.Instance.CreateAlly(FriendlyType.Porter, "Porter");
 
-            // Get the allyID from the temporary list of ally IDs; since there is only one ally there should only be a single ID
+            // Get the allyID from the temporary list of ally IDs
+			// Since there is only one ally there should only be a single ID
             int allyID = GameMaster.Instance.TempAllyIdentifiers[0];
 
 			// Check if the player accepts the ally
@@ -291,7 +280,7 @@ namespace GSP
 
 				// Set and return declined
 				guiResult = "Ally was declined.";
-				return "No ally was added.";
+				return guiResult;
 			} // end else if
 
 			// Otherwise wait for answer
@@ -299,7 +288,7 @@ namespace GSP
 		} // end ResolveAlly
 
         // Resolves an item when the item MapEvent spawns
-        public string ResolveItem()
+        public string ResolveItem(Die die)
 		{
 			// String to return for display
 			string result;
