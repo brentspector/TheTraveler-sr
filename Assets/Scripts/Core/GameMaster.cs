@@ -11,7 +11,7 @@ using GSP.Char.Allies;
 using GSP.Entities;
 using GSP.Entities.Friendlies;
 using GSP.Items;
-using GSP.Items.Inventory;
+using GSP.Items.Inventories;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -359,9 +359,6 @@ namespace GSP.Core
                         // Name the GameObject in the editor for convienience sake
                         obj.name = allyName;
 
-                        // Add the ResourceList script
-                        obj.AddComponent<Char.ResourceList>();
-
                         // Create the ally entity
                         Entities.EntityManager.Instance.Generator.CreateEntity(out entID, Entities.EntityType.Porter, obj);
 
@@ -420,9 +417,6 @@ namespace GSP.Core
 
                         // Name the GameObject in the editor for convienience sake
                         obj.name = allyName;
-
-                        // Add the ResourceList script
-                        obj.AddComponent<Char.ResourceList>();
 
                         // Give the ally script the ID for the ally
                         script.GetAlly(allyId);
@@ -903,7 +897,7 @@ namespace GSP.Core
         // Gets and Sets whether the game is new or loaded
         public bool IsNew
         {
-            get { return IsNew; }
+            get { return isNew; }
             set { isNew = value; }
         } // end IsNew
 

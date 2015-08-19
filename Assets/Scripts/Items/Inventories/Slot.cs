@@ -10,7 +10,7 @@ using GSP.Core;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace GSP.Items.Inventory
+namespace GSP.Items.Inventories
 {
     /*******************************************************************************
      *

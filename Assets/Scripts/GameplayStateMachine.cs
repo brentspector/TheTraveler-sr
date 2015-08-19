@@ -13,6 +13,7 @@ using GSP.Tiles;
 using System;
 using UnityEngine;
 using UnityEngine.UI;
+using GSP.Items.Inventories;
 
 namespace GSP
 {
@@ -42,7 +43,8 @@ namespace GSP
 		// State Machine management variables
 		GamePlayState gamePlayState;            	// The current state
 		bool canInitAfterStart;			         	// Initialising values after Start()
-		bool canRunEndStuff;                    	// Whether the end scene stuff should be ran during that state.
+		bool canRunEndStuff;                    	// Whether the end scene stuff should be ran during that state
+        bool isInventoryOpen;                       // Wheter the inventory window is open
 		int guiDiceDistVal;	                		// The dice value which is then onverted into a distance value
 
 		// State Machine input/output variables
@@ -64,6 +66,8 @@ namespace GSP
 		// All Players
 		GameObject imageParent;						// Panel with all player images
 		GameObject textParent;						// Panel with all player names and gold
+        // Inventory
+        Inventory inventory;                        // The inventory script for the Inventory
 
 		// Game Objects
 		Die die;       			                    // The Die to be used in the game
@@ -83,17 +87,23 @@ namespace GSP
 			TileManager.SetDimensions(64, 20, 16);
 			TileManager.GenerateAndAddTiles();
 
-			//Get HUD elements
-			guiPlayerName = GameObject.Find ("PlayerName").GetComponent<Text> ();
-			guiTurnText = GameObject.Find ("TurnPhase").GetComponent<Text> ();
-			guiGold = GameObject.Find ("Gold").GetComponent<Text> ();
-			guiWeight = GameObject.Find ("Weight").GetComponent<Text> ();
-			actionButton = GameObject.Find ("ActionButton").GetComponent<Button> ();
-			actionButtonText = GameObject.Find ("ActionButton").GetComponentInChildren<Text> ();
-			acceptPanel = GameObject.Find ("Accept");
-			acceptPanel.SetActive (false);
-			imageParent = GameObject.Find ("ImageOrganizer");
-			textParent = GameObject.Find ("TextOrganizer");
+			// Get HUD elements
+            guiPlayerName = GameObject.Find("CurrentPlayer/PlayerName").GetComponent<Text>();
+            guiTurnText = GameObject.Find("CurrentPlayer/TurnPhase").GetComponent<Text>();
+            guiGold = GameObject.Find("CurrentPlayer/WeightGold/Gold").GetComponent<Text>();
+            guiWeight = GameObject.Find("CurrentPlayer/WeightGold/Weight").GetComponent<Text>();
+            actionButton = GameObject.Find("CurrentPlayer/ActionButton").GetComponent<Button>();
+            actionButtonText = GameObject.Find("CurrentPlayer/ActionButton").GetComponentInChildren<Text>();
+			acceptPanel = GameObject.Find("Accept");
+            imageParent = GameObject.Find("AllPlayers/ImageOrganizer");
+            textParent = GameObject.Find("AllPlayers/TextOrganizer");
+            inventory = GameObject.Find("Inventory").GetComponent<Inventory>();
+
+            // Disable the accept panel by default
+            acceptPanel.SetActive(false);
+
+            // Disable the inventory by default
+            inventory.gameObject.SetActive(false);
 
 			// Running the start stuff defaults to false
 			canInitAfterStart = false;
@@ -101,25 +111,27 @@ namespace GSP
             // Running the end stuff defaults to true
             canRunEndStuff = true;
 
+            // The inventory is closed by default
+            isInventoryOpen = false;
+
             // Get the number of players
             guiNumOfPlayers = GameMaster.Instance.NumPlayers;
 
             // Set the turn
             guiPlayerTurn = GameMaster.Instance.Turn;
 
-			//Set starting values             		            
-			int guiDiceDistVal = 0;	                
+			// Set starting values             		            
+			guiDiceDistVal = 0;	                
 
 			// Create a die
 			die = new Die();
-			die.Reseed ((int)Time.time);
+
+            // Reseed the random number generator
+            die.Reseed(Environment.TickCount);
 
 			// Get movement and map event components
-			guiMovement = GameObject.Find ("Canvas").GetComponent<GUIMovement> ();
-			guiMapEvent = GameObject.Find ("Canvas").GetComponent<MapEvent> ();
-
-			// Reseed the random number generator
-			die.Reseed (Environment.TickCount);
+			guiMovement = GameObject.Find("Canvas").GetComponent<GUIMovement> ();
+			guiMapEvent = GameObject.Find("Canvas").GetComponent<MapEvent> ();
 
 			// There isn't a map event in the beginning
 			mapEventResultString = string.Empty;
@@ -205,12 +217,18 @@ namespace GSP
                 // Loop over the number of players to give them the items
                 for (int count = 0; count < numPlayers; count++)
                 {
-                    // Set the player's merchant entity
-                    Merchant playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(count).Entity;
+                    // Get the starting items; could use indices, but this way is future proof from moving the items around
+                    // in the database
+                    Item weapon = ItemDatabase.Instance.Items.Find(item => item.Type == WeaponType.Sword.ToString());
+                    Item legs = ItemDatabase.Instance.Items.Find(item => item.Type == ArmorType.Chainlegs.ToString());
+                    
+                    // Add the items to the player's inventory
+                    inventory.AddItem(count, weapon.Id);
+                    inventory.AddItem(count, legs.Id);
 
-                    // Equip a sword and chainlegs on the player
-                    playerMerchant.EquipWeapon(GameMaster.Instance.CreateWeapon(WeaponType.Sword));
-                    playerMerchant.EquipArmor(GameMaster.Instance.CreateArmor(ArmorType.Chainlegs));
+                    // Equip the items for the player
+                    inventory.EquipItem(count, (Equipment)weapon);
+                    inventory.EquipItem(count, (Equipment)legs);
                 } // end for
             } // end if
 		} // end AddItems
@@ -221,7 +239,7 @@ namespace GSP
 		{
             // Set the player's merchant entity
             Merchant playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(guiPlayerTurn).Entity;
-            
+
 			//Set Input variables
 			// Total Weight
 			guiCurrentWeight = playerMerchant.TotalWeight;
@@ -497,7 +515,14 @@ namespace GSP
 			} //end else if
 			else if(gamePlayState == GamePlayState.EndTurn)
 			{
-				// Update the turn
+				// Close the inventory if it's open
+                if (isInventoryOpen)
+                {
+                    isInventoryOpen = false;
+                    inventory.gameObject.SetActive(false);
+                } // end if
+                
+                // Update the turn
 				guiPlayerTurn = GameMaster.Instance.NextTurn();
 
 				// Change the state to the BeginTurn state
@@ -508,14 +533,30 @@ namespace GSP
 		// Inventory button - Displays equipment and resources
 		public void ShowInventory()
 		{
-			
+			// Toggle the inventory
+            isInventoryOpen = !isInventoryOpen;
+
+            // Check if the inventory is open
+            if (isInventoryOpen)
+            {
+                // Set the inventory window up before displaying it.
+                inventory.SetPlayer(guiPlayerTurn);
+                
+                // Open the inventory window
+                inventory.gameObject.SetActive(true);
+            }
+            else
+            {
+                // Otherwise, close the inventory window
+                inventory.gameObject.SetActive(false);
+            } // end if
 		} // end ShowInventory
 		
 		// Ally button - Displays allies and their inventories
 		public void ShowAllies()
 		{
 			
-		} //end ShowAllies
+		} // end ShowAllies
 
 		// Yes Button - Accepts whatever is presented
 		public void Yes()

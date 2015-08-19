@@ -8,7 +8,7 @@
 using GSP.Core;
 using System.Collections.Generic;
 
-namespace GSP.Items.Inventory
+namespace GSP.Items.Inventories
 {
     /*******************************************************************************
      *
