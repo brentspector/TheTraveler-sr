@@ -11,7 +11,7 @@ using GSP.Char.Allies;
 using GSP.Entities;
 using GSP.Entities.Friendlies;
 using GSP.Items;
-using GSP.Items.Inventory;
+using GSP.Items.Inventories;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -903,7 +903,7 @@ namespace GSP.Core
         // Gets and Sets whether the game is new or loaded
         public bool IsNew
         {
-            get { return IsNew; }
+            get { return isNew; }
             set { isNew = value; }
         } // end IsNew
 

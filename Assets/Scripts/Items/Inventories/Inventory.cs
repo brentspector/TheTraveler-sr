@@ -12,7 +12,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace GSP.Items.Inventory
+namespace GSP.Items.Inventories
 {
     /*******************************************************************************
      *
@@ -31,6 +31,8 @@ namespace GSP.Items.Inventory
         int numBonusSlotsCreate;        // The number of bonus slots to create
         int equipmentSlots;             // The slot number after where the equipment slots end
         int bonusSlots;                 // The slot number after where the bonus slots end
+        int weaponSlot;                 // The slot number of the equipped weapon
+        int armorSlot;                  // The slot number of the equipped armor
         
         bool canShowTooltip;        // Whether the tooltip is show
         Transform bottomGrid;       // The Inentory's Bottom Panel
@@ -136,6 +138,11 @@ namespace GSP.Items.Inventory
                 } // end for index
             } // end for key
 
+            // Get the weapon and armor slots
+            // Note: Since there's only two slots and this is a minimal inventory, the first slot starts after the inventory
+            // slots and the second slot starts one slot before the bonus slots begin
+            weaponSlot = numInventorySlotsCreate;
+            armorSlot = equipmentSlots - 1;
         } // end Start
 
         // Runs each frame; used to update the tooltip's position
@@ -217,12 +224,6 @@ namespace GSP.Items.Inventory
         // Equips an Equipment item
         public bool EquipItem(int playerNum, Equipment item)
         {
-            // Get the weapon and armor slots
-            // Note: Since there's only two slots and this is a minimal inventory, the first slot starts after the inventory
-            // slots and the second slot starts one slot before the bonus slots begin
-            int weaponSlot = numInventorySlotsCreate;
-            int armorSlot = equipmentSlots - 1;
-
             // Get the list of items from the ItemDatabase
             List<Item> database = ItemDatabase.Instance.Items;
             
@@ -238,8 +239,9 @@ namespace GSP.Items.Inventory
                     // The item is armour so check if there's already armour equipped
                     if (armor.Name == string.Empty)
                     {
+                        int itemIndex = items[playerNum].FindIndex(aItem => aItem.Id == item.Id);
                         // There is no armour already equipped; Swap slot places with the item
-                        SwapItem(playerNum, armor, item);
+                        SwapItem(playerNum, armorSlot, itemIndex);
 
                         // Disable the tooltip
                         ShowTooltip(null, false);
@@ -274,14 +276,16 @@ namespace GSP.Items.Inventory
                     // The item is a weapon so check if there's already a weapon equipped
                     if (weapon.Name == string.Empty)
                     {
-                        // There is no a weapon already equipped; Swap slot places with the item
-                        SwapItem(playerNum, weapon, item);
+                        int itemIndex = items[playerNum].FindIndex(aItem => aItem.Id == item.Id);
+                        // There is no weapon already equipped; Swap slot places with the item
+                        SwapItem(playerNum, weaponSlot, itemIndex);
 
                         // Disable the tooltip
                         ShowTooltip(null, false);
 
-                        // Then deal the the equipping
-                        //TODO: Damien: Get the merchant and call Equip on the item later
+                        // Then deal with the unequipping and equipping
+                        Merchant playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(playerNum).Entity;
+                        playerMerchant.EquipWeapon((Weapon)item);
                     } // end if
                     else
                     {
@@ -345,6 +349,16 @@ namespace GSP.Items.Inventory
             ShowTooltip(null, false);
         } // end Remove
 
+        // Removes an item from the inventory
+        public void Remove(int playerNum, Item item)
+        {
+            // Find the index of the item
+            int index = items[playerNum].FindIndex(tempItem => tempItem.Id == item.Id);
+
+            // Remove the item
+            Remove(playerNum, index);
+        } // end Remove
+
         // Swaps an item's place in the inventory with another slot
         public void SwapItem(int playerNum, Item a, Item b)
         {
@@ -358,6 +372,21 @@ namespace GSP.Items.Inventory
             // Now swap the items
             items[playerNum][aSlot] = b;
             items[playerNum][bSlot] = a;
+        } // end SwapItem
+
+        // Swaps an item's place in the inventory with another slot
+        public void SwapItem(int playerNum, int slotNumA, int slotNumB)
+        {
+            // Holds the first slot index temporarily
+            int tempA = slotNumA;
+
+            // Get the items in the slots
+            Item aItem = items[playerNum][slotNumA];
+            Item bItem = items[playerNum][slotNumB];
+
+            // Swap the slots
+            items[playerNum][slotNumA] = bItem;
+            items[playerNum][slotNumB] = aItem;
         } // end SwapItem
 
         // Gets the first empty slot of the given SlotType
@@ -509,7 +538,7 @@ namespace GSP.Items.Inventory
 
             // For the profit status line, we have to do a calculation
             // First find all the resources in the inventory
-            List<Item> resources = ItemDatabase.Instance.Items.FindAll(item => item is Resource);
+            List<Item> resources = items[GameMaster.Instance.Turn].FindAll(item => item is Resource);
             // We need a variable to hold the result
             int profit = 0;
 
@@ -554,5 +583,30 @@ namespace GSP.Items.Inventory
         {
             get { return bonusSlots - 1; }
         } // end BonusSlotEnd
+
+        // Gets the weapon's slot
+        public int WeaponSlot
+        {
+            get { return weaponSlot; }
+        } // end WeaponSlot
+
+        // Gets the armour's slot
+        public int ArmorSlot
+        {
+            get { return armorSlot; }
+        } // end ArmorSlot
+
+        // Gets the items from the inventory
+        public List<Item> Items
+        {
+            get
+            { 
+                // Get a temporary list from the items list
+                List<Item> tempItems = items[GameMaster.Instance.Turn];
+                
+                // Return the temp list
+                return tempItems;
+            } // end get
+        } // end Items
     } // end GSP.Items.Inventory
 } // end GSP.Items
