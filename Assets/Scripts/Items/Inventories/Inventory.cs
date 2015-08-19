@@ -230,6 +230,8 @@ namespace GSP.Items.Inventories
             // Only proceed if the ID exists in the database
             if (database.Exists(tempItem => tempItem.Id == item.Id))
             {
+                // The item's index in the inventory
+                int itemIndex = items[playerNum].FindIndex(aItem => aItem.Id == item.Id);
                 // Check if the item is a piece of armour
                 if (item is Armor)
                 {
@@ -239,7 +241,6 @@ namespace GSP.Items.Inventories
                     // The item is armour so check if there's already armour equipped
                     if (armor.Name == string.Empty)
                     {
-                        int itemIndex = items[playerNum].FindIndex(aItem => aItem.Id == item.Id);
                         // There is no armour already equipped; Swap slot places with the item
                         SwapItem(playerNum, armorSlot, itemIndex);
 
@@ -253,7 +254,7 @@ namespace GSP.Items.Inventories
                     else
                     {
                         // Otherwise there is already armour equipped; Swap slot places with the item
-                        SwapItem(playerNum, armor, item);
+                        SwapItem(playerNum, armorSlot, itemIndex);
 
                         // Update the tooltip
                         ShowTooltip(armor);
@@ -276,7 +277,6 @@ namespace GSP.Items.Inventories
                     // The item is a weapon so check if there's already a weapon equipped
                     if (weapon.Name == string.Empty)
                     {
-                        int itemIndex = items[playerNum].FindIndex(aItem => aItem.Id == item.Id);
                         // There is no weapon already equipped; Swap slot places with the item
                         SwapItem(playerNum, weaponSlot, itemIndex);
 
@@ -290,7 +290,7 @@ namespace GSP.Items.Inventories
                     else
                     {
                         // Otherwise there is already a weapon equipped; Swap slot places with the item
-                        SwapItem(playerNum, weapon, item);
+                        SwapItem(playerNum, weaponSlot, itemIndex);
 
                         // Update the tooltip
                         ShowTooltip(weapon);
@@ -313,7 +313,7 @@ namespace GSP.Items.Inventories
                     if ((freeSlot = FindFreeSlot(playerNum, SlotType.Bonus)) >= 0)
                     {
                         // Swap slot places with the item
-                        SwapItem(playerNum, items[playerNum][freeSlot], item);
+                        SwapItem(playerNum, freeSlot, itemIndex);
 
                         // Disable the tooltip
                         ShowTooltip(null, false);
@@ -377,9 +377,6 @@ namespace GSP.Items.Inventories
         // Swaps an item's place in the inventory with another slot
         public void SwapItem(int playerNum, int slotNumA, int slotNumB)
         {
-            // Holds the first slot index temporarily
-            int tempA = slotNumA;
-
             // Get the items in the slots
             Item aItem = items[playerNum][slotNumA];
             Item bItem = items[playerNum][slotNumB];
@@ -516,7 +513,7 @@ namespace GSP.Items.Inventories
         } // end SetInventoryColor
 
         // Sets the player's stats for the status panels
-        void SetStats(Merchant player)
+        public void SetStats(Merchant player)
         {
             // Set the title's value
             transform.GetChild(0).GetChild(0).GetComponent<Text>().text = player.Name + "'s Inventory";
@@ -536,24 +533,8 @@ namespace GSP.Items.Inventories
             // Set the Gold status line's value
             statusRight.GetChild(0).GetChild(1).GetComponent<Text>().text = player.Currency.ToString();
 
-            // For the profit status line, we have to do a calculation
-            // First find all the resources in the inventory
-            List<Item> resources = items[GameMaster.Instance.Turn].FindAll(item => item is Resource);
-            // We need a variable to hold the result
-            int profit = 0;
-
-            // Then check if we found anything
-            if (resources.Count > 0)
-            {
-                // Finally, loop over the list and add each resources worth
-                foreach (Resource resource in resources)
-                {
-                    profit += resource.Worth;
-                } // end foreach
-            } // end if
-
             // Set the Profit status line's value
-            statusRight.GetChild(1).GetChild(1).GetComponent<Text>().text = profit.ToString();
+            statusRight.GetChild(1).GetChild(1).GetComponent<Text>().text = player.TotalWorth.ToString();
         } // end SetStats
 
         // Sets the inventory up for the current player

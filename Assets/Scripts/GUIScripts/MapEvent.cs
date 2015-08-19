@@ -67,7 +67,7 @@ namespace GSP
             playerMerchant = (Merchant)playerScript.Entity;
 
             // Get the inventory script
-            inventory = GameObject.Find("Inventory").GetComponent<Inventory>();
+            inventory = GameObject.Find("Canvas").transform.Find("Inventory").GetComponent<Inventory>();
 			
 			// Get the tile at the player's position
 			Vector3 tmp = player.transform.localPosition;
@@ -87,6 +87,10 @@ namespace GSP
 			else if (currentTile.ResourceType == ResourceType.None) 
 			{
 				// Roll a die to get a number from 1-100
+                if (die == null)
+                {
+                    Debug.LogError("ME: die is null!");
+                }
                 int dieResult = die.Roll (1, 100);
 
                 // Check for an enemy

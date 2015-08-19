@@ -359,9 +359,6 @@ namespace GSP.Core
                         // Name the GameObject in the editor for convienience sake
                         obj.name = allyName;
 
-                        // Add the ResourceList script
-                        obj.AddComponent<Char.ResourceList>();
-
                         // Create the ally entity
                         Entities.EntityManager.Instance.Generator.CreateEntity(out entID, Entities.EntityType.Porter, obj);
 
@@ -420,9 +417,6 @@ namespace GSP.Core
 
                         // Name the GameObject in the editor for convienience sake
                         obj.name = allyName;
-
-                        // Add the ResourceList script
-                        obj.AddComponent<Char.ResourceList>();
 
                         // Give the ally script the ID for the ally
                         script.GetAlly(allyId);

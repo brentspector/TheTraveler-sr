@@ -64,7 +64,6 @@ namespace GSP.Char
 				// Add the ally's values to the player directly
                 // Note: this will be done differently later
                 playerEntity.MaxWeight += allyEntity.MaxWeight;
-                playerEntity.MaxInventorySpace += allyEntity.MaxInventorySpace;
 
                 // Return sucess
                 return true;
@@ -88,7 +87,6 @@ namespace GSP.Char
             // Remove the ally's values from the player directly
             // Note: this will be done differently later
             playerEntity.MaxWeight -= allyEntity.MaxWeight;
-            playerEntity.MaxInventorySpace -= allyEntity.MaxInventorySpace;
 
 			// Remove the ally from the list
             allies.Remove(ally);
@@ -106,7 +104,6 @@ namespace GSP.Char
             // Remove the ally's values from the player directly
             // Note: this will be done differently later
             playerEntity.MaxWeight -= allyEntity.MaxWeight;
-            playerEntity.MaxInventorySpace -= allyEntity.MaxInventorySpace;
 
 			// Get the number of allies for later
 			int temp = NumAllies;
