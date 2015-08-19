@@ -6,7 +6,7 @@
  *
  *******************************************************************************/
 using GSP.Core;
-using GSP.Items.Inventory;
+using GSP.Items.Inventories;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -145,9 +145,6 @@ namespace GSP
                                     // Only continue once a map has been chosen
                                     if (mapSelection != "nothing")
                                     {
-                                        // This is a new game
-                                        GameMaster.Instance.IsNew = true;
-                                        
                                         // Pick player amount
                                         // Set the number of players to one for solo mode
                                         GameMaster.Instance.NumPlayers = 1;
@@ -179,9 +176,6 @@ namespace GSP
                                     // Only continue once a map has been chosen
                                     if (mapSelection != "nothing")
                                     {
-                                        // This is a new game
-                                        GameMaster.Instance.IsNew = true;
-                                        
                                         // Pick player amount
                                         guideText.text = "Please select a map...Done!\nPlease enter the number of players [2-4]";
 
@@ -302,6 +296,9 @@ namespace GSP
                         {
                             AudioManager.Instance.PlayMenu();
                         } // end else
+
+                        // This is a new game
+                        GameMaster.Instance.IsNew = true;
 
                         // Tell the GameMaster to load selected level
                         GameMaster.Instance.LoadLevel(mapSelection);

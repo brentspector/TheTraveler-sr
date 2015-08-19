@@ -7,7 +7,7 @@
  *
  *******************************************************************************/
 
-namespace GSP.Items.Inventory
+namespace GSP.Items.Inventories
 {
     // The types of slots the inventory system uses
     public enum SlotType

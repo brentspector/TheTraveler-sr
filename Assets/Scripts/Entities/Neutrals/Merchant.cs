@@ -9,6 +9,7 @@ using GSP.Char;
 using GSP.Core;
 using GSP.Entities.Interfaces;
 using GSP.Items;
+using GSP.Items.Inventories;
 using GSP.Tiles;
 using System.Collections.Generic;
 using UnityEngine;
@@ -26,10 +27,10 @@ namespace GSP.Entities.Neutrals
     {
         #region IInventory Variables
 
-        int maxWeight;		    // The maximum weight the entity can hold
-        int maxInventory;       // The maximum inventory spaces (max number of spaces an entity can hold)
-        int currency; 		    // The amount of currency the entity is holding
-        ResourceList resources; // The ResourceList script reference
+        int maxWeight;		        // The maximum weight the entity can hold
+        int currency; 		        // The amount of currency the entity is holding
+        List<Resource> resources;   // The list of resources
+        Inventory inventory;        // The inventory of the player
 
         #endregion
 
@@ -83,13 +84,15 @@ namespace GSP.Entities.Neutrals
 
             // The default for now - hard coded values
             maxWeight = 300;
-            maxInventory = 20;
             
             // The entity starts with no currency
             currency = 0;
 
             // Get the ResourceList component reference
-            resources = GameObj.GetComponent<ResourceList>();
+            resources = new List<Resource>();
+
+            // Get the inventory script
+            inventory = GameObject.Find("Canvas").transform.Find("Inventory").GetComponent<Inventory>();
 
             #endregion
 
@@ -224,10 +227,13 @@ namespace GSP.Entities.Neutrals
             if ((TotalWeight + resource.Weight) * amount <= MaxWeight)
             {
                 // Check if there is enough room for this resource
-                if (resources.TotalSize + resource.Size <= MaxInventorySpace)
+                if (inventory.FindFreeSlot(GameMaster.Instance.Turn, SlotType.Inventory) >= 0)
                 {
-                    // Add the resource
-                    resources.AddResource(resource, amount);
+                    // Add the resource to the inventory
+                    inventory.AddItem(GameMaster.Instance.Turn, resource.Id);
+
+                    // Update the inventory's stats
+                    inventory.SetStats(this);
 
                     // Check if the resource is from the map
                     if (isFromMap)
@@ -270,7 +276,7 @@ namespace GSP.Entities.Neutrals
             int count = 0;
 
             // Get all the resources of the given resource's type
-            tmpResources = resources.GetResourcesByType(resource.Type.ToString());
+            tmpResources = ResourceUtility.GetResourcesByType(resource.ResourceType);
 
             // Check if the returned number of resources is fewer than amount
             if (tmpResources.Count < amount)
@@ -290,8 +296,8 @@ namespace GSP.Entities.Neutrals
                 // Credit the entity for the resource
                 currency += tmpResources[index].Worth;
 
-                // Remove the resource from the list
-                resources.RemoveResource(tmpResources[index]);
+                // Remove the resource from the inventory
+                ResourceUtility.RemoveResource(tmpResources[index]);
             } // end for
         } // end SellResource
 
@@ -299,10 +305,10 @@ namespace GSP.Entities.Neutrals
         public void SellResources()
         {
             // Credit the entity for the resources they are holding
-            currency += TotalValue;
+            currency += TotalWorth;
 
-            // Clear the ResourceList now
-            resources.ClearResources();
+            // Remove all the resources now
+            ResourceUtility.RemoveResources();
         } // end SellResources
 
         // Transfers currency from the entity to another entity
@@ -331,8 +337,8 @@ namespace GSP.Entities.Neutrals
             // Have the other entity pickup the resource and test if it's a success
             if (other.PickupResource(resource, 1, false))
             {
-                // The pickup succeeded so remove the resource from the entity
-                resources.RemoveResource(resource);
+                // The pickup succeeded so remove the resource from the entity's inventory
+                ResourceUtility.RemoveResource(resource);
                 
                 // Return success
                 return true;
@@ -346,28 +352,64 @@ namespace GSP.Entities.Neutrals
         } // end TransferResource
 
         // Gets the list of resources of the entity
-        public ResourceList Resources
+        public List<Resource> Resources
         {
-            get { return resources; }
+            get
+            {
+                // Get the list of resources in the player's inventory
+                resources = ResourceUtility.GetResources();
+                
+                // Create a temporary list based on the list of resources
+                List<Resource> tempList = resources;
+                
+                // Return the temporary list
+                return tempList;
+            } // end get
         } // end Resources
 
         // Gets the TotalWeight of the entity's resources
         public int TotalWeight
         {
-            get { return resources.TotalWeight; }
+            get
+            {
+                // The total weight of all the resources in the player's inventory
+                int totalWeight = 0;
+
+                // Get all the resources
+                List<Resource> allResources = Resources;
+
+                // Get the total weight
+                foreach (Resource resource in allResources)
+                {
+                    totalWeight += resource.Weight;
+                } // end foreach
+                
+                // Return the total weight
+                return totalWeight;
+            } // end get
         } // end TotalWeight
 
-        // Gets the TotalSize of the entity's resources
-        public int TotalSize
-        {
-            get { return resources.TotalSize; }
-        } // end TotalSize
-
         // Gets the TotalValue of the entity's resources
-        public int TotalValue
+        public int TotalWorth
         {
-            get { return resources.TotalValue; }
-        } // end TotalValue
+            get
+            {
+                // The total weight of all the resources in the player's inventory
+                int totalWorth = 0;
+
+                // Get all the resources
+                List<Resource> allResources = Resources;
+
+                // Get the total weight
+                foreach (Resource resource in allResources)
+                {
+                    totalWorth += resource.Worth;
+                } // end foreach
+
+                // Return the total worth
+                return totalWorth;
+            } // end get
+        } // end TotalWorth
 
         // Gets and Sets the MaxWeight of the entity
         public int MaxWeight
@@ -377,10 +419,10 @@ namespace GSP.Entities.Neutrals
         } // end MaxWeight
 
         // Gets and Sets the MaxInventorySpace of the entity
+        // This is the number of regular inventory slots
         public int MaxInventorySpace
         {
-            get { return maxInventory; }
-            set { maxInventory = Utility.ZeroClampInt(value); }
+            get { return inventory.WeaponSlot; }
         } // end MaxInventorySpace
 
         // Gets and Sets the Currency of the entity
@@ -435,7 +477,8 @@ namespace GSP.Entities.Neutrals
 
             // Add the stats of the bonus
             maxWeight += bonus.WeightValue;
-            maxInventory += bonus.InventoryValue;
+            //TODO: Damien: Change this later when doing the bonuses
+            //maxInventory += bonus.InventoryValue;
         } // end EquipBonus
 
         // Unequips a bonus item
@@ -443,7 +486,8 @@ namespace GSP.Entities.Neutrals
         {
             // Remove the stats of the bonus
             maxWeight -= bonus.WeightValue;
-            maxInventory -= bonus.InventoryValue;
+            //TODO: Damien: Change this later when doing the bonuses
+            //maxInventory -= bonus.InventoryValue;
 
             // Remove the bonus from the list
             bonuses.Remove(bonus);
