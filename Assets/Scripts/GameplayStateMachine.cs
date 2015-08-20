@@ -105,9 +105,6 @@ namespace GSP
             // Disable the inventory by default
             inventory.gameObject.SetActive(false);
 
-			// Running the start stuff defaults to false
-			canInitAfterStart = false;
-
             // Running the end stuff defaults to true
             canRunEndStuff = true;
 
