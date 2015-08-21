@@ -27,10 +27,11 @@ namespace GSP
 		int initialTravelDist;      // Initial dice roll
 		int currTravelDist;         // Dice roll left
 		bool isMoving = false;      // If the player is moving, one dice roll value is taken off
-		Button upButton;		
-		Button downButton;
-		Button leftButton;
-		Button rightButton;
+		Button upButton;			// Up movement button		
+		Button downButton;			// Down movement button
+		Button leftButton;			// Left movement button
+		Button rightButton;			// Right movement button
+		Button cancelButton;		// Cancel movement button
 
         //TODO: Brent: Replace OnGUI stuff with the new In-Game UI later
         // Initialise things sort of like a custom constructor
@@ -41,12 +42,14 @@ namespace GSP
 			downButton = GameObject.Find ("DownButton").GetComponent<Button> ();
 			leftButton = GameObject.Find ("LeftButton").GetComponent<Button> ();
 			rightButton = GameObject.Find ("RightButton").GetComponent<Button> ();
+			cancelButton = GameObject.Find ("CancelButton").GetComponent<Button> ();
 
 			// Make sure they are enabled
 			upButton.interactable = true;
 			downButton.interactable = true;
 			leftButton.interactable = true;
 			rightButton.interactable = true;
+			cancelButton.interactable = true;
 
 			// Player script
             playerScript = player;
@@ -247,6 +250,16 @@ namespace GSP
 				rightButton.interactable = false;
 			} //end if
 		} //end TravelDistanceLeft
+
+		// Disables buttons upon turn end
+		public void DisableButtons()
+		{
+			upButton.interactable = false;
+			downButton.interactable = false;
+			leftButton.interactable = false;
+			rightButton.interactable = false;
+			cancelButton.interactable = false;
+		} //end DisableButtons
 
 		// Gets the current travel distance remaining
         public int RemainingTravelDistance

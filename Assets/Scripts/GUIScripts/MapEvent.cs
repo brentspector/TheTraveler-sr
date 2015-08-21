@@ -156,7 +156,10 @@ namespace GSP
         // Resolves a fight when the enemy MapEvent spawns
         public string ResolveFight(Die die)
 		{
-			// Create the enemy
+			GameMaster.Instance.SavePlayers ();
+			GameMaster.Instance.LoadLevel ("BrentBattleTest");
+			return "Enemy fought";
+			/*// Create the enemy
             GameMaster.Instance.CreateEnemy(HostileType.Bandit, "Bandit");
 
             // Get the enemyID from the list of enemy IDs; since this a 1v1 fight there should only be a single ID
@@ -201,7 +204,7 @@ namespace GSP
                      * Choose a number between one and the integer value of Resource.None
                      * Then subtract one to get a random number between zero and the integer value before Resource.None
                      * Example: Die roll of one to four; random number is between zero and three
-                     */
+                     *
                     int resourceNumber = die.Roll(1, (int)ResourceType.None) - 1;
                     Debug.LogFormat("Resource number is {0}", resourceNumber);
 
@@ -223,7 +226,7 @@ namespace GSP
 
 			// Set the summary and return it
 			guiResult = result;
-			return guiResult;
+			return guiResult;*/
 		} // end ResolveFight
 
         // NOTE: Hard-coded for now to work with only 1 ally type; it works for now. :P

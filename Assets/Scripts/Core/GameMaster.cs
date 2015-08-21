@@ -493,7 +493,7 @@ namespace GSP.Core
             // Set the player's merchant entity ID
             playerData.MerchantId = Instance.GetPlayerScript(playerNum).Entity.Id;
 
-            // Check if the player has an ally
+			// Check if the player has an ally
             if (Instance.GetPlayerScript(playerNum).NumAllies > 0)
             {
                 // Get the Ally's GameObject
@@ -510,7 +510,7 @@ namespace GSP.Core
             } // end else
 
             // Get the Inventory component
-            Inventory inventory = GameObject.Find("Inventory").GetComponent<Inventory>();
+			Inventory inventory = GameObject.Find("Canvas").transform.Find("Inventory").GetComponent<Inventory>();
 
             // Loop over the player's inventory to store their item IDs
             for (int index = 0; index < (inventory.BonusSlotEnd + 1); index++)
@@ -582,7 +582,7 @@ namespace GSP.Core
                 }
 
                 // Get the Inventory component
-                Inventory inventory = GameObject.Find("Inventory").GetComponent<Inventory>();
+				Inventory inventory = GameObject.Find("Canvas").transform.Find("Inventory").GetComponent<Inventory>();
 
                 // Loop over the player's inventory to restore it
                 for (int index = 0; index < (inventory.BonusSlotEnd + 1); index++)

@@ -180,29 +180,29 @@ namespace GSP
             {
                 // Create the players
                 GameMaster.Instance.CreatePlayers();
-
-                // Loop over the number of players to add their instances
-                for (int count = 0; count < numPlayers; count++)
-                {
-                    //TODO: Damien: Change this later when you do the player renaming
-                    int playerNum = count + 1;
-                    GameMaster.Instance.SetPlayerName(count, playerNum.ToString());
-
-                    // Set the player's script
-                    Player playerScript = GameMaster.Instance.GetPlayerScript(count);
-
-                    // Set the players's sprite sheet sprites
-                    playerScript.SetCharacterSprites(count + 1);
-
-                    // Set the player's facing
-                    playerScript.Face(FacingDirection.South);
-                } // end for
             } // end if
             else
             {
                 // Load the players
                 GameMaster.Instance.LoadPlayers();
             } // end else
+
+			// Loop over the number of players to add their instances
+			for (int count = 0; count < numPlayers; count++)
+			{
+				//TODO: Damien: Change this later when you do the player renaming
+				int playerNum = count + 1;
+				GameMaster.Instance.SetPlayerName(count, playerNum.ToString());
+				
+				// Set the player's script
+				Player playerScript = GameMaster.Instance.GetPlayerScript(count);
+				
+				// Set the players's sprite sheet sprites
+				playerScript.SetCharacterSprites(count + 1);
+				
+				// Set the player's facing
+				playerScript.Face(FacingDirection.South);
+			} // end for
 		} // end AddPlayers
 
         // Adds the starting items to the players
@@ -384,9 +384,6 @@ namespace GSP
 							actionButton.interactable = true;
 						} //end if
 
-						// Get the player's values
-						GetPlayerValues();
-
 						// Change the state to the EndTurn state
 						gamePlayState = GamePlayState.EndTurn;
                         break;
@@ -395,6 +392,9 @@ namespace GSP
                 // The player has ended their turn
                 case GamePlayState.EndTurn:
                     {
+						// Get the player's values
+						GetPlayerValues();
+
 						// Set Action Button text to prompt next player
 						actionButtonText.text = "Next Player";
                     
@@ -504,8 +504,9 @@ namespace GSP
 				// Set Action Button text while disabled
 				actionButtonText.text = "Processing...";
 
-				//Disable button while turn is ending
+				//Disable buttons while turn is ending
 				actionButton.interactable = false;
+				guiMovement.DisableButtons();
 
 				// Change the state to the DoAction state
 				gamePlayState = GamePlayState.DoAction;

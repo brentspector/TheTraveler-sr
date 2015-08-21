@@ -267,28 +267,28 @@ namespace GSP
                         if (mapSelection == "area01")
                         {
                             // Set the BattleMap
-                            GameMaster.Instance.BattleMap = BattleMap.Desert;
+							GameMaster.Instance.BattleMap = BattleMap.area01;
 
                             AudioManager.Instance.PlayDesert();
                         } // end if
                         else if (mapSelection == "area02")
                         {
                             // Set the BattleMap
-                            GameMaster.Instance.BattleMap = BattleMap.Euro;
+							GameMaster.Instance.BattleMap = BattleMap.area02;
                             
                             AudioManager.Instance.PlayEuro();
                         } // end else if
                         else if (mapSelection == "area03")
                         {
                             // Set the BattleMap
-                            GameMaster.Instance.BattleMap = BattleMap.Metro;
+							GameMaster.Instance.BattleMap = BattleMap.area03;
                             
                             AudioManager.Instance.PlayMetro();
                         } // end else if
                         else if (mapSelection == "area04")
                         {
                             // Set the BattleMap
-                            GameMaster.Instance.BattleMap = BattleMap.Snowy;
+							GameMaster.Instance.BattleMap = BattleMap.area04;
                             
                             AudioManager.Instance.PlaySnow();
                         } // end else if 
