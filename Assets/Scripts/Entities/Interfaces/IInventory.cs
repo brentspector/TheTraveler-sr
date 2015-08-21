@@ -7,6 +7,7 @@
  *******************************************************************************/
 using GSP.Items;
 using UnityEngine;
+using System.Collections.Generic;
 
 namespace GSP.Entities.Interfaces
 {
@@ -41,23 +42,20 @@ namespace GSP.Entities.Interfaces
 
         #region Properties
 
-        // The resource list
-        Char.ResourceList Resources { get; }
+        // The list of resources
+        List<Resource> Resources { get; }
 
         // The total weight of the resources
         int TotalWeight { get; }
 
-        // The total size of the resources
-        int TotalSize { get; }
-
-        // The total value of the resources
-        int TotalValue { get; }
+        // The total worth of the resources
+        int TotalWorth { get; }
 
         // The maximum weight that is able to be carried
         int MaxWeight { get; set; }
 
         // The maximum inventory space available
-        int MaxInventorySpace { get; set; }
+        int MaxInventorySpace { get; }
 
         // The currency currently being held
         int Currency { get; set; }

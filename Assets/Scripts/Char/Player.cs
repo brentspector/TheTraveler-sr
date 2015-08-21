@@ -56,16 +56,14 @@ namespace GSP.Char
         // Allows for collision on the market place to end the game
         void OnCollisionEnter2D(Collision2D coll)
         {
+			Debug.LogFormat("GameObject being collided with: {0}", coll.gameObject.name);
             // Layer 8 is the "Market"
             if (coll.gameObject.layer == 8)
             {
-                // Get the GameObject with the GameStateMachineTag tag
-                GameObject obj = GameObject.FindGameObjectWithTag("GamePlayStateMachineTag");
+                // Get the GameplayStateMachine
+				GameplayStateMachine stateMachineScript = GameObject.Find("Canvas").GetComponent<GameplayStateMachine>();
 
-                // Now get the GamePlayStateMachine script
-                var stateMachineScript = obj.GetComponent<GameplayStateMachine>();
-
-                // Finally end the game by calling EndGame()
+                // End the game by calling EndGame()
                 stateMachineScript.EndGame();
             }
         } // end OnCollisionEnter2D

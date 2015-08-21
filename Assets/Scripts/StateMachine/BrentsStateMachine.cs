@@ -6,6 +6,7 @@
  *
  *******************************************************************************/
 using GSP.Core;
+using GSP.Items.Inventories;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -76,10 +77,11 @@ namespace GSP
 
             // Initialise the GameMaster in the menu
             // Note: Don't remove this
-            if (GameMaster.Instance != null)
-            {
-                // Leave this empty. :P
-            } // end if
+            if (GameMaster.Instance != null) {/* Leave this empty. :P */}
+
+            // Initialise the ItemDatabase in the menu
+            // Note: Don't remove this
+            if (ItemDatabase.Instance != null) { /* Leave this empty. :P */}
 		} // end Start
 		
 		// Main function for controlling game
@@ -264,24 +266,39 @@ namespace GSP
                         // Play correct background music
                         if (mapSelection == "area01")
                         {
+                            // Set the BattleMap
+							GameMaster.Instance.BattleMap = BattleMap.area01;
+
                             AudioManager.Instance.PlayDesert();
                         } // end if
                         else if (mapSelection == "area02")
                         {
+                            // Set the BattleMap
+							GameMaster.Instance.BattleMap = BattleMap.area02;
+                            
                             AudioManager.Instance.PlayEuro();
                         } // end else if
                         else if (mapSelection == "area03")
                         {
+                            // Set the BattleMap
+							GameMaster.Instance.BattleMap = BattleMap.area03;
+                            
                             AudioManager.Instance.PlayMetro();
                         } // end else if
                         else if (mapSelection == "area04")
                         {
+                            // Set the BattleMap
+							GameMaster.Instance.BattleMap = BattleMap.area04;
+                            
                             AudioManager.Instance.PlaySnow();
                         } // end else if 
                         else
                         {
                             AudioManager.Instance.PlayMenu();
                         } // end else
+
+                        // This is a new game
+                        GameMaster.Instance.IsNew = true;
 
                         // Tell the GameMaster to load selected level
                         GameMaster.Instance.LoadLevel(mapSelection);

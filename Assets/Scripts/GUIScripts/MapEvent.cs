@@ -12,9 +12,9 @@ using GSP.Entities.Friendlies;
 using GSP.Entities.Hostiles;
 using GSP.Entities.Neutrals;
 using GSP.Items;
+using GSP.Items.Inventories;
 using GSP.Tiles;
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace GSP
@@ -31,6 +31,7 @@ namespace GSP
 		GameObject player;          // The player's GameObject reference
 		Player playerScript;        // The player's Character script component reference
         Merchant playerMerchant;    // The player's merchant Entity for convienience
+        Inventory inventory;        // The inventory script
 
 		//NOTE!!
 		//SIZE must be the last item in the enum so that anything based
@@ -64,6 +65,9 @@ namespace GSP
 
             // Set the Merchant entity for convienience
             playerMerchant = (Merchant)playerScript.Entity;
+
+            // Get the inventory script
+            inventory = GameObject.Find("Canvas").transform.Find("Inventory").GetComponent<Inventory>();
 			
 			// Get the tile at the player's position
 			Vector3 tmp = player.transform.localPosition;
@@ -83,6 +87,10 @@ namespace GSP
 			else if (currentTile.ResourceType == ResourceType.None) 
 			{
 				// Roll a die to get a number from 1-100
+                if (die == null)
+                {
+                    Debug.LogError("ME: die is null!");
+                }
                 int dieResult = die.Roll (1, 100);
 
                 // Check for an enemy
@@ -110,11 +118,11 @@ namespace GSP
 			// Otherwise, the tile is a resource
 			else
 			{
-                // Create a temp resource
-                Resource temp = GameMaster.Instance.CreateResource(currentTile.ResourceType);
+                // Get the resource from the database
+                Item temp = ItemDatabase.Instance.Items.Find(resource => resource.Type == currentTile.ResourceType.ToString());
 				
 				// Pick up the resource
-                playerMerchant.PickupResource(temp, 1);
+                playerMerchant.PickupResource((Resource)temp, 1);
 				
 				// Declare what was landed on
 				guiResult = "You got a resource:\n" + temp.Name;
@@ -148,7 +156,10 @@ namespace GSP
         // Resolves a fight when the enemy MapEvent spawns
         public string ResolveFight(Die die)
 		{
-			// Create the enemy
+			GameMaster.Instance.SavePlayers ();
+			GameMaster.Instance.LoadLevel ("BrentBattleTest");
+			return "Enemy fought";
+			/*// Create the enemy
             GameMaster.Instance.CreateEnemy(HostileType.Bandit, "Bandit");
 
             // Get the enemyID from the list of enemy IDs; since this a 1v1 fight there should only be a single ID
@@ -163,7 +174,7 @@ namespace GSP
 			
 			//TODO: Brent: Add Battle Scene
 			
-			//Battle characters
+			// Battle characters
 			Fight fighter = new Fight();
 			string result = fighter.CharacterFight<Bandit>(playerScript);
 			
@@ -179,36 +190,31 @@ namespace GSP
                         // The player has no resources so remove its weapon
                         result += "\nAs a result, you lost your " + playerMerchant.EquippedWeapon.Name;
                         playerMerchant.UnequipWeapon(playerMerchant.EquippedWeapon);
-                    } // end if playerMerchant.EquippedWeapon != null
+                        inventory.Remove(GameMaster.Instance.Turn, inventory.WeaponSlot);
+                    } // end if
 					else
 					{
 						result += "...but\n you weren't worth mugging.";
 					} //end else
-				} // end if playerMerchant.TotalWeight <= 0
+				} // end if
 				// Otherwise, the player has resources so remove a random resource
 				else
 				{
-					// Get the player's resource list script
-					ResourceList tempList = player.GetComponent<ResourceList>();
-
                     /* Choose a resource;
                      * Choose a number between one and the integer value of Resource.None
                      * Then subtract one to get a random number between zero and the integer value before Resource.None
                      * Example: Die roll of one to four; random number is between zero and three
-                     */
+                     *
                     int resourceNumber = die.Roll(1, (int)ResourceType.None) - 1;
                     Debug.LogFormat("Resource number is {0}", resourceNumber);
 
-					// Get the list of resources of that type
-                    List<Resource> resList = tempList.GetResourcesByType(Enum.GetName(typeof(ResourceType), resourceNumber));
-
 					// Check if the player has the resource; Don't display the message if they don't have the resource
-                    if (resList.Count != 0)
+                    if (ResourceUtility.GetResourcesByType((ResourceType)resourceNumber).Count != 0)
                     {
                         // Remove the resources by list
-                        tempList.RemoveResources(resList);
+                        ResourceUtility.RemoveResourcesByType((ResourceType)resourceNumber);
                         result += " \nAs a result, you lost all your " + Enum.GetName(typeof(ResourceType), resourceNumber);
-                    } // end if resList.Count != 0
+                    } // end if
 				} // end else
 			} // end if
 
@@ -220,7 +226,7 @@ namespace GSP
 
 			// Set the summary and return it
 			guiResult = result;
-			return guiResult;
+			return guiResult;*/
 		} // end ResolveFight
 
         // NOTE: Hard-coded for now to work with only 1 ally type; it works for now. :P
@@ -291,10 +297,13 @@ namespace GSP
         public string ResolveItem(Die die)
 		{
 			// String to return for display
-			string result;
+			string result = string.Empty;
 			
 			// Determine what item was found
 			int itemType = die.Roll(1, 3);
+
+            // The item to add to the player's inventory
+            Item item = null;
 
             // Switch ove the itemType
             switch (itemType)
@@ -305,11 +314,8 @@ namespace GSP
                         // Pick an item from the weapons enumeration
                         int itemNumber = die.Roll(1, (int)WeaponType.Size) - 1;
 
-                        // Assign the chosen number as the item
-                        result = Enum.GetName(typeof(WeaponType), itemNumber);
-
-                        // Equip the weapon on the player
-                        playerMerchant.EquipWeapon(GameMaster.Instance.CreateWeapon((WeaponType)itemNumber));
+                        // Find the item in the database
+                        item = ItemDatabase.Instance.Items.Find(tempItem => tempItem.Type == ((WeaponType)itemNumber).ToString());
                         break;
                     } // end case 1
                 // Am armour item
@@ -318,11 +324,8 @@ namespace GSP
                         // Pick an item from the armor enumeration
                         int itemNumber = die.Roll(1, (int)ArmorType.Size) - 1;
 
-                        // Assign the chosen number as the item
-                        result = Enum.GetName(typeof(ArmorType), itemNumber);
-
-                        // Equip the armour on the player
-                        playerMerchant.EquipArmor(GameMaster.Instance.CreateArmor((ArmorType)itemNumber));
+                        // Find the item in the database
+                        item = ItemDatabase.Instance.Items.Find(tempItem => tempItem.Type == ((ArmorType)itemNumber).ToString());
                         break;
                     } // end case 2
                 // A bonus item (inventory/weight
@@ -331,11 +334,8 @@ namespace GSP
                         // Pick an item from the inventory enumeration
                         int itemNumber = die.Roll(1, (int)BonusType.Size) - 1;
 
-                        // Assign the chosen number as the item
-                        result = Enum.GetName(typeof(BonusType), itemNumber);
-
-                        // Equip the bonus item on the player
-                        playerMerchant.EquipBonus(GameMaster.Instance.CreateBonus((BonusType)itemNumber));
+                        // Find the item in the database
+                        item = ItemDatabase.Instance.Items.Find(tempItem => tempItem.Type == ((BonusType)itemNumber).ToString());
                         break;
                     } // end case 3
                 // An invalid item
@@ -345,6 +345,15 @@ namespace GSP
                         break;
                     } // end case default
             } // end switch itemType
+
+            if (item != null)
+            {
+                // Return the resulting item's name
+                result = item.Name;
+                
+                // Add the item to the player's inventory
+                inventory.AddItem(GameMaster.Instance.Turn, item.Id);
+            } // end if
 			
 			// Set and return the result
             guiResult = "You got \n" + result;

@@ -5,7 +5,7 @@
  *  Description: The logic of the weapon items
  *
  *******************************************************************************/
-
+using UnityEngine;
 
 namespace GSP.Items
 {
@@ -19,8 +19,8 @@ namespace GSP.Items
     public class Weapon : Equipment
     {
         // Create a weapon
-        public Weapon(string itemName, WeaponType itemType, int attack, int cost) :
-            base(itemName, itemType.ToString(), attack, 0, 0, 0, cost)
+        public Weapon(string itemName, WeaponType itemType, Sprite itemIcon, int attack, int cost) :
+            base(itemName, itemType.ToString(), itemIcon, attack, 0, 0, 0, cost)
         {
             // Leave empty
         } // end Weapon constructor

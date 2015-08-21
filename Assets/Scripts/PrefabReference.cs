@@ -31,9 +31,6 @@ namespace GSP
         // This is the reference to the ally prefab
         public static GameObject prefabAlly = Resources.Load("Ally") as GameObject;
 
-		// This is the reference to the dice button prefab
-        public static GameObject prefabDiceButton = Resources.Load("DiceButton") as GameObject;
-
 		// This is the reference to the ore resource prefab
         public static GameObject prefabResource_Ore = Resources.Load("Resource_Ore") as GameObject;
 
@@ -46,11 +43,12 @@ namespace GSP
 		// This is the reference to the fish resource prefab
         public static GameObject prefabResource_Fish = Resources.Load("Resource_Fish") as GameObject;
 
-		// This is the reference to the item prefab
+		// This is the reference to the highlight prefab
         public static GameObject prefabHighlight = Resources.Load("Highlight") as GameObject;
 
-        // This is the reference to the item prefab
-        public static GameObject prefabSlot = Resources.Load("Inventory/Slot") as GameObject;
+        // This is the reference to the inventory slot prefab
+        public static GameObject prefabInventorySlot = Resources.Load("Inventory/InventorySlot") as GameObject;
+
 	} // end PrefabReference
 } // end GSP
 
