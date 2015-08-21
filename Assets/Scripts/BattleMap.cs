@@ -11,9 +11,9 @@ namespace GSP
     // The enumeration for describing the map used for the battle scene.
     public enum BattleMap
     {
-        Desert,
-        Euro,
-        Metro,
-        Snowy
+        area01,  // Desert Map
+        area02,	 // Euro Map
+        area03,	 // Metro Map
+        area04	 // Snowy Map
     } // end BattleMap
 } // end GSP
