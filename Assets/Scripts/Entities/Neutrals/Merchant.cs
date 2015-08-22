@@ -127,8 +127,8 @@ namespace GSP.Entities.Neutrals
             // Update the ally script
             allyScript = GameObj.GetComponent<AllyList>();
 
-            // Update the inventory reference
-            inventory = GameObject.Find("Canvas").transform.Find("Inventory").GetComponent<Inventory>();
+			// Update the inventory reference
+			inventory = GameObject.Find("Canvas").transform.Find("Inventory").GetComponent<Inventory>();
         } // end UpdateScriptReferences
 
         // Setup the Merchant's Sprite set. This is an array of Sprites that will be used for the Merchant
@@ -362,8 +362,6 @@ namespace GSP.Entities.Neutrals
                 // Get the list of resources in the player's inventory
                 resources = ResourceUtility.GetResources();
 
-                Debug.LogFormat("resources.Count: {0}", resources.Count);
-                
                 // Create a temporary list based on the list of resources
                 List<Resource> tempList = resources;
                 
@@ -383,15 +381,15 @@ namespace GSP.Entities.Neutrals
                 // Get all the resources
                 List<Resource> allResources = Resources;
 
-                if (allResources.Count > 0)
-                {
-                    // Get the total weight
-                    foreach (Resource resource in allResources)
-                    {
-                        totalWeight += resource.Weight;
-                    } // end foreach
-                } // end if
-                
+				// Make sure there are resources
+				if(allResources.Count > 0)
+				{
+               		 // Get the total weight
+              		  foreach (Resource resource in allResources)
+               		 {
+                  		  totalWeight += resource.Weight;
+               		 } // end foreach
+				} // end if
                 // Return the total weight
                 return totalWeight;
             } // end get
@@ -587,7 +585,7 @@ namespace GSP.Entities.Neutrals
                 health -= damage;
 
                 // Check if the entity is dead
-                if (health == 0)
+                if (health <= 0)
                 {
                     // The entity is dead
                     isDead = true;
@@ -605,7 +603,7 @@ namespace GSP.Entities.Neutrals
         // Gets the current health of the entity
         public int Health
         {
-            get { return health; }
+            get { return Utility.ZeroClampInt(health); }
         } // end Health
 
         // Gets and Sets the maximum health of the entity
