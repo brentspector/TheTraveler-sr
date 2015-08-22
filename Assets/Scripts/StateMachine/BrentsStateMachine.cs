@@ -300,6 +300,18 @@ namespace GSP
                         // This is a new game
                         GameMaster.Instance.IsNew = true;
 
+                        // Check if this is a single player game
+                        if (GameMaster.Instance.NumPlayers == 1)
+                        {
+                            // Flag the game as single player
+                            GameMaster.Instance.IsSinglePlayer = true;
+                        } // end if
+                        else
+                        {
+                            // Otherwise flag the game as multiplayer
+                            GameMaster.Instance.IsSinglePlayer = false;
+                        } // end else
+
                         // Tell the GameMaster to load selected level
                         GameMaster.Instance.LoadLevel(mapSelection);
                         break;
