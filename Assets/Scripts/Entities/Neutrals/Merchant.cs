@@ -126,6 +126,9 @@ namespace GSP.Entities.Neutrals
 
             // Update the ally script
             allyScript = GameObj.GetComponent<AllyList>();
+
+            // Update the inventory reference
+            inventory = GameObject.Find("Canvas").transform.Find("Inventory").GetComponent<Inventory>();
         } // end UpdateScriptReferences
 
         // Setup the Merchant's Sprite set. This is an array of Sprites that will be used for the Merchant
@@ -358,6 +361,8 @@ namespace GSP.Entities.Neutrals
             {
                 // Get the list of resources in the player's inventory
                 resources = ResourceUtility.GetResources();
+
+                Debug.LogFormat("resources.Count: {0}", resources.Count);
                 
                 // Create a temporary list based on the list of resources
                 List<Resource> tempList = resources;
@@ -378,11 +383,14 @@ namespace GSP.Entities.Neutrals
                 // Get all the resources
                 List<Resource> allResources = Resources;
 
-                // Get the total weight
-                foreach (Resource resource in allResources)
+                if (allResources.Count > 0)
                 {
-                    totalWeight += resource.Weight;
-                } // end foreach
+                    // Get the total weight
+                    foreach (Resource resource in allResources)
+                    {
+                        totalWeight += resource.Weight;
+                    } // end foreach
+                } // end if
                 
                 // Return the total weight
                 return totalWeight;
