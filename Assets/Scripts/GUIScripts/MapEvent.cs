@@ -157,76 +157,8 @@ namespace GSP
         public string ResolveFight(Die die)
 		{
 			GameMaster.Instance.SavePlayers ();
-			GameMaster.Instance.LoadLevel ("BrentBattleTest");
+			GameMaster.Instance.LoadLevel ("BattleScene");
 			return "Enemy fought";
-			/*// Create the enemy
-            GameMaster.Instance.CreateEnemy(HostileType.Bandit, "Bandit");
-
-            // Get the enemyID from the list of enemy IDs; since this a 1v1 fight there should only be a single ID
-            int enemyID = GameMaster.Instance.EnemyIdentifiers[0];
-            
-            // Get the enemy entity
-            Bandit enemyEntity = (Bandit)EntityManager.Instance.GetEntity(enemyID);
-			
-			// Set the stats of the enemy
-			enemyEntity.AttackPower = die.Roll(1, 9);
-			enemyEntity.DefencePower = die.Roll(1, 9);
-			
-			//TODO: Brent: Add Battle Scene
-			
-			// Battle characters
-			Fight fighter = new Fight();
-			string result = fighter.CharacterFight<Bandit>(playerScript);
-			
-			// Check if the player lost the fight
-			if(result.Contains("Enemy wins"))
-			{
-                // The player lost the fight, remove its resources or its weapon
-				if(playerMerchant.TotalWeight <= 0)
-				{
-                    // Check if the player has a weapon
-                    if (playerMerchant.EquippedWeapon != null)
-                    {
-                        // The player has no resources so remove its weapon
-                        result += "\nAs a result, you lost your " + playerMerchant.EquippedWeapon.Name;
-                        playerMerchant.UnequipWeapon(playerMerchant.EquippedWeapon);
-                        inventory.Remove(GameMaster.Instance.Turn, inventory.WeaponSlot);
-                    } // end if
-					else
-					{
-						result += "...but\n you weren't worth mugging.";
-					} //end else
-				} // end if
-				// Otherwise, the player has resources so remove a random resource
-				else
-				{
-                    /* Choose a resource;
-                     * Choose a number between one and the integer value of Resource.None
-                     * Then subtract one to get a random number between zero and the integer value before Resource.None
-                     * Example: Die roll of one to four; random number is between zero and three
-                     *
-                    int resourceNumber = die.Roll(1, (int)ResourceType.None) - 1;
-                    Debug.LogFormat("Resource number is {0}", resourceNumber);
-
-					// Check if the player has the resource; Don't display the message if they don't have the resource
-                    if (ResourceUtility.GetResourcesByType((ResourceType)resourceNumber).Count != 0)
-                    {
-                        // Remove the resources by list
-                        ResourceUtility.RemoveResourcesByType((ResourceType)resourceNumber);
-                        result += " \nAs a result, you lost all your " + Enum.GetName(typeof(ResourceType), resourceNumber);
-                    } // end if
-				} // end else
-			} // end if
-
-			// Remove the enemy entity
-            EntityManager.Instance.RemoveEntity(enemyID);
-
-            // Remove the entity from the list of identifiers.
-            GameMaster.Instance.RemoveEnemyIdentifier(enemyID);
-
-			// Set the summary and return it
-			guiResult = result;
-			return guiResult;*/
 		} // end ResolveFight
 
         // NOTE: Hard-coded for now to work with only 1 ally type; it works for now. :P

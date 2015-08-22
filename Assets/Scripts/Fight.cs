@@ -10,6 +10,7 @@ using GSP.Core;
 using GSP.Entities;
 using GSP.Entities.Hostiles;
 using GSP.Entities.Neutrals;
+using UnityEngine;
 
 namespace GSP
 {
@@ -23,32 +24,37 @@ namespace GSP
     public class Fight
 	{
 		// Used when player fights an enemy
-		public string CharacterFight<TEnemy>(Player player) where TEnemy : Hostile
+		public int CharacterFight<TEnemy>(Merchant player, bool turn, Die die) where TEnemy : Hostile
 		{
 			// Get the enemyID from the list of enemy IDs; since this a 1v1 fight there should only be a single ID
             int enemyID = GameMaster.Instance.EnemyIdentifiers[0];
 
             // Get the player's and enemy's entity
             TEnemy enemyEntity = (TEnemy)EntityManager.Instance.GetEntity(enemyID);
-            Merchant playerEntity = (Merchant)player.Entity;
 
-            // Get the AttackPower of both the enemy and player
-			int enemyDamage = Utility.ZeroClampInt(enemyEntity.AttackPower - playerEntity.DefencePower);
-            int playerDamage = Utility.ZeroClampInt(playerEntity.AttackPower - enemyEntity.DefencePower);
-
-            // Check if the enemy does more damage than the player
-			if(enemyDamage > playerDamage)
+			// Determine if it's the player's turn, and get respective values
+			int attack;
+			int defense;
+			if(turn)
 			{
-				// It does so return that the enemy wins
-                return "Player damage: " + playerDamage + 
-					"\nEnemy damage: " + enemyDamage + "\nEnemy wins";
-			} // end if
+				attack = die.Roll(1, player.AttackPower);
+				defense = die.Roll(1, enemyEntity.DefencePower);
+			} //end if
 			else
 			{
-				// Otherwise, return that the player wins
-                return "Player damage: " + playerDamage + 
-					"\nEnemy damage: " + enemyDamage + "\nPlayer wins";
-			} // end else
+				attack = die.Roll(1, enemyEntity.AttackPower);
+				defense = die.Roll(1, player.AttackPower);
+			} //end else
+
+			// Calculate resulting damage
+			int damage = attack - defense;
+			if(damage < 0)
+			{
+				damage = 45;
+			} //end if
+
+			// Return damage
+			return damage;
 		} // end CharacterFight
 	} // end Fight
 } // end GSP
