@@ -36,9 +36,9 @@ namespace GSP.Core
         void Start()
         {
             // Initialise the movement variables
-            damping = 1.0f;
-            lookAheadFactor = 1.0f;
-            lookAheadReturnSpeed = 0.5f;
+            damping = 0.4f;
+            lookAheadFactor = 2.0f;
+            lookAheadReturnSpeed = 1.0f;
             lookAheadMoveThreshold = 0.1f;
 
             // Set the X-axis offset

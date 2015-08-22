@@ -1,12 +1,13 @@
-﻿using GSP.Char;
-/*******************************************************************************
+﻿/*******************************************************************************
  *
  *  File Name: Hostile.cs
  *
  *  Description: The base for all enemies
  *
  *******************************************************************************/
+using GSP.Char;
 using GSP.Items;
+using GSP.Entities.Interfaces;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -19,7 +20,7 @@ namespace GSP.Entities.Hostiles
      * Description: The base class for all hostiles a.k.a enemies.
      * 
      *******************************************************************************/
-    public abstract class Hostile : Entity
+    public abstract class Hostile : Entity, IDamageable, IEquipment
 	{
         #region IEquipment Variables
 
@@ -230,7 +231,7 @@ namespace GSP.Entities.Hostiles
         // Gets the current health of the entity
         public int Health
         {
-            get { return health; }
+            get { return Utility.ZeroClampInt(health); }
         } // end Health
 
         // Gets and Sets the maximum health of the entity
