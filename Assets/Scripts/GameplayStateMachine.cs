@@ -62,7 +62,10 @@ namespace GSP
        	Text guiWeight;		                		// The player's actual weight
 		Button actionButton;						// Button user presses to advance turn phase
 		Text actionButtonText;						// Text of actionButton 
+		bool actionButtonActive;					// Whether the action button is active or not
 		GameObject acceptPanel;						// Panel for accepting an ally
+		GameObject pauseMenu;						// Panel for pausing game
+		bool isPaused;								// Whether the game is paused or not
 		// All Players
 		GameObject imageParent;						// Panel with all player images
 		GameObject textParent;						// Panel with all player names and gold
@@ -95,12 +98,19 @@ namespace GSP
             actionButton = GameObject.Find("CurrentPlayer/ActionButton").GetComponent<Button>();
             actionButtonText = GameObject.Find("CurrentPlayer/ActionButton").GetComponentInChildren<Text>();
 			acceptPanel = GameObject.Find("Accept");
+			pauseMenu = GameObject.Find ("PauseMenu");
             imageParent = GameObject.Find("AllPlayers/ImageOrganizer");
             textParent = GameObject.Find("AllPlayers/TextOrganizer");
             inventory = GameObject.Find("Inventory").GetComponent<Inventory>();
+			GameObject.Find ("Canvas").transform.Find ("Instructions").gameObject.SetActive (false);
+			actionButtonActive = true;
+			isPaused = false;
 
             // Disable the accept panel by default
             acceptPanel.SetActive(false);
+
+			// Disable the pause menu by default
+			pauseMenu.SetActive (false);
 
             // Disable the inventory by default
             inventory.gameObject.SetActive(false);
@@ -267,11 +277,12 @@ namespace GSP
                 // Initialise stuff after start
                 InitAfterStart();
             } // end if
-            else
+			// Run State Machine only if not paused
+            else if(!isPaused)
             {
                 // Update any values that affect GUI before creating GUI
                 StateMachine();
-            } // end else
+            } // end else if
         } // end Update
 
         // Controls the flow of the game through various states
@@ -291,6 +302,7 @@ namespace GSP
 
 						//Verify the action button is enabled
 						actionButton.interactable = true;
+						actionButtonActive = true;
 
                         // Switch the state to the RollDie state
                         gamePlayState = GamePlayState.RollDice;
@@ -336,6 +348,7 @@ namespace GSP
 
 						// Make the action button clickable again
 						actionButton.interactable = true;
+						actionButtonActive = true;
 
 						// Change the state to the SelectPathToTake state
 						gamePlayState = GamePlayState.SelectPathToTake;
@@ -382,6 +395,7 @@ namespace GSP
 
 							// Enable Action Button
 							actionButton.interactable = true;
+							actionButtonActive = true;
 						} //end if
 
 						// Change the state to the EndTurn state
@@ -495,6 +509,7 @@ namespace GSP
 
 				//Disable button while distance is being calculated
 				actionButton.interactable = false;
+				actionButtonActive = false;
 
 				// Change to the CalcDistance State
 				gamePlayState = GamePlayState.CalcDistance;
@@ -506,6 +521,7 @@ namespace GSP
 
 				//Disable buttons while turn is ending
 				actionButton.interactable = false;
+				actionButtonActive = false;
 				guiMovement.DisableButtons();
 
 				// Change the state to the DoAction state
@@ -556,6 +572,57 @@ namespace GSP
 			
 		} // end ShowAllies
 
+		// Pause button - Displays pause menu and pauses game
+		public void PauseGame()
+		{
+			if(!pauseMenu.activeInHierarchy)
+			{
+				isPaused = true;
+				pauseMenu.SetActive (true);
+				guiMovement.DisableButtons();
+				actionButton.interactable = false;
+				if(isInventoryOpen)
+				{
+					ShowInventory();
+				} //end if
+				GameObject.Find("Inventory").GetComponent<Button>().interactable = false;
+				GameObject.Find("Ally").GetComponent<Button>().interactable = false;
+			} //end if
+			else
+			{
+				isPaused = false;
+				pauseMenu.SetActive(false);
+				GameObject.Find("Inventory").GetComponent<Button>().interactable = true;
+				GameObject.Find("Ally").GetComponent<Button>().interactable = true;
+				if(actionButtonActive)
+				{
+					actionButton.interactable = true;
+				} //end if
+				if(gamePlayState == GamePlayState.SelectPathToTake)
+				{
+					guiMovement.TravelDistanceLeft();
+				} //end if
+			} //end else
+		} //end PauseGame
+
+		// Instructions button - Displays instructions panel
+		public void Instructions()
+		{
+			GameObject.Find ("Canvas").transform.Find ("Instructions").gameObject.SetActive (
+				!GameObject.Find ("Canvas").transform.Find ("Instructions").gameObject.activeInHierarchy);
+		} //end Instructions
+
+		public void MainMenu()
+		{
+			Entities.EntityManager.Instance.Dispose ();
+			while(GameMaster.Instance.Turn != 0)
+			{
+				GameMaster.Instance.NextTurn();
+			} //end while
+			GameMaster.Instance.NumPlayers = 0;
+			GameMaster.Instance.LoadLevel ("MenuScene");
+		} //end MainMenu
+
 		// Yes Button - Accepts whatever is presented
 		public void Yes()
 		{
@@ -567,6 +634,7 @@ namespace GSP
 
 			// Enable Action Button
 			actionButton.interactable = true;
+			actionButtonActive = true;
 		} //end Yes
 
 		// No Button - Declines whatever is presented
@@ -580,6 +648,7 @@ namespace GSP
 
 			// Enable Action Button
 			actionButton.interactable = true;
+			actionButtonActive = true;
 		} //end No
 	} // end GameplayStateMachine
 } // end GSP
