@@ -114,6 +114,12 @@ namespace GSP.Core
             tempAllyIdentifiers.Clear();
         } // end ResetCollections
 
+        // Resets the turn to default; only use this if leaving the game and going to the menu
+        public void ResetTurn()
+        {
+            turn = 0;
+        } // end ResetTurn
+
         // Removes an enemy ID from the enemyIdentifiers list
         public void RemoveEnemyIdentifier(int ID)
         {
@@ -677,22 +683,38 @@ namespace GSP.Core
                 // Now close the file stream
                 fileStream.Close();
 
-                // Create a new scores reference
-                HighScoreTable table = new HighScoreTable(true);
-
-                // Loop over the HighScores instance MaxScores times
-                for (int index = 0; index < table.MaxScores; index++)
+                // Create a new scores reference if needed
+                if (highScoreTable == null)
                 {
-                    // Get the name and score of the entry
-                    string name = highScores.GetName(index);
-                    int score = highScores.GetScore(index);
+                    HighScoreTable table = new HighScoreTable();
 
-                    // Add it to the table
-                    table.AddScoreFromSave(name, score);
-                } // end for
+                    // Loop over the HighScores instance MaxScores times
+                    for (int index = 0; index < table.MaxScores; index++)
+                    {
+                        // Get the name and score of the entry
+                        string name = highScores.GetName(index);
+                        int score = highScores.GetScore(index);
 
-                // Set the scores reference to the table
-                highScoreTable = table;
+                        // Add it to the table
+                        table.AddScoreFromSave(name, score);
+                    } // end for
+
+                    // Set the scores reference to the table
+                    highScoreTable = table;
+                } // end if
+                else
+                {
+                    // Loop over the HighScores instance MaxScores times
+                    for (int index = 0; index < highScoreTable.MaxScores; index++)
+                    {
+                        // Get the name and score of the entry
+                        string name = highScores.GetName(index);
+                        int score = highScores.GetScore(index);
+
+                        // Add it to the table
+                        highScoreTable.AddScoreFromSave(name, score);
+                    } // end for
+                } // end else
             } // end if
         } // end LoadHighScores
 
@@ -774,6 +796,12 @@ namespace GSP.Core
             get { return isSinglePlayer; }
             set { isSinglePlayer = value; }
         } // end IsSinglePlayer
+
+        // Gets the highscore table
+        public HighScoreTable ScoresTable
+        {
+            get { return highScoreTable; }
+        } // end ScoresTable
 
         // Gets a copy of the enemyIdentifiers list
         public List<int> EnemyIdentifiers

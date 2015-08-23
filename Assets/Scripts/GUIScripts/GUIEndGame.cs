@@ -28,33 +28,18 @@ namespace GSP
         HighScoreTable highScoreTable;  // The reference for the HighScoreTable
         RankTable rankTable;            // THe script refernece for the RankTable
 
-        
-        // Called before Start; used for initialisation
-        void Awake()
-        {
-            // Get the references
-            highScores = GameObject.Find("Canvas").transform.Find("HighScoresTable").gameObject;
-            rankings = GameObject.Find("Canvas").transform.Find("RankingTable").gameObject;
-            highScoreTable = new HighScoreTable();
-            rankTable = rankings.GetComponent<RankTable>();
-        } // end Awake
-        
         // Use this for initialization
 		void Start() 
 		{
             // Create the players in data only mode
             GameMaster.Instance.LoadPlayers(true);
 
-            // Start the EndGame coroutine
-            StartCoroutine(EndGame());
-		} // end Start
+            // Get the references
+            highScores = GameObject.Find("Canvas").transform.Find("HighScoresTable").gameObject;
+            rankings = GameObject.Find("Canvas").transform.Find("RankingTable").gameObject;
 
-        IEnumerator EndGame()
-        {
-            // Wait for a second
-            Debug.Log("Waiting");
-            yield return new WaitForSeconds(2);
-            Debug.Log("Done");
+            // Play the winning sound
+            AudioManager.Instance.PlayVictory();
 
             // Check if the game was single player
             if (GameMaster.Instance.IsSinglePlayer)
@@ -62,7 +47,11 @@ namespace GSP
                 // Get the player's merchant
                 Merchant playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(0).Entity;
 
+                // Load the Score table
+                GameMaster.Instance.LoadHighScores();
+
                 // Add the player's score to the table
+                HighScoreTable highScoreTable = GameMaster.Instance.ScoresTable;
                 highScoreTable.AddScore(playerMerchant.Name, playerMerchant.Currency);
 
                 // Show the high scores table
@@ -71,12 +60,13 @@ namespace GSP
             else
             {
                 // Display the rankings
+                RankTable rankTable = new RankTable();
                 rankTable.DisplayRanks(GameMaster.Instance.NumPlayers);
 
                 // Show the ranking table
                 rankings.SetActive(true);
             } // end else
-        } // end EndGame
+		} // end Start
 
 		void Update()
 		{
