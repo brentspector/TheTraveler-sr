@@ -27,10 +27,11 @@ namespace GSP.Entities.Neutrals
     {
         #region IInventory Variables
 
-        int maxWeight;		        // The maximum weight the entity can hold
-        int currency; 		        // The amount of currency the entity is holding
-        List<Resource> resources;   // The list of resources
-        Inventory inventory;        // The inventory of the player
+        int maxWeight;		                // The maximum weight the entity can hold
+        int currency; 		                // The amount of currency the entity is holding
+        List<Resource> resources;           // The list of resources
+        Inventory inventory;                // The inventory of the player
+        ResourceUtility resourceUtility;    // The resource utility functions
 
         #endregion
 
@@ -59,6 +60,8 @@ namespace GSP.Entities.Neutrals
 
         AllyList allyScript;				// The ally script object
 
+        int playerNum;  // The merchant's player number
+
         // Creates a Merchant entity
         public Merchant(int ID, GameObject gameObject, InterfaceColors playerCoulours, string playerName) :
             base(ID, gameObject)
@@ -71,6 +74,9 @@ namespace GSP.Entities.Neutrals
 
             // Set the Merchant's colour
             color = playerCoulours;
+
+            // Initialise the player number
+            playerNum = -1;
 
             // Create a new list of Sprite's
             charSprites = new List<Sprite>();
@@ -93,6 +99,9 @@ namespace GSP.Entities.Neutrals
 
             // Get the inventory script
             inventory = GameObject.Find("Canvas").transform.Find("Inventory").GetComponent<Inventory>();
+
+            // Create a new ResourceUltity object
+            resourceUtility = new ResourceUtility();
 
             #endregion
 
@@ -221,6 +230,13 @@ namespace GSP.Entities.Neutrals
             get { return allyScript.NumAllies; }
         } // end NumAllies
 
+        // Gets and Sets the Merchants player number
+        public int PlayerNumber
+        {
+            get { return playerNum; }
+            set { playerNum = value; }
+        } // end PlayerNumber
+
         #region IInventory Members
 
         // Picks up a resource for an entity adding it to their ResourceList
@@ -279,7 +295,7 @@ namespace GSP.Entities.Neutrals
             int count = 0;
 
             // Get all the resources of the given resource's type
-            tmpResources = ResourceUtility.GetResourcesByType(resource.ResourceType);
+            tmpResources = ResourceUtility.GetResourcesByType(resource.ResourceType, PlayerNumber);
 
             // Check if the returned number of resources is fewer than amount
             if (tmpResources.Count < amount)
@@ -300,7 +316,7 @@ namespace GSP.Entities.Neutrals
                 currency += tmpResources[index].Worth;
 
                 // Remove the resource from the inventory
-                ResourceUtility.RemoveResource(tmpResources[index]);
+                ResourceUtility.RemoveResource(tmpResources[index], PlayerNumber);
             } // end for
         } // end SellResource
 
@@ -311,7 +327,7 @@ namespace GSP.Entities.Neutrals
             currency += TotalWorth;
 
             // Remove all the resources now
-            ResourceUtility.RemoveResources();
+            ResourceUtility.RemoveResources(PlayerNumber);
         } // end SellResources
 
         // Transfers currency from the entity to another entity
@@ -341,7 +357,7 @@ namespace GSP.Entities.Neutrals
             if (other.PickupResource(resource, 1, false))
             {
                 // The pickup succeeded so remove the resource from the entity's inventory
-                ResourceUtility.RemoveResource(resource);
+                ResourceUtility.RemoveResource(resource, PlayerNumber);
                 
                 // Return success
                 return true;
@@ -354,13 +370,19 @@ namespace GSP.Entities.Neutrals
             }
         } // end TransferResource
 
+        // Gets the ResourceUtility object
+        public ResourceUtility ResourceUtility
+        {
+            get { return resourceUtility; }
+        } // end ResourceUtility
+        
         // Gets the list of resources of the entity
         public List<Resource> Resources
         {
             get
             {
                 // Get the list of resources in the player's inventory
-                resources = ResourceUtility.GetResources();
+                resources = ResourceUtility.GetResources(PlayerNumber);
 
                 // Create a temporary list based on the list of resources
                 List<Resource> tempList = resources;
@@ -406,11 +428,15 @@ namespace GSP.Entities.Neutrals
                 // Get all the resources
                 List<Resource> allResources = Resources;
 
-                // Get the total weight
-                foreach (Resource resource in allResources)
+                // Make sure there are resources
+                if (allResources.Count > 0)
                 {
-                    totalWorth += resource.Worth;
-                } // end foreach
+                    // Get the total worth
+                    foreach (Resource resource in allResources)
+                    {
+                        totalWorth += resource.Worth;
+                    } // end foreach
+                } // end if
 
                 // Return the total worth
                 return totalWorth;

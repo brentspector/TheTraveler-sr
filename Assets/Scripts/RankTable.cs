@@ -22,7 +22,7 @@ namespace GSP
      * Description: Contains the logic for the Ranks Table for multiplayer.
      * 
      *******************************************************************************/
-    public class RankTable : MonoBehaviour
+    public class RankTable
     {
         Dictionary<int, int> playerCurrencies;      // The player's currency dictionary
         List<KeyValuePair<int, int>> currencies;    // The sorted list of players; It's sorted by place aka 1st place etc
@@ -30,14 +30,14 @@ namespace GSP
         Transform body; // The panel at RankingTable/Body
         
         // Use this for initializasion
-        void Start()
+        public RankTable()
         {
             // Initialises the player currency dictionary
             playerCurrencies = new Dictionary<int, int>();
             
             // Get the reference to the body panel
             body = GameObject.Find("Canvas").transform.Find("RankingTable/Body").transform;
-        } // end Start
+        } // end RankTable
 
         public void DisplayRanks(int numPlayers)
         {
@@ -47,12 +47,19 @@ namespace GSP
             // Set the interface colour to the winning player's colour
             GameObject.Find("Canvas").transform.Find("RankingTable").GetComponent<Image>().color = 
                 Utility.InterfaceColorToColor(GameMaster.Instance.GetPlayerColor(currencies[0].Key));
+
+            // Set the Back to Menu button's panel to the winning player's colour
+            GameObject.Find("Canvas").transform.Find("ButtonPanel").GetComponent<Image>().color =
+                Utility.InterfaceColorToColor(GameMaster.Instance.GetPlayerColor(currencies[0].Key));
             
             // Loop over the table to set the values
             for (int index = 0; index < numPlayers; index++)
             {
                 // Get the child at index + 1
                 Transform entry = body.GetChild(index + 1);
+
+                // Activate the entry
+                entry.gameObject.SetActive(true);
 
                 Merchant playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(currencies[index].Key).Entity;
 

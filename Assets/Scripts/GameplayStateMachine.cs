@@ -204,7 +204,7 @@ namespace GSP
 				int playerNum = count + 1;
 				GameMaster.Instance.SetPlayerName(count, playerNum.ToString());
 				
-				// Set the player's script
+				// Get the player's script
 				Player playerScript = GameMaster.Instance.GetPlayerScript(count);
 				
 				// Set the players's sprite sheet sprites
@@ -212,6 +212,9 @@ namespace GSP
 				
 				// Set the player's facing
 				playerScript.Face(FacingDirection.South);
+
+                // Set the player's player number
+                ((Merchant)playerScript.Entity).PlayerNumber = count;
 			} // end for
 		} // end AddPlayers
 
@@ -429,13 +432,16 @@ namespace GSP
                             // Only run this once
                             canRunEndStuff = false;
 
-                            // Loop through and sell the character's resources and their ally's resources
+                            // Force the inventory closed
+                            inventory.gameObject.SetActive(false);
+
+                            // Loop through and sell the players's resources and their ally's resources
                             // Note: Ally resources are not setup to pickup or sell right now
                             for (int playerSellIndex = 0; playerSellIndex < guiNumOfPlayers; playerSellIndex++)
                             {
-                                // Set the player's merchant entity
+                                // Get the player's merchant entity
                                 Merchant playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(playerSellIndex).Entity;
-                                
+
                                 // We need to access the character script at the given index and sell the resources
                                 playerMerchant.SellResources();
                             } // end for
