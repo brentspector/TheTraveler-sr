@@ -33,9 +33,8 @@ namespace GSP
 		Button rightButton;			// Right movement button
 		Button cancelButton;		// Cancel movement button
 
-        //TODO: Brent: Replace OnGUI stuff with the new In-Game UI later
-        // Initialise things sort of like a custom constructor
-		public void InitThis(Player player, int travelDistance)
+		// Get component references
+		void Start()
 		{
 			// Get HUD Arrows
 			upButton = GameObject.Find ("UpButton").GetComponent<Button> ();
@@ -43,13 +42,16 @@ namespace GSP
 			leftButton = GameObject.Find ("LeftButton").GetComponent<Button> ();
 			rightButton = GameObject.Find ("RightButton").GetComponent<Button> ();
 			cancelButton = GameObject.Find ("CancelButton").GetComponent<Button> ();
+			
+			// Make sure they are disabled
+			DisableButtons ();
+		} //end Start
 
-			// Make sure they are enabled
-			upButton.interactable = true;
-			downButton.interactable = true;
-			leftButton.interactable = true;
-			rightButton.interactable = true;
-			cancelButton.interactable = true;
+        // Initialise things sort of like a custom constructor
+		public void InitThis(Player player, int travelDistance)
+		{
+			// Make sure buttons are enabled
+			EnableButtons ();
 
 			// Player script
             playerScript = player;
@@ -176,10 +178,7 @@ namespace GSP
 		public void CancelMove()
 		{
 			// Enable movement arrows
-			upButton.interactable = true;
-			downButton.interactable = true;
-			leftButton.interactable = true;
-			rightButton.interactable = true;
+			EnableButtons ();
 
 			// Face the character to the south; This is the default facing
 			playerScript.Face(FacingDirection.South);
@@ -239,16 +238,18 @@ namespace GSP
 		} // end MovePlayer
 
 		// Disable buttons if out of travel distance
-		private void TravelDistanceLeft()
+		public void TravelDistanceLeft()
 		{
 			//If out of distance to move, disable movement arrows
 			if(currTravelDist <= 0)
 			{
-				upButton.interactable = false;
-				downButton.interactable = false;
-				leftButton.interactable = false;
-				rightButton.interactable = false;
+				DisableButtons();
+				cancelButton.interactable = true;
 			} //end if
+			else
+			{
+				EnableButtons();
+			} //end else
 		} //end TravelDistanceLeft
 
 		// Disables buttons upon turn end
@@ -260,6 +261,16 @@ namespace GSP
 			rightButton.interactable = false;
 			cancelButton.interactable = false;
 		} //end DisableButtons
+
+		// Enables buttons upon turn start
+		public void EnableButtons()
+		{
+			upButton.interactable = true;
+			downButton.interactable = true;
+			leftButton.interactable = true;
+			rightButton.interactable = true;
+			cancelButton.interactable = true;
+		} //end EnableButtons
 
 		// Gets the current travel distance remaining
         public int RemainingTravelDistance
