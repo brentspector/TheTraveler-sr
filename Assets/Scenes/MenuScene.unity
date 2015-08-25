@@ -3272,7 +3272,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1738574107}
   m_Direction: 2
   m_Value: 1
-  m_Size: .333333343
+  m_Size: .200000003
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -3584,8 +3584,8 @@ RectTransform:
   m_RootOrder: 0
   m_AnchorMin: {x: .5, y: .5}
   m_AnchorMax: {x: .5, y: .5}
-  m_AnchoredPosition: {x: -10, y: -200}
-  m_SizeDelta: {x: 380, y: 600}
+  m_AnchoredPosition: {x: -10, y: -400}
+  m_SizeDelta: {x: 380, y: 1000}
   m_Pivot: {x: .5, y: .5}
 --- !u!114 &2130850022
 MonoBehaviour:
@@ -3620,17 +3620,31 @@ MonoBehaviour:
     By touching a hut at the right end, you will automatically end the contest and
     force all other players to sell their resources. The merchant with the most Gold
     at the end wins the game!\n\nHOW TO PLAY\nTurns are based on the following flow.
-    The first step is to roll the dice by pressing them flashing Action Button in
-    the top right of your screen. The box to the left will display how many steps
-    you can move this turn. Use the arrows to the bottom right to move your character.
-    When done, click the End Turn Action Button in the top right of your screen. This
-    will trigger a map event. If you landed on a resource, you will pick up that resource.
+    The first step is to roll the dice by pressing the Action Button in the top left
+    of the HUD. This Action Button is your main control through the phases of the
+    game. The text underneath will display the required action or other pertinent
+    information about the game. Once you roll the dice, the amount you are allowed
+    to move this turn will be displayed. Use the arrows to the top right of the HUD
+    to move your character. When done, click the End Turn Action Button. This will
+    trigger a map event. If you landed on a resource, you will pick up that resource.
     Otherwise a normal map event will occur. You will either face an enemy, find an
     ally, find an item, or have nothing occur. Enemies are capable of stealing all
-    of one resource from you, allies will aid you in carrying resources, and items
-    will help you fight enemies better (usually). Resources are logs, wool, fish,
-    and ore rocks you find around the map. To end the game, just reach one of the
-    huts on the right side of the map. This will end the game and show the winner!"
+    of one resource or your weapon from you, allies will aid you in carrying resources,
+    and items will help you better fight enemies (usually). Resources are logs, wool,
+    fish, and ore rocks you find around the map. To end the game, just reach one of
+    the huts on the right side of the map. This will end the game and show the winner!\n\nTHE
+    HUD\nThe top of the HUD will have the current player's information. Inventory
+    is used to monitor the current player's resources and armor. To equip an item,
+    right click the icon in the lower half of the inventory. Allies displays how many
+    allies the player has. The pause button in the top right will bring up the pause
+    menu, where you will be able to view these instructions or quit the game and return
+    to the main menu.\nThe lower half of the HUD shows all the players in the game.
+    It shows their sprite, name, and the amount of gold they have (always displays
+    zero for now, will be updated to show player's current inventory value later).\n\nBATTLES\nBattles
+    are handled through the 3 buttons under the fight box. Head will remove 1 defense
+    from your opponent, but deal reduced damage. Torso will deal regular damage with
+    no added benefits. Feint will double your opponent's attack, but you have a chance
+    to do double damage with that attack."
 --- !u!222 &2130850023
 CanvasRenderer:
   m_ObjectHideFlags: 0
