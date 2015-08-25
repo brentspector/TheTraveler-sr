@@ -538,20 +538,42 @@ namespace GSP.Items.Inventories
         } // end SetStats
 
         // Sets the inventory up for the current player
-        public void SetPlayer(int playerNum)
+        public void SetPlayer(int playerNum, bool onlySlots = false)
         {
-            // Set the inventory's colour
-            SetInventoryColor(GameMaster.Instance.GetPlayerColor(playerNum));
-
-            // Set the player's stats
-            SetStats((Merchant)GameMaster.Instance.GetPlayerScript(playerNum).Entity);
-
-            // Loop over the slots to set their player number
-            foreach (var slot in slots)
+            // Check if we only want to set the player's slots
+            if (onlySlots)
             {
-                slot.GetComponent<Slot>().PlayerNumber = playerNum;
-            } // end foreach
+                // Loop over the slots to set their player number
+                foreach (var slot in slots)
+                {
+                    slot.GetComponent<Slot>().PlayerNumber = playerNum;
+                } // end foreach
+            }
+            else
+            {
+                // Set the inventory's colour
+                SetInventoryColor(GameMaster.Instance.GetPlayerColor(playerNum));
+
+                // Set the player's stats
+                SetStats((Merchant)GameMaster.Instance.GetPlayerScript(playerNum).Entity);
+
+                // Loop over the slots to set their player number
+                foreach (var slot in slots)
+                {
+                    slot.GetComponent<Slot>().PlayerNumber = playerNum;
+                } // end foreach
+            }
         } // end SetPlayer
+
+        // Gets the items from the inventory
+        public List<Item> GetItems(int playerNum)
+        {
+            // Get a temporary list from the items list
+            List<Item> tempItems = items[playerNum];
+
+            // Return the temp list
+            return tempItems;
+        } // end GetItems
 
         // Gets the beginning of the bonus slots
         public int BonusSlotBegin

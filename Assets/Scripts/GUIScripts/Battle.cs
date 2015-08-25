@@ -147,6 +147,9 @@ namespace GSP
 	
 		void Fight()
 		{
+			// Play a sword sound
+			AudioManager.Instance.PlaySword ();
+
 			// Determine whether it's player's turn, and update with result
 			if (playerTurn) 
 			{
@@ -187,7 +190,7 @@ namespace GSP
 				GameObject.Find("Canvas").transform.Find("Tooltip").gameObject.SetActive(true);
 				GameObject.Find("Canvas").transform.Find("Inventory").gameObject.SetActive(true);
 				Inventory inventory = GameObject.Find("Canvas").transform.Find("Inventory").GetComponent<Inventory>();
-				inventory.SetPlayer(playerNum);
+				inventory.SetPlayer(playerNum, true);
 
 				// The player lost the fight, remove its resources or its weapon
 				fightBoxText.text += "\n" + enemyName.text + " wins!";
@@ -198,7 +201,8 @@ namespace GSP
 					{
 						// The player has no resources so remove its weapon
 						fightBoxText.text += "\nAs a result, you lost your " + playerMerchant.EquippedWeapon.Name;
-						playerMerchant.UnequipWeapon(playerMerchant.EquippedWeapon);
+						playerAttack -= playerMerchant.EquippedWeapon.AttackValue;	
+						playerMerchant.UnequipWeapon(playerMerchant.EquippedWeapon);					
 						inventory.Remove(GameMaster.Instance.Turn, inventory.WeaponSlot);
 					} // end if EquippedWeapon != null
 					else
@@ -218,10 +222,10 @@ namespace GSP
                     Debug.LogFormat("Resource number is {0}", resourceNumber);
 
 					// Check if the player has the resource; Don't display the message if they don't have the resource
-                    if (ResourceUtility.GetResourcesByType((ResourceType)resourceNumber).Count != 0)
+                    if (playerMerchant.ResourceUtility.GetResourcesByType((ResourceType)resourceNumber, GameMaster.Instance.Turn).Count != 0)
                     {
                         // Remove the resources by list
-                        ResourceUtility.RemoveResourcesByType((ResourceType)resourceNumber);
+                        playerMerchant.ResourceUtility.RemoveResourcesByType((ResourceType)resourceNumber, GameMaster.Instance.Turn);
                         fightBoxText.text += " \nAs a result, you lost all your " + Enum.GetName(typeof(ResourceType), resourceNumber);
                     } // end if Count != 0
 				} // end else TotalWeight > 0

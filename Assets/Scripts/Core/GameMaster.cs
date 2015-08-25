@@ -41,8 +41,12 @@ namespace GSP.Core
 
         BattleMap battleMap;    // The map used for the battle scene
         bool isNew;             // Whether the game is new or loaded
+
+        bool isSinglePlayer;    // Whether the game is a single player game
+
+        HighScoreTable highScoreTable;  // The scores table reference
         
-        // The variables here are through dictionaries. The key is the player number.
+        // The variables here are through dictionaries; The key is the player number
         Dictionary<int, string> playerNames;            // The list of the players' names
         Dictionary<int, InterfaceColors> playerColors;  // The list of the players' colours
         Dictionary<int, GameObject> playerObjs;         // The list of players' GameObject's
@@ -109,6 +113,12 @@ namespace GSP.Core
             enemyIdentifiers.Clear();
             tempAllyIdentifiers.Clear();
         } // end ResetCollections
+
+        // Resets the turn to default; only use this if leaving the game and going to the menu
+        public void ResetTurn()
+        {
+            turn = 0;
+        } // end ResetTurn
 
         // Removes an enemy ID from the enemyIdentifiers list
         public void RemoveEnemyIdentifier(int ID)
@@ -634,14 +644,11 @@ namespace GSP.Core
             // Create a new high scores instance
             HighScores highScores = new HighScores();
 
-            // Get the HighScoreTable script component
-            HighScoreTable table = GameObject.Find("HighScoresTable").GetComponent<HighScoreTable>();
-
             // Loop over the table MaxScores times
-            for (int index = 0; index < table.MaxScores; index++)
+            for (int index = 0; index < highScoreTable.MaxScores; index++)
             {
                 // Get the entry
-                var entry = table.GetScore(index);
+                var entry = highScoreTable.GetScore(index);
 
                 // Add it to the HighScores instance
                 highScores.AddName(entry.First);
@@ -676,19 +683,38 @@ namespace GSP.Core
                 // Now close the file stream
                 fileStream.Close();
 
-                // Get the HighScoreTable script component
-                HighScoreTable table = GameObject.Find("HighScoresTable").GetComponent<HighScoreTable>();
-
-                // Loop over the HighScores instance MaxScores times
-                for (int index = 0; index < table.MaxScores; index++)
+                // Create a new scores reference if needed
+                if (highScoreTable == null)
                 {
-                    // Get the name and score of the entry
-                    string name = highScores.GetName(index);
-                    int score = highScores.GetScore(index);
+                    HighScoreTable table = new HighScoreTable();
 
-                    // Add it to the table
-                    table.AddScoreFromSave(name, score);
-                } // end for
+                    // Loop over the HighScores instance MaxScores times
+                    for (int index = 0; index < table.MaxScores; index++)
+                    {
+                        // Get the name and score of the entry
+                        string name = highScores.GetName(index);
+                        int score = highScores.GetScore(index);
+
+                        // Add it to the table
+                        table.AddScoreFromSave(name, score);
+                    } // end for
+
+                    // Set the scores reference to the table
+                    highScoreTable = table;
+                } // end if
+                else
+                {
+                    // Loop over the HighScores instance MaxScores times
+                    for (int index = 0; index < highScoreTable.MaxScores; index++)
+                    {
+                        // Get the name and score of the entry
+                        string name = highScores.GetName(index);
+                        int score = highScores.GetScore(index);
+
+                        // Add it to the table
+                        highScoreTable.AddScoreFromSave(name, score);
+                    } // end for
+                } // end else
             } // end if
         } // end LoadHighScores
 
@@ -711,143 +737,6 @@ namespace GSP.Core
             // Then load the level
             Application.LoadLevel(level);
         } // end LoadLevel
-
-        #endregion
-
-        #region Create Items
-
-        // Note: The cost of all items is default to 1. This can be changed later
-        
-        // Creates and returns a weapon object
-        public Weapon CreateWeapon(WeaponType weaponType)
-        {
-            Weapon weapon = null;   // The created weapon
-            
-            // Switch over the weaponType for the correct weapon
-            switch (weaponType)
-            {
-                case WeaponType.Broadsword:
-                    {
-                        weapon = new Weapon("Broadsword", WeaponType.Broadsword, null, 9, 1);
-                        break;
-                    } // end case Broadsword
-                case WeaponType.Mace:
-                    {
-                        weapon = new Weapon("Mace", WeaponType.Mace, null, 7, 1);
-                        break;
-                    } // end case Mace
-                case WeaponType.Spear:
-                    {
-                        weapon = new Weapon("Spear", WeaponType.Spear, null, 8, 1);
-                        break;
-                    } // end case Spear
-                case WeaponType.Sword:
-                    {
-                        weapon = new Weapon("Sword", WeaponType.Sword, null, 5, 1);
-                        break;
-                    } // end case Sword
-            } // end switch weaponType
-
-            // Finally return the weapon
-            return weapon;
-        } // end CreateWeapon
-
-        // Creates and returns an armour object
-        public Armor CreateArmor(ArmorType armorType)
-        {
-            Armor armor = null;   // The created armor
-
-            // Switch over the armorType for the correct armour
-            switch (armorType)
-            {
-                case ArmorType.Chainlegs:
-                    {
-                        armor = new Armor("Chainlegs", ArmorType.Chainlegs, null, 2, 1);
-                        break;
-                    } // end case Chainlegs
-                case ArmorType.Chainmail:
-                    {
-                        armor = new Armor("Chainmail", ArmorType.Chainmail, null, 5, 1);
-                        break;
-                    } // end case Chainmail
-                case ArmorType.Fullsuit:
-                    {
-                        armor = new Armor("Fullsuit", ArmorType.Fullsuit, null, 11, 1);
-                        break;
-                    } // end case Fullsuit
-                case ArmorType.Platebody:
-                    {
-                        armor = new Armor("Platebody", ArmorType.Platebody, null, 8, 1);
-                        break;
-                    } // end case Platebody
-                case ArmorType.Platelegs:
-                    {
-                        armor = new Armor("Platelegs", ArmorType.Platelegs, null, 3, 1);
-                        break;
-                    } // end case Platelegs
-            } // end switch armorType
-
-            // Finally return the armour
-            return armor;
-        } // end CreateArmor
-
-        // Creates and returns a bonus object
-        public Bonus CreateBonus(BonusType bonusType)
-        {
-            Bonus bonus = null;   // The created bonus
-
-            // Switch over the bonusType for the correct bonus
-            switch (bonusType)
-            {
-                case BonusType.RubberBoots:
-                    {
-                        bonus = new Bonus("RubberBoots", BonusType.RubberBoots, null, 0, 10, 1);
-                        break;
-                    } // end case RubberBoots
-                case BonusType.Sachel:
-                    {
-                        bonus = new Bonus("Sachel", BonusType.Sachel, null, 3, 0, 1);
-                        break;
-                    } // end case Sachel
-            } // end switch bonusType
-
-            // Finally return the bonus
-            return bonus;
-        } // end CreateBonus
-
-        // Creates and returns a resource object
-        public Resource CreateResource(ResourceType resourceType)
-        {
-           Resource resource = null;   // The created resource
-
-            // Switch over the resourceType for the correct resource
-            switch (resourceType)
-            {
-                case ResourceType.Fish:
-                    {
-                        resource = new Resource("Fish", ResourceType.Fish, null, 25, 5, 15);
-                        break;
-                    } // end case Fish
-                case ResourceType.Ore:
-                    {
-                        resource = new Resource("Ore", ResourceType.Ore, null, 20, 5, 10);
-                        break;
-                    } // end case Ore
-                case ResourceType.Wood:
-                    {
-                        resource = new Resource("Wood", ResourceType.Wood, null, 15, 5, 20);
-                        break;
-                    } // end case Wood
-                case ResourceType.Wool:
-                    {
-                        resource = new Resource("Wool", ResourceType.Wool, null, 10, 5, 15);
-                        break;
-                    } // end case Wool
-            } // end switch resourceType
-
-            // Finally return the resource
-            return resource;
-        } // end CreateResource
 
         #endregion
 
@@ -900,6 +789,19 @@ namespace GSP.Core
             get { return isNew; }
             set { isNew = value; }
         } // end IsNew
+
+        // Gets and Sets whether the game is single player
+        public bool IsSinglePlayer
+        {
+            get { return isSinglePlayer; }
+            set { isSinglePlayer = value; }
+        } // end IsSinglePlayer
+
+        // Gets the highscore table
+        public HighScoreTable ScoresTable
+        {
+            get { return highScoreTable; }
+        } // end ScoresTable
 
         // Gets a copy of the enemyIdentifiers list
         public List<int> EnemyIdentifiers
