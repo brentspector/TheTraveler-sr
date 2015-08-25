@@ -44,7 +44,8 @@ namespace GSP
 		GamePlayState gamePlayState;            	// The current state
 		bool canInitAfterStart;			         	// Initialising values after Start()
 		bool canRunEndStuff;                    	// Whether the end scene stuff should be ran during that state
-        bool isInventoryOpen;                       // Wheter the inventory window is open
+        bool isInventoryOpen;                       // Whether the inventory window is open
+        bool isAlliesOpen;                          // Whether the inventory window is open
 		int guiDiceDistVal;	                		// The dice value which is then onverted into a distance value
 
 		// State Machine input/output variables
@@ -71,6 +72,8 @@ namespace GSP
 		GameObject textParent;						// Panel with all player names and gold
         // Inventory
         Inventory inventory;                        // The inventory script for the Inventory
+        // Aliies
+        AllyTable allyTable;                        // The ally table script for the AllyTable
 
 		// Game Objects
 		Die die;       			                    // The Die to be used in the game
@@ -102,6 +105,7 @@ namespace GSP
             imageParent = GameObject.Find("AllPlayers/ImageOrganizer");
             textParent = GameObject.Find("AllPlayers/TextOrganizer");
             inventory = GameObject.Find("Inventory").GetComponent<Inventory>();
+            allyTable = GameObject.Find("Allies").GetComponent<AllyTable>();
 			GameObject.Find ("Canvas").transform.Find ("Instructions").gameObject.SetActive (false);
 			actionButtonActive = true;
 			isPaused = false;
@@ -115,11 +119,17 @@ namespace GSP
             // Disable the inventory by default
             inventory.gameObject.SetActive(false);
 
+            // Disable the ally window by default
+            allyTable.gameObject.SetActive(false);
+
             // Running the end stuff defaults to true
             canRunEndStuff = true;
 
             // The inventory is closed by default
             isInventoryOpen = false;
+
+            // The ally window is closed by default
+            isAlliesOpen = false;
 
             // Get the number of players
             guiNumOfPlayers = GameMaster.Instance.NumPlayers;
@@ -559,7 +569,7 @@ namespace GSP
             // Check if the inventory is open
             if (isInventoryOpen)
             {
-                // Set the inventory window up before displaying it.
+                // Set the inventory window up before displaying it
                 inventory.SetPlayer(guiPlayerTurn);
                 
                 // Open the inventory window
@@ -575,7 +585,23 @@ namespace GSP
 		// Ally button - Displays allies and their inventories
 		public void ShowAllies()
 		{
-			
+			// Toggle the all window
+            isAlliesOpen = !isAlliesOpen;
+
+            // Check if the ally window is open
+            if (isAlliesOpen)
+            {
+                // Set the ally window up before displaying it
+                allyTable.SetPlayer(guiPlayerTurn);
+                
+                // Open the ally window
+                allyTable.gameObject.SetActive(true);
+            } // end if
+            else
+            {
+                // Otherwise, close the ally window
+                allyTable.gameObject.SetActive(false);
+            } // end else
 		} // end ShowAllies
 
 		// Pause button - Displays pause menu and pauses game
