@@ -161,7 +161,7 @@ namespace GSP.Entities.Neutrals
 
         // Gets the Merchant's Sprite for the given index
         // Note: The direction is North, East, South, West
-        Sprite GetSprite(int index)
+        public Sprite GetSprite(int index)
         {
             // Ensure a valid index was given; clamp it
             return charSprites[Utility.ClampInt(index, 0, (charSprites.Count - 1))];
@@ -615,7 +615,7 @@ namespace GSP.Entities.Neutrals
                 {
                     // The entity is dead
                     isDead = true;
-                } // end if health == 0
+                } // end if health <= 0
             } // end if
         } // end TakeDamage
 

@@ -35,8 +35,11 @@ namespace GSP
 		// IDamageable objects
 		IDamageable player;				// Damageable Player object
 		Merchant playerMerchant;		// Player Merchant object
+		int playerAttack;				// Original player attack
+		int playerDefense;				// Original player defense
 		IDamageable enemy;				// Damageable Enemy object
 		int enemyID;					// ID for reference
+		Bandit enemyEntity;				// Bandit object
 
 		// HUD Objects
 		Text playerName;				// Player's name
@@ -50,11 +53,13 @@ namespace GSP
 		// Fight box flavor
 		int linesOfText;				// How many lines the fight box has
 		List<string> verbs;				// Different fighting verbs
+		string randomVerb;					// The random verb to be used from the list
 
 		// Fight controls
 		bool playerTurn;				// Whether or not it's the player's turn
 		int playerNum;					// Number of the player for easy reference
 		Die die;						// The die to roll for damage mods
+		int damage;						// Damage dealt during battle
 
 		// Use this for initialization
 		void Start () 
@@ -64,6 +69,7 @@ namespace GSP
 			playerNum = GameMaster.Instance.Turn;
 			die = new Die ();
 			die.Reseed (Environment.TickCount);
+			damage = 0;
 
 			// Init IDamageable objects
 			// Create the enemy
@@ -73,7 +79,7 @@ namespace GSP
 			enemyID = GameMaster.Instance.EnemyIdentifiers[0];
 			
 			// Get the enemy entity
-			Bandit enemyEntity = (Bandit)EntityManager.Instance.GetEntity(enemyID);
+			enemyEntity = (Bandit)EntityManager.Instance.GetEntity(enemyID);
 			
 			// Set the stats of the enemy
 			enemyEntity.AttackPower = die.Roll(1, 9);
@@ -85,8 +91,9 @@ namespace GSP
 			// Get the player's merchant
 			GameMaster.Instance.LoadPlayers ();
 			playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(playerNum).Entity;
-			//GameObject.Find ("Battler1Sprite").GetComponent<Image> ().sprite = Resources.Load<Sprite> ("Player1");
-			//Debug.Log (GameObject.Find ("Battler1Sprite").GetComponent<Image> ().sprite.ToString ());
+			playerAttack = playerMerchant.AttackPower;
+			playerDefense = playerMerchant.DefencePower;
+			GameObject.Find ("Battler1Sprite").GetComponent<Image> ().sprite = playerMerchant.GetSprite (1);
 
 			// Set the player
 			player = (IDamageable)playerMerchant;
@@ -136,22 +143,14 @@ namespace GSP
 			verbs.Add ("hammered");
 			verbs.Add ("struck");
 			verbs.Add ("lashed at");
-
-			InvokeRepeating ("Fight", 2.0f, 1.2f);
 		}//end Start
 	
 		void Fight()
 		{
-			// Battle characters
-			Fight fighter = new Fight();
-			int damage = fighter.CharacterFight<Bandit>(playerMerchant, playerTurn, die);
-			// Generate fight box verb
-			int randomVerb = Random.Range (0, verbs.Count);
-
 			// Determine whether it's player's turn, and update with result
 			if (playerTurn) 
 			{
-				fightBoxText.text += "\n" + playerName.text + " " + verbs [randomVerb] + " " +
+				fightBoxText.text += "\n" + playerName.text + " " + randomVerb + " " +
 					enemyName.text + " for " + damage;
 				enemy.TakeDamage (damage);
 				enemyHealth.text = enemy.Health.ToString ();
@@ -160,7 +159,7 @@ namespace GSP
 			} //end if
 			else
 			{
-				fightBoxText.text += "\n" + enemyName.text + " " + verbs [randomVerb] + " " +
+				fightBoxText.text += "\n" + enemyName.text + " " + randomVerb + " " +
 					playerName.text + " for " + damage;
 				player.TakeDamage (damage);
 				playerHealth.text = player.Health.ToString ();
@@ -171,7 +170,7 @@ namespace GSP
 			// Update turn and fight box
 			playerTurn = !playerTurn;
 			linesOfText++;
-			if(linesOfText > 8)
+			if(linesOfText > 6)
 			{
 				fightBoxText.transform.position = new Vector3(
 					fightBoxText.transform.position.x,
@@ -179,7 +178,7 @@ namespace GSP
 			} //end if
 
 			// Check if the player lost the fight
-			if(player.Health <= 0)
+			if(player.IsDead)
 			{
 				// Stop the fight repeating
 				CancelInvoke();
@@ -236,10 +235,11 @@ namespace GSP
 					fightBoxText.transform.position.y + 16);
 
 				// Return to game after 3 seconds
+				playerTurn = false;
 				Invoke ("EndFight", 3.0f);
 			} // end if player IsDead
 			// Check if enemy lost
-			else if(enemy.Health <= 0)
+			else if(enemy.IsDead)
 			{
 				// Stop fight repeating
 				CancelInvoke();
@@ -248,7 +248,13 @@ namespace GSP
 				fightBoxText.text += "\n" + playerName.text + " wins!";
 
 				// Return to game after 3 seconds
+				playerTurn = false;
 				Invoke ("EndFight", 3.0f);
+			} //end else if
+			//Otherwise, let the enemy fight
+			else if(!playerTurn)
+			{
+				Invoke("EnemyFight", 0.5f);
 			} //end else if
 		} //end Fight
 
@@ -260,6 +266,11 @@ namespace GSP
 			// Remove the entity from the list of identifiers.
 			GameMaster.Instance.RemoveEnemyIdentifier(enemyID);
 
+			// Restore player health and stats
+			player.ResetHealth ();
+			playerMerchant.AttackPower = playerAttack;
+			playerMerchant.DefencePower = playerDefense;
+
 			// Update to the next player
 			GameMaster.Instance.NextTurn();
 
@@ -269,5 +280,122 @@ namespace GSP
 			// Return to game
 			GameMaster.Instance.LoadLevel (GameMaster.Instance.BattleMap.ToString ());
 		} //end EndFight
+
+		// Enemy fighting function
+		void EnemyFight()
+		{
+			int dieRoll = die.Roll (1, 3);
+			switch (dieRoll) 
+			{
+				case 1:
+				{
+					// Battle characters
+					Fight fighter = new Fight();
+					damage = fighter.CharacterFightHead<Bandit>(playerMerchant, playerTurn, die);
+					if(playerMerchant.DefencePower > 0)
+					{
+						playerMerchant.DefencePower -= 1;
+					} //end if
+					GameObject.Find ("Battler1Defense").GetComponent<Text> ().text = playerMerchant.DefencePower.ToString ();
+
+					// Generate fight box verb
+					randomVerb = verbs [Random.Range (0, verbs.Count)];
+				
+					// Process fight
+					Invoke ("Fight", 0.0f);
+					break;
+				} //end case Head
+				case 2:
+				{
+					// Battle characters
+					Fight fighter = new Fight();
+					damage = fighter.CharacterFightTorso<Bandit>(playerMerchant, playerTurn, die);
+				
+					// Generate fight box verb
+					randomVerb = verbs [Random.Range (0, verbs.Count)];
+				
+					// Process fight
+					Invoke ("Fight", 0.0f);
+					break;
+				} //end case Torso
+				case 3:
+				{
+					// Battle characters
+					Fight fighter = new Fight();
+					damage = fighter.CharacterFightFeint<Bandit>(playerMerchant, playerTurn, die);
+					playerMerchant.AttackPower *= 2;
+					GameObject.Find ("Battler1Attack").GetComponent<Text> ().text = playerMerchant.AttackPower.ToString ();
+
+					// Generate fight box verb
+					randomVerb = "feinted at";
+				
+					// Process fight
+					Invoke ("Fight", 0.0f);
+					break;
+				} //end case Feint
+				default:
+				{
+					break;
+				} //end case default
+			} //end switch
+		} //end EnemyFight
+
+		// Function for Head button - Lower opponent defense, lower damage
+		public void Head()
+		{
+			if(playerTurn)
+			{
+				// Battle characters
+				Fight fighter = new Fight();
+				damage = fighter.CharacterFightHead<Bandit>(playerMerchant, playerTurn, die);
+				if(enemyEntity.DefencePower > 0)
+				{
+					enemyEntity.DefencePower -= 1;
+				} // end if
+				GameObject.Find ("Battler2Defense").GetComponent<Text> ().text = enemyEntity.DefencePower.ToString ();
+
+				// Generate fight box verb
+				randomVerb = verbs [Random.Range (0, verbs.Count)];
+
+				// Process fight
+				Invoke ("Fight", 0.0f);
+			} //end if
+		} //end Head
+
+		// Function for Torso button - Regular damage
+		public void Torso()
+		{
+			if (playerTurn) 
+			{
+				// Battle characters
+				Fight fighter = new Fight ();
+				damage = fighter.CharacterFightTorso<Bandit> (playerMerchant, playerTurn, die);
+
+				// Generate fight box verb
+				randomVerb = verbs [Random.Range (0, verbs.Count)];
+
+				// Process fight
+				Invoke ("Fight", 0.0f);
+			} //end if
+		} //end Torso
+
+		// Function for Feint button - Doubles opponent attack, chance at double damage
+		public void Feint()
+		{
+			if (playerTurn) 
+			{
+				// Battle characters
+				Fight fighter = new Fight ();
+				damage = fighter.CharacterFightFeint<Bandit> (playerMerchant, playerTurn, die);
+				enemyEntity.AttackPower *= 2;
+				GameObject.Find ("Battler2Attack").GetComponent<Text> ().text = enemyEntity.AttackPower.ToString ();
+
+				// Generate fight box verb
+				randomVerb = "feinted at";
+
+				// Process fight
+				Invoke ("Fight", 0.0f);
+			} //end if
+		} //end Feint
 	} //end Battle class
 } //end namespace GSP

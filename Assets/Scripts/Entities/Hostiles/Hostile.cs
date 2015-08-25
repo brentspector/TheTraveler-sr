@@ -213,11 +213,11 @@ namespace GSP.Entities.Hostiles
                 health -= damage;
 
                 // Check if the entity is dead
-                if (health == 0)
+                if (health <= 0)
                 {
                     // The entity is dead
                     isDead = true;
-                } // end if health == 0
+                } // end if health <= 0
             } // end if
         } // end TakeDamage
 

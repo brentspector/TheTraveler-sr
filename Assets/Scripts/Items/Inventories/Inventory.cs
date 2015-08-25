@@ -44,7 +44,7 @@ namespace GSP.Items.Inventories
         RectTransform tooltipRect;  // The transform of the tooltip
 
         // Use this for initialisation
-        void Start()
+        void Awake()
         {
             // Get Inventory's Bottom panel
             bottomGrid = GameObject.Find("Inventory/Bottom").transform;
@@ -60,22 +60,16 @@ namespace GSP.Items.Inventories
 
             // Get the Inventory's Top/StatusRight panel
             statusRight = GameObject.Find("Inventory/Top/StatusRight").transform;
-
-            // Get the tooltip GameObject
-            tooltip = GameObject.Find("Tooltip");
-            tooltip.SetActive(false);
-
-            // Iniialise the tooltip as not shown
-            canShowTooltip = false;
-
-            // Get the reference to the tooltips RectTransform
-            tooltipRect = tooltip.GetComponent<RectTransform>();
-
+            
             // Initialise the list
             slots = new List<GameObject>();
 
             // Initialise the dictionary
             items = new Dictionary<int, List<Item>>();
+
+            // Get the tooltip GameObject
+            tooltip = GameObject.Find("Tooltip");
+            tooltip.SetActive(false);
 
             // Initialise the number of slots to create
             numInventorySlotsCreate = 28;
@@ -85,6 +79,33 @@ namespace GSP.Items.Inventories
             // Calculate the equipment and bonus slot ends
             equipmentSlots = numInventorySlotsCreate + numEquipmentSlotsCreate;
             bonusSlots = equipmentSlots + numBonusSlotsCreate;
+
+            // Add all the EmptyItem's for all the players to match the slots
+            for (int key = 0; key < 4; key++)
+            {
+                items.Add(key, new List<Item>());
+
+                for (int index = 0; index < bonusSlots; index++)
+                {
+                    items[key].Add(ItemDatabase.Instance.Items.Find(item => item.Type == "Empty"));
+                } // end for index
+            } // end for key
+
+            // Get the weapon and armor slots
+            // Note: Since there's only two slots and this is a minimal inventory, the first slot starts after the inventory
+            // slots and the second slot starts one slot before the bonus slots begin
+            weaponSlot = numInventorySlotsCreate;
+            armorSlot = equipmentSlots - 1;
+        } // end Awake
+        
+        // Use this for initialisation
+        void Start()
+        {
+            // Iniialise the tooltip as not shown
+            canShowTooltip = false;
+
+            // Get the reference to the tooltips RectTransform
+            tooltipRect = tooltip.GetComponent<RectTransform>();
 
             // Loop to create the inventory slots
             for (int index = 0; index < bonusSlots; index++)
@@ -126,23 +147,6 @@ namespace GSP.Items.Inventories
                 // Add the slot to the list
                 slots.Add(slot);
             } // end for
-
-            // Add all the EmptyItem's for all the players to match the slots
-            for (int key = 0; key < 4; key++)
-            {
-                items.Add(key, new List<Item>());
-
-                for (int index = 0; index < bonusSlots; index++)
-                {
-                    items[key].Add(ItemDatabase.Instance.Items.Find(item => item.Type == "Empty"));
-                } // end for index
-            } // end for key
-
-            // Get the weapon and armor slots
-            // Note: Since there's only two slots and this is a minimal inventory, the first slot starts after the inventory
-            // slots and the second slot starts one slot before the bonus slots begin
-            weaponSlot = numInventorySlotsCreate;
-            armorSlot = equipmentSlots - 1;
         } // end Start
 
         // Runs each frame; used to update the tooltip's position
@@ -553,6 +557,12 @@ namespace GSP.Items.Inventories
             {
                 // Set the inventory's colour
                 SetInventoryColor(GameMaster.Instance.GetPlayerColor(playerNum));
+
+                Merchant playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(playerNum).Entity;
+                if (playerMerchant == null)
+                {
+                    Debug.LogError("playerMerchant is null!");
+                }
 
                 // Set the player's stats
                 SetStats((Merchant)GameMaster.Instance.GetPlayerScript(playerNum).Entity);
