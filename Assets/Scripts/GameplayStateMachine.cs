@@ -88,10 +88,10 @@ namespace GSP
 		{
             //TODO: Damien: Replace Tile stuff later
             // Clear the tile dictionary
-			TileDictionary.Clean();
-			// Set the dimensions and generate/add the tiles
-			TileManager.SetDimensions(64, 20, 16);
-			TileManager.GenerateAndAddTiles();
+            TileDictionary.Clean();
+            // Set the dimensions and generate/add the tiles
+            TileManager.SetDimensions(64, 20, 16);
+            TileManager.GenerateAndAddTiles();
 
 			// Get HUD elements
             guiPlayerName = GameObject.Find("CurrentPlayer/PlayerName").GetComponent<Text>();

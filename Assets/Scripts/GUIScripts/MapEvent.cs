@@ -157,6 +157,7 @@ namespace GSP
         public string ResolveFight(Die die)
 		{
 			GameMaster.Instance.SavePlayers ();
+            GameMaster.Instance.SaveResources();
 			GameMaster.Instance.LoadLevel ("BattleScene");
 			return "Enemy fought";
 		} // end ResolveFight
