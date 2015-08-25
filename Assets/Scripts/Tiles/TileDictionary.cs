@@ -23,6 +23,9 @@ namespace GSP.Tiles
 	{
 		// The static dictionary; Vector3 is the key and Tile is the value
 		static Dictionary<Vector3, Tile> tiles  = new Dictionary<Vector3, Tile>();
+
+        // The static list of the positions of the resources
+        static List<Vector3> resourcePositions = new List<Vector3>();
 		
 		// Returns if the key exists in the dictionary
 		public static bool EntryExists(Vector3 key)
@@ -68,7 +71,7 @@ namespace GSP.Tiles
 		// NOTE: This removes the entire Tile from the dictionary
 		public static void RemoveEntry(Vector3 key)
 		{
-			// As a precautionary measure, check if the key exists
+            // As a precautionary measure, check if the key exists
             if (!EntryExists(key))
 			{
 				// The key doesn't exist so just return
@@ -88,7 +91,7 @@ namespace GSP.Tiles
 		// Remove the resource from the Tile; This leaves the Tile intact
 		public static void RemoveResource(Vector3 key)
 		{
-			// As a precautionary measure, check if the key exists
+            // As a precautionary measure, check if the key exists
             if (!EntryExists(key))
 			{
 				// The key doesn't exist so just return
@@ -100,6 +103,9 @@ namespace GSP.Tiles
 
 			// Now Destroy the GameObject
             MonoBehaviour.Destroy(obj);
+
+            // Remove the key from the list
+            resourcePositions.Remove(key);
 
 			// Finally, update the Tile to be normal
             UpdateTile(key, ResourceType.None, null);
@@ -127,5 +133,11 @@ namespace GSP.Tiles
 			// Finally, empty the dictionary
 			tiles.Clear();
 		} // end Clean
+
+        // Gets the resource positions list
+        public static List<Vector3> ResourcePositions
+        {
+            get { return resourcePositions; }
+        } // end ResourcePositions
 	} // end TileDictionary
 } // end GSP.Tiles
