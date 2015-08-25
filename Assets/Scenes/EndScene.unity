@@ -1351,7 +1351,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 187266, guid: fd8539f074deb5344a539e1308bc127b, type: 2}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 22479712, guid: fd8539f074deb5344a539e1308bc127b, type: 2}
       propertyPath: m_AnchorMin.y
