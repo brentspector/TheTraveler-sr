@@ -56,7 +56,7 @@ namespace GSP
 		int guiCurrentWeight;						// Total weight of player at the moment
 
 		// HUD Elements
-		// Current Player
+        // Current Player
 		Text guiPlayerName;							// Name of current player
 		Text guiTurnText; 			       			// The turn or event currently happening
 		Text guiGold;		            			// The player's Gold Value
@@ -81,7 +81,7 @@ namespace GSP
 		MapEvent guiMapEvent;						// The MapEvent component reference
 		string mapEventResult;						// Result of the map event
 
-		// Runs when the object if first instantiated, because this object will occur once through the game,
+        // Runs when the object if first instantiated, because this object will occur once through the game,
         // these values are the beginning of game values
         // Note: Values should be updated at the EndTurn State
         void Start()
@@ -190,6 +190,9 @@ namespace GSP
 				textParent.transform.GetChild(i).GetComponent<Text>().text =
 					GameMaster.Instance.GetPlayerName(i) + " - " + playerMerchant.Currency;
 			} //end for
+
+            // Change the interface element's colours
+            ChangeColor();
 		} // end InitAfterStart
 
         // Adds the players to the game
@@ -210,15 +213,12 @@ namespace GSP
 			// Loop over the number of players to add their instances
 			for (int count = 0; count < numPlayers; count++)
 			{
-				//TODO: Damien: Change this later when you do the player renaming
-				int playerNum = count + 1;
-				GameMaster.Instance.SetPlayerName(count, playerNum.ToString());
-				
 				// Get the player's script
 				Player playerScript = GameMaster.Instance.GetPlayerScript(count);
 				
 				// Set the players's sprite sheet sprites
-				playerScript.SetCharacterSprites(count + 1);
+                int playerNum = count + 1;
+				playerScript.SetCharacterSprites(playerNum);
 				
 				// Set the player's facing
 				playerScript.Face(FacingDirection.South);
@@ -502,6 +502,18 @@ namespace GSP
             guiDiceDistVal = 0;
 		} // end ResetValues
 
+        // Change the colour of the interface elements
+        void ChangeColor()
+        {
+            // Get the player's color
+            Color playerColor = Utility.InterfaceColorToColor(GameMaster.Instance.GetPlayerColor(guiPlayerTurn));
+
+            // Set the interface element's colours to the current player's colour
+            GameObject.Find("Background").GetComponent<Image>().color = playerColor;
+            acceptPanel.transform.GetChild(0).GetComponent<Image>().color = playerColor;
+            pauseMenu.transform.GetChild(0).GetComponent<Image>().color = playerColor;
+        } // end ChangeColor
+
         // Gets the current player from the players list
         public GameObject GetCurrentPlayer()
 		{
@@ -554,6 +566,13 @@ namespace GSP
                 
                 // Update the turn
 				guiPlayerTurn = GameMaster.Instance.NextTurn();
+
+                // Check if we're not single player
+                if (!GameMaster.Instance.IsSinglePlayer)
+                {
+                    // Change the interface element's colours
+                    ChangeColor();
+                } // end if
 
 				// Change the state to the BeginTurn state
 				gamePlayState = GamePlayState.BeginTurn;
