@@ -147,6 +147,9 @@ namespace GSP
 	
 		void Fight()
 		{
+			// Play a sword sound
+			AudioManager.Instance.PlaySword ();
+
 			// Determine whether it's player's turn, and update with result
 			if (playerTurn) 
 			{
@@ -198,7 +201,8 @@ namespace GSP
 					{
 						// The player has no resources so remove its weapon
 						fightBoxText.text += "\nAs a result, you lost your " + playerMerchant.EquippedWeapon.Name;
-						playerMerchant.UnequipWeapon(playerMerchant.EquippedWeapon);
+						playerAttack -= playerMerchant.EquippedWeapon.AttackValue;	
+						playerMerchant.UnequipWeapon(playerMerchant.EquippedWeapon);					
 						inventory.Remove(GameMaster.Instance.Turn, inventory.WeaponSlot);
 					} // end if EquippedWeapon != null
 					else

@@ -652,6 +652,7 @@ namespace GSP
 				GameMaster.Instance.NextTurn();
 			} //end while
 			GameMaster.Instance.NumPlayers = 0;
+			AudioManager.Instance.PlayMenu ();
 			GameMaster.Instance.LoadLevel ("MenuScene");
 		} //end MainMenu
 
