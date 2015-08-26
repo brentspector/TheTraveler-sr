@@ -44,7 +44,8 @@ namespace GSP
 		GamePlayState gamePlayState;            	// The current state
 		bool canInitAfterStart;			         	// Initialising values after Start()
 		bool canRunEndStuff;                    	// Whether the end scene stuff should be ran during that state
-        bool isInventoryOpen;                       // Wheter the inventory window is open
+        bool isInventoryOpen;                       // Whether the inventory window is open
+        bool isAlliesOpen;                          // Whether the inventory window is open
 		int guiDiceDistVal;	                		// The dice value which is then onverted into a distance value
 
 		// State Machine input/output variables
@@ -55,7 +56,7 @@ namespace GSP
 		int guiCurrentWeight;						// Total weight of player at the moment
 
 		// HUD Elements
-		// Current Player
+        // Current Player
 		Text guiPlayerName;							// Name of current player
 		Text guiTurnText; 			       			// The turn or event currently happening
 		Text guiGold;		            			// The player's Gold Value
@@ -71,6 +72,8 @@ namespace GSP
 		GameObject textParent;						// Panel with all player names and gold
         // Inventory
         Inventory inventory;                        // The inventory script for the Inventory
+        // Aliies
+        AllyTable allyTable;                        // The ally table script for the AllyTable
 
 		// Game Objects
 		Die die;       			                    // The Die to be used in the game
@@ -78,17 +81,17 @@ namespace GSP
 		MapEvent guiMapEvent;						// The MapEvent component reference
 		string mapEventResult;						// Result of the map event
 
-		// Runs when the object if first instantiated, because this object will occur once through the game,
+        // Runs when the object if first instantiated, because this object will occur once through the game,
         // these values are the beginning of game values
         // Note: Values should be updated at the EndTurn State
         void Start()
 		{
             //TODO: Damien: Replace Tile stuff later
             // Clear the tile dictionary
-			TileDictionary.Clean();
-			// Set the dimensions and generate/add the tiles
-			TileManager.SetDimensions(64, 20, 16);
-			TileManager.GenerateAndAddTiles();
+            TileDictionary.Clean();
+            // Set the dimensions and generate/add the tiles
+            TileManager.SetDimensions(64, 20, 16);
+            TileManager.GenerateAndAddTiles();
 
 			// Get HUD elements
             guiPlayerName = GameObject.Find("CurrentPlayer/PlayerName").GetComponent<Text>();
@@ -102,6 +105,7 @@ namespace GSP
             imageParent = GameObject.Find("AllPlayers/ImageOrganizer");
             textParent = GameObject.Find("AllPlayers/TextOrganizer");
             inventory = GameObject.Find("Inventory").GetComponent<Inventory>();
+            allyTable = GameObject.Find("Allies").GetComponent<AllyTable>();
 			GameObject.Find ("Canvas").transform.Find ("Instructions").gameObject.SetActive (false);
 			actionButtonActive = true;
 			isPaused = false;
@@ -115,11 +119,17 @@ namespace GSP
             // Disable the inventory by default
             inventory.gameObject.SetActive(false);
 
+            // Disable the ally window by default
+            allyTable.gameObject.SetActive(false);
+
             // Running the end stuff defaults to true
             canRunEndStuff = true;
 
             // The inventory is closed by default
             isInventoryOpen = false;
+
+            // The ally window is closed by default
+            isAlliesOpen = false;
 
             // Get the number of players
             guiNumOfPlayers = GameMaster.Instance.NumPlayers;
@@ -180,6 +190,9 @@ namespace GSP
 				textParent.transform.GetChild(i).GetComponent<Text>().text =
 					GameMaster.Instance.GetPlayerName(i) + " - " + playerMerchant.Currency;
 			} //end for
+
+            // Change the interface element's colours
+            ChangeColor();
 		} // end InitAfterStart
 
         // Adds the players to the game
@@ -200,15 +213,12 @@ namespace GSP
 			// Loop over the number of players to add their instances
 			for (int count = 0; count < numPlayers; count++)
 			{
-				//TODO: Damien: Change this later when you do the player renaming
-				int playerNum = count + 1;
-				GameMaster.Instance.SetPlayerName(count, playerNum.ToString());
-				
 				// Get the player's script
 				Player playerScript = GameMaster.Instance.GetPlayerScript(count);
 				
 				// Set the players's sprite sheet sprites
-				playerScript.SetCharacterSprites(count + 1);
+                int playerNum = count + 1;
+				playerScript.SetCharacterSprites(playerNum);
 				
 				// Set the player's facing
 				playerScript.Face(FacingDirection.South);
@@ -492,6 +502,18 @@ namespace GSP
             guiDiceDistVal = 0;
 		} // end ResetValues
 
+        // Change the colour of the interface elements
+        void ChangeColor()
+        {
+            // Get the player's color
+            Color playerColor = Utility.InterfaceColorToColor(GameMaster.Instance.GetPlayerColor(guiPlayerTurn));
+
+            // Set the interface element's colours to the current player's colour
+            GameObject.Find("Background").GetComponent<Image>().color = playerColor;
+            acceptPanel.transform.GetChild(0).GetComponent<Image>().color = playerColor;
+            pauseMenu.transform.GetChild(0).GetComponent<Image>().color = playerColor;
+        } // end ChangeColor
+
         // Gets the current player from the players list
         public GameObject GetCurrentPlayer()
 		{
@@ -545,6 +567,13 @@ namespace GSP
                 // Update the turn
 				guiPlayerTurn = GameMaster.Instance.NextTurn();
 
+                // Check if we're not single player
+                if (!GameMaster.Instance.IsSinglePlayer)
+                {
+                    // Change the interface element's colours
+                    ChangeColor();
+                } // end if
+
 				// Change the state to the BeginTurn state
 				gamePlayState = GamePlayState.BeginTurn;
 			} //end else if
@@ -559,7 +588,7 @@ namespace GSP
             // Check if the inventory is open
             if (isInventoryOpen)
             {
-                // Set the inventory window up before displaying it.
+                // Set the inventory window up before displaying it
                 inventory.SetPlayer(guiPlayerTurn);
                 
                 // Open the inventory window
@@ -575,7 +604,23 @@ namespace GSP
 		// Ally button - Displays allies and their inventories
 		public void ShowAllies()
 		{
-			
+			// Toggle the all window
+            isAlliesOpen = !isAlliesOpen;
+
+            // Check if the ally window is open
+            if (isAlliesOpen)
+            {
+                // Set the ally window up before displaying it
+                allyTable.SetPlayer(guiPlayerTurn);
+                
+                // Open the ally window
+                allyTable.gameObject.SetActive(true);
+            } // end if
+            else
+            {
+                // Otherwise, close the ally window
+                allyTable.gameObject.SetActive(false);
+            } // end else
 		} // end ShowAllies
 
 		// Pause button - Displays pause menu and pauses game

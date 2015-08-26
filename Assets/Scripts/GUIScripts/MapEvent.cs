@@ -50,8 +50,8 @@ namespace GSP
 		//NOTE: These should add up to less than 100 so that 
 		//there is a chance nothing occurs. Minimum chance of
 		//one or else there will be problems
-        int enemyChance = 25;   // The minimum chance for the MapEvent to an enemy
-        int allyChance = 15;    // The minimum chance for the MapEvent to an ally
+        int enemyChance = 0;//25;   // The minimum chance for the MapEvent to an enemy
+        int allyChance = 55;    // The minimum chance for the MapEvent to an ally
         int itemChance = 15;    // The minimum chance for the MapEvent to an item
 		
 		string guiResult; // The MapEvent summary
@@ -157,6 +157,7 @@ namespace GSP
         public string ResolveFight(Die die)
 		{
 			GameMaster.Instance.SavePlayers ();
+            GameMaster.Instance.SaveResources();
 			GameMaster.Instance.LoadLevel ("BattleScene");
 			return "Enemy fought";
 		} // end ResolveFight

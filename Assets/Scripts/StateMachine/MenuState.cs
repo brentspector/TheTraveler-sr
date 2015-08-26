@@ -15,6 +15,7 @@ namespace GSP
         Home,
         Solo,
         Multi,
+        Colors,
         Credits,
         Help,
         Quit

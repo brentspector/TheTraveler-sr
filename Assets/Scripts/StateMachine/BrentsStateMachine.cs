@@ -9,6 +9,8 @@ using GSP.Core;
 using GSP.Items.Inventories;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections.Generic;
+using System;
 
 namespace GSP
 {
@@ -38,13 +40,16 @@ namespace GSP
 		GameObject mapSet;					// Map selection panel
 		GameObject creditsSet;				// Credits panel
 		GameObject instructionsSet;			// Instructions panel
+        GameObject colorSet;                // Colours panel
 		GameObject backButton;				// Back button
+        GameObject continueButton;          // Continue button for the colours
 		Text 	   guideText;				// Map selection text
 		bool isMenuDisplayed;				// Whether menu is displayed or not
 		bool isInstructionsDisplayed;		// Whether instructions are displayed or not
 		bool isCreditsDisplayed;			// Whether Credits are displayed or not
 		string mapSelection;		        // Scene name of map
 		bool isMapsDisplayed;				// Whether selection maps are displayed or not
+        bool isColorsDisplayed;				// Whether the colours are displayed or not
 		
 		// Initialize variables
 		void Start()
@@ -58,6 +63,7 @@ namespace GSP
 			timeHolder = Time.time + 3.0f;					// Initialize first wait period
 			mapSelection = "nothing";						// Nothing has been chosen yet
 			isMapsDisplayed = false;						// Map selection begins hidden
+            isColorsDisplayed = false;						// Colours begins hidden
 
 			// Obtain references to hierarchy panels and objects
             introSet = GameObject.Find("Intro");
@@ -65,14 +71,18 @@ namespace GSP
             mapSet = GameObject.Find("MapSelection");
             creditsSet = GameObject.Find("Credits");
             instructionsSet = GameObject.Find("Instructions");
+            colorSet = GameObject.Find("Colours");
             backButton = GameObject.Find("BackButton");
+            continueButton = GameObject.Find("ColorsContinue");
             guideText = GameObject.Find("GuideText").GetComponent<Text>();
 
 			// Disable everything but intro and menu
             DisableMapSelection();
             DisableInstructions();
             DisableCredits();
+            DisableColors();
             backButton.SetActive(false);
+            continueButton.SetActive(false);
             guideText.gameObject.SetActive(false);
 
             // Initialise the GameMaster in the menu
@@ -148,12 +158,9 @@ namespace GSP
                                         // Pick player amount
                                         // Set the number of players to one for solo mode
                                         GameMaster.Instance.NumPlayers = 1;
-                                        
-                                        // Display loading text
-                                        guideText.text = "Loading, please wait.";
 
-                                        // Transition into game state
-                                        programState = OverallState.Game;
+                                        // Transition into the colours menu state
+                                        menuState = MenuState.Colors;
                                     } // end if
                                     break;
                                 } // end case Solo
@@ -200,15 +207,49 @@ namespace GSP
                                         // Note: I screwed this up previously, but it still shouldn't have to be repeated so do a simple conditional check
                                         if (GameMaster.Instance.NumPlayers >= 2 && GameMaster.Instance.NumPlayers <= 4)
                                         {
-                                            // Display loading text
-                                            guideText.text = "Loading, please wait.";
-
-                                            // Transition into game state
-                                            programState = OverallState.Game;
+                                            // Transition into the colours menu state
+                                            menuState = MenuState.Colors;
                                         }
                                     } // end if
                                     break;
                                 } // end case Multi
+                            // Colors - Selection of player colours
+                            case MenuState.Colors:
+                                {
+                                    // Clear buttons if not cleared yet
+                                    // Hide map select if not cleared yet
+                                    if (isMapsDisplayed)
+                                    {
+                                        DisableMapSelection();
+                                    } // end if
+
+                                    // Display colours
+                                    if (!isColorsDisplayed)
+                                    {
+                                        EnableColors();
+                                        guideText.text = "Please choose a name and color.";
+
+                                        if (GameMaster.Instance.NumPlayers > 1 && GameMaster.Instance.NumPlayers <= 2)
+                                        {
+                                            // Enable player 2
+                                            colorSet.transform.GetChild(1).gameObject.SetActive(true);
+                                        } // end if
+                                        else if (GameMaster.Instance.NumPlayers > 2 && GameMaster.Instance.NumPlayers <= 3)
+                                        {
+                                            // Enable player 2-3
+                                            colorSet.transform.GetChild(1).gameObject.SetActive(true);
+                                            colorSet.transform.GetChild(2).gameObject.SetActive(true);
+                                        } // end else if
+                                        else if (GameMaster.Instance.NumPlayers > 3 && GameMaster.Instance.NumPlayers <= 4)
+                                        {
+                                            // Enable player 2-4
+                                            colorSet.transform.GetChild(1).gameObject.SetActive(true);
+                                            colorSet.transform.GetChild(2).gameObject.SetActive(true);
+                                            colorSet.transform.GetChild(3).gameObject.SetActive(true);
+                                        } // end else if
+                                    } // end if
+                                    break;
+                                } // end case Colors
                             // Credits - Display names and instructions
                             case MenuState.Credits:
                                 {
@@ -441,6 +482,24 @@ namespace GSP
 			isCreditsDisplayed = false;
 		} // end DisableCredits
 
+        // Enable the colours screen
+        void EnableColors()
+        {
+            colorSet.SetActive(true);
+            guideText.gameObject.SetActive(true);
+            continueButton.SetActive(true);
+            isColorsDisplayed = true;
+        } // end EnableColors
+
+        // Disable the colours screen
+        void DisableColors()
+        {
+            colorSet.SetActive(false);
+            guideText.gameObject.SetActive(false);
+            continueButton.SetActive(false);
+            isColorsDisplayed = false;
+        } // end DisableColors
+
 		// Menu Button functions
         // Solo button
 		public void SoloGame()
@@ -492,6 +551,14 @@ namespace GSP
 				guideText.text = "Please select a map";
 				menuState = MenuState.Home;
 			} // end else if
+            else if (menuState == MenuState.Colors)
+            {
+                DisableColors();
+                mapSelection = "nothing";
+                guideText.text = "Please select a map";
+                GameMaster.Instance.NumPlayers = 0;
+                menuState = MenuState.Home;
+            } // end else if
 			else
 			{
 				menuState = MenuState.Home;
@@ -521,5 +588,89 @@ namespace GSP
 		{
 			mapSelection = "area04";
 		} // end SnowMap
+
+        // Colours continue button
+        public void ColorsContinue()
+        {
+            // Get the input fields
+            InputField playerOneInput = colorSet.transform.GetChild(0).GetChild(0).GetChild(1).GetComponent<InputField>();
+            InputField playerTwoInput = colorSet.transform.GetChild(1).GetChild(0).GetChild(1).GetComponent<InputField>();
+            InputField playerThreeInput = colorSet.transform.GetChild(2).GetChild(0).GetChild(1).GetComponent<InputField>();
+            InputField playerFourInput = colorSet.transform.GetChild(3).GetChild(0).GetChild(1).GetComponent<InputField>();
+            
+            // Get the names trimmed of any whitespace
+            // Player 1
+            string playerOneName = playerOneInput.text.Trim();
+            if (!string.IsNullOrEmpty(playerOneName))
+            {
+                // Player 1's name isn't empty so set it
+                GameMaster.Instance.SetPlayerName(0, playerOneName);
+            } // end if
+            else
+            {
+                // Otherwise, Player 1's name is empty so set a default
+                GameMaster.Instance.SetPlayerName(0, "Player 1");
+            } // end else
+
+            // Player 2
+            string playerTwoName = playerTwoInput.text.Trim();
+            if (!string.IsNullOrEmpty(playerTwoName))
+            {
+                // Player 1's name isn't empty so set it
+                GameMaster.Instance.SetPlayerName(1, playerTwoName);
+            } // end if
+            else
+            {
+                // Otherwise, Player 2's name is empty so set a default
+                GameMaster.Instance.SetPlayerName(1, "Player 2");
+            } // end else
+
+            // Player 3
+            string playerThreeName = playerThreeInput.text.Trim();
+            if (!string.IsNullOrEmpty(playerThreeName))
+            {
+                // Player 1's name isn't empty so set it
+                GameMaster.Instance.SetPlayerName(2, playerThreeName);
+            } // end if
+            else
+            {
+                // Otherwise, Player 3's name is empty so set a default
+                GameMaster.Instance.SetPlayerName(2, "Player 3");
+            } // end else
+
+            // Player 4
+            string playerFourName = playerFourInput.text.Trim();
+            if (!string.IsNullOrEmpty(playerFourName))
+            {
+                // Player 1's name isn't empty so set it
+                GameMaster.Instance.SetPlayerName(3, playerFourName);
+            } // end if
+            else
+            {
+                // Otherwise, Player 4's name is empty so set a default
+                GameMaster.Instance.SetPlayerName(3, "Player 4");
+            } // end else
+
+            // Display loading text
+            guideText.text = "Loading, please wait.";
+
+            // Transition into game state
+            programState = OverallState.Game;
+        } // end ColorsContinue
+
+        public void ParseColorButton(string input)
+        {
+            // Result string
+            string[] result = input.Split('|');
+            
+            // The player's number
+            int playerNum = Convert.ToInt32(result[0]);
+
+            // The player's colour
+            int playerColor = Convert.ToInt32(result[1]);
+
+            // Finally, set the colour
+            GameMaster.Instance.SetPlayerColor(playerNum, (InterfaceColors)playerColor);
+        } // end ParseColorButton
     } // end BrentsStateMachine
 } //end GSP
