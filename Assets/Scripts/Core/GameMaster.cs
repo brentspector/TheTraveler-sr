@@ -12,6 +12,7 @@ using GSP.Entities;
 using GSP.Entities.Friendlies;
 using GSP.Items;
 using GSP.Items.Inventories;
+using GSP.Tiles;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -30,6 +31,7 @@ namespace GSP.Core
     {
         string playerFilePath;       // The player's save file prefix
         string highScoreFilePath;    // The highscores save file
+        string resourceFilePath;     // The resource postion's save file
         string saveFileExt;          // The save file's extension
 
         // The first tile
@@ -77,6 +79,7 @@ namespace GSP.Core
             // Set the save file information strings
             playerFilePath = Application.persistentDataPath + "/player";
             highScoreFilePath = Application.persistentDataPath + "/highscores";
+            resourceFilePath = Application.persistentDataPath + "/resources";
             saveFileExt = ".sav";
         } // end Awake
 
@@ -717,6 +720,89 @@ namespace GSP.Core
                 } // end else
             } // end if
         } // end LoadHighScores
+
+        // Save the resource positions
+        public void SaveResources()
+        {
+            // The full resource position's save path
+            string resourcesSavePath = resourceFilePath + saveFileExt;
+
+            // Create a new binary formatter to save to a binary file
+            BinaryFormatter binaryFormatter = new BinaryFormatter();
+
+            // Declare the filestream for the file
+            FileStream fileStream;
+
+            // Check if the player's save file exists
+            if (File.Exists(resourcesSavePath))
+            {
+                // The file exists so open the file
+                fileStream = File.Open(resourcesSavePath, FileMode.Open, FileAccess.ReadWrite);
+            } // end if
+            else
+            {
+                // Otherwise the file doesn't exist so create it
+                fileStream = File.Create(resourcesSavePath);
+            } // end else
+
+            // Create a new resource positions instance
+            ResourcePositionList resourcePostions = new ResourcePositionList();
+
+            // Get the resource positions from the TileDictionary
+            List<Vector3> positions = TileDictionary.ResourcePositions;
+
+            // Loop over the positions
+            for (int index = 0; index < positions.Count; index++)
+            {
+                // Get the position
+                Vector3 pos = positions[index];
+
+                // Add it to the resource positions instance
+                resourcePostions.AddPosition(pos);
+            } // end for
+
+            // Now write the data to the file
+            binaryFormatter.Serialize(fileStream, resourcePostions);
+
+            // Finally, close the file stream
+            fileStream.Close();
+        } // end SaveResources
+
+        // Load the resource positions
+        public void LoadResources()
+        {
+            // The full resource position's save path
+            string resourcesSavePath = resourceFilePath + saveFileExt;
+
+            // Make sure the high score's save file exists before trying to load it
+            if (File.Exists(resourcesSavePath))
+            {
+                // Create a new binary formatter to load the binary file
+                BinaryFormatter binaryFormater = new BinaryFormatter();
+
+                // Open a file stream while opening the file
+                FileStream fileStream = File.Open(resourcesSavePath, FileMode.Open);
+
+                // Create a resource positions instance from the file
+                ResourcePositionList resourcePostions = (ResourcePositionList)binaryFormater.Deserialize(fileStream);
+
+                // Now close the file stream
+                fileStream.Close();
+
+                // Clear the list in the TileDictionary
+                TileDictionary.ResourcePositions.Clear();
+
+                // Loop over the resource positions and add them to the list
+                for (int index = 0; index < resourcePostions.Count; index++)
+                {
+                    // Get the position
+                    Vector3 pos = resourcePostions.GetPosition(index);
+
+                    // Add the position to the TileDictionary
+                    TileDictionary.ResourcePositions.Add(pos);
+                } // end for
+            } // end if
+        } // end LoadResources
 
         // Loads a level by its index
         public void LoadLevel(int level)
