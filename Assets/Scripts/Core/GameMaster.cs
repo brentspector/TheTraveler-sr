@@ -159,8 +159,11 @@ namespace GSP.Core
         {
             playerNames[playerNum] = playerName;
 
-            //TODO: Damien: Change this later when you do the player renaming
-            playerObjs[playerNum].name = "Player " + playerName;
+            // Check if the GameObject exists
+            if (playerObjs[playerNum] != null)
+            {
+                playerObjs[playerNum].name = playerName;
+            } // end if
 
             // Check if player script exists
             Player player;

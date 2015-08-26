@@ -11,7 +11,6 @@ using UnityEngine.UI;
 
 namespace GSP
 {
-    //TODO: Brent: Replace this with the new In-Game UI later; probably not in the same namespace
     /*******************************************************************************
      *
      * Name: GUIMovement
