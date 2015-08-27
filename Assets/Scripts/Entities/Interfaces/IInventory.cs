@@ -5,7 +5,9 @@
  *  Description: Describes a contract for inventory functionlaity
  *
  *******************************************************************************/
+using GSP.Items;
 using UnityEngine;
+using System.Collections.Generic;
 
 namespace GSP.Entities.Interfaces
 {
@@ -22,10 +24,10 @@ namespace GSP.Entities.Interfaces
         #region Functions
 
         // Attempt to pickup a resource
-        bool PickupResource(Char.Resource resource, int amount, bool isFromMap = true);
+        bool PickupResource(Resource resource, int amount, bool isFromMap = true);
 
         // Sells a given resource and amount
-        void SellResource(Char.Resource resource, int amount);
+        void SellResource(Resource resource, int amount);
 
         // Sells all the resources being carried
         void SellResources();
@@ -34,29 +36,26 @@ namespace GSP.Entities.Interfaces
         void TransferCurrency<TInventoryEntity>(TInventoryEntity other, int amount) where TInventoryEntity : IInventory;
 
         // Transfer a resource from one to another
-        bool TransferResource<TInventoryEntity>(TInventoryEntity other, Char.Resource resource) where TInventoryEntity : IInventory;
+        bool TransferResource<TInventoryEntity>(TInventoryEntity other, Resource resource) where TInventoryEntity : IInventory;
 
         #endregion
 
         #region Properties
 
-        // The resource list
-        Char.ResourceList Resources { get; }
+        // The list of resources
+        List<Resource> Resources { get; }
 
         // The total weight of the resources
         int TotalWeight { get; }
 
-        // The total size of the resources
-        int TotalSize { get; }
-
-        // The total value of the resources
-        int TotalValue { get; }
+        // The total worth of the resources
+        int TotalWorth { get; }
 
         // The maximum weight that is able to be carried
         int MaxWeight { get; set; }
 
         // The maximum inventory space available
-        int MaxInventorySpace { get; set; }
+        int MaxInventorySpace { get; }
 
         // The currency currently being held
         int Currency { get; set; }

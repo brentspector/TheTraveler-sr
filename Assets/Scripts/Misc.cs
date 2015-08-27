@@ -42,8 +42,8 @@ namespace GSP
 			// Check for the 'c' key being pressed.
 			if (Input.GetKeyDown(KeyCode.C))
 			{
-				// Change to the cake scene!
-                Application.LoadLevel("cake");
+				// Tell the GameMaster to change to the cake scene!
+                GameMaster.Instance.LoadLevel("cake");
 			} // end if
 		} // end Update
 

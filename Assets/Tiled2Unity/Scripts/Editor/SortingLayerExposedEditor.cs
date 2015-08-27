@@ -68,7 +68,7 @@ public class SortingLayerExposedEditor : UnityEditor.Editor
             //int newSortingLayerId = sortLayerIds[newSortingLayerIndex];
             string newSortingLayerName = sortLayerNames[newSortingLayerIndex];
 
-            Undo.RecordObject(renderer, "Edit Sorting Layer ID");
+            Undo.RecordObject(renderer, "Edit Sorting Layer Id");
             renderer.sortingLayerName = newSortingLayerName;
             //renderer.sortingLayerID = newSortingLayerId;
 

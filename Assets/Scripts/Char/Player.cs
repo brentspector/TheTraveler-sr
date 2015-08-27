@@ -40,20 +40,30 @@ namespace GSP.Char
             // Get the Merchant's reference
             merchant = (Merchant)EntityManager.Instance.GetEntity(ID);
         } // end GetMerchant
+
+        // Updates the GameObject reference on the entity
+        public void UpdateGameObject(GameObject obj)
+        {
+            merchant.UpdateGameObject(obj);
+        } // end UpdateGameObject
+
+        // Updates the script references on the entity
+        public void UpdateScriptReferences()
+        {
+            merchant.UpdateScriptReferences();
+        } // end UpdateScriptReferences
         
         // Allows for collision on the market place to end the game
         void OnCollisionEnter2D(Collision2D coll)
         {
+			Debug.LogFormat("GameObject being collided with: {0}", coll.gameObject.name);
             // Layer 8 is the "Market"
             if (coll.gameObject.layer == 8)
             {
-                // Get the GameObject with the GameStateMachineTag tag
-                GameObject obj = GameObject.FindGameObjectWithTag("GamePlayStateMachineTag");
+                // Get the GameplayStateMachine
+				GameplayStateMachine stateMachineScript = GameObject.Find("Canvas").GetComponent<GameplayStateMachine>();
 
-                // Now get the GamePlayStateMachine script
-                var stateMachineScript = obj.GetComponent<GameplayStateMachine>();
-
-                // Finally end the game by calling EndGame()
+                // End the game by calling EndGame()
                 stateMachineScript.EndGame();
             }
         } // end OnCollisionEnter2D

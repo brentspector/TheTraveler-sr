@@ -5,7 +5,8 @@
  *  Description: Deals with the logic of the tiles
  *
  *******************************************************************************/
-using GSP.Char;
+using GSP.Core;
+using GSP.Items;
 using System;
 using UnityEngine;
 
@@ -41,34 +42,72 @@ namespace GSP.Tiles
 			// Get all the game objects tagged as resources
             GameObject[] resourceObjects = GameObject.FindGameObjectsWithTag("Resource");
 
-			// Loop over the map; Width first
+            // Loop over the map; Width first
             for (int width = 32; width < (int)MapSize.x; width += 64)
-			{
-				// Then height
+            {
+                // Then height
                 for (int height = 32; height < (int)MapSize.y; height += 64)
-				{
-					// We are in the fourth quadrant so the y is negative
+                {
+                    // We are in the fourth quadrant so the y is negative
                     Vector3 key = new Vector3(width, height * -1, -1.0f);
 
-					// Create an empty Tile at the given position
+                    // Create an empty Tile at the given position
                     Tile newTile = new Tile(key, ResourceType.None, null);
 
-					// Add the Tile to the dictionary
+                    // Add the Tile to the dictionary
                     TileDictionary.AddEntry(key, newTile);
-				} // end inner for
-			} // end outer for
+                } // end inner for
+            } // end outer for
 
-            // Now loop over the resourceObjects array and set the Tiles to resources
-			for (int index = 0; index < resourceObjects.Length; index++)
-			{
-                Vector3 key = ToPixels(resourceObjects[index].transform.position);
+            // Check if the game is new
+            if (GameMaster.Instance.IsNew)
+            {
+                // Now loop over the resourceObjects array and set the Tiles to resources
+                for (int index = 0; index < resourceObjects.Length; index++)
+                {
+                    // Get the position of the resource
+                    Vector3 key = ToPixels(resourceObjects[index].transform.position);
 
-				// Holds the Tile's ResourceType
-                ResourceType resourceType = resourceObjects[index].GetComponent<ResourceTile>().Type;
+                    // Add the position to the list
+                    TileDictionary.ResourcePositions.Add(key);
 
-				// Update the tile at the given key
-                TileDictionary.UpdateTile(key, resourceType, resourceObjects[index]);
-			} // end for
+                    // Holds the Tile's ResourceType
+                    ResourceType resourceType = resourceObjects[index].GetComponent<ResourceTile>().Type;
+
+                    // Update the tile at the given key
+                    TileDictionary.UpdateTile(key, resourceType, resourceObjects[index]);
+                } // end for
+            } // end if
+            else
+            {
+                // Otherwise the game isn't new so load the resource positions
+                GameMaster.Instance.LoadResources();
+
+                // Get the list's length
+                int length = resourceObjects.Length;
+
+                // Now loop over the resourceObjects array and set the Tiles to resources
+                for (int index = 0; index < length; index++)
+                {
+                    // Get the position of the resource
+                    Vector3 key = ToPixels(resourceObjects[index].transform.position);
+
+                    // Check if the key is in the list
+                    if (TileDictionary.ResourcePositions.Contains(key))
+                    {
+                        // Holds the Tile's ResourceType
+                        ResourceType resourceType = resourceObjects[index].GetComponent<ResourceTile>().Type;
+
+                        // Update the tile at the given key
+                        TileDictionary.UpdateTile(key, resourceType, resourceObjects[index]);
+                    } // end if
+                    else
+                    {
+                        // Otherwise, we want to get rid of the resource object
+                        GameObject.Destroy(resourceObjects[index]);
+                    } // end else
+                } // end for
+            } // end else
 		} // end GenerateAndAddTiles
 
 		// Converts unity units to pixels for use on the map

@@ -9,6 +9,7 @@ using GSP.Char;
 using GSP.Core;
 using GSP.Entities.Interfaces;
 using GSP.Items;
+using GSP.Items.Inventories;
 using GSP.Tiles;
 using System.Collections.Generic;
 using UnityEngine;
@@ -26,10 +27,11 @@ namespace GSP.Entities.Neutrals
     {
         #region IInventory Variables
 
-        int maxWeight;		    // The maximum weight the entity can hold
-        int maxInventory;       // The maximum inventory spaces (max number of spaces an entity can hold)
-        int currency; 		    // The amount of currency the entity is holding
-        ResourceList resources; // The ResourceList script reference
+        int maxWeight;		                // The maximum weight the entity can hold
+        int currency; 		                // The amount of currency the entity is holding
+        List<Resource> resources;           // The list of resources
+        Inventory inventory;                // The inventory of the player
+        ResourceUtility resourceUtility;    // The resource utility functions
 
         #endregion
 
@@ -58,6 +60,8 @@ namespace GSP.Entities.Neutrals
 
         AllyList allyScript;				// The ally script object
 
+        int playerNum;  // The merchant's player number
+
         // Creates a Merchant entity
         public Merchant(int ID, GameObject gameObject, InterfaceColors playerCoulours, string playerName) :
             base(ID, gameObject)
@@ -71,6 +75,9 @@ namespace GSP.Entities.Neutrals
             // Set the Merchant's colour
             color = playerCoulours;
 
+            // Initialise the player number
+            playerNum = -1;
+
             // Create a new list of Sprite's
             charSprites = new List<Sprite>();
             // Get the GameObject's SpriteRenderer
@@ -83,13 +90,18 @@ namespace GSP.Entities.Neutrals
 
             // The default for now - hard coded values
             maxWeight = 300;
-            maxInventory = 20;
             
             // The entity starts with no currency
             currency = 0;
 
             // Get the ResourceList component reference
-            resources = GameObj.GetComponent<ResourceList>();
+            resources = new List<Resource>();
+
+            // Get the inventory script
+            inventory = GameObject.Find("Canvas").transform.Find("Inventory").GetComponent<Inventory>();
+
+            // Create a new ResourceUltity object
+            resourceUtility = new ResourceUtility();
 
             #endregion
 
@@ -115,7 +127,20 @@ namespace GSP.Entities.Neutrals
 
         }
 
-        // Setup the Character's Sprite set. This is an array of Sprites that will be used for the Character
+        // Updates the script refereneces that depended upon the GameObject
+        public void UpdateScriptReferences()
+        {
+            // Update the sprite renderer
+            spriteRenderer = GameObj.GetComponent<SpriteRenderer>();
+
+            // Update the ally script
+            allyScript = GameObj.GetComponent<AllyList>();
+
+			// Update the inventory reference
+			inventory = GameObject.Find("Canvas").transform.Find("Inventory").GetComponent<Inventory>();
+        } // end UpdateScriptReferences
+
+        // Setup the Merchant's Sprite set. This is an array of Sprites that will be used for the Merchant
         public void SetCharacterSprites(int playerNumber)
         {
             // A temporary Sprite array; Make sure the playerNumber is within the proper range of one to MaxPlayers
@@ -128,11 +153,19 @@ namespace GSP.Entities.Neutrals
             charSprites.Add(tmp[10]);
         } // end SetCharacterSprites
 
-        // Sets the Character's Sprite to the given index
+        // Sets the Merchant's Sprite to the given index
         void SetSprite(int index)
         {
             spriteRenderer.sprite = charSprites[index];
         } // end SetSprite
+
+        // Gets the Merchant's Sprite for the given index
+        // Note: The direction is North, East, South, West
+        public Sprite GetSprite(int index)
+        {
+            // Ensure a valid index was given; clamp it
+            return charSprites[Utility.ClampInt(index, 0, (charSprites.Count - 1))];
+        } // end GetSprite
 
         // Faces the Merchant in a given direction; This changes the Merchant's Sprite to match this
         public void Face(FacingDirection facingDirection)
@@ -197,19 +230,29 @@ namespace GSP.Entities.Neutrals
             get { return allyScript.NumAllies; }
         } // end NumAllies
 
+        // Gets and Sets the Merchants player number
+        public int PlayerNumber
+        {
+            get { return playerNum; }
+            set { playerNum = value; }
+        } // end PlayerNumber
+
         #region IInventory Members
 
         // Picks up a resource for an entity adding it to their ResourceList
         public bool PickupResource(Resource resource, int amount, bool isFromMap = true)
         {
             // Check if picking up this resource will put the entity overweight
-            if ((TotalWeight + resource.WeightValue) * amount <= MaxWeight)
+            if ((TotalWeight + resource.Weight) * amount <= MaxWeight)
             {
                 // Check if there is enough room for this resource
-                if (resources.TotalSize + resource.SizeValue <= MaxInventorySpace)
+                if (inventory.FindFreeSlot(GameMaster.Instance.Turn, SlotType.Inventory) >= 0)
                 {
-                    // Add the resource
-                    resources.AddResource(resource, amount);
+                    // Add the resource to the inventory
+                    inventory.AddItem(GameMaster.Instance.Turn, resource.Id);
+
+                    // Update the inventory's stats
+                    inventory.SetStats(this);
 
                     // Check if the resource is from the map
                     if (isFromMap)
@@ -252,7 +295,7 @@ namespace GSP.Entities.Neutrals
             int count = 0;
 
             // Get all the resources of the given resource's type
-            tmpResources = resources.GetResourcesByType(resource.Type.ToString());
+            tmpResources = ResourceUtility.GetResourcesByType(resource.ResourceType, PlayerNumber);
 
             // Check if the returned number of resources is fewer than amount
             if (tmpResources.Count < amount)
@@ -270,10 +313,10 @@ namespace GSP.Entities.Neutrals
             for (int index = 0; index < count; index++)
             {
                 // Credit the entity for the resource
-                currency += tmpResources[index].SellValue;
+                currency += tmpResources[index].Worth;
 
-                // Remove the resource from the list
-                resources.RemoveResource(tmpResources[index]);
+                // Remove the resource from the inventory
+                ResourceUtility.RemoveResource(tmpResources[index], PlayerNumber);
             } // end for
         } // end SellResource
 
@@ -281,10 +324,10 @@ namespace GSP.Entities.Neutrals
         public void SellResources()
         {
             // Credit the entity for the resources they are holding
-            currency += TotalValue;
+            currency += TotalWorth;
 
-            // Clear the ResourceList now
-            resources.ClearResources();
+            // Remove all the resources now
+            ResourceUtility.RemoveResources(PlayerNumber);
         } // end SellResources
 
         // Transfers currency from the entity to another entity
@@ -301,7 +344,7 @@ namespace GSP.Entities.Neutrals
         } // end TransferCurrency
 
         // Transfers a resource from the entity to another entity
-        public bool TransferResource<TInventoryEntity>(TInventoryEntity other, Char.Resource resource) where TInventoryEntity : IInventory
+        public bool TransferResource<TInventoryEntity>(TInventoryEntity other, Resource resource) where TInventoryEntity : IInventory
         {
             // Check if the resource object exists
             if (resource == null)
@@ -313,8 +356,8 @@ namespace GSP.Entities.Neutrals
             // Have the other entity pickup the resource and test if it's a success
             if (other.PickupResource(resource, 1, false))
             {
-                // The pickup succeeded so remove the resource from the entity
-                resources.RemoveResource(resource);
+                // The pickup succeeded so remove the resource from the entity's inventory
+                ResourceUtility.RemoveResource(resource, PlayerNumber);
                 
                 // Return success
                 return true;
@@ -327,29 +370,78 @@ namespace GSP.Entities.Neutrals
             }
         } // end TransferResource
 
-        // Gets the list of resources of the entity
-        public ResourceList Resources
+        // Gets the ResourceUtility object
+        public ResourceUtility ResourceUtility
         {
-            get { return resources; }
+            get { return resourceUtility; }
+        } // end ResourceUtility
+        
+        // Gets the list of resources of the entity
+        public List<Resource> Resources
+        {
+            get
+            {
+                // Get the list of resources in the player's inventory
+                resources = ResourceUtility.GetResources(PlayerNumber);
+
+                // Create a temporary list based on the list of resources
+                List<Resource> tempList = resources;
+                
+                // Return the temporary list
+                return tempList;
+            } // end get
         } // end Resources
 
         // Gets the TotalWeight of the entity's resources
         public int TotalWeight
         {
-            get { return resources.TotalWeight; }
+            get
+            {
+                // The total weight of all the resources in the player's inventory
+                int totalWeight = 0;
+
+                // Get all the resources
+                List<Resource> allResources = Resources;
+
+				// Make sure there are resources
+				if(allResources.Count > 0)
+				{
+               		 // Get the total weight
+              		  foreach (Resource resource in allResources)
+               		 {
+                  		  totalWeight += resource.Weight;
+               		 } // end foreach
+				} // end if
+                // Return the total weight
+                return totalWeight;
+            } // end get
         } // end TotalWeight
 
-        // Gets the TotalSize of the entity's resources
-        public int TotalSize
-        {
-            get { return resources.TotalSize; }
-        } // end TotalSize
-
         // Gets the TotalValue of the entity's resources
-        public int TotalValue
+        public int TotalWorth
         {
-            get { return resources.TotalValue; }
-        } // end TotalValue
+            get
+            {
+                // The total weight of all the resources in the player's inventory
+                int totalWorth = 0;
+
+                // Get all the resources
+                List<Resource> allResources = Resources;
+
+                // Make sure there are resources
+                if (allResources.Count > 0)
+                {
+                    // Get the total worth
+                    foreach (Resource resource in allResources)
+                    {
+                        totalWorth += resource.Worth;
+                    } // end foreach
+                } // end if
+
+                // Return the total worth
+                return totalWorth;
+            } // end get
+        } // end TotalWorth
 
         // Gets and Sets the MaxWeight of the entity
         public int MaxWeight
@@ -359,10 +451,10 @@ namespace GSP.Entities.Neutrals
         } // end MaxWeight
 
         // Gets and Sets the MaxInventorySpace of the entity
+        // This is the number of regular inventory slots
         public int MaxInventorySpace
         {
-            get { return maxInventory; }
-            set { maxInventory = Utility.ZeroClampInt(value); }
+            get { return inventory.WeaponSlot; }
         } // end MaxInventorySpace
 
         // Gets and Sets the Currency of the entity
@@ -417,7 +509,8 @@ namespace GSP.Entities.Neutrals
 
             // Add the stats of the bonus
             maxWeight += bonus.WeightValue;
-            maxInventory += bonus.InventoryValue;
+            //TODO: Damien: Change this later when doing the bonuses
+            //maxInventory += bonus.InventoryValue;
         } // end EquipBonus
 
         // Unequips a bonus item
@@ -425,7 +518,8 @@ namespace GSP.Entities.Neutrals
         {
             // Remove the stats of the bonus
             maxWeight -= bonus.WeightValue;
-            maxInventory -= bonus.InventoryValue;
+            //TODO: Damien: Change this later when doing the bonuses
+            //maxInventory -= bonus.InventoryValue;
 
             // Remove the bonus from the list
             bonuses.Remove(bonus);
@@ -517,11 +611,11 @@ namespace GSP.Entities.Neutrals
                 health -= damage;
 
                 // Check if the entity is dead
-                if (health == 0)
+                if (health <= 0)
                 {
                     // The entity is dead
                     isDead = true;
-                } // end if health == 0
+                } // end if health <= 0
             } // end if
         } // end TakeDamage
 
@@ -535,7 +629,7 @@ namespace GSP.Entities.Neutrals
         // Gets the current health of the entity
         public int Health
         {
-            get { return health; }
+            get { return Utility.ZeroClampInt(health); }
         } // end Health
 
         // Gets and Sets the maximum health of the entity
