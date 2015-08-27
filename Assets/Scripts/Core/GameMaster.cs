@@ -673,7 +673,10 @@ namespace GSP.Core
         {
             // The full high scores save path
             string highScoresSavePath = highScoreFilePath + saveFileExt;
-            
+
+            // The file stream for loading the scores
+            FileStream fileStream;
+
             // Make sure the high score's save file exists before trying to load it
             if (File.Exists(highScoresSavePath))
             {
@@ -681,7 +684,7 @@ namespace GSP.Core
                 BinaryFormatter binaryFormater = new BinaryFormatter();
 
                 // Open a file stream while opening the file
-                FileStream fileStream = File.Open(highScoresSavePath, FileMode.Open);
+                fileStream = File.Open(highScoresSavePath, FileMode.Open);
 
                 // Create a high scores instance from the file
                 HighScores highScores = (HighScores)binaryFormater.Deserialize(fileStream);
@@ -722,6 +725,22 @@ namespace GSP.Core
                     } // end for
                 } // end else
             } // end if
+            else
+            {
+                // Otherwise the file doesn't exist so create it
+                fileStream = File.Create(highScoresSavePath);
+                // Close the filestream
+                fileStream.Close();
+
+                // Create a new scores reference
+                HighScoreTable table = new HighScoreTable();
+
+                // Set the scores reference to the table
+                highScoreTable = table;
+
+                // Fill the table
+                highScoreTable.FillTable();
+            } // end else
         } // end LoadHighScores
 
         // Save the resource positions

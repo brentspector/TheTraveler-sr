@@ -498,6 +498,9 @@ namespace GSP
             guideText.gameObject.SetActive(false);
             continueButton.SetActive(false);
             isColorsDisplayed = false;
+            colorSet.transform.GetChild(1).gameObject.SetActive(false);
+            colorSet.transform.GetChild(2).gameObject.SetActive(false);
+            colorSet.transform.GetChild(3).gameObject.SetActive(false);
         } // end DisableColors
 
 		// Menu Button functions
