@@ -97,18 +97,20 @@ namespace GSP.Cake
 		{
             guiTextObj.GetComponent<GUIText>().text = "The universe is ending!";
 
-            //TODO: Brent: Replace with AudioManager later
             // Play an explosion sound
-			//audioSource.GetComponent<AudioSource>().PlayOneShot(AudioReference.sfxExplosion);
+            AudioManager.Instance.PlayExplosion();
 
 			// Wait for three seconds
 			yield return new WaitForSeconds(3.0f);
 
-            // Destroy the AudioManager
-            Destroy(AudioManager.Instance.gameObject);
-
-            // Tell the GameMaster to load a level
-            GameMaster.Instance.LoadLevel(0);
+            Entities.EntityManager.Instance.Dispose();
+            while (GameMaster.Instance.Turn != 0)
+            {
+                GameMaster.Instance.NextTurn();
+            } //end while
+            GameMaster.Instance.NumPlayers = 0;
+            AudioManager.Instance.PlayMenu();
+            GameMaster.Instance.LoadLevel("MenuScene");
 		} // end Quit
 	} // end Cake
 } // end GSP.Cake
