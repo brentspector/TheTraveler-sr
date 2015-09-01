@@ -14,6 +14,7 @@ namespace GSP.Items.Inventories
     {
         Inventory,
         Equipment,
-        Bonus
+        Bonus,
+        Market
     } // end SlotType
-} // end GSP.Items,Inventory
+} // end GSP.Items.Inventories

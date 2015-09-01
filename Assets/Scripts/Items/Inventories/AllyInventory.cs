@@ -1,9 +1,9 @@
 ﻿/*******************************************************************************
  *
- *  File Name: Inventory.cs
+ *  File Name: AllyInventory.cs
  *
- *  Description: Contains the logic of the new inventory system. This is more
- *               functional that the old system, but it's still pretty minimal.
+ *  Description: Contains the logic of the new inventory system for allies.
+ *               This is like the player's inventory system.
  *
  *******************************************************************************/
 using GSP.Core;
@@ -14,14 +14,15 @@ using UnityEngine.UI;
 
 namespace GSP.Items.Inventories
 {
+    //TODO: Turn this from player to ally inventory
     /*******************************************************************************
      *
-     * Name: Inventory
+     * Name: AllyInventory
      * 
-     * Description: The logic for the new inventory system
+     * Description: The logic for the new inventory system for allies.
      * 
      *******************************************************************************/
-    public class Inventory : MonoBehaviour
+    public class AllyInventory : MonoBehaviour
     {
         Dictionary<int, List<Item>> items;  // The list of items for the inventory
 
@@ -33,7 +34,7 @@ namespace GSP.Items.Inventories
         int bonusSlots;                 // The slot number after where the bonus slots end
         int weaponSlot;                 // The slot number of the equipped weapon
         int armorSlot;                  // The slot number of the equipped armor
-        
+
         bool canShowTooltip;        // Whether the tooltip is show
         Transform bottomGrid;       // The Inentory's Bottom Panel
         Transform equipmentPanel;   // The Inventory's Top/Equipment Panel
@@ -60,7 +61,7 @@ namespace GSP.Items.Inventories
 
             // Get the Inventory's Top/StatusRight panel
             statusRight = GameObject.Find("Inventory/Top/StatusRight").transform;
-            
+
             // Initialise the list
             slots = new List<GameObject>();
 
@@ -97,7 +98,7 @@ namespace GSP.Items.Inventories
             weaponSlot = numInventorySlotsCreate;
             armorSlot = equipmentSlots - 1;
         } // end Awake
-        
+
         // Use this for initialisation
         void Start()
         {
@@ -160,7 +161,7 @@ namespace GSP.Items.Inventories
 
         // Runs each frame; used to update the tooltip's position
         void Update()
-        { 
+        {
             // Only proceed if the tooltip exists
             if (tooltip != null)
             {
@@ -177,12 +178,12 @@ namespace GSP.Items.Inventories
         {
             // Get the list of items from the ItemDatabase
             List<Item> database = ItemDatabase.Instance.Items;
-            
+
             // Only proceed if the ID exists in the database
             if (database.Exists(item => item.Id == itemId))
             {
                 int freeSlot;   // The first slot that is free
-                
+
                 // Check if there's space for the item
                 if ((freeSlot = FindFreeSlot(playerNum, SlotType.Inventory)) >= 0)
                 {
@@ -213,7 +214,7 @@ namespace GSP.Items.Inventories
         {
             // Get the list of items from the ItemDatabase
             List<Item> database = ItemDatabase.Instance.Items;
-            
+
             // Only proceed if the ID exists in the database
             if (database.Exists(item => item.Id == itemId))
             {
@@ -239,7 +240,7 @@ namespace GSP.Items.Inventories
         {
             // Get the list of items from the ItemDatabase
             List<Item> database = ItemDatabase.Instance.Items;
-            
+
             // Only proceed if the ID exists in the database
             if (database.Exists(tempItem => tempItem.Id == item.Id))
             {
@@ -339,7 +340,7 @@ namespace GSP.Items.Inventories
                         return true;
                     }
                 } // end if
-                
+
                 // Otherwise, return failure as there isn't enough space
                 Debug.LogFormat("No space for item of Id '{0}' in the bonus inventory.", item.Id);
                 return false;
@@ -442,7 +443,7 @@ namespace GSP.Items.Inventories
             {
                 // Get the current slot's script reference
                 InventorySlot inventorySlot = slots[index].GetComponent<InventorySlot>();
-                
+
                 // Check if the slot type matches
                 if (inventorySlot.SlotType == slotType)
                 {
@@ -473,7 +474,7 @@ namespace GSP.Items.Inventories
         {
             // Store the canShow bool for updating the tooltip
             canShowTooltip = canShow;
-            
+
             // Check if we're showing the tooltip
             if (canShow)
             {
@@ -551,7 +552,7 @@ namespace GSP.Items.Inventories
         {
             // Get the colour for the player's interface colour
             Color color = Utility.InterfaceColorToColor(interfaceColor);
-            
+
             // Get the Image component of the inventory and set its colour
             GetComponent<Image>().color = color;
 
@@ -564,7 +565,7 @@ namespace GSP.Items.Inventories
         {
             // Set the title's value
             transform.GetChild(0).GetChild(0).GetComponent<Text>().text = player.Name + "'s Inventory";
-            
+
             // Set the Health status line's value
             statusLeft.GetChild(0).GetChild(1).GetComponent<Text>().text = player.Health.ToString() + "/" + player.MaxHealth.ToString();
 
@@ -632,13 +633,13 @@ namespace GSP.Items.Inventories
         public List<Item> Items
         {
             get
-            { 
+            {
                 // Get a temporary list from the items list
                 List<Item> tempItems = items[GameMaster.Instance.Turn];
-                
+
                 // Return the temp list
                 return tempItems;
             } // end get
         } // end Items
-    } // end Inventory
+    } // end AllyInventory
 } // end GSP.Items.Inventories

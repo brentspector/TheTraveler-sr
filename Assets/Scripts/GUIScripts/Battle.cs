@@ -190,7 +190,6 @@ namespace GSP
 				GameObject.Find("Canvas").transform.Find("Tooltip").gameObject.SetActive(true);
 				GameObject.Find("Canvas").transform.Find("Inventory").gameObject.SetActive(true);
 				Inventory inventory = GameObject.Find("Canvas").transform.Find("Inventory").GetComponent<Inventory>();
-				inventory.SetPlayer(playerNum, true);
 
 				// The player lost the fight, remove its resources or its weapon
 				fightBoxText.text += "\n" + enemyName.text + " wins!";

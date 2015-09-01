@@ -1,9 +1,10 @@
 ﻿/*******************************************************************************
  *
- *  File Name: InventorySlot.cs
+ *  File Name: AllySlot.cs
  *
- *  Description: Contains the logic of a slot. The Inventory system is filled
- *               with slots. Their functionality is fairly minimal.
+ *  Description: Contains the logic of an ally slot. The ally's Inventory
+ *               system is filled with these slots. Their functionality is
+ *               fairly minimal.
  *
  *******************************************************************************/
 using GSP.Core;
@@ -15,13 +16,13 @@ namespace GSP.Items.Inventories
 {
     /*******************************************************************************
      *
-     * Name: InventorySlot
+     * Name: AllySlot
      * 
-     * Description: The functionality of each slot in the inventory. This is done
-     *              through Unity's EventSystems interfaces.
+     * Description: The functionality of each slot in the ally's inventory.
+     *              This is done through Unity's EventSystems interfaces.
      * 
      *******************************************************************************/
-    public class InventorySlot : Slot, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler
+    public class AllySlot : Slot, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler
     {
         #region IPointerEnterHandler Members
 
@@ -77,54 +78,11 @@ namespace GSP.Items.Inventories
                     // Get the item that was right clicked
                     Item item = inventory.GetItem(PlayerNumber, SlotId);
 
-                    // Handle any equipment
-                    HandleEquipment(item);
+                    // TODO: Do something with the ally inventory later
                 } // end if inventory.GetItem(PlayerNumber, SlotId).Name != string.Empty
             } // end if
         } // end OnPointerUp
 
-        void HandleEquipment(Item item)
-        {
-            // Check if the item is a piece of equipment
-            if (item is Equipment)
-            {
-                // Make sure we're not right clicking the equipped equipment
-                if (SlotId < inventory.WeaponSlot)
-                {
-                    // The item is a piece of equipment so equip it
-                    inventory.EquipItem(PlayerNumber, (Equipment)item);
-
-                    // Update the inventory's stats
-                    inventory.SetStats((Merchant)GameMaster.Instance.GetPlayerScript(PlayerNumber).Entity);
-                } // end if SlotId < inventory.WeaponSlot
-                else
-                {
-                    // Check if the item is a bonus item and that we're right clicking it from the bonus slot range.
-                    if (item is Bonus && (SlotId >= inventory.BonusSlotBegin && SlotId < inventory.BonusSlotEnd))
-                    {
-                        int freeSlot;   // The first slot that is free
-
-                        // Check if there's space for the item
-                        if ((freeSlot = inventory.FindFreeSlot(PlayerNumber, SlotType.Inventory)) >= 0)
-                        {
-                            // Swap the bonus item with the item at the free slot
-                            inventory.SwapItem(PlayerNumber, item, inventory.GetItem(PlayerNumber, freeSlot));
-
-                            // Unequip the bonus item
-                            Merchant playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(PlayerNumber).Entity;
-                            playerMerchant.UnequipBonus((Bonus)item);
-
-                            // Disable the tooltip
-                            inventory.ShowTooltip(null, false);
-
-                            // Update the inventory's stats
-                            inventory.SetStats(playerMerchant);
-                        } // end if (freeSlot = inventory.FindFreeSlot(PlayerNumber, SlotType.Inventory)) >= 0
-                    } // end if
-                } // end else
-            } // end if
-        } // end HandleEquipment
-
         #endregion
-    } // end InventorySlot
+    } // end AllySlot
 } // end GSP.Items.Inventories
