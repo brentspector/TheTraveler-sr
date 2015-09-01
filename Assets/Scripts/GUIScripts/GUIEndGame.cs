@@ -1,141 +1,104 @@
-﻿using UnityEngine;
+﻿/*******************************************************************************
+ *
+ *  File Name: GUIEndGane.cs
+ *
+ *  Description: GUI for the end game screen
+ *
+ *******************************************************************************/
+using GSP.Core;
+using GSP.Entities.Interfaces;
+using GSP.Entities.Neutrals;
 using System.Collections;
 using System.Collections.Generic;
-using GSP;
+using UnityEngine;
 
-
-namespace GSP.JAVIERGUI
+namespace GSP
 {
-	public class GUIEndGame : MonoBehaviour 
+    /*******************************************************************************
+     *
+     * Name: GUIEndGame
+     * 
+     * Description: Creates the GUI for the end game screen.
+     * 
+     *******************************************************************************/
+    public class GUIEndGame : MonoBehaviour 
 	{
-		//textures
-		public Texture2D m_bgtex;
-		
-		
-		//scripts
-		GSP.EndSceneData m_EndSceneDataScript;
-		GSP.Misc	m_MiscScript;
-		GSP.Char.EndSceneCharData m_EndSceneCharDataObject;
-		
-		//main container values
-		int m_mainStartX 	= -1;
-		int m_mainStartY 	= -1; 			//65 is just below the main GUI, and I added a gap of 32 from the end of that
-		int m_mainWidth 	= -1;
-		int m_mainHeight	= -1;
-		int m_sectionsInY	= -1;
-		
-		bool m_isActionRunning = false;
-		string m_headerString;
-		string m_bodyString;
-		
-		
-		// Use this for initialization
-		void Start () 
-		{
-			//scripts
-			m_EndSceneDataScript 	 = this.GetComponent<GSP.EndSceneData>();
-			m_MiscScript = this.GetComponent<GSP.Misc>(); 
-			
-			ScaleValues();
-			
-			m_EndSceneCharDataObject = m_EndSceneDataScript.GetData( m_MiscScript.DetermineWinner() );
-			
-			m_headerString = "";
-			m_headerString = "Player " +(m_EndSceneCharDataObject.PlayerNumber).ToString() +" is the Winner!\n" 
-				+"Player " +(m_EndSceneCharDataObject.PlayerNumber).ToString() +" collected " +(m_EndSceneCharDataObject.PlayerCurrency).ToString() +" Gold.";
-			
-			List<KeyValuePair<int, int>> playerList = m_MiscScript.GetList();
-			m_bodyString = "";
-			for( int i =1; i <= (m_EndSceneDataScript.Count -1); i++)
-			{
-				m_EndSceneCharDataObject = m_EndSceneDataScript.GetData(playerList[i].Key);
-				m_bodyString = m_bodyString +"[" +(i+1).ToString() +" Place] "
-					+"Player " +(m_EndSceneCharDataObject.PlayerNumber).ToString() +" collected " +(m_EndSceneCharDataObject.PlayerCurrency).ToString() +" Gold.\n";
-			}
-			
-			m_isActionRunning = true;
-		}
-		
-		
-		// Update is called once per frame
-		void OnGUI () 
-		{
-			ScaleValues();
+        GameObject highScores;          // The HighScores UI object
+        GameObject rankings;            // The Rankings UI object
+        HighScoreTable highScoreTable;  // The reference for the HighScoreTable
+        RankTable rankTable;            // THe script refernece for the RankTable
 
-			if ( m_isActionRunning )
+        // Use this for initialisation
+		void Awake() 
+		{
+            // Create the players in data only mode
+            GameMaster.Instance.LoadPlayers(true);
+
+            // Get the references
+            highScores = GameObject.Find("Canvas").transform.Find("HighScoresTable").gameObject;
+            rankings = GameObject.Find("Canvas").transform.Find("RankingTable").gameObject;
+
+            // Play the winning sound
+            AudioManager.Instance.PlayVictory();
+
+            // Check if the game was single player
+            if (GameMaster.Instance.IsSinglePlayer)
+            {
+                // Get the player's merchant
+                Merchant playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(0).Entity;
+
+                // Load the Score table
+                GameMaster.Instance.LoadHighScores();
+
+                // Add the player's score to the table
+                HighScoreTable highScoreTable = GameMaster.Instance.ScoresTable;
+                highScoreTable.AddScore(playerMerchant.Name, playerMerchant.Currency);
+
+                // Show the high scores table
+                highScores.SetActive(true);
+            } // end if
+            else
+            {
+                // Display the rankings
+                RankTable rankTable = new RankTable();
+                rankTable.DisplayRanks(GameMaster.Instance.NumPlayers);
+
+                // Show the ranking table
+                rankings.SetActive(true);
+            } // end else
+		} // end Start
+
+		void Update()
+		{
+            // Check for the 'c' key being pressed
+            if (Input.GetKeyDown(KeyCode.C))
+            {
+                // Tell the GameMaster to change to the cake scene!
+                GameMaster.Instance.LoadLevel("cake");
+            } // end if
+            
+            if(Input.GetKeyDown(KeyCode.D))
 			{
-				//background
-				GUI.DrawTexture (new Rect (0, 0, Screen.width, Screen.height), m_bgtex);
-				
-				//default Color
-				GUI.backgroundColor = Color.red;
-				
-				ConfigHeader();
-				ConfigBody();
-				ConfigOKButton();
-			}
-		}	//end void OnGUI()
-		
-		
-		private void ScaleValues()
-		{
-			m_EndSceneDataScript 	 = this.GetComponent<GSP.EndSceneData>();
-			
-			m_mainWidth  = Screen.width / 2;
-			m_mainHeight = Screen.height / 1;
-			m_mainStartX = (Screen.width/2) -(m_mainWidth/2);
-			m_mainStartY = (Screen.height/2) -((m_mainHeight/2)); 			//65 is just below the main GUI, and I added a gap of 32 from the end of that
-			m_sectionsInY = 7;
-		}	//end private void ScaleValues()
-		
-		
-		private void ConfigHeader ()
-		{
-			int headWdth = m_mainWidth;
-			int headHght = (m_mainHeight/m_sectionsInY) *1;
-			int headX = m_mainStartX;
-			int headY = m_mainStartY +( ((m_mainHeight/m_sectionsInY)*1) );		// -((m_mainHeight/m_sectionsInY)/2));
-			
-			//winner
-			GUI.Box(new Rect(headX, headY, headWdth, headHght), m_headerString);
-			
-		}	//end private void ConfigHeader()
-		
-		
-		private void ConfigBody()
-		{
-			int bodyWdth = m_mainWidth;
-			int bodyHght = (m_mainHeight*(5/2))/m_sectionsInY;
-			int bodyX = m_mainStartX;
-			int bodyY = m_mainStartY + ((m_mainHeight / m_sectionsInY) * 2);	// -((m_mainHeight/m_sectionsInY)/2);
-			
-			GUI.Box(new Rect(bodyX, bodyY, bodyWdth, bodyHght*2), m_bodyString);
-			
-		}	//end private void ConfigBody()
-		
-		
-		private void ConfigOKButton()
-		{
-			//done button
-			int doneWidth = m_mainWidth/2;
-			int doneHeight = m_mainHeight / 8;
-			int doneStartX = m_mainStartX +(m_mainWidth -doneWidth) /2;
-			int doneStartY = m_mainStartY +(doneHeight *5);
-			GUI.backgroundColor = Color.red;
-			
-			if ( GUI.Button (new Rect( doneStartX, doneStartY, doneWidth, doneHeight), "OK") )
+				AudioManager.Instance.PlayDraw();
+			} // end if
+
+			if(Input.GetKeyDown(KeyCode.L))
 			{
-				m_isActionRunning = false;
-				Application.LoadLevel(0);
-			}
-		} //end private void ConfigDoneButton()
-		
-		
-		public bool GetIsActionRunning()
-		{
-			return m_isActionRunning;
-		}
-		
-		
-	}	//end GUIEndGame
-}	//end namespace GUI.JAVIERGUI
+				AudioManager.Instance.PlayLoss();
+			} // end if
+		} // end Update
+
+        // Goes back to the menu
+        public void BackToMenu()
+        {
+            Entities.EntityManager.Instance.Dispose();
+            while (GameMaster.Instance.Turn != 0)
+            {
+                GameMaster.Instance.NextTurn();
+            } //end while
+            GameMaster.Instance.NumPlayers = 0;
+            AudioManager.Instance.PlayMenu();
+            GameMaster.Instance.LoadLevel("MenuScene");
+        } // end BackToMenu
+	} // end GUIEndGame
+} // end GSP

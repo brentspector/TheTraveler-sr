@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <!--Tiled2Unity generated xml data-->
 <!--Do not modify by hand-->
-<!--Last exported: 12/7/2014 12:57:57 PM-->
+<!--Last exported: 8/6/2015 5:05:45 AM-->
 <Tiled2Unity version="0.9.7.2">
   <AssignMaterial mesh="mesh_[00]_[00]" material="GSP362_TeamA_Desert_Tiles_64x64" sortingLayerName="" sortingOrder="0" />
   <Prefab name="GSP362_TeamA_Metro_TiledMap" numTilesWide="20" numTilesHigh="16" tileWidth="64" tileHeight="64" scale="0.01">
@@ -16,16 +16,16 @@
     </GameObject>
     <GameObject name="Resource">
       <GameObject name="TileObject" x="1216" y="-192">
-        <Property name="ResType" value="WOOD" />
+        <Property name="ResType" value="Wood" />
       </GameObject>
       <GameObject name="TileObject" x="192" y="-128">
-        <Property name="ResType" value="WOOL" />
+        <Property name="ResType" value="Wool" />
       </GameObject>
       <GameObject name="TileObject" x="704" y="-384">
-        <Property name="ResType" value="FISH" />
+        <Property name="ResType" value="Fish" />
       </GameObject>
       <GameObject name="TileObject" x="192" y="-896">
-        <Property name="ResType" value="FISH" />
+        <Property name="ResType" value="Fish" />
       </GameObject>
     </GameObject>
   </Prefab>

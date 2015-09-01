@@ -1,102 +1,79 @@
-﻿using UnityEngine;
-using System.Collections;
-using System;
+﻿/*******************************************************************************
+ *
+ *  File Name: SpriteReference.cs
+ *
+ *  Description: Loads and deals with Sprites at runtime
+ *
+ *******************************************************************************/
+using UnityEngine;
 
 namespace GSP
 {
-	public static class SpriteReference
+    /*******************************************************************************
+     *
+     * Name: SpriteReference
+     * 
+     * Description: Manages the references to any srpites loaded from Resources.
+     * 
+     *******************************************************************************/
+    public static class SpriteReference
 	{
-		/*
-		 * Sprite References
-		 */
+        /*
+         * Inventory Sprites
+         */
+        // This is the sprite sheet for the armour items
+        static Sprite[] armorSpriteSheet = Resources.LoadAll<Sprite>("armour_spritesheet");
+        
+        //  This is the sprite sheet for the other items
+        static Sprite[] itemsSpriteSheet = Resources.LoadAll<Sprite>("Items_spritesheet");
 
-		// This is the sprite sheet for the buttons.
-		static Sprite[] buttonSpritesheet = Resources.LoadAll<Sprite>( "buttons_sprite_sheet" );
+        // This is the sprite sheet for the resource items
+        static Sprite[] resourcesSpriteSheet = Resources.LoadAll<Sprite>("resource_spritesheet");
 
-		// This is the reference to the menu backgrond sprite.
-		public static Sprite spriteMenuBackground = buttonSpritesheet[0];
+        // This is the reference to the broadsword sprite
+        public static Sprite spriteBroadsword = itemsSpriteSheet[51];
 
-		// This is the reference to the intro backgrond sprite.
-		public static Sprite spriteIntroBackground = buttonSpritesheet[1];
+        // This is the reference to the mace sprite
+        public static Sprite spriteMace = itemsSpriteSheet[27];
 
-		// This is the reference to the start button sprite.
-		public static Sprite spriteStart = buttonSpritesheet[2];
+        // This is the reference to the spear sprite
+        public static Sprite spriteSpear = itemsSpriteSheet[16];
 
-		// This is the reference to the exit button sprite.
-		public static Sprite spriteExit = buttonSpritesheet[3];
+        // This is the reference to the sword sprite
+        public static Sprite spriteSword = itemsSpriteSheet[37];
 
-		// This is the reference to the option button sprite.
-		public static Sprite spriteOptions = buttonSpritesheet[4];
+        // This is the reference to the chainlegs sprite
+        public static Sprite spriteChainlegs = armorSpriteSheet[17];
 
-		// This is the reference to the continue button sprite.
-		public static Sprite spriteContinue = buttonSpritesheet[5];
+        // This is the reference to the chainmail sprite
+        public static Sprite spriteChainmail = armorSpriteSheet[15];
 
-		// This is the reference to the menu button sprite.
-		public static Sprite spriteMenu = buttonSpritesheet[6];
+        // This is the reference to the fullsuit sprite
+        public static Sprite spriteFullsuit = armorSpriteSheet[19];
 
-		// This is the reference to the credit button sprite.
-		public static Sprite spriteCredit = buttonSpritesheet[7];
+        // This is the reference to the platebody sprite
+        public static Sprite spritePlatebody = armorSpriteSheet[20];
 
-		// This is the reference to the multi button sprite.
-		public static Sprite spriteMulti = buttonSpritesheet[8];
+        // This is the reference to the platelegs sprite
+        public static Sprite spritePlatelegs = armorSpriteSheet[22];
 
-		// This is the reference to the solo button sprite.
-		public static Sprite spriteSolo = buttonSpritesheet[9];
+        // This is the reference to the rubber boots sprite
+        public static Sprite spriteRubberBoots = itemsSpriteSheet[60];
 
-		// This is the reference to the back button sprite.
-		public static Sprite spriteBack = buttonSpritesheet[10];
+        // This is the reference to the sachel sprite
+        public static Sprite spriteSachel = itemsSpriteSheet[49];
 
-		// This is the reference to the help button sprite.
-		public static Sprite spriteHelp = buttonSpritesheet[11];
+        // This is the reference to the fish resource sprite
+        public static Sprite spriteFishResource = resourcesSpriteSheet[7];
 
-		// This is the sprite sheet for the map thumbnails.
-		static Sprite[] mapThumbnails = Resources.LoadAll<Sprite>( "map_thumbnails" );
+        // This is the reference to the ore resource sprite
+        public static Sprite spriteOreResource = resourcesSpriteSheet[4];
 
-		// This is the reference to the credit button sprite.
-		public static Sprite spriteMapDesert = mapThumbnails[0];
+        // This is the reference to the wood resource sprite
+        public static Sprite spriteWoodResource = resourcesSpriteSheet[5];
 
-		// This is the reference to the credit button sprite.
-		public static Sprite spriteMapSnowy = mapThumbnails[1];
-
-		// This is the reference to the credit button sprite.
-		public static Sprite spriteMapMetro = mapThumbnails[2];
-
-		// This is the reference to the credit button sprite.
-		public static Sprite spriteMapEuro = mapThumbnails[3];
-		
-		//Resizes to fit screen
-		public static void ResizeSpriteToScreen( GameObject theSprite, Camera theCamera, int fitToScreenWidth, int fitToScreenHeight )
-		{
-			// Get the sprites sprite renderer component.
-			SpriteRenderer spriteRenderer = theSprite.GetComponent<SpriteRenderer>();
-			
-			// Set the scale to normal.
-			theSprite.transform.localScale = new Vector3( 1, 1, 1 );
-			
-			// Get the sprites width and height.
-			float spriteWidth = spriteRenderer.sprite.bounds.size.x;
-			float spriteHeight = spriteRenderer.sprite.bounds.size.y;
-			
-			// Get the world width and height.
-			float worldScreenHeight = (float)( theCamera.orthographicSize * 2.0 );
-			float worldScreenWidth = (float)( worldScreenHeight / Screen.height * Screen.width );
-			
-			// Set the scale to fit the sprite to the screen.
-			if ( fitToScreenWidth != 0 )
-			{
-				// Get the width scale needed.
-				Vector2 sizeX = new Vector2( worldScreenWidth / spriteWidth / fitToScreenWidth, 
-					theSprite.transform.localScale.y );
-				theSprite.transform.localScale = sizeX;
-			} // end if statement
-			if ( fitToScreenHeight != 0 )
-			{
-				// Get the height scale needed.
-				Vector2 sizeY = new Vector2( theSprite.transform.localScale.x, 
-					worldScreenHeight / spriteHeight / fitToScreenHeight );
-				theSprite.transform.localScale = sizeY;
-			} // end if statement
-		} // end ResizeSpriteToScreen function
-	} // end SpriteReference class
-} // end namespace
+        // This is the reference to the wool resource sprite
+        public static Sprite spriteWoolResource = resourcesSpriteSheet[6];
+	} // end SpriteReference
+} // end GSP
 

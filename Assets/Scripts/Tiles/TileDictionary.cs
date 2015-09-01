@@ -1,121 +1,143 @@
-﻿using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
+﻿/*******************************************************************************
+ *
+ *  File Name: TileDictionary.cs
+ *
+ *  Description: A collection for tiles
+ *
+ *******************************************************************************/
 using GSP.Char;
-
-using System;
-using System.IO;
+using GSP.Items;
+using System.Collections.Generic;
+using UnityEngine;
 
 namespace GSP.Tiles
 {
-	public static class TileDictionary
+    /*******************************************************************************
+     *
+     * Name: TileDictionary
+     * 
+     * Description: A collection that holds and handles all the tiles.
+     * 
+     *******************************************************************************/
+    public static class TileDictionary
 	{
-		// Declare our private static dictionary variable here.
-		// Vector3 is the key and Tile is the value.
-		static Dictionary<Vector3, Tile> m_tileDictionary  = new Dictionary<Vector3, Tile>();
+		// The static dictionary; Vector3 is the key and Tile is the value
+		static Dictionary<Vector3, Tile> tiles  = new Dictionary<Vector3, Tile>();
+
+        // The static list of the positions of the resources
+        static List<Vector3> resourcePositions = new List<Vector3>();
 		
-		// Returns if the key exists in the dictionary.
-		public static bool EntryExists( Vector3 key )
+		// Returns if the key exists in the dictionary
+		public static bool EntryExists(Vector3 key)
 		{
-			// Check if the key exists returning the result.
-			return m_tileDictionary.ContainsKey( key );
-		} // end EntryExixts function
+			// Check if the key exists returning the result
+            return tiles.ContainsKey(key);
+		} // end EntryExixts
 
-		// Gets the tile associated with the given key
-		public static Tile GetTile( Vector3 key )
+		// Gets the Tile associated with the given key
+		public static Tile GetTile(Vector3 key)
 		{
-			// Just as a caution in case the caller doesn't check for the key's existence first.
-			// Or if it's easier to just call this. We'll check for the keys existence first.
-			if ( !EntryExists( key ) )
+			// Just as a caution in case the caller doesn't check for the key's existence first
+			// Or if it's easier to just call this; We'll check for the keys existence first
+            if (!EntryExists(key))
 			{
-				// The key doesn't exist so return null.
-				Debug.LogError("Key at " + key.ToString("F2") + " doesn't exist!");
+				// The key doesn't exist so return null
+                Debug.LogErrorFormat("Key at {0} doesn't exist!", key.ToString("F2"));
 				return null;
-			} // end if statement
+			} // end if
 
-			// Otherwise the key exists so return the value according to the key.
-			return m_tileDictionary[key];
-		} // end GetTile function
+			// Otherwise the key exists so return the value according to the key
+			return tiles[key];
+		} // end GetTile
 
-		// Update a tile's resource type and object.
-		public static void UpdateTile( Vector3 key, ResourceType resourceType, GameObject resource )
+		// Update a Tile's ResourceType and GameObject
+		public static void UpdateTile(Vector3 key, ResourceType resourceType, GameObject resource)
 		{
-			// Get the tile at key.
-			Tile tile = GetTile( key );
+            // Get the Tile at key
+            Tile tile = GetTile(key);
 
-			// Update the tile.
-			tile.UpdateTile( resourceType, resource );
+			// Update the Tile
+            tile.UpdateTile(resourceType, resource);
 		} // end UpdateTile
 
-		// Add an entry to the dictionary.
-		public static void AddEntry( Vector3 key, Tile tile )
+		// Add an entry to the dictionary
+		public static void AddEntry(Vector3 key, Tile tile)
 		{
-			// Add the entry to the dictionary.
-			m_tileDictionary.Add( key, tile );
-		} // end AddEntry function
+			// Add the entry to the dictionary
+            tiles.Add(key, tile);
+		} // end AddEntry
 
-		// Remove an entry from the dictionary.
-		// NOTE: This removes the entire tile from the dictionary.
-		public static void RemoveEntry( Vector3 key )
+		// Remove an entry from the dictionary
+		// NOTE: This removes the entire Tile from the dictionary
+		public static void RemoveEntry(Vector3 key)
 		{
-			// As a precautionary measure, check if the key exists.
-			if ( !EntryExists( key ) )
+            // As a precautionary measure, check if the key exists
+            if (!EntryExists(key))
 			{
-				// The key doesn't exist so just return.
+				// The key doesn't exist so just return
 				return;
-			} // end if statement
+			} // end if
 
-			// First get the resource game object in the tile.
-			GameObject obj = m_tileDictionary[key].Resource;
+			// First get the resource GameObject in the Tile
+			GameObject obj = tiles[key].Resource;
 
-			// Now destroy the game object.
-			MonoBehaviour.Destroy( obj );
+			// Now destroy the GameObject
+            MonoBehaviour.Destroy(obj);
 
-			// Finally, remove the entry from the dictionary.
-			m_tileDictionary.Remove( key );
-		} // end RemoveEntry function
+			// Finally, remove the entry from the dictionary
+            tiles.Remove(key);
+		} // end RemoveEntry
 
-		// Remove the resource from the tile. This leaves the tile intact.
-		public static void RemoveResource( Vector3 key )
+		// Remove the resource from the Tile; This leaves the Tile intact
+		public static void RemoveResource(Vector3 key)
 		{
-			// As a precautionary measure, check if the key exists.
-			if ( !EntryExists( key ) )
+            // As a precautionary measure, check if the key exists
+            if (!EntryExists(key))
 			{
-				// The key doesn't exist so just return.
+				// The key doesn't exist so just return
 				return;
-			} // end if statement
+			} // end if
 
-			// First get the resource game object in the tile.
-			GameObject obj = m_tileDictionary[key].Resource;
+			// First get the resource GameObject in the Tile
+            GameObject obj = tiles[key].Resource;
 
-			// Now Destroy the game object.
-			MonoBehaviour.Destroy( obj );
+			// Now Destroy the GameObject
+            MonoBehaviour.Destroy(obj);
 
-			// Finally, update the tile to be a normal tile.
-			UpdateTile( key, ResourceType.NONE, null );
+            // Remove the key from the list
+            resourcePositions.Remove(key);
+
+			// Finally, update the Tile to be normal
+            UpdateTile(key, ResourceType.None, null);
 		} // end RemoveResource
 
-		// Cleans/Empties the tile dictionary.
+		// Cleans/Empties the TileDictionary
 		public static void Clean()
 		{
-			// Holds the all the keys in the dictionary.
-			var dictKeys = m_tileDictionary.Keys;
+			// All the keys in the dictionary
+			var dictKeys = tiles.Keys;
 
-			// Holds the resource game object for each key in the loop.
+			// The resource GameObject for each key in the loop
 			GameObject obj;
 
-			// Loop through the keys and destroy the objects.
-			foreach ( var key in dictKeys )
+			// Loop through the keys and destroy the GameObjects
+            foreach (var key in dictKeys)
 			{
-				// First get the resource game object in the tile.
-				obj = m_tileDictionary[key].Resource;
+				// First get the resource GameObject in the Tile
+				obj = tiles[key].Resource;
 				
-				// Now destroy the game object.
-				MonoBehaviour.Destroy( obj );
-			}
+				// Now destroy the GameObject
+                MonoBehaviour.Destroy(obj);
+			} // end foreach
 
-			// Finally, empty the dictionary.
-			m_tileDictionary.Clear();
-		} // end Clean function
-	} // end TileDictionary class
-} // end namespace
+			// Finally, empty the dictionary
+			tiles.Clear();
+		} // end Clean
+
+        // Gets the resource positions list
+        public static List<Vector3> ResourcePositions
+        {
+            get { return resourcePositions; }
+        } // end ResourcePositions
+	} // end TileDictionary
+} // end GSP.Tiles
