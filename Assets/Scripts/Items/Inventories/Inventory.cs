@@ -149,7 +149,7 @@ namespace GSP.Items.Inventories
                     // Set the slot's type to bonus
                     slot.GetComponent<InventorySlot>().SlotType = SlotType.Bonus;
                 } // end else if
-
+                
                 // Change the slotId
                 slot.GetComponent<InventorySlot>().SlotId = index;
 

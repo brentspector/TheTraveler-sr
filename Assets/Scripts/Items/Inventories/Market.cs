@@ -23,7 +23,8 @@ namespace GSP.Items.Inventories
      *******************************************************************************/
     public class Market : MonoBehaviour
     {
-        List<Item> items;               // The list of items for the inventory
+        List<Item> sellItems;           // The list of items for the inventory for selling
+        List<Item> buyItems;            // The list of items for the inventory for buying
         List<GameObject> slots;         // The list of inventory slots for the inventory
         int numInventorySlotsCreate;    // The number of inventory slots to create
 
@@ -32,26 +33,35 @@ namespace GSP.Items.Inventories
         GameObject tooltip;         // The tooltip's GameObjectn
         RectTransform tooltipRect;  // The transform of the tooltip
 
+        MarketAction action;    // The action the market is doing
+
         // Use this for initialisation
         void Awake()
         {
             // Get Inventory's Bottom panel
             bottomGrid = GameObject.Find("Market/Body").transform;
 
-            // Initialise the list
+            // Initialise the lists
             slots = new List<GameObject>();
-
-            // Initialise the dictionary
-            items = new List<Item>();
+            sellItems = new List<Item>();
+            buyItems = new List<Item>();
 
             // Get the tooltip GameObject
-            tooltip = GameObject.Find("Tooltip");
-            tooltip.SetActive(false);
+            tooltip = GameObject.Find("Canvas").transform.Find("Tooltip").gameObject;
 
             // Initialise the number of slots to create
             numInventorySlotsCreate = 30;
 
-            if (ItemDatabase.Instance == null) { }
+            // Get the empty item to add later
+            Item emptyItem = ItemDatabase.Instance.Items.Find(item => item.Type == "Empty");
+
+            // Add the empty items to the inventory
+            for (int index = 0; index < numInventorySlotsCreate; index++)
+            {
+                // Add an empty item to the lists
+                sellItems.Add(emptyItem);
+                buyItems.Add(emptyItem);
+            } // end for
         } // end Awake
         
         // Use this for initialisation
@@ -63,33 +73,17 @@ namespace GSP.Items.Inventories
             // Get the reference to the tooltips RectTransform
             tooltipRect = tooltip.GetComponent<RectTransform>();
 
-            StartCoroutine(CreateSlotsAndItems());
-        } // end Start
-
-        IEnumerator CreateSlotsAndItems()
-        {
-            Debug.Log("Waiting....");
-            yield return new WaitForSeconds(3);
-            Debug.Log("Done....");
-
-            // Add the empty items to the inventory
-            for (int index = 0; index < numInventorySlotsCreate; index++)
-            {
-                // Add an empty item to the list
-                items.Add(ItemDatabase.Instance.Items.Find(item => item.Type == "Empty"));
-            } // end for
-            
             // Loop to create the market slots
             for (int index = 0; index < numInventorySlotsCreate; index++)
             {
-                // Create the slot
+                // Create the slots
                 GameObject slot = Instantiate(PrefabReference.prefabMarketSlot) as GameObject;
 
-                // Inventory slots are parented to the Inventory's Bottom panel
+                // Market slots are parented to the Market's Body panel
                 slot.transform.SetParent(bottomGrid);
 
                 // Name the slot in the editor for convienience
-                slot.name = "MarketSlot " + (index + 1) + " (" + index + ")";
+                slot.name = "MarketSlotSell " + (index + 1) + " (" + index + ")";
 
                 // Set the slot's type to market
                 slot.GetComponent<MarketSlot>().SlotType = SlotType.Market;
@@ -97,7 +91,7 @@ namespace GSP.Items.Inventories
                 // Change the slotId
                 slot.GetComponent<MarketSlot>().SlotId = index;
 
-                // Add the slot to the list
+                // Add the slots to the lists
                 slots.Add(slot);
             } // end for
 
@@ -121,9 +115,12 @@ namespace GSP.Items.Inventories
             for (int index = 0; index < itemsToAdd; index++)
             {
                 // Add the current item to the market inventory
-                items[index] = equipment[index];
+                sellItems[index] = equipment[index];
             } // end for
-        }
+
+            // The default action for the market is selling
+            action = MarketAction.Sell;
+        } // end Start
 
         // Runs each frame; used to update the tooltip's position
         void Update()
@@ -142,7 +139,17 @@ namespace GSP.Items.Inventories
         // Gets an item at the given index
         public Item GetItem(int slotNum)
         {
-            return items[slotNum];
+            // Return the item based upon the current action
+            if (action == MarketAction.Sell)
+            {
+                // Return the selling items
+                return sellItems[slotNum];
+            } // end if
+            else
+            {
+                // Otherwise return the buying items
+                return buyItems[slotNum];
+            } // end else
         } // end GetItem
 
         // Shows the tooltip window for item information
@@ -232,9 +239,12 @@ namespace GSP.Items.Inventories
 
             // Get the Image component of the inventory and set its colour
             GetComponent<Image>().color = color;
-
-            // Get the Image component of the tooltip and set its colour
-            tooltip.GetComponent<Image>().color = color;
         } // end SetInventoryColor
+
+        // Gets the action the market is doing
+        public MarketAction Action
+        {
+            get { return action; }
+        } // end Action
     } // end Market
 } // end GSP.Itens.Inventories

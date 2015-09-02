@@ -281,6 +281,15 @@ namespace GSP
         // Updates the state machine and things; runs every frame
         void Update()
         {
+            if (Input.GetKeyDown(KeyCode.M))
+            {
+                // Save the players
+                GameMaster.Instance.SavePlayers();
+
+                // Finally, tell the GameMaster to load the end scene
+                GameMaster.Instance.LoadLevel("testmenu");
+            }
+            
             // This was set to true at the end of Start()
             if (canInitAfterStart)
             {

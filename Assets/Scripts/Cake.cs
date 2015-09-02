@@ -25,7 +25,6 @@ namespace GSP.Cake
 		Sprite[] cakeSprites;		    // The Sprite's for the CakeChart
 		SpriteRenderer spriteRenderer;  // The SpriteRenderer component reference
 		BoxCollider2D boxCollider;	    // The BoxCollider2D component reference
-		GameObject audioSource;	    	// The AudioSource GameObject reference
 		int slicesLeft;			    	// The number of slices left
 		GameObject guiTextObj;			// The child GameObject that holds the GUI text
 		
@@ -51,9 +50,6 @@ namespace GSP.Cake
 			
 			// Give the CakeChart a BoxCollider2D component to add collisions
 			boxCollider = cakeChart.AddComponent<BoxCollider2D>();
-
-			// Get the AudioSource
-            audioSource = GameObject.Find("AudioSrc");
 
 			// The CakeChart has five slices left when whole
 			slicesLeft = 5;

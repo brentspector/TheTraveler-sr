@@ -7,7 +7,10 @@
  *               minimal.
  *
  *******************************************************************************/
+using UnityEngine;
 using UnityEngine.EventSystems;
+using GSP.Entities.Neutrals;
+using GSP.Core;
 
 namespace GSP.Items.Inventories
 {
@@ -75,10 +78,35 @@ namespace GSP.Items.Inventories
                     // Get the item that was right clicked
                     Item item = market.GetItem(SlotId);
 
-                    // TODO: Add selling mechanic
+                    // Get the player's merchant
+                    Merchant playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(PlayerNumber).Entity;
+
+                    // Check if we're buying to selling
+                    if (market.Action == MarketAction.Sell)
+                    {
+                        // The market is selling so handle the selling
+                        HandleSelling(item, playerMerchant);
+                    } // end if
+                    else
+                    {
+                        // Otherwise, the market is buying so handle the buying
+                        HandleBuying(item, playerMerchant);
+                    } // end else
                 } // end if market.GetItem(SlotId).Name != string.Empty
             } // end if
         } // end OnPointerUp
+
+        // Handles the market buying items from the player
+        void HandleBuying(Item item, Merchant merchant)
+        {
+            //
+        } // end HandleBuying
+
+        // Handles the market selling items to the player
+        void HandleSelling(Item item, Merchant merchant)
+        {
+            //
+        } // end HandleSelling
 
         #endregion
     } // end MarketSlot

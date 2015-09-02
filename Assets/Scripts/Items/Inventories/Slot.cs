@@ -22,7 +22,10 @@ namespace GSP.Items.Inventories
     public abstract class Slot : MonoBehaviour
     {
         // Variables are set to protected so the derived classes can access them while others can't
-        protected Image itemIcon;               // The Image component reference of the slot; this is where the item's image goes
+        protected Image inventoryIcon;  // Image component reference of the inventorySlot; this is where the item's image goes
+        protected Image marketIcon;     // Image component reference of the marketSlot; this is where the item's image goes
+        protected Image allyIcon;       // Image component reference of the allySlot; this is where the item's image goes
+
         protected Inventory inventory;          // The player inventory where the items are stored
         protected Market market;                // The market inventory where the items are sold
         protected AllyInventory allyInventory;  // The ally's inventory where the items are stored
@@ -39,6 +42,9 @@ namespace GSP.Items.Inventories
             inventory = null;
             market = null;
             allyInventory = null;
+            inventoryIcon = null;
+            marketIcon = null;
+            allyIcon = null;
 
             // For now there is only a single ally so this is defaulted to zero
             allyNum = 0;
@@ -61,8 +67,11 @@ namespace GSP.Items.Inventories
                 allyInventory = GameObject.Find("AllyInventory").GetComponent<AllyInventory>();
             } // end if
 
-            // Get the Image component reference
-            itemIcon = gameObject.transform.GetChild(0).GetComponent<Image>();
+            if (inventoryIcon == null && marketIcon == null && allyIcon == null)
+            {
+                // Set the icon's image reference for one of them
+                SetIconReference();
+            }
         } // end Start
 
         // Update is called once per frame
@@ -76,74 +85,95 @@ namespace GSP.Items.Inventories
             } // end if
             
             // Check if the inventory exists
-            if (inventory != null)
+            if (inventory != null && inventoryIcon != null)
             {
                 // Check if the slot contains an item
                 if (inventory.GetItem(playerNum, slotId).Name != string.Empty)
                 {
                     // Enable the component
-                    if (!itemIcon.enabled)
+                    if (!inventoryIcon.enabled)
                     {
-                        itemIcon.enabled = true;
-                        itemIcon.sprite = inventory.GetItem(playerNum, slotId).Icon;
+                        inventoryIcon.enabled = true;
+                        inventoryIcon.sprite = inventory.GetItem(playerNum, slotId).Icon;
                     } // end if !itemIcon.enabled
                 } // end if
                 else
                 {
-                    if (itemIcon.enabled)
+                    if (inventoryIcon.enabled)
                     {
                         // Disable the component
-                        itemIcon.enabled = false;
+                        inventoryIcon.enabled = false;
                     } // end if
                 } // end else
             } // end if
 
             // Check if the market exists
-            if (market != null)
+            if (market != null && marketIcon != null)
             {
                 // Check if the slot contains an item
                 if (market.GetItem(slotId).Name != string.Empty)
                 {
                     // Enable the component
-                    if (!itemIcon.enabled)
+                    if (!marketIcon.enabled)
                     {
-                        itemIcon.enabled = true;
-                        itemIcon.sprite = market.GetItem(slotId).Icon;
+                        marketIcon.enabled = true;
+                        marketIcon.sprite = market.GetItem(slotId).Icon;
                     } // end if !itemIcon.enabled
                 } // end if
                 else
                 {
-                    if (itemIcon.enabled)
+                    if (marketIcon.enabled)
                     {
                         // Disable the component
-                        itemIcon.enabled = false;
+                        marketIcon.enabled = false;
                     } // end if
                 } // end else
             } // end if
 
             // Check if the ally's inventory exists
-            if (allyInventory != null)
+            if (allyInventory != null && allyIcon != null)
             {
                 // Check if the slot contains an item
                 if (allyInventory.GetItem(allyNum, slotId).Name != string.Empty)
                 {
                     // Enable the component
-                    if (!itemIcon.enabled)
+                    if (!allyIcon.enabled)
                     {
-                        itemIcon.enabled = true;
-                        itemIcon.sprite = allyInventory.GetItem(allyNum, slotId).Icon;
+                        allyIcon.enabled = true;
+                        allyIcon.sprite = allyInventory.GetItem(allyNum, slotId).Icon;
                     } // end if !itemIcon.enabled
                 } // end if
                 else
                 {
-                    if (itemIcon.enabled)
+                    if (allyIcon.enabled)
                     {
                         // Disable the component
-                        itemIcon.enabled = false;
+                        allyIcon.enabled = false;
                     } // end if
                 } // end else
             } // end if
         } // end Update
+
+        // Sets the component reference for the slot's icon
+        void SetIconReference()
+        {
+            // Check if the slot's type is part of the inventory
+            if (slotType == SlotType.Inventory || slotType == SlotType.Equipment || slotType == SlotType.Bonus)
+            {
+                // Get the Image component reference
+                inventoryIcon = gameObject.transform.GetChild(0).GetComponent<Image>();
+            } // end if
+            else if (slotType == SlotType.Market)
+            {
+                // Get the Image component reference
+                marketIcon = gameObject.transform.GetChild(0).GetComponent<Image>();
+            } // end else if
+            else if (slotType == SlotType.Ally)
+            {
+                // Get the Image component reference
+                allyIcon = gameObject.transform.GetChild(0).GetComponent<Image>();
+            } // end else if
+        } // end SetIconReference
 
         // Gets and Sets the ID of the slot
         public int SlotId
