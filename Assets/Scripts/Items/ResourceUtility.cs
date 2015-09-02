@@ -36,9 +36,6 @@ namespace GSP.Items
             // Make sure the inventory exists
             if (inventory != null)
             {
-                // Set the inventory up for the correct player
-                inventory.SetPlayer(playerNum, true);
-                
                 // Get all the items in the inventory
                 List<Item> inventoryItems = inventory.GetItems(playerNum);
 
@@ -59,9 +56,6 @@ namespace GSP.Items
             // Make sure the inventory exists
             if (inventory != null)
             {
-                // Set the inventory up for the correct player
-                inventory.SetPlayer(playerNum, true);
-                
                 // Get all the resources
                 List<Resource> resources = new List<Resource>();
                 resources = GetResources(playerNum);
@@ -86,9 +80,6 @@ namespace GSP.Items
             // Make sure the inventory exists
             if (inventory != null)
             {
-                // Set the inventory up for the correct player
-                inventory.SetPlayer(playerNum, true);
-                
                 // Get all the items in the inventory
                 List<Item> inventoryItems = inventory.GetItems(playerNum);
 
@@ -109,9 +100,6 @@ namespace GSP.Items
             // Make sure the inventory exists
             if (inventory != null)
             {
-                // Set the inventory up for the correct player
-                inventory.SetPlayer(playerNum, true);
-                
                 // Get all the resources
                 List<Resource> resources = GetResourcesByType(resourceType, playerNum);
 
@@ -132,9 +120,6 @@ namespace GSP.Items
             // Make sure the inventory exists
             if (inventory != null)
             {
-                // Set the inventory up for the correct player
-                inventory.SetPlayer(playerNum, true);
-
                 // Remove the resource
                 inventory.Remove(playerNum, resource);
             } // end if
