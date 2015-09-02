@@ -225,6 +225,8 @@ namespace GSP
 
                 // Set the player's player number
                 ((Merchant)playerScript.Entity).PlayerNumber = count;
+
+                ((Merchant)playerScript.Entity).Currency += 5;
 			} // end for
 		} // end AddPlayers
 

@@ -192,6 +192,9 @@ namespace GSP.Items.Inventories
                     // Place it in the free slot
                     items[playerNum][freeSlot] = tempItem;
 
+                    // Update the stats
+                    SetStats((Merchant)GameMaster.Instance.GetPlayerScript(GameMaster.Instance.Turn).Entity);
+
                     // Return success
                     return true;
                 } // end if
@@ -251,6 +254,9 @@ namespace GSP.Items.Inventories
                     // Get the item in the armour slot
                     Item armor = items[playerNum][armorSlot];
 
+                    // Get the player's merchant
+                    Merchant playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(playerNum).Entity;
+
                     // The item is armour so check if there's already armour equipped
                     if (armor.Name == string.Empty)
                     {
@@ -261,7 +267,6 @@ namespace GSP.Items.Inventories
                         ShowTooltip(null, false);
 
                         // Then deal the the equipping
-                        Merchant playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(playerNum).Entity;
                         playerMerchant.EquipArmor((Armor)item);
                     } // end if
                     else
@@ -273,10 +278,12 @@ namespace GSP.Items.Inventories
                         ShowTooltip(armor);
 
                         // Then deal with the unequipping and equipping
-                        Merchant playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(playerNum).Entity;
                         playerMerchant.UnequipArmor((Armor)armor);
                         playerMerchant.EquipArmor((Armor)item);
                     } // end else
+
+                    // Update the inventory's stats
+                    SetStats(playerMerchant);
 
                     // Return success
                     return true;
@@ -286,6 +293,9 @@ namespace GSP.Items.Inventories
                 {
                     // Get the item in the weapon slot
                     Item weapon = items[playerNum][weaponSlot];
+
+                    // Get the player's merchant
+                    Merchant playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(playerNum).Entity;
 
                     // The item is a weapon so check if there's already a weapon equipped
                     if (weapon.Name == string.Empty)
@@ -297,7 +307,6 @@ namespace GSP.Items.Inventories
                         ShowTooltip(null, false);
 
                         // Then deal with the unequipping and equipping
-                        Merchant playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(playerNum).Entity;
                         playerMerchant.EquipWeapon((Weapon)item);
                     } // end if
                     else
@@ -309,10 +318,12 @@ namespace GSP.Items.Inventories
                         ShowTooltip(weapon);
 
                         // Then deal with the unequipping and equipping
-                        Merchant playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(playerNum).Entity;
                         playerMerchant.UnequipWeapon((Weapon)weapon);
                         playerMerchant.EquipWeapon((Weapon)item);
                     } // end else
+
+                    // Update the inventory's stats
+                    SetStats(playerMerchant);
 
                     // Return success
                     return true;
@@ -321,6 +332,9 @@ namespace GSP.Items.Inventories
                 else if (item is Bonus)
                 {
                     int freeSlot;   // The first slot that is free in the bonus inventory
+
+                    // Get the player's merchant
+                    Merchant playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(playerNum).Entity;
 
                     // Make sure there's enough enough space
                     if ((freeSlot = FindFreeSlot(playerNum, SlotType.Bonus)) >= 0)
@@ -332,8 +346,10 @@ namespace GSP.Items.Inventories
                         ShowTooltip(null, false);
 
                         // Then deal with the equipping
-                        Merchant playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(playerNum).Entity;
                         playerMerchant.EquipBonus((Bonus)item);
+
+                        // Update the inventory's stats
+                        SetStats(playerMerchant);
 
                         // Return success
                         return true;

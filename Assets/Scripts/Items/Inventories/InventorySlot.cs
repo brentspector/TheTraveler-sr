@@ -77,8 +77,25 @@ namespace GSP.Items.Inventories
                     // Get the item that was right clicked
                     Item item = inventory.GetItem(PlayerNumber, SlotId);
 
-                    // Handle any equipment
-                    HandleEquipment(item);
+                    // Check if the market exists and is in buy mode
+                    if (market != null)
+                    {
+                        if (market.Action == MarketAction.Buy)
+                        {
+                            // Handle selling to the market
+                            SellToMarket(item);
+                        } // end if
+                        else
+                        {
+                            // Otherwise, handle any equipment
+                            HandleEquipment(item);
+                        } // end else
+                    } // end if
+                    else
+                    {
+                        // Otherwise, handle any equipment
+                        HandleEquipment(item);
+                    } // end else
                 } // end if inventory.GetItem(PlayerNumber, SlotId).Name != string.Empty
             } // end if
         } // end OnPointerUp
@@ -93,9 +110,6 @@ namespace GSP.Items.Inventories
                 {
                     // The item is a piece of equipment so equip it
                     inventory.EquipItem(PlayerNumber, (Equipment)item);
-
-                    // Update the inventory's stats
-                    inventory.SetStats((Merchant)GameMaster.Instance.GetPlayerScript(PlayerNumber).Entity);
                 } // end if SlotId < inventory.WeaponSlot
                 else
                 {
@@ -124,6 +138,12 @@ namespace GSP.Items.Inventories
                 } // end else
             } // end if
         } // end HandleEquipment
+
+        // Sell an item to the market
+        void SellToMarket(Item item)
+        {
+            //
+        } // end SellToMarket
 
         #endregion
     } // end InventorySlot

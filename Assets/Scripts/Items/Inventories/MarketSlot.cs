@@ -99,13 +99,26 @@ namespace GSP.Items.Inventories
         // Handles the market buying items from the player
         void HandleBuying(Item item, Merchant merchant)
         {
-            //
+            // Simply add the item back to the player's inventory
+            inventory.AddItem(PlayerNumber, item.Id);
         } // end HandleBuying
 
         // Handles the market selling items to the player
         void HandleSelling(Item item, Merchant merchant)
         {
-            //
+            // Check if the merchant has enough space in the inventory
+            if (inventory.FindFreeSlot(PlayerNumber, SlotType.Inventory) >= 0)
+            {
+                // Check if the merchant has enough currency to purchase the item
+                if (merchant.Currency >= ((Equipment)item).CostValue)
+                {
+                    // The merchant has enough currency so deduct the cost
+                    merchant.Currency -= ((Equipment)item).CostValue;
+
+                    // Add the item to the player's inventory
+                    inventory.AddItem(PlayerNumber, item.Id);
+                } // end if merchant.Currency >= ((Equipment)item).CostValue
+            } // end if
         } // end HandleSelling
 
         #endregion

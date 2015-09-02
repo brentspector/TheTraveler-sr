@@ -7,6 +7,7 @@
  *
  *******************************************************************************/
 using GSP.Core;
+using GSP.Entities.Neutrals;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -33,6 +34,9 @@ namespace GSP.Items.Inventories
         GameObject tooltip;         // The tooltip's GameObjectn
         RectTransform tooltipRect;  // The transform of the tooltip
 
+        GameObject buySellButton;   // Reference for the Market's buy/sell button
+        GameObject acceptButton;    // Reference for the Market's accept button
+
         MarketAction action;    // The action the market is doing
 
         // Use this for initialisation
@@ -48,6 +52,13 @@ namespace GSP.Items.Inventories
 
             // Get the tooltip GameObject
             tooltip = GameObject.Find("Canvas").transform.Find("Tooltip").gameObject;
+
+            // Get the button objects
+            buySellButton = GameObject.Find("Market/Buttons/BuySellButton");
+            acceptButton = GameObject.Find("Market/Buttons/AcceptButton");
+
+            // Disable the accept button by default
+            acceptButton.SetActive(false);
 
             // Initialise the number of slots to create
             numInventorySlotsCreate = 30;
@@ -240,6 +251,118 @@ namespace GSP.Items.Inventories
             // Get the Image component of the inventory and set its colour
             GetComponent<Image>().color = color;
         } // end SetInventoryColor
+
+        public void ToggleBuySell()
+        {
+            // Toggle the action
+            ToggleAction();
+
+            // Check if we're in sell mode
+            if (action == MarketAction.Sell)
+            {
+                // The market is selling; the player is buying
+                
+                // Update the button text
+                buySellButton.transform.GetChild(0).GetComponent<Text>().text = "Sell";
+
+                // Disable the accept button
+                if (acceptButton.activeInHierarchy)
+                {
+                    acceptButton.SetActive(false);
+                } // end if
+
+                // The sale was cancelled
+                SellItems(false);
+            } // end if
+            else
+            {
+                // Otherwise, the market is buying; the player is selling
+                
+                // Update the button text
+                buySellButton.transform.GetChild(0).GetComponent<Text>().text = "Buy";
+
+                 // Enable the accept button
+                if (!acceptButton.activeInHierarchy)
+                {
+                    acceptButton.SetActive(true);
+                } // end if
+            } // end else
+        } // end ToggleBuySell
+
+        void ToggleAction()
+        {
+            if (action == MarketAction.Sell)
+            {
+                // Toggle to buy action
+                action = MarketAction.Buy;
+            } // end if
+            else
+            {
+                // Toggle to sell action
+                action = MarketAction.Sell;
+            } // end else
+        } // end ToggleAction
+
+        public void SellItems(bool isSelling = true)
+        {
+            // Get all the items in the buy items window
+            List<Item> tempItems = buyItems.FindAll(item => item.Name != string.Empty);
+
+            // Get the inventory for the player
+            Inventory inventory = GameObject.Find("Canvas").transform.Find("Inventory").GetComponent<Inventory>();
+
+            // Get the player's merchant
+            Merchant playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(GameMaster.Instance.Turn).Entity;
+            
+            // Check if the player is actually selling the items
+            if (isSelling)
+            {
+                // The player is actually selling their items
+
+                // Loop through and sell the items for the player
+                foreach (Item item in tempItems)
+                {
+                    // Check if the item is a piece of equipment
+                    if (item is Equipment)
+                    {
+                        playerMerchant.Currency += ((Equipment)item).CostValue;
+                    } // end if
+                    // Check if the item is a resource
+                    else if (item is Resource)
+                    {
+                        playerMerchant.Currency += ((Resource)item).Worth;
+                    } // end else if
+                } // end foreach
+
+                // Update the inventory's stats after the sale
+                inventory.SetStats(playerMerchant);
+            } // end if
+            else
+            {
+                // Otherwise, the player cancelled their sale so return the items
+
+                // Make sure there are items to return
+                if (tempItems.Count > 0)
+                {
+                    // Loop through all the buy items and add them back to the player's inventory
+                    foreach (Item item in tempItems)
+                    {
+                        // Add the current item to the player's inventory
+                        inventory.AddItem(GameMaster.Instance.Turn, item.Id);
+                    } // end foreach
+                } // end if
+            }
+
+            // Clear the buy items list
+            // Empty item for later
+            Item emptyItem = ItemDatabase.Instance.Items.Find(item => item.Type == "Empty");
+
+            // Loop through the buy items list to return it to an empty state
+            for (int index = 0; index < numInventorySlotsCreate; index++)
+            {
+                buyItems[index] = emptyItem;
+            } // end for
+        }
 
         // Gets the action the market is doing
         public MarketAction Action

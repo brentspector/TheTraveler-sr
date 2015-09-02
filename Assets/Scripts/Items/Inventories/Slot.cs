@@ -95,7 +95,11 @@ namespace GSP.Items.Inventories
                     {
                         inventoryIcon.enabled = true;
                         inventoryIcon.sprite = inventory.GetItem(playerNum, slotId).Icon;
-                    } // end if !itemIcon.enabled
+                    } // end if
+                    else
+                    {
+                        inventoryIcon.sprite = inventory.GetItem(playerNum, slotId).Icon;
+                    } // end else
                 } // end if
                 else
                 {
@@ -118,7 +122,11 @@ namespace GSP.Items.Inventories
                     {
                         marketIcon.enabled = true;
                         marketIcon.sprite = market.GetItem(slotId).Icon;
-                    } // end if !itemIcon.enabled
+                    } // end if
+                    else
+                    {
+                        marketIcon.sprite = market.GetItem(slotId).Icon;
+                    } // end else
                 } // end if
                 else
                 {
@@ -141,7 +149,11 @@ namespace GSP.Items.Inventories
                     {
                         allyIcon.enabled = true;
                         allyIcon.sprite = allyInventory.GetItem(allyNum, slotId).Icon;
-                    } // end if !itemIcon.enabled
+                    } // end if
+                    else
+                    {
+                        allyIcon.sprite = allyInventory.GetItem(allyNum, slotId).Icon;
+                    } // end else
                 } // end if
                 else
                 {
