@@ -121,6 +121,9 @@ namespace GSP.Items.Inventories
 
                     // Name the slot in the editor for convienience
                     slot.name = "InventorySlot " + (index + 1) + " (" + index + ")";
+
+                    // Set the slot's type to inventory
+                    slot.GetComponent<InventorySlot>().SlotType = SlotType.Inventory;
                 } // end if
                 // Check if the index is in the range of the equipment slots
                 else if (index >= numInventorySlotsCreate && index < equipmentSlots)
@@ -130,6 +133,9 @@ namespace GSP.Items.Inventories
 
                     // Name the slot in the editor for convienience
                     slot.name = "EquipmentSlot " + ((index - numInventorySlotsCreate) + 1) + " (" + index + ")";
+
+                    // Set the slot's type to equipment
+                    slot.GetComponent<InventorySlot>().SlotType = SlotType.Equipment;
                 } // end else if
                 // Check if the index is in the range of the bonus slots
                 else if (index >= equipmentSlots && index < bonusSlots)
@@ -139,8 +145,11 @@ namespace GSP.Items.Inventories
 
                     // Name the slot in the editor for convienience
                     slot.name = "BonusSlot " + ((index - equipmentSlots) + 1) + " (" + index + ")";
-                } // end else if
 
+                    // Set the slot's type to bonus
+                    slot.GetComponent<InventorySlot>().SlotType = SlotType.Bonus;
+                } // end else if
+                
                 // Change the slotId
                 slot.GetComponent<InventorySlot>().SlotId = index;
 
@@ -182,6 +191,9 @@ namespace GSP.Items.Inventories
 
                     // Place it in the free slot
                     items[playerNum][freeSlot] = tempItem;
+
+                    // Update the stats
+                    SetStats((Merchant)GameMaster.Instance.GetPlayerScript(GameMaster.Instance.Turn).Entity);
 
                     // Return success
                     return true;
@@ -242,6 +254,9 @@ namespace GSP.Items.Inventories
                     // Get the item in the armour slot
                     Item armor = items[playerNum][armorSlot];
 
+                    // Get the player's merchant
+                    Merchant playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(playerNum).Entity;
+
                     // The item is armour so check if there's already armour equipped
                     if (armor.Name == string.Empty)
                     {
@@ -252,7 +267,6 @@ namespace GSP.Items.Inventories
                         ShowTooltip(null, false);
 
                         // Then deal the the equipping
-                        Merchant playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(playerNum).Entity;
                         playerMerchant.EquipArmor((Armor)item);
                     } // end if
                     else
@@ -264,10 +278,12 @@ namespace GSP.Items.Inventories
                         ShowTooltip(armor);
 
                         // Then deal with the unequipping and equipping
-                        Merchant playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(playerNum).Entity;
                         playerMerchant.UnequipArmor((Armor)armor);
                         playerMerchant.EquipArmor((Armor)item);
                     } // end else
+
+                    // Update the inventory's stats
+                    SetStats(playerMerchant);
 
                     // Return success
                     return true;
@@ -277,6 +293,9 @@ namespace GSP.Items.Inventories
                 {
                     // Get the item in the weapon slot
                     Item weapon = items[playerNum][weaponSlot];
+
+                    // Get the player's merchant
+                    Merchant playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(playerNum).Entity;
 
                     // The item is a weapon so check if there's already a weapon equipped
                     if (weapon.Name == string.Empty)
@@ -288,7 +307,6 @@ namespace GSP.Items.Inventories
                         ShowTooltip(null, false);
 
                         // Then deal with the unequipping and equipping
-                        Merchant playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(playerNum).Entity;
                         playerMerchant.EquipWeapon((Weapon)item);
                     } // end if
                     else
@@ -300,10 +318,12 @@ namespace GSP.Items.Inventories
                         ShowTooltip(weapon);
 
                         // Then deal with the unequipping and equipping
-                        Merchant playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(playerNum).Entity;
                         playerMerchant.UnequipWeapon((Weapon)weapon);
                         playerMerchant.EquipWeapon((Weapon)item);
                     } // end else
+
+                    // Update the inventory's stats
+                    SetStats(playerMerchant);
 
                     // Return success
                     return true;
@@ -312,6 +332,9 @@ namespace GSP.Items.Inventories
                 else if (item is Bonus)
                 {
                     int freeSlot;   // The first slot that is free in the bonus inventory
+
+                    // Get the player's merchant
+                    Merchant playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(playerNum).Entity;
 
                     // Make sure there's enough enough space
                     if ((freeSlot = FindFreeSlot(playerNum, SlotType.Bonus)) >= 0)
@@ -323,8 +346,10 @@ namespace GSP.Items.Inventories
                         ShowTooltip(null, false);
 
                         // Then deal with the equipping
-                        Merchant playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(playerNum).Entity;
                         playerMerchant.EquipBonus((Bonus)item);
+
+                        // Update the inventory's stats
+                        SetStats(playerMerchant);
 
                         // Return success
                         return true;
@@ -340,7 +365,7 @@ namespace GSP.Items.Inventories
                 // The item didn't exist in the database to return failure
                 Debug.LogErrorFormat("The Id '{0}' does not exist in the ItemDatabase!", item.Id);
                 return false;
-            } // end if
+            } // end else
         } // end EquipItem
 
         // Removes an item from the inventory
@@ -395,35 +420,63 @@ namespace GSP.Items.Inventories
         {
             int freeSlot = -1;  // The next free slot of the given type
             int totalFreeSlot;  // The slot free between the inventory and bonus inventory
-            
+
+            // Find the next free slot
+            totalFreeSlot = FindAvailableSlot(playerNum, slotType);
+
+            // Check if we found a free slot
+            if (totalFreeSlot < 0)
+            {
+                // No free slots available so return negative one
+                return -1;
+            } // end if
+
             // Check if the slot type is bonus
             if (slotType == SlotType.Bonus)
             {
-                // Start the free slot search at the bonus inventory's start index
-                totalFreeSlot = items[playerNum].FindIndex(equipmentSlots, item => item.Name == string.Empty);
+                // Clamp the slot to bonus range
+                freeSlot = Utility.ClampInt(totalFreeSlot, equipmentSlots, bonusSlots);
             } // end if
             else
             {
-                // Otherwise start the free slot search at the beginning
-                totalFreeSlot = items[playerNum].FindIndex(item => item.Name == string.Empty);
+                // Clamp the slot to inventory range
+                freeSlot = Utility.ClampInt(totalFreeSlot, 0, numInventorySlotsCreate);
             } // end else
-
-            // Check if the free slot is in the range of the inventory slots
-            if (slotType == SlotType.Inventory && (totalFreeSlot >= 0 && totalFreeSlot < numInventorySlotsCreate))
-            {
-                // The free slot is in the correct range so return it
-                freeSlot = totalFreeSlot;
-            } // end if
-            // Check if the free slot is in the range of the bonus slots
-            else if (slotType == SlotType.Bonus && (totalFreeSlot >= equipmentSlots && totalFreeSlot < bonusSlots))
-            {
-                // The free slot is in the correct range so return it
-                freeSlot = totalFreeSlot;
-            } // end if
 
             // Return the first empty slot
             return freeSlot;
         } // end FindFreeSlot
+
+        // Gets the first empty slot of the given SlotType
+        int FindAvailableSlot(int playerNum, SlotType slotType)
+        {
+            // The next free slot of the given type
+            int freeSlot = -1;
+
+            // Loop over the items and slots to determine the next free slot
+            for (int index = 0; index < slots.Count; index++)
+            {
+                // Get the current slot's script reference
+                InventorySlot inventorySlot = slots[index].GetComponent<InventorySlot>();
+                
+                // Check if the slot type matches
+                if (inventorySlot.SlotType == slotType)
+                {
+                    // We have a matching slot type so check if the slot is empty
+                    if (items[playerNum][index].Name == string.Empty)
+                    {
+                        // We have a matching free slot so set the slot to the current index
+                        freeSlot = index;
+
+                        // Now break out of the loop
+                        break;
+                    } // end if items[playerNum][index].Name == string.Empty
+                } // end if
+            } // end for
+
+            // Return the first empty slot, if any
+            return freeSlot;
+        } // end FindAvailableSlot
 
         // Gets an item at the given index
         public Item GetItem(int playerNum, int slotNum)
@@ -441,7 +494,10 @@ namespace GSP.Items.Inventories
             if (canShow)
             {
                 // Enable the tooltip window
-                tooltip.SetActive(true);
+                if (!tooltip.activeInHierarchy)
+                {
+                    tooltip.SetActive(true);
+                } // end if
 
                 // Get the Title Text child
                 Text tooltipTitleText = tooltip.transform.GetChild(0).GetChild(0).GetComponent<Text>();
@@ -499,7 +555,10 @@ namespace GSP.Items.Inventories
             else
             {
                 // Otherwise, disable the tooltip window
-                tooltip.SetActive(false);
+                if (tooltip.activeInHierarchy)
+                {
+                    tooltip.SetActive(false);
+                } // end if
             } // end else
         } // end ShowTooltip
 
@@ -542,37 +601,13 @@ namespace GSP.Items.Inventories
         } // end SetStats
 
         // Sets the inventory up for the current player
-        public void SetPlayer(int playerNum, bool onlySlots = false)
+        public void SetPlayer(int playerNum)
         {
-            // Check if we only want to set the player's slots
-            if (onlySlots)
-            {
-                // Loop over the slots to set their player number
-                foreach (var slot in slots)
-                {
-                    slot.GetComponent<Slot>().PlayerNumber = playerNum;
-                } // end foreach
-            }
-            else
-            {
-                // Set the inventory's colour
-                SetInventoryColor(GameMaster.Instance.GetPlayerColor(playerNum));
+            // Set the inventory's colour
+            SetInventoryColor(GameMaster.Instance.GetPlayerColor(playerNum));
 
-                Merchant playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(playerNum).Entity;
-                if (playerMerchant == null)
-                {
-                    Debug.LogError("playerMerchant is null!");
-                }
-
-                // Set the player's stats
-                SetStats((Merchant)GameMaster.Instance.GetPlayerScript(playerNum).Entity);
-
-                // Loop over the slots to set their player number
-                foreach (var slot in slots)
-                {
-                    slot.GetComponent<Slot>().PlayerNumber = playerNum;
-                } // end foreach
-            }
+            // Set the player's stats
+            SetStats((Merchant)GameMaster.Instance.GetPlayerScript(playerNum).Entity);
         } // end SetPlayer
 
         // Gets the items from the inventory
@@ -621,5 +656,5 @@ namespace GSP.Items.Inventories
                 return tempItems;
             } // end get
         } // end Items
-    } // end GSP.Items.Inventory
-} // end GSP.Items
+    } // end Inventory
+} // end GSP.Items.Inventories
