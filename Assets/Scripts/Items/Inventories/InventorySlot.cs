@@ -142,7 +142,16 @@ namespace GSP.Items.Inventories
         // Sell an item to the market
         void SellToMarket(Item item)
         {
-            //
+            // Make sure we don't sell equipped items
+            if (SlotId < inventory.WeaponSlot)
+            {
+                // Add it to the market's inventory
+                if (market.AddItem(item.Id))
+                {
+                    // Now remove it from the player's inventory
+                    inventory.Remove(PlayerNumber, item);
+                } // end if market.AddItem(item.Id)
+            } // end if
         } // end SellToMarket
 
         #endregion

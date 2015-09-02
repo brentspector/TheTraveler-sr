@@ -163,6 +163,130 @@ namespace GSP.Items.Inventories
             } // end else
         } // end GetItem
 
+        // Add an item to the market's buy inventory
+        public bool AddItem(int itemId)
+        {
+            // Get the list of items from the ItemDatabase
+            List<Item> database = ItemDatabase.Instance.Items;
+
+            // Only proceed if the ID exists in the database
+            if (database.Exists(item => item.Id == itemId))
+            {
+                int freeSlot;   // The first slot that is free
+
+                // Check if there's space for the item
+                if ((freeSlot = FindFreeSlot(SlotType.Market)) >= 0)
+                {
+                    // Get the item from the database
+                    Item tempItem = database[database.FindIndex(item => item.Id == itemId)];
+
+                    // Place it in the free slot
+                    buyItems[freeSlot] = tempItem;
+
+                    // Return success
+                    return true;
+                } // end if
+
+                // Otherwise, return failure as there isn't enough space
+                Debug.LogFormat("No space for item of Id '{0}' in the market inventory.", itemId);
+                return false;
+            } // end if
+            else
+            {
+                // The item didn't exist in the database to return failure
+                Debug.LogErrorFormat("The Id '{0}' does not exist in the ItemDatabase!", itemId);
+                return false;
+            } // end else
+        } // end AddItem
+
+        // Removes an item from the inventory
+        public void Remove(int slotNum)
+        {
+            // Check if we're in buy mode
+            if (action == MarketAction.Buy)
+            {
+                // Remove the item at the given slot
+                buyItems[slotNum] = ItemDatabase.Instance.Items.Find(item => item.Type == "Empty");
+
+                // Disable the tooltip
+                ShowTooltip(null, false);
+            } // end if
+        } // end Remove
+
+        // Removes an item from the inventory
+        public void Remove( Item item)
+        {
+            // Check if we're in buy mode
+            if (action == MarketAction.Buy)
+            {
+                // Find the index of the item
+                int index = buyItems.FindIndex(tempItem => tempItem.Id == item.Id);
+
+                // Remove the item
+                Remove(index);
+            } // end if
+        } // end Remove
+
+        // Gets the first empty slot of the given SlotType
+        // Note: Only usuable in buy mode; returns -1 otherwise
+        public int FindFreeSlot(SlotType slotType)
+        {
+            int freeSlot = -1;  // The next free slot of the given type
+            int totalFreeSlot;  // The slot free between the inventory and bonus inventory
+
+            // Find the next free slot
+            totalFreeSlot = FindAvailableSlot(slotType);
+
+            // Check if we found a free slot
+            if (totalFreeSlot < 0)
+            {
+                // No free slots available so return negative one
+                return -1;
+            } // end if
+            
+            // Clamp the slot to inventory range
+            freeSlot = Utility.ClampInt(totalFreeSlot, 0, numInventorySlotsCreate);
+
+            // Return the first empty slot
+            return freeSlot;
+        } // end FindFreeSlot
+
+        // Gets the first empty slot of the given SlotType
+        // Note: Only usuable in buy mode; returns -1 otherwise
+        int FindAvailableSlot(SlotType slotType)
+        {
+            // The next free slot of the given type
+            int freeSlot = -1;
+
+            // Check if we're in buy mode
+            if (action == MarketAction.Buy)
+            {
+                // Loop over the items and slots to determine the next free slot
+                for (int index = 0; index < slots.Count; index++)
+                {
+                    // Get the current slot's script reference
+                    MarketSlot marketSlot = slots[index].GetComponent<MarketSlot>();
+
+                    // Check if the slot type matches
+                    if (marketSlot.SlotType == slotType)
+                    {
+                        // We have a matching slot type so check if the slot is empty
+                        if (buyItems[index].Name == string.Empty)
+                        {
+                            // We have a matching free slot so set the slot to the current index
+                            freeSlot = index;
+
+                            // Now break out of the loop
+                            break;
+                        } // end if buyItems[index].Name == string.Empty
+                    } // end if
+                } // end for
+            } // end if
+
+            // Return the first empty slot, if any
+            return freeSlot;
+        } // end FindAvailableSlot
+
         // Shows the tooltip window for item information
         public void ShowTooltip(Item item, bool canShow = true)
         {

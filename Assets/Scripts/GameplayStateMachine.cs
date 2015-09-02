@@ -225,8 +225,6 @@ namespace GSP
 
                 // Set the player's player number
                 ((Merchant)playerScript.Entity).PlayerNumber = count;
-
-                ((Merchant)playerScript.Entity).Currency += 5;
 			} // end for
 		} // end AddPlayers
 
@@ -289,7 +287,7 @@ namespace GSP
                 GameMaster.Instance.SavePlayers();
 
                 // Finally, tell the GameMaster to load the end scene
-                GameMaster.Instance.LoadLevel("testmenu");
+                GameMaster.Instance.LoadLevel("Market");
             }
             
             // This was set to true at the end of Start()
