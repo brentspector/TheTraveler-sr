@@ -28,8 +28,8 @@ namespace GSP
         HighScoreTable highScoreTable;  // The reference for the HighScoreTable
         RankTable rankTable;            // THe script refernece for the RankTable
 
-        // Use this for initialization
-		void Start() 
+        // Use this for initialisation
+		void Awake() 
 		{
             // Create the players in data only mode
             GameMaster.Instance.LoadPlayers(true);
@@ -91,11 +91,14 @@ namespace GSP
         // Goes back to the menu
         public void BackToMenu()
         {
-            // Destroy the audio manager
-            Destroy(AudioManager.Instance.gameObject);
-
-            // Tell the GameMaster to load a level
-            GameMaster.Instance.LoadLevel(0);
+            Entities.EntityManager.Instance.Dispose();
+            while (GameMaster.Instance.Turn != 0)
+            {
+                GameMaster.Instance.NextTurn();
+            } //end while
+            GameMaster.Instance.NumPlayers = 0;
+            AudioManager.Instance.PlayMenu();
+            GameMaster.Instance.LoadLevel("MenuScene");
         } // end BackToMenu
 	} // end GUIEndGame
 } // end GSP
