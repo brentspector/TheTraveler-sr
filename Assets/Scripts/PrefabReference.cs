@@ -49,6 +49,9 @@ namespace GSP
         // This is the reference to the inventory slot prefab
         public static GameObject prefabInventorySlot = Resources.Load("Inventory/InventorySlot") as GameObject;
 
+        // This is the reference to the market slot prefab
+        public static GameObject prefabMarketSlot = Resources.Load("Inventory/MarketSlot") as GameObject;
+
 	} // end PrefabReference
 } // end GSP
 

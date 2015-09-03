@@ -68,57 +68,92 @@ namespace GSP.Items.Inventories
         // Event triggers when a mouse button is released in the slot's space
         public void OnPointerUp(PointerEventData pointerEventData)
         {
-            // Check if there is an item in the slot
-            if (inventory.GetItem(PlayerNumber, SlotId).Name != string.Empty)
+            // Check if the button was the right mouse
+            if (pointerEventData.pointerId == -2)
             {
-                // Check if the button was the right mouse
-                if (pointerEventData.pointerId == -2)
+                // Check if there is an item in the slot
+                if (inventory.GetItem(PlayerNumber, SlotId).Name != string.Empty)
                 {
                     // Get the item that was right clicked
                     Item item = inventory.GetItem(PlayerNumber, SlotId);
 
-                    // Check if the item is a piece of equipment
-                    if (item is Equipment)
+                    // Check if the market exists and is in buy mode
+                    if (market != null)
                     {
-                        // Make sure we're not right clicking the equipped equipment
-                        if (SlotId < inventory.WeaponSlot)
+                        if (market.Action == MarketAction.Buy)
                         {
-                            // The item is a piece of equipment so equip it
-                            inventory.EquipItem(PlayerNumber, (Equipment)item);
-
-                            // Update the inventory's stats
-                            inventory.SetStats((Merchant)GameMaster.Instance.GetPlayerScript(PlayerNumber).Entity);
-                        } // end if SlotId < inventory.WeaponSlot
+                            // Handle selling to the market
+                            SellToMarket(item);
+                        } // end if
                         else
                         {
-                            // Check if the item is a bonus item and that we're right clicking it from the bonus slot range.
-                            if (item is Bonus && (SlotId >= inventory.BonusSlotBegin && SlotId < inventory.BonusSlotEnd))
-                            {
-                                int freeSlot;   // The first slot that is free
-
-                                // Check if there's space for the item
-                                if ((freeSlot = inventory.FindFreeSlot(PlayerNumber, SlotType.Inventory)) >= 0)
-                                {
-                                    // Swap the bonus item with the item at the free slot
-                                    inventory.SwapItem(PlayerNumber, item, inventory.GetItem(PlayerNumber, freeSlot));
-
-                                    // Unequip the bonus item
-                                    Merchant playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(PlayerNumber).Entity;
-                                    playerMerchant.UnequipBonus((Bonus)item);
-
-                                    // Disable the tooltip
-                                    inventory.ShowTooltip(null, false);
-
-                                    // Update the inventory's stats
-                                    inventory.SetStats(playerMerchant);
-                                } // end if (freeSlot = inventory.FindFreeSlot(PlayerNumber, SlotType.Inventory)) >= 0
-                            } // end if
+                            // Otherwise, handle any equipment
+                            HandleEquipment(item);
                         } // end else
-                    } // end if item is Equipment
-                } // end if pointerEventData.pointerId == -2
+                    } // end if
+                    else
+                    {
+                        // Otherwise, handle any equipment
+                        HandleEquipment(item);
+                    } // end else
+                } // end if inventory.GetItem(PlayerNumber, SlotId).Name != string.Empty
             } // end if
         } // end OnPointerUp
 
+        void HandleEquipment(Item item)
+        {
+            // Check if the item is a piece of equipment
+            if (item is Equipment)
+            {
+                // Make sure we're not right clicking the equipped equipment
+                if (SlotId < inventory.WeaponSlot)
+                {
+                    // The item is a piece of equipment so equip it
+                    inventory.EquipItem(PlayerNumber, (Equipment)item);
+                } // end if SlotId < inventory.WeaponSlot
+                else
+                {
+                    // Check if the item is a bonus item and that we're right clicking it from the bonus slot range.
+                    if (item is Bonus && (SlotId >= inventory.BonusSlotBegin && SlotId < inventory.BonusSlotEnd))
+                    {
+                        int freeSlot;   // The first slot that is free
+
+                        // Check if there's space for the item
+                        if ((freeSlot = inventory.FindFreeSlot(PlayerNumber, SlotType.Inventory)) >= 0)
+                        {
+                            // Swap the bonus item with the item at the free slot
+                            inventory.SwapItem(PlayerNumber, item, inventory.GetItem(PlayerNumber, freeSlot));
+
+                            // Unequip the bonus item
+                            Merchant playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(PlayerNumber).Entity;
+                            playerMerchant.UnequipBonus((Bonus)item);
+
+                            // Disable the tooltip
+                            inventory.ShowTooltip(null, false);
+
+                            // Update the inventory's stats
+                            inventory.SetStats(playerMerchant);
+                        } // end if (freeSlot = inventory.FindFreeSlot(PlayerNumber, SlotType.Inventory)) >= 0
+                    } // end if
+                } // end else
+            } // end if
+        } // end HandleEquipment
+
+        // Sell an item to the market
+        void SellToMarket(Item item)
+        {
+            // Make sure we don't sell equipped items
+            if (SlotId < inventory.WeaponSlot)
+            {
+                // Add it to the market's inventory
+                if (market.AddItem(item.Id))
+                {
+                    // Now remove it from the player's inventory
+                    inventory.Remove(PlayerNumber, item);
+                } // end if market.AddItem(item.Id)
+            } // end if
+        } // end SellToMarket
+
         #endregion
     } // end InventorySlot
-} // end GSP.Items.Inventory
+} // end GSP.Items.Inventories
