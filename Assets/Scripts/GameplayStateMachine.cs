@@ -94,8 +94,8 @@ namespace GSP
             TileManager.GenerateAndAddTiles();
 
 			// Get HUD elements
-            guiPlayerName = GameObject.Find("CurrentPlayer/PlayerName").GetComponent<Text>();
-            guiTurnText = GameObject.Find("CurrentPlayer/TurnPhase").GetComponent<Text>();
+            guiPlayerName = GameObject.Find("CurrentPlayer/PlayerNamePanel/PlayerName").GetComponent<Text>();
+            guiTurnText = GameObject.Find("CurrentPlayer/TurnPhasePanel/TurnPhase").GetComponent<Text>();
             guiGold = GameObject.Find("CurrentPlayer/WeightGold/Gold").GetComponent<Text>();
             guiWeight = GameObject.Find("CurrentPlayer/WeightGold/Weight").GetComponent<Text>();
             actionButton = GameObject.Find("CurrentPlayer/ActionButton").GetComponent<Button>();

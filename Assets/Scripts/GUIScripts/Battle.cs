@@ -177,7 +177,7 @@ namespace GSP
 			{
 				fightBoxText.transform.position = new Vector3(
 					fightBoxText.transform.position.x,
-					fightBoxText.transform.position.y + 16);
+					fightBoxText.transform.position.y + 19);
 			} //end if
 
 			// Check if the player lost the fight
@@ -235,7 +235,7 @@ namespace GSP
 				// Update the fightbox position
 				fightBoxText.transform.position = new Vector3(
 					fightBoxText.transform.position.x,
-					fightBoxText.transform.position.y + 16);
+					fightBoxText.transform.position.y + 19);
 
 				// Return to game after 3 seconds
 				playerTurn = false;
@@ -249,6 +249,11 @@ namespace GSP
 
 				// Update fight text box
 				fightBoxText.text += "\n" + playerName.text + " wins!";
+
+				// Update the fightbox position
+				fightBoxText.transform.position = new Vector3(
+					fightBoxText.transform.position.x,
+					fightBoxText.transform.position.y + 19);
 
 				// Return to game after 3 seconds
 				playerTurn = false;
