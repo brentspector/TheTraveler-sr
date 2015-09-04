@@ -71,7 +71,7 @@ namespace GSP
 		GameObject imageParent;						// Panel with all player images
 		GameObject textParent;						// Panel with all player names and gold
         // Inventory
-        Inventory inventory;                        // The inventory script for the Inventory
+        PlayerInventory inventory;                        // The inventory script for the Inventory
         // Aliies
         AllyTable allyTable;                        // The ally table script for the AllyTable
 
@@ -104,7 +104,7 @@ namespace GSP
 			pauseMenu = GameObject.Find ("PauseMenu");
             imageParent = GameObject.Find("AllPlayers/ImageOrganizer");
             textParent = GameObject.Find("AllPlayers/TextOrganizer");
-            inventory = GameObject.Find("Inventory").GetComponent<Inventory>();
+            inventory = GameObject.Find("Inventory").GetComponent<PlayerInventory>();
             allyTable = GameObject.Find("Allies").GetComponent<AllyTable>();
 			GameObject.Find ("Canvas").transform.Find ("Instructions").gameObject.SetActive (false);
 			actionButtonActive = true;
@@ -237,19 +237,25 @@ namespace GSP
                 // Loop over the number of players to give them the items
                 for (int count = 0; count < numPlayers; count++)
                 {
+                    // Change the inventory to the next player
+                    inventory.ChangePlayer(count);
+
                     // Get the starting items; could use indices, but this way is future proof from moving the items around
                     // in the database
                     Item weapon = ItemDatabase.Instance.Items.Find(item => item.Type == WeaponType.Sword.ToString());
                     Item legs = ItemDatabase.Instance.Items.Find(item => item.Type == ArmorType.Chainlegs.ToString());
-                    
+
                     // Add the items to the player's inventory
-                    inventory.AddItem(count, weapon.Id);
-                    inventory.AddItem(count, legs.Id);
+                    inventory.AddItem(weapon.Id);
+                    inventory.AddItem(legs.Id);
 
                     // Equip the items for the player
                     inventory.EquipItem(count, (Equipment)weapon);
                     inventory.EquipItem(count, (Equipment)legs);
                 } // end for
+
+                // Change the inventory back to the current player's turn
+                inventory.ChangePlayer(guiPlayerTurn);
             } // end if
 		} // end AddItems
 
@@ -461,9 +467,15 @@ namespace GSP
                                 // Get the player's merchant entity
                                 Merchant playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(playerSellIndex).Entity;
 
+                                // Change the inventory to the next player
+                                inventory.ChangePlayer(playerSellIndex);
+
                                 // We need to access the character script at the given index and sell the resources
                                 playerMerchant.SellResources();
                             } // end for
+
+                            // Change the inventory back the the current player's turn
+                            inventory.ChangePlayer(guiPlayerTurn);
 
                             // Save the players
                             GameMaster.Instance.SavePlayers();

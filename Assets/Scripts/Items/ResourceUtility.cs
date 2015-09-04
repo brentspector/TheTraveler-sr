@@ -31,7 +31,7 @@ namespace GSP.Items
             List<Resource> resources = new List<Resource>();
 
             // Get the inventory script
-            Inventory inventory = GameObject.Find("Canvas").transform.Find("Inventory").GetComponent<Inventory>();
+            PlayerInventory inventory = GameObject.Find("Canvas").transform.Find("Inventory").GetComponent<PlayerInventory>();
 
             // Make sure the inventory exists
             if (inventory != null)
@@ -51,7 +51,7 @@ namespace GSP.Items
         public void RemoveResources(int playerNum)
         {
             // Get the inventory script
-            Inventory inventory = GameObject.Find("Canvas").transform.Find("Inventory").GetComponent<Inventory>();
+            PlayerInventory inventory = GameObject.Find("Canvas").transform.Find("Inventory").GetComponent<PlayerInventory>();
 
             // Make sure the inventory exists
             if (inventory != null)
@@ -63,7 +63,7 @@ namespace GSP.Items
                 // Loop over each resource and remove it
                 foreach (var resource in resources)
                 {
-                    inventory.Remove(playerNum, resource);
+                    inventory.Remove(resource);
                 } // end foreach
             } // end if
         } // end RemoveResources
@@ -75,7 +75,7 @@ namespace GSP.Items
             List<Resource> resources = new List<Resource>();
             
             // Get the inventory script
-            Inventory inventory = GameObject.Find("Canvas").transform.Find("Inventory").GetComponent<Inventory>();
+            PlayerInventory inventory = GameObject.Find("Canvas").transform.Find("Inventory").GetComponent<PlayerInventory>();
 
             // Make sure the inventory exists
             if (inventory != null)
@@ -95,7 +95,7 @@ namespace GSP.Items
         public void RemoveResourcesByType(ResourceType resourceType, int playerNum)
         {
             // Get the inventory script
-            Inventory inventory = GameObject.Find("Canvas").transform.Find("Inventory").GetComponent<Inventory>();
+            PlayerInventory inventory = GameObject.Find("Canvas").transform.Find("Inventory").GetComponent<PlayerInventory>();
 
             // Make sure the inventory exists
             if (inventory != null)
@@ -106,7 +106,7 @@ namespace GSP.Items
                 // Loop over each resource and remove it
                 foreach (var resource in resources)
                 {
-                    inventory.Remove(playerNum, resource);
+                    inventory.Remove(resource);
                 } // end foreach
             } // end if
         } // end RemoveResources
@@ -115,13 +115,13 @@ namespace GSP.Items
         public void RemoveResource(Resource resource, int playerNum)
         {
             // Get the inventory script
-            Inventory inventory = GameObject.Find("Canvas").transform.Find("Inventory").GetComponent<Inventory>();
+            PlayerInventory inventory = GameObject.Find("Canvas").transform.Find("Inventory").GetComponent<PlayerInventory>();
 
             // Make sure the inventory exists
             if (inventory != null)
             {
                 // Remove the resource
-                inventory.Remove(playerNum, resource);
+                inventory.Remove(resource);
             } // end if
         } // end RemoveResource
     } // end ResourceUtility

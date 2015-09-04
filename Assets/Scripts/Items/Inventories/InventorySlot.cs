@@ -21,7 +21,7 @@ namespace GSP.Items.Inventories
      *              through Unity's EventSystems interfaces.
      * 
      *******************************************************************************/
-    public class InventorySlot : Slot, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler
+    public class InventorySlot : Slot<PlayerInventory, Market>, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler
     {
         #region IPointerEnterHandler Members
 
@@ -29,10 +29,10 @@ namespace GSP.Items.Inventories
         public void OnPointerEnter(PointerEventData pointerEventData)
         {
             // Check if there is an item in the slot
-            if (inventory.GetItem(PlayerNumber, SlotId).Name != string.Empty)
+            if (mainInventory.GetItem(SlotId).Name != string.Empty)
             {
                 // Show the tooltip window while hovering over an item
-                inventory.ShowTooltip(inventory.GetItem(PlayerNumber, SlotId));
+                mainInventory.ShowTooltip(mainInventory.GetItem(SlotId));
             } // end if
         } // end OnPointerEnter
 
@@ -44,10 +44,10 @@ namespace GSP.Items.Inventories
         public void OnPointerExit(PointerEventData pointerEventData)
         {
             // Check if there is an item in the slot
-            if (inventory.GetItem(PlayerNumber, SlotId).Name != string.Empty)
+            if (mainInventory.GetItem(SlotId).Name != string.Empty)
             {
                 // Show the tooltip window while not hovering over an item
-                inventory.ShowTooltip(null, false);
+                mainInventory.ShowTooltip(null, false);
             } // end if
         } // end OnPointerEnter
 
@@ -72,15 +72,15 @@ namespace GSP.Items.Inventories
             if (pointerEventData.pointerId == -2)
             {
                 // Check if there is an item in the slot
-                if (inventory.GetItem(PlayerNumber, SlotId).Name != string.Empty)
+                if (mainInventory.GetItem(SlotId).Name != string.Empty)
                 {
                     // Get the item that was right clicked
-                    Item item = inventory.GetItem(PlayerNumber, SlotId);
+                    Item item = mainInventory.GetItem(SlotId);
 
                     // Check if the market exists and is in buy mode
-                    if (market != null)
+                    if (subInventory != null && subInventory is Market)
                     {
-                        if (market.Action == MarketAction.Buy)
+                        if (subInventory.Action == MarketAction.Buy)
                         {
                             // Handle selling to the market
                             SellToMarket(item);
@@ -106,33 +106,33 @@ namespace GSP.Items.Inventories
             if (item is Equipment)
             {
                 // Make sure we're not right clicking the equipped equipment
-                if (SlotId < inventory.WeaponSlot)
+                if (SlotId < mainInventory.WeaponSlot)
                 {
                     // The item is a piece of equipment so equip it
-                    inventory.EquipItem(PlayerNumber, (Equipment)item);
+                    mainInventory.EquipItem(PlayerNumber, (Equipment)item);
                 } // end if SlotId < inventory.WeaponSlot
                 else
                 {
                     // Check if the item is a bonus item and that we're right clicking it from the bonus slot range.
-                    if (item is Bonus && (SlotId >= inventory.BonusSlotBegin && SlotId < inventory.BonusSlotEnd))
+                    if (item is Bonus && (SlotId >= mainInventory.BonusSlotBegin && SlotId < mainInventory.BonusSlotEnd))
                     {
                         int freeSlot;   // The first slot that is free
 
                         // Check if there's space for the item
-                        if ((freeSlot = inventory.FindFreeSlot(PlayerNumber, SlotType.Inventory)) >= 0)
+                        if ((freeSlot = mainInventory.FindFreeSlot(SlotType.Inventory)) >= 0)
                         {
                             // Swap the bonus item with the item at the free slot
-                            inventory.SwapItem(PlayerNumber, item, inventory.GetItem(PlayerNumber, freeSlot));
+                            mainInventory.SwapItem(item, mainInventory.GetItem(freeSlot));
 
                             // Unequip the bonus item
                             Merchant playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(PlayerNumber).Entity;
                             playerMerchant.UnequipBonus((Bonus)item);
 
                             // Disable the tooltip
-                            inventory.ShowTooltip(null, false);
+                            mainInventory.ShowTooltip(null, false);
 
                             // Update the inventory's stats
-                            inventory.SetStats(playerMerchant);
+                            mainInventory.SetStats(playerMerchant);
                         } // end if (freeSlot = inventory.FindFreeSlot(PlayerNumber, SlotType.Inventory)) >= 0
                     } // end if
                 } // end else
@@ -143,13 +143,13 @@ namespace GSP.Items.Inventories
         void SellToMarket(Item item)
         {
             // Make sure we don't sell equipped items
-            if (SlotId < inventory.WeaponSlot)
+            if (SlotId < mainInventory.WeaponSlot)
             {
                 // Add it to the market's inventory
-                if (market.AddItem(item.Id))
+                if (subInventory.AddItem(item.Id))
                 {
                     // Now remove it from the player's inventory
-                    inventory.Remove(PlayerNumber, item);
+                    mainInventory.Remove(item);
                 } // end if market.AddItem(item.Id)
             } // end if
         } // end SellToMarket

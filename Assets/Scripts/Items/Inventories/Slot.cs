@@ -18,17 +18,21 @@ namespace GSP.Items.Inventories
      * 
      * Description: The base class for all slots of the new Inventory system.
      * 
+     * Note: TMainInventory should always be the player's inventory
+     *       TSubInventory is the inventory they are interacting with such as the
+     *       market or ally.
+     * 
      *******************************************************************************/
-    public abstract class Slot : MonoBehaviour
+    public abstract class Slot<TMainInventory, TSubInventory> : MonoBehaviour, IBaseSlot
+        where TMainInventory : class, IBaseInventory
+        where TSubInventory : class, IBaseInventory
     {
         // Variables are set to protected so the derived classes can access them while others can't
-        protected Image inventoryIcon;  // Image component reference of the inventorySlot; this is where the item's image goes
-        protected Image marketIcon;     // Image component reference of the marketSlot; this is where the item's image goes
-        protected Image allyIcon;       // Image component reference of the allySlot; this is where the item's image goes
+        protected Image mainInventoryIcon;  // Image component of the main inventory's slot; where the item's icon goes
+        protected Image subInventoryIcon;   // Image component of the sub inventory's slot; where the item's icon goes
 
-        protected Inventory inventory;          // The player inventory where the items are stored
-        protected Market market;                // The market inventory where the items are sold
-        protected AllyInventory allyInventory;  // The ally's inventory where the items are stored
+        protected TMainInventory mainInventory; // The main inventory system that's being interacted with
+        protected TSubInventory subInventory;   // The sub inventory system that's being interacted with
         
         int slotId;         // The ID of the slot
         int playerNum;      // The current player's turn
@@ -39,35 +43,27 @@ namespace GSP.Items.Inventories
         void Start()
         {
             // Set the references to a null state
-            inventory = null;
-            market = null;
-            allyInventory = null;
-            inventoryIcon = null;
-            marketIcon = null;
-            allyIcon = null;
+            mainInventoryIcon = null;
+            subInventoryIcon = null;
+            mainInventory = null;
+            subInventory = null;
 
             // For now there is only a single ally so this is defaulted to zero
             allyNum = 0;
             
-            // Get the Inventory component reference
-            if (GameObject.Find("Inventory") != null)
+            // Get the main inventory component reference
+            if (GameObject.Find(typeof(TMainInventory).Name) != null)
             {
-                inventory = GameObject.Find("Inventory").GetComponent<Inventory>();
+                mainInventory = GameObject.Find(typeof(TMainInventory).Name).GetComponent<TMainInventory>();
             } // end if
 
-            // Get the Market component reference
-            if (GameObject.Find("Market") != null)
+            // Get the sub inventory component reference
+            if (GameObject.Find(typeof(TSubInventory).Name) != null)
             {
-                market = GameObject.Find("Market").GetComponent<Market>();
+                subInventory = GameObject.Find(typeof(TSubInventory).Name).GetComponent<TSubInventory>();
             } // end if
 
-            // Get the AllyInventory component refereence
-            if (GameObject.Find("AllyInventory") != null)
-            {
-                allyInventory = GameObject.Find("AllyInventory").GetComponent<AllyInventory>();
-            } // end if
-
-            if (inventoryIcon == null && marketIcon == null && allyIcon == null)
+            if (mainInventoryIcon == null && subInventoryIcon == null)
             {
                 // Set the icon's image reference for one of them
                 SetIconReference();
@@ -85,86 +81,65 @@ namespace GSP.Items.Inventories
             } // end if
             
             // Check if the inventory exists
-            if (inventory != null && inventoryIcon != null)
+            if (mainInventory != null && mainInventoryIcon != null)
             {
                 // Check if the slot contains an item
-                if (inventory.GetItem(playerNum, slotId).Name != string.Empty)
+                if (mainInventory.GetItem(slotId).Name != string.Empty)
                 {
                     // Enable the component
-                    if (!inventoryIcon.enabled)
+                    if (!mainInventoryIcon.enabled)
                     {
-                        inventoryIcon.enabled = true;
-                        inventoryIcon.sprite = inventory.GetItem(playerNum, slotId).Icon;
+                        mainInventoryIcon.enabled = true;
+                        mainInventoryIcon.sprite = mainInventory.GetItem(slotId).Icon;
                     } // end if
                     else
                     {
-                        inventoryIcon.sprite = inventory.GetItem(playerNum, slotId).Icon;
+                        mainInventoryIcon.sprite = mainInventory.GetItem(slotId).Icon;
                     } // end else
                 } // end if
                 else
                 {
-                    if (inventoryIcon.enabled)
+                    if (mainInventoryIcon.enabled)
                     {
                         // Disable the component
-                        inventoryIcon.enabled = false;
+                        mainInventoryIcon.enabled = false;
                     } // end if
                 } // end else
             } // end if
 
             // Check if the market exists
-            if (market != null && marketIcon != null)
+            if (subInventory != null && subInventoryIcon != null)
             {
                 // Check if the slot contains an item
-                if (market.GetItem(slotId).Name != string.Empty)
+                if (subInventory.GetItem(slotId).Name != string.Empty)
                 {
                     // Enable the component
-                    if (!marketIcon.enabled)
+                    if (!subInventoryIcon.enabled)
                     {
-                        marketIcon.enabled = true;
-                        marketIcon.sprite = market.GetItem(slotId).Icon;
+                        subInventoryIcon.enabled = true;
+                        subInventoryIcon.sprite = subInventory.GetItem(slotId).Icon;
                     } // end if
                     else
                     {
-                        marketIcon.sprite = market.GetItem(slotId).Icon;
+                        subInventoryIcon.sprite = subInventory.GetItem(slotId).Icon;
                     } // end else
                 } // end if
                 else
                 {
-                    if (marketIcon.enabled)
+                    if (subInventoryIcon.enabled)
                     {
                         // Disable the component
-                        marketIcon.enabled = false;
-                    } // end if
-                } // end else
-            } // end if
-
-            // Check if the ally's inventory exists
-            if (allyInventory != null && allyIcon != null)
-            {
-                // Check if the slot contains an item
-                if (allyInventory.GetItem(allyNum, slotId).Name != string.Empty)
-                {
-                    // Enable the component
-                    if (!allyIcon.enabled)
-                    {
-                        allyIcon.enabled = true;
-                        allyIcon.sprite = allyInventory.GetItem(allyNum, slotId).Icon;
-                    } // end if
-                    else
-                    {
-                        allyIcon.sprite = allyInventory.GetItem(allyNum, slotId).Icon;
-                    } // end else
-                } // end if
-                else
-                {
-                    if (allyIcon.enabled)
-                    {
-                        // Disable the component
-                        allyIcon.enabled = false;
+                        subInventoryIcon.enabled = false;
                     } // end if
                 } // end else
             } // end if
         } // end Update
+
+        // Shows an icon for the inventory
+        public void ShowIcon(Image icon, bool canShow)
+        {
+            //
+        } // end ShowIcon
 
         // Sets the component reference for the slot's icon
         void SetIconReference()
@@ -173,17 +148,13 @@ namespace GSP.Items.Inventories
             if (slotType == SlotType.Inventory || slotType == SlotType.Equipment || slotType == SlotType.Bonus)
             {
                 // Get the Image component reference
-                inventoryIcon = gameObject.transform.GetChild(0).GetComponent<Image>();
+                mainInventoryIcon = gameObject.transform.GetChild(0).GetComponent<Image>();
             } // end if
-            else if (slotType == SlotType.Market)
+            // Check if the slot's type is part of the market or ally
+            else if (slotType == SlotType.Market || slotType == SlotType.Ally)
             {
                 // Get the Image component reference
-                marketIcon = gameObject.transform.GetChild(0).GetComponent<Image>();
-            } // end else if
-            else if (slotType == SlotType.Ally)
-            {
-                // Get the Image component reference
-                allyIcon = gameObject.transform.GetChild(0).GetComponent<Image>();
+                subInventoryIcon = gameObject.transform.GetChild(0).GetComponent<Image>();
             } // end else if
         } // end SetIconReference
 

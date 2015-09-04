@@ -189,7 +189,7 @@ namespace GSP
 				// Set up inventory
 				GameObject.Find("Canvas").transform.Find("Tooltip").gameObject.SetActive(true);
 				GameObject.Find("Canvas").transform.Find("Inventory").gameObject.SetActive(true);
-				Inventory inventory = GameObject.Find("Canvas").transform.Find("Inventory").GetComponent<Inventory>();
+				PlayerInventory inventory = GameObject.Find("Canvas").transform.Find("Inventory").GetComponent<PlayerInventory>();
 
 				// The player lost the fight, remove its resources or its weapon
 				fightBoxText.text += "\n" + enemyName.text + " wins!";
@@ -202,7 +202,7 @@ namespace GSP
 						fightBoxText.text += "\nAs a result, you lost your " + playerMerchant.EquippedWeapon.Name;
 						playerAttack -= playerMerchant.EquippedWeapon.AttackValue;	
 						playerMerchant.UnequipWeapon(playerMerchant.EquippedWeapon);					
-						inventory.Remove(GameMaster.Instance.Turn, inventory.WeaponSlot);
+						inventory.Remove(inventory.WeaponSlot);
 					} // end if EquippedWeapon != null
 					else
 					{
