@@ -526,12 +526,12 @@ namespace GSP.Core
             } // end else
 
             // Get the Inventory component
-			Inventory inventory = GameObject.Find("Canvas").transform.Find("Inventory").GetComponent<Inventory>();
+			PlayerInventory inventory = GameObject.Find("Canvas").transform.Find("Inventory").GetComponent<PlayerInventory>();
 
             // Loop over the player's inventory to store their item IDs
             for (int index = 0; index < (inventory.BonusSlotEnd + 1); index++)
             {
-                playerData.AddItemId(inventory.GetItem(playerNum, index).Id);
+                playerData.AddItemId(inventory.GetItem(index).Id);
             } // end for
 
             // Now write the data to the file
@@ -544,16 +544,25 @@ namespace GSP.Core
         // Saves all players
         public void SavePlayers()
         {
+            // Get the Inventory component
+            PlayerInventory inventory = GameObject.Find("Canvas").transform.Find("Inventory").GetComponent<PlayerInventory>();
+            
             // Loop over the dictionary to save each player; We use the player name dictionary here
             foreach (var player in playerNames)
             {
                 // Check if the player is playing
                 if (player.Key < numPlayers)
                 {
+                    // Change the inventory to the current player
+                    inventory.ChangePlayer(player.Key);
+
                     // Save the current player
                     Instance.SavePlayer(player.Key);
                 } // end if
             } // end foreach
+
+            // Change the inventory back to the current player's turn
+            inventory.ChangePlayer(Turn);
         } // end SavePlayers
 
         // Loads a player with the given key
@@ -598,12 +607,12 @@ namespace GSP.Core
                 }
 
                 // Get the Inventory component
-				Inventory inventory = GameObject.Find("Canvas").transform.Find("Inventory").GetComponent<Inventory>();
+				PlayerInventory inventory = GameObject.Find("Canvas").transform.Find("Inventory").GetComponent<PlayerInventory>();
 
                 // Loop over the player's inventory to restore it
                 for (int index = 0; index < (inventory.BonusSlotEnd + 1); index++)
                 {
-                    inventory.AddItemFromSave(playerNum, playerData.GetItemId(index), index);
+                    inventory.AddItemFromSave(playerData.GetItemId(index), index);
                 } // end for
             } // end if
         } // end LoadPlayer
@@ -611,16 +620,25 @@ namespace GSP.Core
         // Loads all players
         public void LoadPlayers(bool isDataOnly = false)
         {
+            // Get the Inventory component
+            PlayerInventory inventory = GameObject.Find("Canvas").transform.Find("Inventory").GetComponent<PlayerInventory>();
+            
             // Loop over the dictionary to load each player; We use the player name dictionary here
             foreach (var player in playerNames)
             {
                 // Check if the player is playing
                 if (player.Key < numPlayers)
                 {
-                    // Save the current player
+                    // Change the inventory to the current player
+                    inventory.ChangePlayer(player.Key);
+                    
+                    // Load the current player
                     Instance.LoadPlayer(player.Key, isDataOnly);
                 } // end if
             } // end foreach
+
+            // Change the inventory back to the current player's turn
+            inventory.ChangePlayer(Turn);
         } // end LoadPlayers
 
         // Save the highscore table

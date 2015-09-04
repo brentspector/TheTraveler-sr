@@ -1,9 +1,9 @@
 ﻿/*******************************************************************************
  *
- *  File Name: AllyInventory.cs
+ *  File Name: PlayerInventory.cs
  *
- *  Description: Contains the logic of the new inventory system for allies.
- *               This is like the player's inventory system.
+ *  Description: Contains the logic of the new inventory system. This is more
+ *               functional that the old system, but it's still pretty minimal.
  *
  *******************************************************************************/
 using GSP.Core;
@@ -14,15 +14,14 @@ using UnityEngine.UI;
 
 namespace GSP.Items.Inventories
 {
-    //TODO: Turn this from player to ally inventory
     /*******************************************************************************
      *
-     * Name: AllyInventory
+     * Name: PlayerInventory
      * 
-     * Description: The logic for the new inventory system for allies.
+     * Description: The logic for the new inventory system
      * 
      *******************************************************************************/
-    public class AllyInventory : Inventory<AllySlot>
+    public class PlayerInventory : Inventory<InventorySlot>
     {
         Dictionary<int, List<Item>> items;  // The list of items for the inventory
 
@@ -47,7 +46,7 @@ namespace GSP.Items.Inventories
         {
             // Call the parent's Awake() first
             base.Awake();
-
+            
             // Get Inventory's Bottom panel
             bottomGrid = GameObject.Find("Inventory/Bottom").transform;
 
@@ -107,6 +106,12 @@ namespace GSP.Items.Inventories
 
             // Create the bonus slots
             CreateSlots(numBonusSlotsCreate, SlotType.Bonus, bonusPanel, "BonusSlot ");
+
+            // Initialise player number to zero
+            playerNum = 0;
+
+            // Set the inventory to the current player's items
+            SetList(GetItems(playerNum));
         } // end Start
 
         // Runs each frame; used to update the tooltip's position
@@ -322,7 +327,7 @@ namespace GSP.Items.Inventories
         {
             // Call the parent's SetPlayer() first
             base.SetPlayer(playerNum);
-
+            
             // Set the player's stats
             SetStats((Merchant)GameMaster.Instance.GetPlayerScript(playerNum).Entity);
         } // end SetPlayer
@@ -344,6 +349,31 @@ namespace GSP.Items.Inventories
             items[playerNum].Clear();
             items[playerNum] = newItems;
         } // end SetItems
+
+        // Changes the player's list in the inventory
+        public void ChangePlayer(int player)
+        {
+            // Set the previous player's items if possible
+            if (player > 0 && player < (GameMaster.Instance.NumPlayers - 1))
+            {
+                // Get a temporary list of items
+                List<Item> tempItems = Items;
+
+                // Set the previous players items
+                SetItems((player - 1), tempItems);
+            } // end if
+            else if (player == (GameMaster.Instance.NumPlayers - 1))
+            {
+                // Get a temporary list of items
+                List<Item> tempItems = Items;
+
+                // Set the previous players items
+                SetItems((GameMaster.Instance.NumPlayers - 1), tempItems);
+            } // end else if
+
+            // Set the inventory to the given player's items
+            SetList(GetItems(player));
+        } // end ChangePlayer
 
         // Gets the beginning of the bonus slots
         public int BonusSlotBegin
@@ -368,5 +398,5 @@ namespace GSP.Items.Inventories
         {
             get { return armorSlot; }
         } // end ArmorSlot
-    } // end AllyInventory
+    } // end PlayerInventory
 } // end GSP.Items.Inventories
