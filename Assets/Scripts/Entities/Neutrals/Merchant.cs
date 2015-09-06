@@ -98,7 +98,7 @@ namespace GSP.Entities.Neutrals
             resources = new List<Resource>();
 
             // Get the inventory script
-            inventory = GameObject.Find("Canvas").transform.Find("Inventory").GetComponent<PlayerInventory>();
+            inventory = GameObject.Find("Canvas").transform.Find("PlayerInventory").GetComponent<PlayerInventory>();
 
             // Create a new ResourceUltity object
             resourceUtility = new ResourceUtility();
@@ -137,7 +137,7 @@ namespace GSP.Entities.Neutrals
             allyScript = GameObj.GetComponent<AllyList>();
 
 			// Update the inventory reference
-			inventory = GameObject.Find("Canvas").transform.Find("Inventory").GetComponent<PlayerInventory>();
+            inventory = GameObject.Find("Canvas").transform.Find("PlayerInventory").GetComponent<PlayerInventory>();
         } // end UpdateScriptReferences
 
         // Setup the Merchant's Sprite set. This is an array of Sprites that will be used for the Merchant
@@ -246,10 +246,10 @@ namespace GSP.Entities.Neutrals
             if ((TotalWeight + resource.Weight) * amount <= MaxWeight)
             {
                 // Check if there is enough room for this resource
-                if (inventory.FindFreeSlot(SlotType.Inventory) >= 0)
+                if (inventory.FindFreeSlot(PlayerNumber, SlotType.Inventory) >= 0)
                 {
                     // Add the resource to the inventory
-                    inventory.AddItem(resource.Id);
+                    inventory.AddItem(PlayerNumber, resource.Id, SlotType.Inventory);
 
                     // Update the inventory's stats
                     inventory.SetStats(this);

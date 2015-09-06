@@ -21,10 +21,23 @@ namespace GSP.Items.Inventories
      * Description: The logic for the new inventory system
      * 
      *******************************************************************************/
+    /*
+     * Items Dictionary Keys:
+     * 0 - Player 1 Items
+     * 1 - Player 2 Items
+     * 2 - Player 3 Items
+     * 3 - Player 4 Items
+     * 4 - Market Sell Items
+     * 5 - Market Buy Items
+     * 6 - Player 1's Ally 1 Items
+     * 7 - Player 2's Ally 1 Items
+     * 8 - Player 3's Ally 1 Items
+     * 9 - Player 4's Ally 1 Items
+     */
     public abstract class Inventory<TSlotType> : MonoBehaviour, IBaseInventory where TSlotType : class, IBaseSlot
     {
-        List<Item> items;       // The list of items for the inventory
-        List<GameObject> slots; // The list of inventory slots for the inventory
+        Dictionary<int, List<Item>> items2; // The dictionary of the lists of items for the each of the inventory system
+        List<GameObject> slots;             // The list of inventory slots for the inventory
 
         bool canShowTooltip;        // Whether the tooltip is show
         GameObject tooltip;         // The tooltip's GameObject
@@ -33,8 +46,10 @@ namespace GSP.Items.Inventories
         // Use this for initialisation
         protected virtual void Awake()
         {
-            // Initialise the lists
-            items = new List<Item>();
+            // Initialise the dictionary
+            items2 = new Dictionary<int, List<Item>>();
+            
+            // Initialise the list
             slots = new List<GameObject>();
 
             // Get the tooltip GameObject
@@ -44,6 +59,12 @@ namespace GSP.Items.Inventories
             {
                 tooltip.SetActive(false);
             } // end if
+
+            // Add all the EmptyItem's for all the inventory items
+            for (int key = 0; key < 10; key++)
+            {
+                items2.Add(key, new List<Item>());
+            } // end for
         } // end Awake
 
         // Use this for initialisation
@@ -70,13 +91,29 @@ namespace GSP.Items.Inventories
             } // end if
         } // end Update
 
+        // Creates an item list for a given key
+        protected void CreateItemList(int key, int numItems)
+        {
+            for (int index = 0; index < numItems; index++)
+            {
+                items2[key].Add(ItemDatabase.Instance.Items.Find(item => item.Type == "Empty"));
+            } // end for
+        } // end CreateItemList
+
+        // Empties an item list for a given key
+        protected void ClearItemList(int key)
+        {
+            items2[key].Clear();
+        } // end ClearItemList
+
         #region IBaseInventory Members
 
         // Create the slots for the inventory
         public void CreateSlots(int numSlots, SlotType slotType, Transform parent, string slotName)
         {
             // The slot's index
-            int slotIndex = slots.Count - 1;
+            //int slotIndex = Utility.ZeroClampInt(slots.Count - 1);
+            int slotIndex = slots.Count;
             
             // Loop to create the inventory slots
             for (int index = 0; index < numSlots; index++)
@@ -124,11 +161,14 @@ namespace GSP.Items.Inventories
 
                 // Add the slot to the list
                 slots.Add(slot);
+
+                // Increment the slot index
+                slotIndex++;
             } // end for
         } // end CreateSlots
 
         // Add an item to the inventory for the given player
-        public bool AddItem(int itemId)
+        public bool AddItem(int key, int itemId, SlotType slotType)
         {
             // Get the list of items from the ItemDatabase
             List<Item> database = ItemDatabase.Instance.Items;
@@ -139,13 +179,13 @@ namespace GSP.Items.Inventories
                 int freeSlot;   // The first slot that is free
 
                 // Check if there's space for the item
-                if ((freeSlot = FindFreeSlot(SlotType.Inventory)) >= 0)
+                if ((freeSlot = FindFreeSlot(key, slotType)) >= 0)
                 {
                     // Get the item from the database
                     Item tempItem = database[database.FindIndex(item => item.Id == itemId)];
 
                     // Place it in the free slot
-                    items[freeSlot] = tempItem;
+                    items2[key][freeSlot] = tempItem;
 
                     // Update the stats
                     SetStats((Merchant)GameMaster.Instance.GetPlayerScript(GameMaster.Instance.Turn).Entity);
@@ -167,7 +207,7 @@ namespace GSP.Items.Inventories
         } // end AddItem
 
         // Add an item to the inventory for a given player from a save file
-        public bool AddItemFromSave(int itemId, int slotNum)
+        public bool AddItemFromSave(int key, int itemId, int slotNum)
         {
             // Get the list of items from the ItemDatabase
             List<Item> database = ItemDatabase.Instance.Items;
@@ -179,7 +219,7 @@ namespace GSP.Items.Inventories
                 Item tempItem = database[database.FindIndex(item => item.Id == itemId)];
 
                 // Place it in the given slot
-                items[slotNum] = tempItem;
+                items2[key][slotNum] = tempItem;
 
                 // Return success
                 return true;
@@ -193,60 +233,59 @@ namespace GSP.Items.Inventories
         } // end AddItemFromSave
 
         // Removes an item from the inventory
-        public void Remove(int slotNum)
+        public void Remove(int key, int slotNum)
         {
             // Remove the item at the given slot
-            items[slotNum] = ItemDatabase.Instance.Items.Find(item => item.Type == "Empty");
+            items2[key][slotNum] = ItemDatabase.Instance.Items.Find(item => item.Type == "Empty");
 
             // Disable the tooltip
             ShowTooltip(null, false);
         } // end Remove
 
         // Removes an item from the inventory
-        public void Remove(Item item)
+        public void Remove(int key, Item item)
         {
             // Find the index of the item
-            int index = items.FindIndex(tempItem => tempItem.Id == item.Id);
+            int index = items2[key].FindIndex(tempItem => tempItem.Id == item.Id);
 
             // Remove the item
-            Remove(index);
+            Remove(key, index);
         } // end Remove
 
         // Swaps an item's place in the inventory with another slot
-        public void SwapItem(Item a, Item b)
+        public void SwapItem(int key, Item a, Item b)
         {
             int aSlot;  // The slot item a resides in
             int bSlot;  // The slot item b resides in
 
             // Get the item's indices
-            aSlot = items.FindIndex(aItem => aItem.Id == a.Id);
-            bSlot = items.FindIndex(bItem => bItem.Id == b.Id);
+            aSlot = items2[key].FindIndex(aItem => aItem.Id == a.Id);
+            bSlot = items2[key].FindIndex(bItem => bItem.Id == b.Id);
 
             // Now swap the items
-            items[aSlot] = b;
-            items[bSlot] = a;
+            items2[key][aSlot] = b;
+            items2[key][bSlot] = a;
         } // end SwapItem
 
         // Swaps an item's place in the inventory with another slot
-        public void SwapItem(int slotNumA, int slotNumB)
+        public void SwapItem(int key, int slotNumA, int slotNumB)
         {
             // Get the items in the slots
-            Item aItem = items[slotNumA];
-            Item bItem = items[slotNumB];
+            Item aItem = items2[key][slotNumA];
+            Item bItem = items2[key][slotNumB];
 
             // Swap the slots
-            items[slotNumA] = bItem;
-            items[slotNumB] = aItem;
+            items2[key][slotNumA] = bItem;
+            items2[key][slotNumB] = aItem;
         } // end SwapItem
 
         // Gets the first empty slot of the given SlotType
-        public virtual int FindFreeSlot(SlotType slotType)
+        public virtual int FindFreeSlot(int key, SlotType slotType)
         {
-            int freeSlot = -1;  // The next free slot of the given type
             int totalFreeSlot;  // The slot free between the inventory and bonus inventory
 
             // Find the next free slot
-            totalFreeSlot = FindAvailableSlot(slotType);
+            totalFreeSlot = FindAvailableSlot(key, slotType);
 
             // Check if we found a free slot
             if (totalFreeSlot < 0)
@@ -256,11 +295,11 @@ namespace GSP.Items.Inventories
             } // end if
 
             // Return the first empty slot
-            return freeSlot;
+            return totalFreeSlot;
         } // end FindFreeSlot
 
         // Gets the first empty slot of the given SlotType
-        int FindAvailableSlot(SlotType slotType)
+        int FindAvailableSlot(int key, SlotType slotType)
         {
             // The next free slot of the given type
             int freeSlot = -1;
@@ -275,7 +314,7 @@ namespace GSP.Items.Inventories
                 if (inventorySlot.SlotType == slotType)
                 {
                     // We have a matching slot type so check if the slot is empty
-                    if (items[index].Name == string.Empty)
+                    if (items2[key][index].Name == string.Empty)
                     {
                         // We have a matching free slot so set the slot to the current index
                         freeSlot = index;
@@ -291,10 +330,20 @@ namespace GSP.Items.Inventories
         } // end FindAvailableSlot
 
         // Gets an item at the given index
-        public Item GetItem(int slotNum)
+        public Item GetItem(int key, int slotNum)
         {
-            return items[slotNum];
+            return items2[key][slotNum];
         } // end GetItem
+
+        // Gets the items from the inventories
+        public List<Item> GetItems(int key)
+        {
+            // Create a temp list based on the items list
+            List<Item> tempItems = items2[key];
+            
+            // Return the temp items list
+            return tempItems;
+        } // end GetItems
 
         // Shows the tooltip window for item information
         public void ShowTooltip(Item item, bool canShow = true)
@@ -379,12 +428,6 @@ namespace GSP.Items.Inventories
         // Sets the stats in certain inventories
         public abstract void SetStats(Merchant player);
 
-        // Gets the items from the inventories
-        public abstract List<Item> GetItems(int playerNum);
-
-        // Sets the list of items to another list
-        protected abstract void SetItems(int playerNum, List<Item> newItems);
-
         void SetInventoryColor(InterfaceColors interfaceColor)
         {
             // Get the colour for the player's interface colour
@@ -405,29 +448,5 @@ namespace GSP.Items.Inventories
             // Set the inventory's colour
             SetInventoryColor(GameMaster.Instance.GetPlayerColor(playerNum));
         } // end SetPlayer
-
-        // Sets the list the current inventory will use
-        protected void SetList(List<Item> newItems)
-        {
-            // Clear the current list
-            items.Clear();
-
-            // Set the list to the new list
-            items = newItems;
-        } // end SetList
-
-        // Gets the items from the inventory
-        public List<Item> Items
-        {
-            get
-            {
-                // Get a temporary list from the items list
-                List<Item> tempItems = items;
-
-                // Return the temp list
-                return tempItems;
-            } // end get
-        } // end Items
-
     } // end Inventory
 } // end GSP.Items.Inventories

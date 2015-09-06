@@ -174,7 +174,7 @@ GameObject:
   - 114: {fileID: 11404480}
   - 114: {fileID: 11433274}
   m_Layer: 5
-  m_Name: Inventory
+  m_Name: PlayerInventory
   m_TagString: Inventory
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -884,7 +884,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 139476}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2e0287b167014624c869e8b28b880122, type: 3}
+  m_Script: {fileID: 11500000, guid: 811091661a475474bb153233fdffced7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!114 &11433818

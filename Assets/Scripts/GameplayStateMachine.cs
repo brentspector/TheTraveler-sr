@@ -94,8 +94,8 @@ namespace GSP
             TileManager.GenerateAndAddTiles();
 
 			// Get HUD elements
-            guiPlayerName = GameObject.Find("CurrentPlayer/PlayerName").GetComponent<Text>();
-            guiTurnText = GameObject.Find("CurrentPlayer/TurnPhase").GetComponent<Text>();
+            guiPlayerName = GameObject.Find("CurrentPlayer/PlayerNamePanel/PlayerName").GetComponent<Text>();
+            guiTurnText = GameObject.Find("CurrentPlayer/TurnPhasePanel/TurnPhase").GetComponent<Text>();
             guiGold = GameObject.Find("CurrentPlayer/WeightGold/Gold").GetComponent<Text>();
             guiWeight = GameObject.Find("CurrentPlayer/WeightGold/Weight").GetComponent<Text>();
             actionButton = GameObject.Find("CurrentPlayer/ActionButton").GetComponent<Button>();
@@ -104,7 +104,7 @@ namespace GSP
 			pauseMenu = GameObject.Find ("PauseMenu");
             imageParent = GameObject.Find("AllPlayers/ImageOrganizer");
             textParent = GameObject.Find("AllPlayers/TextOrganizer");
-            inventory = GameObject.Find("Inventory").GetComponent<PlayerInventory>();
+            inventory = GameObject.Find("PlayerInventory").GetComponent<PlayerInventory>();
             allyTable = GameObject.Find("Allies").GetComponent<AllyTable>();
 			GameObject.Find ("Canvas").transform.Find ("Instructions").gameObject.SetActive (false);
 			actionButtonActive = true;
@@ -225,6 +225,9 @@ namespace GSP
 
                 // Set the player's player number
                 ((Merchant)playerScript.Entity).PlayerNumber = count;
+
+                // Create the list of items for the player
+                inventory.CreatePlayerItemList(count);
 			} // end for
 		} // end AddPlayers
 
@@ -237,25 +240,19 @@ namespace GSP
                 // Loop over the number of players to give them the items
                 for (int count = 0; count < numPlayers; count++)
                 {
-                    // Change the inventory to the next player
-                    inventory.ChangePlayer(count);
-
                     // Get the starting items; could use indices, but this way is future proof from moving the items around
                     // in the database
                     Item weapon = ItemDatabase.Instance.Items.Find(item => item.Type == WeaponType.Sword.ToString());
                     Item legs = ItemDatabase.Instance.Items.Find(item => item.Type == ArmorType.Chainlegs.ToString());
 
                     // Add the items to the player's inventory
-                    inventory.AddItem(weapon.Id);
-                    inventory.AddItem(legs.Id);
+                    inventory.AddItem(count, weapon.Id, SlotType.Inventory);
+                    inventory.AddItem(count, legs.Id, SlotType.Inventory);
 
                     // Equip the items for the player
                     inventory.EquipItem(count, (Equipment)weapon);
                     inventory.EquipItem(count, (Equipment)legs);
                 } // end for
-
-                // Change the inventory back to the current player's turn
-                inventory.ChangePlayer(guiPlayerTurn);
             } // end if
 		} // end AddItems
 
@@ -467,15 +464,9 @@ namespace GSP
                                 // Get the player's merchant entity
                                 Merchant playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(playerSellIndex).Entity;
 
-                                // Change the inventory to the next player
-                                inventory.ChangePlayer(playerSellIndex);
-
                                 // We need to access the character script at the given index and sell the resources
                                 playerMerchant.SellResources();
                             } // end for
-
-                            // Change the inventory back the the current player's turn
-                            inventory.ChangePlayer(guiPlayerTurn);
 
                             // Save the players
                             GameMaster.Instance.SavePlayers();
@@ -657,15 +648,15 @@ namespace GSP
 				{
 					ShowInventory();
 				} //end if
-				GameObject.Find("Inventory").GetComponent<Button>().interactable = false;
-				GameObject.Find("Ally").GetComponent<Button>().interactable = false;
+                GameObject.Find("CurrentPlayer/InvAlly/Inventory").GetComponent<Button>().interactable = false;
+                GameObject.Find("CurrentPlayer/InvAlly/Ally").GetComponent<Button>().interactable = false;
 			} //end if
 			else
 			{
 				isPaused = false;
 				pauseMenu.SetActive(false);
-				GameObject.Find("Inventory").GetComponent<Button>().interactable = true;
-				GameObject.Find("Ally").GetComponent<Button>().interactable = true;
+                GameObject.Find("CurrentPlayer/InvAlly/Inventory").GetComponent<Button>().interactable = true;
+                GameObject.Find("CurrentPlayer/InvAlly/Ally").GetComponent<Button>().interactable = true;
 				if(actionButtonActive)
 				{
 					actionButton.interactable = true;

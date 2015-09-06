@@ -67,7 +67,7 @@ namespace GSP
             playerMerchant = (Merchant)playerScript.Entity;
 
             // Get the inventory script
-            inventory = GameObject.Find("Canvas").transform.Find("Inventory").GetComponent<PlayerInventory>();
+            inventory = GameObject.Find("Canvas").transform.Find("PlayerInventory").GetComponent<PlayerInventory>();
 			
 			// Get the tile at the player's position
 			Vector3 tmp = player.transform.localPosition;
@@ -285,7 +285,7 @@ namespace GSP
                 result = item.Name;
                 
                 // Add the item to the player's inventory
-                inventory.AddItem(item.Id);
+                inventory.AddItem(GameMaster.Instance.Turn, item.Id, SlotType.Inventory);
             } // end if
 			
 			// Set and return the result

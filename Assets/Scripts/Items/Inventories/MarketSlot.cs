@@ -100,14 +100,17 @@ namespace GSP.Items.Inventories
         void HandleBuying(Item item, Merchant merchant)
         {
             // Simply add the item back to the player's inventory
-            mainInventory.AddItem(item.Id);
+            mainInventory.AddItem(PlayerNumber, item.Id, SlotType.Inventory);
+
+            // Now remove it from the market's buy inventory
+            subInventory.Remove(5, item);
         } // end HandleBuying
 
         // Handles the market selling items to the player
         void HandleSelling(Item item, Merchant merchant)
         {
             // Check if the merchant has enough space in the inventory
-            if (mainInventory.FindFreeSlot(SlotType.Inventory) >= 0)
+            if (mainInventory.FindFreeSlot(PlayerNumber, SlotType.Inventory) >= 0)
             {
                 // Check if the merchant has enough currency to purchase the item
                 if (merchant.Currency >= ((Equipment)item).CostValue)
@@ -116,7 +119,7 @@ namespace GSP.Items.Inventories
                     merchant.Currency -= ((Equipment)item).CostValue;
 
                     // Add the item to the player's inventory
-                    mainInventory.AddItem(item.Id);
+                    mainInventory.AddItem(PlayerNumber, item.Id, SlotType.Inventory);
                 } // end if merchant.Currency >= ((Equipment)item).CostValue
             } // end if
         } // end HandleSelling

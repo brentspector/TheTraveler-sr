@@ -24,9 +24,6 @@ namespace GSP.Items.Inventories
      *******************************************************************************/
     public class Market : Inventory<MarketSlot>
     {
-        List<Item> sellItems;           // The list of items for the inventory for selling
-        List<Item> buyItems;            // The list of items for the inventory for buying
-        
         int numInventorySlotsCreate;    // The number of inventory slots to create
 
         Transform bottomGrid;       // The Inentory's Bottom Panel
@@ -45,10 +42,6 @@ namespace GSP.Items.Inventories
             // Get Inventory's Bottom panel
             bottomGrid = GameObject.Find("Market/Body").transform;
 
-            // Initialise the lists
-            sellItems = new List<Item>();
-            buyItems = new List<Item>();
-
             // Get the button objects
             buySellButton = GameObject.Find("Market/Buttons/BuySellButton");
             acceptButton = GameObject.Find("Market/Buttons/AcceptButton");
@@ -59,26 +52,9 @@ namespace GSP.Items.Inventories
             // Initialise the number of slots to create
             numInventorySlotsCreate = 30;
 
-            // Get the empty item to add later
-            Item emptyItem = ItemDatabase.Instance.Items.Find(item => item.Type == "Empty");
-
-            // Add the empty items to the inventory
-            for (int index = 0; index < numInventorySlotsCreate; index++)
-            {
-                // Add an empty item to the lists
-                sellItems.Add(emptyItem);
-                buyItems.Add(emptyItem);
-            } // end for
-        } // end Awake
-        
-        // Use this for initialisation
-        protected override void Start()
-        {
-            // Call the parent's Start() first
-            base.Start();
-
-            // Create the market slots
-            CreateSlots(numInventorySlotsCreate, SlotType.Market, bottomGrid, "MarketSlot ");
+            // Add the sell and buy items lists
+            CreateItemList(4, numInventorySlotsCreate);
+            CreateItemList(5, numInventorySlotsCreate);
 
             // Get all the equipment items
             List<Item> equipment = ItemDatabase.Instance.Items.FindAll(item => item is Equipment);
@@ -95,19 +71,26 @@ namespace GSP.Items.Inventories
                 // Otherwise the items won't fit so only fill with a portion of them
                 itemsToAdd = numInventorySlotsCreate;
             } // end else
-
+            
             // Loop to set the proper items
             for (int index = 0; index < itemsToAdd; index++)
             {
                 // Add the current item to the market inventory
-                sellItems[index] = equipment[index];
+                AddItemFromSave(4, equipment[index].Id, index);
             } // end for
 
             // The default action for the market is selling
             action = MarketAction.Sell;
+        } // end Awake
+        
+        // Use this for initialisation
+        protected override void Start()
+        {
+            // Call the parent's Start() first
+            base.Start();
 
-            // Set the inventory to the market's sell items
-            SetList(GetItems(-1));
+            // Create the market slots
+            CreateSlots(numInventorySlotsCreate, SlotType.Market, bottomGrid, "MarketSlot ");
         } // end Start
 
         // Runs each frame; used to update the tooltip's position
@@ -119,10 +102,10 @@ namespace GSP.Items.Inventories
 
         // Gets the first empty slot of the given SlotType
         // Note: Only usuable in buy mode; returns -1 otherwise
-        public override int FindFreeSlot(SlotType slotType)
+        public override int FindFreeSlot(int key, SlotType slotType)
         {
             // Find the next free slot using the parent's calculations
-            int freeSlot = base.FindFreeSlot(slotType);
+            int freeSlot = base.FindFreeSlot(key, slotType);
 
             // Check if we found a free slot
             if (freeSlot < 0)
@@ -135,45 +118,25 @@ namespace GSP.Items.Inventories
             return Utility.ClampInt(freeSlot, 0, numInventorySlotsCreate);
         } // end FindFreeSlot
 
-        // Gets the items from the inventory
-        public override List<Item> GetItems(int notUsed)
+        // Gets an item from the market's inventories based upon the current action
+        public Item GetItem(int slotNum)
         {
-            // Get a temporary list from the items list
-            List<Item> tempItems = null;
-            
-            // Return the items based upon the current action
+            // Declare the item we'll use
+            Item item = null;
+
+            // Check we are in sell mode
             if (action == MarketAction.Sell)
             {
-                // Return the selling items
-                tempItems = sellItems;
+                item = GetItem(4, slotNum);
             } // end if
             else
             {
-                // Otherwise return the buying items
-                tempItems = buyItems;
+                item = GetItem(5, slotNum);
             } // end else
 
-            // Return the temp list
-            return tempItems;
-        } // end GetItems
-
-        // Sets the list of items to another list
-        protected override void SetItems(int notUsed, List<Item> newItems)
-        {
-            // Set the items based upon the current action
-            if (action == MarketAction.Sell)
-            {
-                // Clear amd set the new selling items
-                sellItems.Clear();
-                sellItems = newItems;
-            } // end if
-            else
-            {
-                // Otherwise clear and set the new buying items
-                buyItems.Clear();
-                buyItems = newItems;
-            } // end else
-        } // end SetItems
+            // Return the item
+            return item;
+        } // end GetItem
 
         // Set the stats for the status panels
         public override void SetStats(Merchant player)
@@ -216,13 +179,6 @@ namespace GSP.Items.Inventories
                     acceptButton.SetActive(true);
                 } // end if
             } // end else
-
-            // Get and set the previous items
-            List<Item> tempItems = Items;
-            SetItems(-1, tempItems);
-
-            // Set the inventory to the market's next items
-            SetList(GetItems(-1));
         } // end ToggleBuySell
 
         void ToggleAction()
@@ -242,10 +198,10 @@ namespace GSP.Items.Inventories
         public void SellItems(bool isSelling = true)
         {
             // Get all the items in the buy items window
-            List<Item> tempItems = buyItems.FindAll(item => item.Name != string.Empty);
+            List<Item> tempItems = GetItems(5).FindAll(item => item.Name != string.Empty);
 
             // Get the inventory for the player
-            PlayerInventory inventory = GameObject.Find("Canvas").transform.Find("Inventory").GetComponent<PlayerInventory>();
+            PlayerInventory inventory = GameObject.Find("Canvas").transform.Find("PlayerInventory").GetComponent<PlayerInventory>();
 
             // Get the player's merchant
             Merchant playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(GameMaster.Instance.Turn).Entity;
@@ -284,20 +240,16 @@ namespace GSP.Items.Inventories
                     foreach (Item item in tempItems)
                     {
                         // Add the current item to the player's inventory
-                        inventory.AddItem(item.Id);
+                        inventory.AddItem(GameMaster.Instance.Turn, item.Id, SlotType.Inventory);
                     } // end foreach
                 } // end if
             }
 
             // Clear the buy items list
-            // Empty item for later
-            Item emptyItem = ItemDatabase.Instance.Items.Find(item => item.Type == "Empty");
+            ClearItemList(5);
 
-            // Loop through the buy items list to return it to an empty state
-            for (int index = 0; index < numInventorySlotsCreate; index++)
-            {
-                buyItems[index] = emptyItem;
-            } // end for
+            // Recreate the buy items list
+            CreateItemList(5, numInventorySlotsCreate);
         }
 
         // Gets the action the market is doing
