@@ -30,10 +30,10 @@ namespace GSP.Items.Inventories
         public void OnPointerEnter(PointerEventData pointerEventData)
         {
             // Check if there is an item in the slot
-            if (subInventory.GetItem(SlotId).Name != string.Empty)
+            if (subInventory.GetItem(AllyNumber, SlotId).Name != string.Empty)
             {
                 // Show the tooltip window while hovering over an item
-                subInventory.ShowTooltip(subInventory.GetItem(SlotId));
+                subInventory.ShowTooltip(subInventory.GetItem(AllyNumber, SlotId));
             } // end if
         } // end OnPointerEnter
 
@@ -45,7 +45,7 @@ namespace GSP.Items.Inventories
         public void OnPointerExit(PointerEventData pointerEventData)
         {
             // Check if there is an item in the slot
-            if (subInventory.GetItem(SlotId).Name != string.Empty)
+            if (subInventory.GetItem(AllyNumber, SlotId).Name != string.Empty)
             {
                 // Show the tooltip window while not hovering over an item
                 subInventory.ShowTooltip(null, false);
@@ -73,10 +73,10 @@ namespace GSP.Items.Inventories
             if (pointerEventData.pointerId == -2)
             {
                 // Check if there is an item in the slot
-                if (subInventory.GetItem(SlotId).Name != string.Empty)
+                if (subInventory.GetItem(AllyNumber, SlotId).Name != string.Empty)
                 {
                     // Get the item that was right clicked
-                    Item item = subInventory.GetItem(SlotId);
+                    Item item = subInventory.GetItem(AllyNumber, SlotId);
 
                     // TODO: Do something with the ally inventory later
                 } // end if inventory.GetItem(PlayerNumber, SlotId).Name != string.Empty

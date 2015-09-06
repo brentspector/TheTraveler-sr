@@ -14,7 +14,7 @@ namespace GSP
             GameMaster.Instance.LoadPlayers(true);
 
             // Set the colours
-            GameObject.Find("Canvas").transform.Find("Inventory").GetComponent<PlayerInventory>().SetPlayer(GameMaster.Instance.Turn);
+            GameObject.Find("Canvas").transform.Find("PlayerInventory").GetComponent<PlayerInventory>().SetPlayer(GameMaster.Instance.Turn);
             GameObject.Find("Canvas").transform.Find("Market").GetComponent<Market>().SetPlayer(GameMaster.Instance.Turn);
         } // end Awake
 

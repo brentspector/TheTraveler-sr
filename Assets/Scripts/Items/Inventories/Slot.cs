@@ -50,7 +50,7 @@ namespace GSP.Items.Inventories
 
             // For now there is only a single ally so this is defaulted to zero
             allyNum = 0;
-            
+
             // Get the main inventory component reference
             if (GameObject.Find(typeof(TMainInventory).Name) != null)
             {
@@ -78,23 +78,31 @@ namespace GSP.Items.Inventories
             {
                 // Set the player number to the current turn
                 playerNum = GameMaster.Instance.Turn;
+
+                // Set the player's ally number
+                allyNum = playerNum + 6;
             } // end if
+
+            if (mainInventory == null)
+            {
+                Debug.Log("Update: Main Inventory is null");
+            }
             
             // Check if the inventory exists
             if (mainInventory != null && mainInventoryIcon != null)
             {
                 // Check if the slot contains an item
-                if (mainInventory.GetItem(slotId).Name != string.Empty)
+                if (mainInventory.GetItem(PlayerNumber, slotId).Name != string.Empty)
                 {
                     // Enable the component
                     if (!mainInventoryIcon.enabled)
                     {
                         mainInventoryIcon.enabled = true;
-                        mainInventoryIcon.sprite = mainInventory.GetItem(slotId).Icon;
+                        mainInventoryIcon.sprite = mainInventory.GetItem(PlayerNumber, slotId).Icon;
                     } // end if
                     else
                     {
-                        mainInventoryIcon.sprite = mainInventory.GetItem(slotId).Icon;
+                        mainInventoryIcon.sprite = mainInventory.GetItem(PlayerNumber, slotId).Icon;
                     } // end else
                 } // end if
                 else
@@ -111,17 +119,17 @@ namespace GSP.Items.Inventories
             if (subInventory != null && subInventoryIcon != null)
             {
                 // Check if the slot contains an item
-                if (subInventory.GetItem(slotId).Name != string.Empty)
+                if (GetItem(slotId).Name != string.Empty)
                 {
                     // Enable the component
                     if (!subInventoryIcon.enabled)
                     {
                         subInventoryIcon.enabled = true;
-                        subInventoryIcon.sprite = subInventory.GetItem(slotId).Icon;
+                        subInventoryIcon.sprite = GetItem(slotId).Icon;
                     } // end if
                     else
                     {
-                        subInventoryIcon.sprite = subInventory.GetItem(slotId).Icon;
+                        subInventoryIcon.sprite = GetItem(slotId).Icon;
                     } // end else
                 } // end if
                 else
@@ -134,6 +142,30 @@ namespace GSP.Items.Inventories
                 } // end else
             } // end if
         } // end Update
+
+        // Gets an item based on sub inventory type
+        Item GetItem(int slotId)
+        {
+            // The item to return
+            Item item = null;
+            
+            // Check if the sub inventory is the market
+            if (typeof(TSubInventory) == typeof(Market))
+            {
+                // Get the item from the market
+                item = ((Market)(object)subInventory).GetItem(slotId);
+            } // end if
+            // Check if the sub inventory is the ally inventory
+            // Check if the sub inventory is the market
+            else if (typeof(TSubInventory) == typeof(AllyInventory))
+            {
+                // Get the item from the ally inventory
+                item = subInventory.GetItem(AllyNumber, slotId);
+            } // end if
+
+            // Return the item
+            return item;
+        } // end GetItem
 
         // Shows an icon for the inventory
         public void ShowIcon(Image icon, bool canShow)
