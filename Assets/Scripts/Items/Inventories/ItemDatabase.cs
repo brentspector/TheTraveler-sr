@@ -70,4 +70,4 @@ namespace GSP.Items.Inventories
             } // end get
         } // end Items
     } // end ItemDatabase
-} // end GSP.Items.Inventory
+} // end GSP.Items.Inventories

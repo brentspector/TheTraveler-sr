@@ -996,7 +996,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1286205519}
   m_Direction: 2
   m_Value: 1
-  m_Size: .222222224
+  m_Size: .190476194
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -1078,7 +1078,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: .196078435, g: .196078435, b: .196078435, a: 1}
   m_FontData:
-    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_Font: {fileID: 12800000, guid: 6c2346a7b30c3f244b9b682f53717a8f, type: 3}
     m_FontSize: 14
     m_FontStyle: 0
     m_BestFit: 0
@@ -1086,8 +1086,8 @@ MonoBehaviour:
     m_MaxSize: 40
     m_Alignment: 0
     m_RichText: 0
-    m_HorizontalOverflow: 0
-    m_VerticalOverflow: 0
+    m_HorizontalOverflow: 1
+    m_VerticalOverflow: 1
     m_LineSpacing: 1
   m_Text: 
 --- !u!222 &169883775
@@ -1144,7 +1144,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: .196078435, g: .196078435, b: .196078435, a: 1}
   m_FontData:
-    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_Font: {fileID: 12800000, guid: 6c2346a7b30c3f244b9b682f53717a8f, type: 3}
     m_FontSize: 14
     m_FontStyle: 0
     m_BestFit: 0
@@ -1310,7 +1310,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: .196078435, g: .196078435, b: .196078435, a: 1}
   m_FontData:
-    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_Font: {fileID: 12800000, guid: 6c2346a7b30c3f244b9b682f53717a8f, type: 3}
     m_FontSize: 14
     m_FontStyle: 0
     m_BestFit: 0
@@ -1642,7 +1642,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: .196078435, g: .196078435, b: .196078435, a: 1}
   m_FontData:
-    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_Font: {fileID: 12800000, guid: 6c2346a7b30c3f244b9b682f53717a8f, type: 3}
     m_FontSize: 14
     m_FontStyle: 0
     m_BestFit: 0
@@ -1833,8 +1833,8 @@ RectTransform:
   m_RootOrder: 0
   m_AnchorMin: {x: .5, y: .5}
   m_AnchorMax: {x: .5, y: .5}
-  m_AnchoredPosition: {x: -10, y: -350}
-  m_SizeDelta: {x: 380, y: 900}
+  m_AnchoredPosition: {x: -10, y: -425}
+  m_SizeDelta: {x: 380, y: 1050}
   m_Pivot: {x: .5, y: .5}
 --- !u!114 &470385192
 MonoBehaviour:
@@ -1850,7 +1850,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: .196078435, g: .196078435, b: .196078435, a: 1}
   m_FontData:
-    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_Font: {fileID: 12800000, guid: 6c2346a7b30c3f244b9b682f53717a8f, type: 3}
     m_FontSize: 14
     m_FontStyle: 0
     m_BestFit: 0
@@ -1861,58 +1861,22 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'Created By:
-
-
-    Brent Spector - Lead Game Designer
-
-    Damien Robbs - Lead Programmer
-
-
-    Audio:
-
-    All audio by Kevin MacLeod, obtained from http://incompetech.com/music/royalty-free/collections.php
-
-    Menu - "Americana"
-
-    Desert Map - "Lord of the Land"
-
-    Snow Map - "Bumba Crossing"
-
-    Metropolis Map - "Destiny Day"
-
-    European Map - "Heroic Age"
-
-    Victory - "The Curtain Rises"
-
-    Draw - "Evening Melodrama"
-
-    Loss - "Hero Down"
-
-
-    Art:
-
-    Desert Battle Background - Created by VectorOpenStock.com. Obtained from http://www.freevector.com/desert-vector-art/
-
-
-    European Battle Background - Created by VectorOpenStock.com and freevector. Meadow
-    obtained from http://www.freevector.com/sunny-field/ and Sky Design obtained from
-    http://www.vecteezy.com/vector-art/73689-insect-with-flowers
-
-
-    Metropolis Battle Background - Created by Options-Connect. Obtained from http://all-free-download.com/free-vector/download/sunrise_background_vector_40676.html
-
-
-    Snow Battle Background - Created by dapino-colada.nl. Obtained from http://www.freevector.com/winter-landscape-vector/
-
-
-    Armor - Created by Clint Bellanger, Blarumyrran, crowline (CrowLineStudio), and
-    Justin Nichol.
-
-    Obtained from http://opengameart.org/content/armor-icons-by-equipment-slot
-
-
-    Weapons - Mod/Created by VWolfdog. Obtained from http://opengameart.org/content/32x32-icons-flare-compatible'
+  m_Text: "Created By:\n\nBrent Spector - Lead Game Designer\nDamien Robbs - Lead
+    Programmer\n\nAudio:\nAll audio by Kevin MacLeod, obtained from http://incompetech.com/music/royalty-free/collections.php\nMenu
+    - \"Americana\"\nDesert Map - \"Lord of the Land\"\nSnow Map - \"Bumba Crossing\"\nMetropolis
+    Map - \"Destiny Day\"\nEuropean Map - \"Heroic Age\"\nVictory - \"The Curtain
+    Rises\"\nDraw - \"Evening Melodrama\"\nLoss - \"Hero Down\"\n\nArt:\nDesert Battle
+    Background - Created by VectorOpenStock.com. Obtained from http://www.freevector.com/desert-vector-art/\n\nEuropean
+    Battle Background - Created by VectorOpenStock.com and freevector. Meadow obtained
+    from http://www.freevector.com/sunny-field/ and Sky Design obtained from http://www.vecteezy.com/vector-art/73689-insect-with-flowers\n\nMetropolis
+    Battle Background - Created by Options-Connect. Obtained from http://all-free-download.com/free-vector/download/sunrise_background_vector_40676.html\n\nSnow
+    Battle Background - Created by dapino-colada.nl. Obtained from http://www.freevector.com/winter-landscape-vector/\n\nMarket
+    Merchant - Created by LiDou. Obtained from http://www.freevector.com/patriarch/
+    \n\nArmor - Created by Clint Bellanger, Blarumyrran, crowline (CrowLineStudio),
+    and Justin Nichol.\nObtained from http://opengameart.org/content/armor-icons-by-equipment-slot\n\nWeapons
+    - Mod/Created by VWolfdog. Obtained from http://opengameart.org/content/32x32-icons-flare-compatible\n\nFonts:\nTitle
+    Font - \"DevinneSwashShadow\" by Dieter Steffmann. Obtained from  http://www.1001fonts.com/devinne-swash-font.html.\nMain
+    Font - \"DevinneSwash\" by Dieter Steffmann. Obtained from  http://www.1001fonts.com/devinne-swash-font.html."
 --- !u!222 &470385193
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -2331,7 +2295,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: .196078435, g: .196078435, b: .196078435, a: 1}
   m_FontData:
-    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_Font: {fileID: 12800000, guid: 6c2346a7b30c3f244b9b682f53717a8f, type: 3}
     m_FontSize: 14
     m_FontStyle: 0
     m_BestFit: 0
@@ -2339,8 +2303,8 @@ MonoBehaviour:
     m_MaxSize: 40
     m_Alignment: 0
     m_RichText: 0
-    m_HorizontalOverflow: 0
-    m_VerticalOverflow: 0
+    m_HorizontalOverflow: 1
+    m_VerticalOverflow: 1
     m_LineSpacing: 1
   m_Text: 
 --- !u!222 &588249798
@@ -3105,7 +3069,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: .196078435, g: .196078435, b: .196078435, a: 1}
   m_FontData:
-    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_Font: {fileID: 12800000, guid: 6c2346a7b30c3f244b9b682f53717a8f, type: 3}
     m_FontSize: 14
     m_FontStyle: 0
     m_BestFit: 0
@@ -3113,8 +3077,8 @@ MonoBehaviour:
     m_MaxSize: 40
     m_Alignment: 0
     m_RichText: 0
-    m_HorizontalOverflow: 0
-    m_VerticalOverflow: 0
+    m_HorizontalOverflow: 1
+    m_VerticalOverflow: 1
     m_LineSpacing: 1
   m_Text: 
 --- !u!222 &745345178
@@ -4365,7 +4329,7 @@ RectTransform:
   m_RootOrder: 1
   m_AnchorMin: {x: .5, y: .5}
   m_AnchorMax: {x: .5, y: .5}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: -37, y: 20}
   m_SizeDelta: {x: 225, y: 40}
   m_Pivot: {x: .5, y: .5}
 --- !u!114 &952024989
@@ -4382,7 +4346,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: .898031235, g: .941176474, b: .15916954, a: 1}
   m_FontData:
-    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_Font: {fileID: 12800000, guid: b98b62fe75e6d08488a36402c9cf41ca, type: 3}
     m_FontSize: 40
     m_FontStyle: 0
     m_BestFit: 0
@@ -4879,7 +4843,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: .941176474, g: 1, b: 0, a: 1}
   m_FontData:
-    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_Font: {fileID: 12800000, guid: 6c2346a7b30c3f244b9b682f53717a8f, type: 3}
     m_FontSize: 14
     m_FontStyle: 0
     m_BestFit: 0
@@ -4890,7 +4854,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'Player 2''s Name and Colour:'
+  m_Text: 'Player 2''s Name and Color:'
 --- !u!222 &965280411
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -5750,7 +5714,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: .941176474, g: 1, b: 0, a: 1}
   m_FontData:
-    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_Font: {fileID: 12800000, guid: 6c2346a7b30c3f244b9b682f53717a8f, type: 3}
     m_FontSize: 14
     m_FontStyle: 0
     m_BestFit: 0
@@ -5761,7 +5725,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'Player 3''s Name and Colour:'
+  m_Text: 'Player 3''s Name and Color:'
 --- !u!222 &1151822581
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -6090,7 +6054,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: .196078435, g: .196078435, b: .196078435, a: 1}
   m_FontData:
-    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_Font: {fileID: 12800000, guid: 6c2346a7b30c3f244b9b682f53717a8f, type: 3}
     m_FontSize: 14
     m_FontStyle: 0
     m_BestFit: 0
@@ -6434,7 +6398,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: .196078435, g: .196078435, b: .196078435, a: .5}
   m_FontData:
-    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_Font: {fileID: 12800000, guid: 6c2346a7b30c3f244b9b682f53717a8f, type: 3}
     m_FontSize: 14
     m_FontStyle: 2
     m_BestFit: 0
@@ -6442,8 +6406,8 @@ MonoBehaviour:
     m_MaxSize: 40
     m_Alignment: 0
     m_RichText: 1
-    m_HorizontalOverflow: 0
-    m_VerticalOverflow: 0
+    m_HorizontalOverflow: 1
+    m_VerticalOverflow: 1
     m_LineSpacing: 1
   m_Text: Enter text...
 --- !u!222 &1271849605
@@ -7146,7 +7110,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: .196078435, g: .196078435, b: .196078435, a: 1}
   m_FontData:
-    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_Font: {fileID: 12800000, guid: 6c2346a7b30c3f244b9b682f53717a8f, type: 3}
     m_FontSize: 14
     m_FontStyle: 0
     m_BestFit: 0
@@ -7886,7 +7850,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: .196078435, g: .196078435, b: .196078435, a: .5}
   m_FontData:
-    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_Font: {fileID: 12800000, guid: 6c2346a7b30c3f244b9b682f53717a8f, type: 3}
     m_FontSize: 14
     m_FontStyle: 2
     m_BestFit: 0
@@ -7894,8 +7858,8 @@ MonoBehaviour:
     m_MaxSize: 40
     m_Alignment: 0
     m_RichText: 1
-    m_HorizontalOverflow: 0
-    m_VerticalOverflow: 0
+    m_HorizontalOverflow: 1
+    m_VerticalOverflow: 1
     m_LineSpacing: 1
   m_Text: Enter text...
 --- !u!222 &1425597227
@@ -8115,8 +8079,8 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: .944827676, g: 1, b: 0, a: 1}
   m_FontData:
-    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 20
+    m_Font: {fileID: 12800000, guid: 6c2346a7b30c3f244b9b682f53717a8f, type: 3}
+    m_FontSize: 18
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 10
@@ -8124,7 +8088,7 @@ MonoBehaviour:
     m_Alignment: 1
     m_RichText: 1
     m_HorizontalOverflow: 0
-    m_VerticalOverflow: 0
+    m_VerticalOverflow: 1
     m_LineSpacing: 1
   m_Text: Please select a map.
 --- !u!222 &1437962631
@@ -8814,7 +8778,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: .196078435, g: .196078435, b: .196078435, a: .5}
   m_FontData:
-    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_Font: {fileID: 12800000, guid: 6c2346a7b30c3f244b9b682f53717a8f, type: 3}
     m_FontSize: 14
     m_FontStyle: 2
     m_BestFit: 0
@@ -8822,8 +8786,8 @@ MonoBehaviour:
     m_MaxSize: 40
     m_Alignment: 0
     m_RichText: 1
-    m_HorizontalOverflow: 0
-    m_VerticalOverflow: 0
+    m_HorizontalOverflow: 1
+    m_VerticalOverflow: 1
     m_LineSpacing: 1
   m_Text: Enter text...
 --- !u!222 &1570720268
@@ -8880,7 +8844,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: .196078435, g: .196078435, b: .196078435, a: 1}
   m_FontData:
-    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_Font: {fileID: 12800000, guid: 6c2346a7b30c3f244b9b682f53717a8f, type: 3}
     m_FontSize: 14
     m_FontStyle: 0
     m_BestFit: 0
@@ -8888,8 +8852,8 @@ MonoBehaviour:
     m_MaxSize: 40
     m_Alignment: 0
     m_RichText: 0
-    m_HorizontalOverflow: 0
-    m_VerticalOverflow: 0
+    m_HorizontalOverflow: 1
+    m_VerticalOverflow: 1
     m_LineSpacing: 1
   m_Text: 
 --- !u!222 &1580973625
@@ -10000,7 +9964,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: .941176474, g: 1, b: 0, a: 1}
   m_FontData:
-    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_Font: {fileID: 12800000, guid: 6c2346a7b30c3f244b9b682f53717a8f, type: 3}
     m_FontSize: 14
     m_FontStyle: 0
     m_BestFit: 0
@@ -10011,7 +9975,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'Player 4''s Name and Colour:'
+  m_Text: 'Player 4''s Name and Color:'
 --- !u!222 &1739765928
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -10093,7 +10057,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1738574107}
   m_Direction: 2
   m_Value: 1
-  m_Size: .200000003
+  m_Size: .15384616
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -11393,7 +11357,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: .196078435, g: .196078435, b: .196078435, a: .5}
   m_FontData:
-    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_Font: {fileID: 12800000, guid: 6c2346a7b30c3f244b9b682f53717a8f, type: 3}
     m_FontSize: 14
     m_FontStyle: 2
     m_BestFit: 0
@@ -11401,8 +11365,8 @@ MonoBehaviour:
     m_MaxSize: 40
     m_Alignment: 0
     m_RichText: 1
-    m_HorizontalOverflow: 0
-    m_VerticalOverflow: 0
+    m_HorizontalOverflow: 1
+    m_VerticalOverflow: 1
     m_LineSpacing: 1
   m_Text: Enter text...
 --- !u!222 &1912638036
@@ -12236,7 +12200,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: .196078435, g: .196078435, b: .196078435, a: 1}
   m_FontData:
-    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_Font: {fileID: 12800000, guid: 6c2346a7b30c3f244b9b682f53717a8f, type: 3}
     m_FontSize: 14
     m_FontStyle: 0
     m_BestFit: 0
@@ -12302,7 +12266,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: .196078435, g: .196078435, b: .196078435, a: 1}
   m_FontData:
-    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_Font: {fileID: 12800000, guid: 6c2346a7b30c3f244b9b682f53717a8f, type: 3}
     m_FontSize: 14
     m_FontStyle: 0
     m_BestFit: 0
@@ -12701,7 +12665,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: .941176474, g: 1, b: 0, a: 1}
   m_FontData:
-    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_Font: {fileID: 12800000, guid: 6c2346a7b30c3f244b9b682f53717a8f, type: 3}
     m_FontSize: 14
     m_FontStyle: 0
     m_BestFit: 0
@@ -12712,7 +12676,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'Player 1''s Name and Colour:'
+  m_Text: 'Player 1''s Name and Color:'
 --- !u!222 &2114571515
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -12883,8 +12847,8 @@ RectTransform:
   m_RootOrder: 0
   m_AnchorMin: {x: .5, y: .5}
   m_AnchorMax: {x: .5, y: .5}
-  m_AnchoredPosition: {x: -10, y: -400}
-  m_SizeDelta: {x: 380, y: 1000}
+  m_AnchoredPosition: {x: -10, y: -550}
+  m_SizeDelta: {x: 380, y: 1300}
   m_Pivot: {x: .5, y: .5}
 --- !u!114 &2130850022
 MonoBehaviour:
@@ -12900,7 +12864,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: .196078435, g: .196078435, b: .196078435, a: 1}
   m_FontData:
-    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_Font: {fileID: 12800000, guid: 6c2346a7b30c3f244b9b682f53717a8f, type: 3}
     m_FontSize: 14
     m_FontStyle: 0
     m_BestFit: 0

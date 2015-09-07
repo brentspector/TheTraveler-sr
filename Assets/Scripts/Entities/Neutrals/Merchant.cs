@@ -30,7 +30,7 @@ namespace GSP.Entities.Neutrals
         int maxWeight;		                // The maximum weight the entity can hold
         int currency; 		                // The amount of currency the entity is holding
         List<Resource> resources;           // The list of resources
-        Inventory inventory;                // The inventory of the player
+        PlayerInventory inventory;                // The inventory of the player
         ResourceUtility resourceUtility;    // The resource utility functions
 
         #endregion
@@ -98,7 +98,7 @@ namespace GSP.Entities.Neutrals
             resources = new List<Resource>();
 
             // Get the inventory script
-            inventory = GameObject.Find("Canvas").transform.Find("Inventory").GetComponent<Inventory>();
+            inventory = GameObject.Find("Canvas").transform.Find("PlayerInventory").GetComponent<PlayerInventory>();
 
             // Create a new ResourceUltity object
             resourceUtility = new ResourceUtility();
@@ -137,7 +137,7 @@ namespace GSP.Entities.Neutrals
             allyScript = GameObj.GetComponent<AllyList>();
 
 			// Update the inventory reference
-			inventory = GameObject.Find("Canvas").transform.Find("Inventory").GetComponent<Inventory>();
+            inventory = GameObject.Find("Canvas").transform.Find("PlayerInventory").GetComponent<PlayerInventory>();
         } // end UpdateScriptReferences
 
         // Setup the Merchant's Sprite set. This is an array of Sprites that will be used for the Merchant
@@ -246,10 +246,10 @@ namespace GSP.Entities.Neutrals
             if ((TotalWeight + resource.Weight) * amount <= MaxWeight)
             {
                 // Check if there is enough room for this resource
-                if (inventory.FindFreeSlot(GameMaster.Instance.Turn, SlotType.Inventory) >= 0)
+                if (inventory.FindFreeSlot(PlayerNumber, SlotType.Inventory) >= 0)
                 {
                     // Add the resource to the inventory
-                    inventory.AddItem(GameMaster.Instance.Turn, resource.Id);
+                    inventory.AddItem(PlayerNumber, resource.Id, SlotType.Inventory);
 
                     // Update the inventory's stats
                     inventory.SetStats(this);
