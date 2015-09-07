@@ -71,7 +71,7 @@ namespace GSP
 		GameObject imageParent;						// Panel with all player images
 		GameObject textParent;						// Panel with all player names and gold
         // Inventory
-        Inventory inventory;                        // The inventory script for the Inventory
+        PlayerInventory inventory;                        // The inventory script for the Inventory
         // Aliies
         AllyTable allyTable;                        // The ally table script for the AllyTable
 
@@ -104,7 +104,7 @@ namespace GSP
 			pauseMenu = GameObject.Find ("PauseMenu");
             imageParent = GameObject.Find("AllPlayers/ImageOrganizer");
             textParent = GameObject.Find("AllPlayers/TextOrganizer");
-            inventory = GameObject.Find("Inventory").GetComponent<Inventory>();
+            inventory = GameObject.Find("PlayerInventory").GetComponent<PlayerInventory>();
             allyTable = GameObject.Find("Allies").GetComponent<AllyTable>();
 			GameObject.Find ("Canvas").transform.Find ("Instructions").gameObject.SetActive (false);
 			actionButtonActive = true;
@@ -225,6 +225,9 @@ namespace GSP
 
                 // Set the player's player number
                 ((Merchant)playerScript.Entity).PlayerNumber = count;
+
+                // Create the list of items for the player
+                inventory.CreatePlayerItemList(count);
 			} // end for
 		} // end AddPlayers
 
@@ -241,10 +244,10 @@ namespace GSP
                     // in the database
                     Item weapon = ItemDatabase.Instance.Items.Find(item => item.Type == WeaponType.Sword.ToString());
                     Item legs = ItemDatabase.Instance.Items.Find(item => item.Type == ArmorType.Chainlegs.ToString());
-                    
+
                     // Add the items to the player's inventory
-                    inventory.AddItem(count, weapon.Id);
-                    inventory.AddItem(count, legs.Id);
+                    inventory.AddItem(count, weapon.Id, SlotType.Inventory);
+                    inventory.AddItem(count, legs.Id, SlotType.Inventory);
 
                     // Equip the items for the player
                     inventory.EquipItem(count, (Equipment)weapon);
@@ -645,15 +648,15 @@ namespace GSP
 				{
 					ShowInventory();
 				} //end if
-				GameObject.Find("Inventory").GetComponent<Button>().interactable = false;
-				GameObject.Find("Ally").GetComponent<Button>().interactable = false;
+                GameObject.Find("CurrentPlayer/InvAlly/Inventory").GetComponent<Button>().interactable = false;
+                GameObject.Find("CurrentPlayer/InvAlly/Ally").GetComponent<Button>().interactable = false;
 			} //end if
 			else
 			{
 				isPaused = false;
 				pauseMenu.SetActive(false);
-				GameObject.Find("Inventory").GetComponent<Button>().interactable = true;
-				GameObject.Find("Ally").GetComponent<Button>().interactable = true;
+                GameObject.Find("CurrentPlayer/InvAlly/Inventory").GetComponent<Button>().interactable = true;
+                GameObject.Find("CurrentPlayer/InvAlly/Ally").GetComponent<Button>().interactable = true;
 				if(actionButtonActive)
 				{
 					actionButton.interactable = true;
