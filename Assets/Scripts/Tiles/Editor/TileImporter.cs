@@ -135,6 +135,9 @@ namespace GSP.Tiles
 			// Tag the instance as a Resource
 			instance.tag = "Resource";
 
+            // Set the instance on the resource layer
+            instance.layer = 9;
+
 			// Use the position of the game object we're attached to
             instance.transform.parent = gameObject.transform;
             instance.transform.localPosition = new Vector3(0.0f, 0.0f, -1.0f);
