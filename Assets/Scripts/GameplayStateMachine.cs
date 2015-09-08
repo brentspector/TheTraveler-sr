@@ -288,6 +288,9 @@ namespace GSP
             {
                 // Save the players
                 GameMaster.Instance.SavePlayers();
+                
+                // Save the resources
+                GameMaster.Instance.SaveResources();
 
                 // Finally, tell the GameMaster to load the end scene
                 GameMaster.Instance.LoadLevel("Market");
