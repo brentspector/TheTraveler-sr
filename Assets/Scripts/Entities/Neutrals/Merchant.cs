@@ -223,6 +223,12 @@ namespace GSP.Entities.Neutrals
             } // end switch facingDirection
         } // end Face
 
+        // Gets an ally GameObject
+        public GameObject GetAlly(int allyNumber)
+        {
+            return allyScript.GetObject(allyNumber);
+        } // end GetAlly
+
         // Gets the Merchant's colour
         public InterfaceColors Color
         {
