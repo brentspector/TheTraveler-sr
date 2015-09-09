@@ -58,7 +58,9 @@ namespace GSP.Entities.Neutrals
         List<Sprite> charSprites;		// The Sprite's for the Character
         SpriteRenderer spriteRenderer;  // SpriteRenderer component of the Character
 
-        AllyList allyScript;				// The ally script object
+        AllyList allyScript;    // The ally script object
+
+        Transform target;   // The target the merchant is going after
 
         int playerNum;  // The merchant's player number
 
@@ -74,6 +76,9 @@ namespace GSP.Entities.Neutrals
 
             // Set the Merchant's colour
             color = playerCoulours;
+
+            // Initialise the target to null
+            target = null;
 
             // Initialise the player number
             playerNum = -1;
@@ -229,6 +234,13 @@ namespace GSP.Entities.Neutrals
         {
             get { return allyScript.NumAllies; }
         } // end NumAllies
+
+        // Gets and Sets the merchant's target
+        public Transform Target
+        {
+            get { return target; }
+            set { target = value; }
+        } // end Target
 
         // Gets and Sets the Merchants player number
         public int PlayerNumber
