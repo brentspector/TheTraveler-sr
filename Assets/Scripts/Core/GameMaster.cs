@@ -526,7 +526,7 @@ namespace GSP.Core
             } // end else
 
             // Get the Inventory component
-			Inventory inventory = GameObject.Find("Canvas").transform.Find("Inventory").GetComponent<Inventory>();
+			PlayerInventory inventory = GameObject.Find("Canvas").transform.Find("PlayerInventory").GetComponent<PlayerInventory>();
 
             // Loop over the player's inventory to store their item IDs
             for (int index = 0; index < (inventory.BonusSlotEnd + 1); index++)
@@ -598,7 +598,10 @@ namespace GSP.Core
                 }
 
                 // Get the Inventory component
-				Inventory inventory = GameObject.Find("Canvas").transform.Find("Inventory").GetComponent<Inventory>();
+                PlayerInventory inventory = GameObject.Find("Canvas").transform.Find("PlayerInventory").GetComponent<PlayerInventory>();
+
+                // Create the list of items for the player
+                inventory.CreatePlayerItemList(playerNum);
 
                 // Loop over the player's inventory to restore it
                 for (int index = 0; index < (inventory.BonusSlotEnd + 1); index++)
@@ -617,7 +620,7 @@ namespace GSP.Core
                 // Check if the player is playing
                 if (player.Key < numPlayers)
                 {
-                    // Save the current player
+                    // Load the current player
                     Instance.LoadPlayer(player.Key, isDataOnly);
                 } // end if
             } // end foreach
