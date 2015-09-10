@@ -1,4 +1,5 @@
-﻿/*******************************************************************************
+﻿using GSP.Char.Allies;
+/*******************************************************************************
  *
  *  File Name: AllyInventory.cs
  *
@@ -38,13 +39,13 @@ namespace GSP.Items.Inventories
             base.Awake();
 
             // Get Inventory's Bottom panel
-            bottomGrid = GameObject.Find("PlayerInventory/Bottom").transform;
+            bottomGrid = GameObject.Find("AllyInventory/Bottom").transform;
 
             // Get the Inventory's Top/StatusLeft panel
-            statusLeft = GameObject.Find("PlayerInventory/Top/StatusLeft").transform;
+            statusLeft = GameObject.Find("AllyInventory/Top/StatusLeft").transform;
 
             // Get the Inventory's Top/StatusRight panel
-            statusRight = GameObject.Find("PlayerInventory/Top/StatusRight").transform;
+            statusRight = GameObject.Find("AllyInventory/Top/StatusRight").transform;
 
             // Initialise the number of slots to create
             numInventorySlotsCreate = 28;
@@ -57,7 +58,7 @@ namespace GSP.Items.Inventories
             base.Start();
 
             // Create the inventory slots
-            CreateSlots(numInventorySlotsCreate, SlotType.Inventory, bottomGrid, "InventorySlot ");
+            CreateSlots(numInventorySlotsCreate, SlotType.Ally, bottomGrid, "InventorySlot ");
         } // end Start
 
         // Runs each frame; used to update the tooltip's position
@@ -100,7 +101,7 @@ namespace GSP.Items.Inventories
         {
             // Hard coding it for now to accept the first ally of the player
             // that happens to be porter
-            Porter ally = player.GetAlly(0).GetComponent<Porter>();
+            Porter ally = (Porter)player.GetAlly(0).GetComponent<PorterMB>().Entity;
             
             // Set the ally's name
             statusLeft.GetChild(0).GetChild(1).GetComponent<Text>().text = ally.Name;
@@ -124,5 +125,11 @@ namespace GSP.Items.Inventories
             // Set the player's stats
             SetStats((Merchant)GameMaster.Instance.GetPlayerScript(playerNum).Entity);
         } // end SetPlayer
+
+        // Gets the max space for the inventory
+        public int MaxSpace
+        {
+            get { return numInventorySlotsCreate; }
+        } // end MaxSpace
     } // end AllyInventory
 } // end GSP.Items.Inventories

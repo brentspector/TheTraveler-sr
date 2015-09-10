@@ -28,6 +28,8 @@ namespace GSP.Entities.Friendlies
         #endregion
 
         FriendlyType friendlyType;  // Holds the type value from the FriendlyType enumeration
+
+        int allyNumber; // The ally's number
         
         // Constructor; Derived classes create an entity object
         public Friendly(int ID, GameObject gameObject) : base(ID, gameObject)
@@ -48,6 +50,13 @@ namespace GSP.Entities.Friendlies
             get { return friendlyType; }
             protected set { friendlyType = value; }
         } // end FriendlyType
+
+        // Gets and Sets the Ally's number
+        public int AllyNumber
+        {
+            get { return allyNumber; }
+            set { allyNumber = value; }
+        } // end PlayerNumber
 
         #region IDamageable Members
 

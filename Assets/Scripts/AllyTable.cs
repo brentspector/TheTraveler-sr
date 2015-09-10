@@ -32,6 +32,9 @@ namespace GSP
 
             // Get the reference to the body panel
             body = GameObject.Find("Canvas").transform.Find("Allies/Body");
+
+            // Deactivate the ally line by default
+            body.GetChild(1).gameObject.SetActive(false);
         } // end Awake
 
         // Sets the player's ally stats and colour
@@ -44,7 +47,14 @@ namespace GSP
             title.GetChild(0).GetComponent<Text>().text = player.Name + "'s Allies";
             
             // Set the number of allies
-            body.GetChild(1).GetComponent<Text>().text = player.NumAllies.ToString();
+            body.GetChild(0).GetChild(1).GetComponent<Text>().text = player.NumAllies.ToString();
+
+            // Check if the player has allies; hard coded for a single ally right now
+            if (player.NumAllies > 0)
+            {
+                // Activate the ally line
+                body.GetChild(1).gameObject.SetActive(true);
+            } // end if
             
             // Set the interface colour to the player's colour
             GameObject.Find("Canvas").transform.Find("Allies").GetComponent<Image>().color =

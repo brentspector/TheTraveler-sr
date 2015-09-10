@@ -22,7 +22,8 @@ namespace GSP.Items.Inventories
      *              This is done through Unity's EventSystems interfaces.
      * 
      *******************************************************************************/
-    public class AllySlot : Slot<PlayerInventory, AllyInventory>, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler
+    public class AllySlot : Slot<PlayerInventory, Market, AllyInventory>, 
+        IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler
     {
         #region IPointerEnterHandler Members
 
@@ -30,10 +31,10 @@ namespace GSP.Items.Inventories
         public void OnPointerEnter(PointerEventData pointerEventData)
         {
             // Check if there is an item in the slot
-            if (subInventory.GetItem(AllyNumber, SlotId).Name != string.Empty)
+            if (subInventoryTwo.GetItem(AllyNumber, SlotId).Name != string.Empty)
             {
                 // Show the tooltip window while hovering over an item
-                subInventory.ShowTooltip(subInventory.GetItem(AllyNumber, SlotId));
+                subInventoryTwo.ShowTooltip(subInventoryTwo.GetItem(AllyNumber, SlotId));
             } // end if
         } // end OnPointerEnter
 
@@ -45,10 +46,10 @@ namespace GSP.Items.Inventories
         public void OnPointerExit(PointerEventData pointerEventData)
         {
             // Check if there is an item in the slot
-            if (subInventory.GetItem(AllyNumber, SlotId).Name != string.Empty)
+            if (subInventoryTwo.GetItem(AllyNumber, SlotId).Name != string.Empty)
             {
                 // Show the tooltip window while not hovering over an item
-                subInventory.ShowTooltip(null, false);
+                subInventoryTwo.ShowTooltip(null, false);
             } // end if
         } // end OnPointerEnter
 
@@ -73,10 +74,10 @@ namespace GSP.Items.Inventories
             if (pointerEventData.pointerId == -2)
             {
                 // Check if there is an item in the slot
-                if (subInventory.GetItem(AllyNumber, SlotId).Name != string.Empty)
+                if (subInventoryTwo.GetItem(AllyNumber, SlotId).Name != string.Empty)
                 {
                     // Get the item that was right clicked
-                    Item item = subInventory.GetItem(AllyNumber, SlotId);
+                    Item item = subInventoryTwo.GetItem(AllyNumber, SlotId);
 
                     // TODO: Do something with the ally inventory later
                 } // end if inventory.GetItem(PlayerNumber, SlotId).Name != string.Empty

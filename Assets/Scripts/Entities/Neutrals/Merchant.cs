@@ -30,7 +30,7 @@ namespace GSP.Entities.Neutrals
         int maxWeight;		                // The maximum weight the entity can hold
         int currency; 		                // The amount of currency the entity is holding
         List<Resource> resources;           // The list of resources
-        PlayerInventory inventory;                // The inventory of the player
+        PlayerInventory inventory;          // The inventory of the player
         ResourceUtility resourceUtility;    // The resource utility functions
 
         #endregion

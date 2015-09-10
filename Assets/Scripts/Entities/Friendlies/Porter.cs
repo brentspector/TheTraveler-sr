@@ -7,8 +7,11 @@
  *******************************************************************************/
 using GSP.Char;
 using GSP.Char.Allies;
+using GSP.Core;
 using GSP.Entities.Interfaces;
+using GSP.Entities.Neutrals;
 using GSP.Items;
+using GSP.Items.Inventories;
 using GSP.Tiles;
 using System.Collections.Generic;
 using UnityEngine;
@@ -27,9 +30,11 @@ namespace GSP.Entities.Friendlies
 	{
         #region IInventory Variables
 
-        int maxWeight;		        // The maximum weight the entity can hold
-        int currency; 		        // The amount of currency the entity is holding
-        List<Resource> resources;   // The list of resources
+        int maxWeight;		                // The maximum weight the entity can hold
+        int currency; 		                // The amount of currency the entity is holding
+        List<Resource> resources;           // The list of resources
+        AllyInventory inventory;            // The inventory of the ally
+        ResourceUtility resourceUtility;    // The resource utility functions
 
         #endregion
 
@@ -62,6 +67,12 @@ namespace GSP.Entities.Friendlies
             // Get the ResourceList component reference
             resources = new List<Resource>();
 
+            // Get the inventory script
+            inventory = GameObject.Find("Canvas").transform.Find("AllyInventory").GetComponent<AllyInventory>();
+
+            // Create a new ResourceUltity object
+            resourceUtility = new ResourceUtility();
+
             #endregion
 		} // end Porter
 
@@ -76,20 +87,81 @@ namespace GSP.Entities.Friendlies
         // Picks up a resource for an entity adding it to their ResourceList
         public bool PickupResource(Items.Resource resource, int amount, bool isFromMap = true)
         {
-            //TODO: Damien: Not implemented for allies yet
-            return false;
+            // Check if picking up this resource will put the entity overweight
+            if ((TotalWeight + resource.Weight) * amount <= MaxWeight)
+            {
+                // Check if there is enough room for this resource
+                if (inventory.FindFreeSlot(AllyNumber, SlotType.Inventory) >= 0)
+                {
+                    // Add the resource to the inventory
+                    inventory.AddItem(AllyNumber, resource.Id, SlotType.Inventory);
+
+                    // Update the inventory's stats; this is hard coded for a single ally
+                    inventory.SetStats((Merchant)GameMaster.Instance.GetPlayerScript(AllyNumber - 6).Entity);
+
+                    // Return success
+                    return true;
+                } // end if
+                else
+                {
+                    Debug.Log("Pickup failed. Max inventory capacity reached.");
+
+                    // Return failure
+                    return false;
+                } // end else
+            } // end if
+            else
+            {
+                Debug.Log("Pickup failed. Max inventory weight reached.");
+
+                // Return failure
+                return false;
+            } // end else
         } // end PickupResource
 
         // Sells a resource for an entity removing it from their ResourceList
         public void SellResource(Resource resource, int amount)
         {
-            //TODO: Damien: Not implemented for allies yet
+            // A temporary list to hold the resources
+            List<Resource> tmpResources = new List<Resource>();
+
+            // The counter for the for loop below
+            int count = 0;
+
+            // Get all the resources of the given resource's type
+            tmpResources = ResourceUtility.GetResourcesByType(resource.ResourceType, AllyNumber, false);
+
+            // Check if the returned number of resources is fewer than amount
+            if (tmpResources.Count < amount)
+            {
+                // Set the counter to the number of resources found
+                count = tmpResources.Count;
+            } // end if
+            else
+            {
+                // Set the counter to amount
+                count = amount;
+            } // end else
+
+            // Loop over the list until we reach count
+            for (int index = 0; index < count; index++)
+            {
+                // Credit the entity for the resource
+                currency += tmpResources[index].Worth;
+
+                // Remove the resource from the inventory
+                ResourceUtility.RemoveResource(tmpResources[index], AllyNumber, false);
+            } // end for
         } // end SellResource
 
         // Sells all resources for an entity clearing their ResourceList
         public void SellResources()
         {
-            //TODO: Damien: Not implemented for allies yet
+            // Credit the entity for the resources they are holding
+            currency += TotalWorth;
+
+            // Remove all the resources now
+            ResourceUtility.RemoveResources(AllyNumber, false);
         } // end SellResources
 
         // Transfers currency from the entity to another entity
@@ -108,29 +180,101 @@ namespace GSP.Entities.Friendlies
         // Transfers a resource from the entity to another entity
         public bool TransferResource<TInventoryEntity>(TInventoryEntity other, Items.Resource resource) where TInventoryEntity : IInventory
         {
-            //TODO: Damien: Not implemented for allies yet
-            return false;
+            // Check if the resource object exists
+            if (resource == null)
+            {
+                // The resource object is invalid so return failure
+                return false;
+            } // end if
+
+            // Have the other entity pickup the resource and test if it's a success
+            if (other.PickupResource(resource, 1, false))
+            {
+                // The pickup succeeded so remove the resource from the entity's inventory
+                ResourceUtility.RemoveResource(resource, AllyNumber, false);
+
+                // Return success
+                return true;
+            } // end if
+            else
+            {
+                // The pickup failed for the other entity so return failure
+                Debug.Log("Transfer failed.");
+                return false;
+            }
         } // end TransferResource
+
+        // Gets the ResourceUtility object
+        public ResourceUtility ResourceUtility
+        {
+            get { return resourceUtility; }
+        } // end ResourceUtility
 
         // Gets the list of resources of the entity
         public List<Resource> Resources
         {
-            //TODO: Damien: Not implemented for allies yet
-            get { return resources; }
+            get
+            {
+                // Get the list of resources in the player's inventory
+                resources = ResourceUtility.GetResources(AllyNumber, false);
+
+                // Create a temporary list based on the list of resources
+                List<Resource> tempList = resources;
+
+                // Return the temporary list
+                return tempList;
+            } // end get
         } // end Resources
 
         // Gets the TotalWeight of the entity's resources
         public int TotalWeight
         {
-            //TODO: Damien: Not implemented for allies yet
-            get { return 0; }
+            get
+            {
+                // The total weight of all the resources in the player's inventory
+                int totalWeight = 0;
+
+                // Get all the resources
+                List<Resource> allResources = Resources;
+
+                // Make sure there are resources
+                if (allResources.Count > 0)
+                {
+                    // Get the total weight
+                    foreach (Resource resource in allResources)
+                    {
+                        totalWeight += resource.Weight;
+                    } // end foreach
+                } // end if
+                // Return the total weight
+                return totalWeight;
+            } // end get
         } // end TotalWeight
 
-        // Gets the TotalWorth of the entity's resources
+        // Gets the TotalValue of the entity's resources
         public int TotalWorth
         {
-            //TODO: Damien: Not implemented for allies yet
-            get { return 0; }
+            get
+            {
+                // The total weight of all the resources in the player's inventory
+                int totalWorth = 0;
+
+                // Get all the resources
+                List<Resource> allResources = Resources;
+
+                // Make sure there are resources
+                if (allResources.Count > 0)
+                {
+                    // Get the total worth
+                    foreach (Resource resource in allResources)
+                    {
+                        totalWorth += resource.Worth;
+                    } // end foreach
+                } // end if
+
+                // Return the total worth
+                return totalWorth;
+            } // end get
         } // end TotalWorth
 
         // Gets and Sets the MaxWeight of the entity
@@ -140,11 +284,10 @@ namespace GSP.Entities.Friendlies
             set { maxWeight = Utility.ZeroClampInt(value); }
         } // end MaxWeight
 
-        // Gets and Sets the MaxInventorySpace of the entity
+        // Gets the MaxInventorySpace of the entity
         public int MaxInventorySpace
         {
-            //TODO: Damien: Not implemented for allies yet
-            get { return 0; }
+            get { return inventory.MaxSpace; }
         } // end MaxInventorySpace
 
         // Gets and Sets the Currency of the entity

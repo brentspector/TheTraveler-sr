@@ -21,7 +21,8 @@ namespace GSP.Items.Inventories
      *              through Unity's EventSystems interfaces.
      * 
      *******************************************************************************/
-    public class InventorySlot : Slot<PlayerInventory, Market>, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler
+    public class InventorySlot : Slot<PlayerInventory, Market, AllyInventory>, 
+        IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler
     {
         #region IPointerEnterHandler Members
 
@@ -78,9 +79,9 @@ namespace GSP.Items.Inventories
                     Item item = mainInventory.GetItem(PlayerNumber, SlotId);
 
                     // Check if the market exists and is in buy mode
-                    if (subInventory != null && subInventory is Market)
+                    if (subInventoryOne != null && subInventoryOne is Market)
                     {
-                        if (subInventory.Action == MarketAction.Buy)
+                        if (((Market)(object)subInventoryOne).Action == MarketAction.Buy)
                         {
                             // Handle selling to the market
                             SellToMarket(item);
@@ -91,6 +92,11 @@ namespace GSP.Items.Inventories
                             HandleEquipment(item);
                         } // end else
                     } // end if
+                    // Check if the ally inventory exists
+                    else if (subInventoryTwo != null && subInventoryTwo is AllyInventory)
+                    {
+                        // Handle the transferring to the ally's inventory
+                    } // end else if
                     else
                     {
                         // Otherwise, handle any equipment
@@ -146,7 +152,7 @@ namespace GSP.Items.Inventories
             if (SlotId < mainInventory.WeaponSlot)
             {
                 // Add it to the market's inventory
-                if (subInventory.AddItem(5, item.Id, SlotType.Market))
+                if (subInventoryOne.AddItem(5, item.Id, SlotType.Market))
                 {
                     // Now remove it from the player's inventory
                     mainInventory.Remove(PlayerNumber, item);
