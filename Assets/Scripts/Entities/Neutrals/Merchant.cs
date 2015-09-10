@@ -60,7 +60,7 @@ namespace GSP.Entities.Neutrals
 
         AllyList allyScript;    // The ally script object
 
-        Transform target;   // The target the merchant is going after
+        Vector3 target;   // The target the merchant is going after
 
         int playerNum;  // The merchant's player number
 
@@ -78,7 +78,7 @@ namespace GSP.Entities.Neutrals
             color = playerCoulours;
 
             // Initialise the target to null
-            target = null;
+            target = Vector3.zero;
 
             // Initialise the player number
             playerNum = -1;
@@ -236,7 +236,7 @@ namespace GSP.Entities.Neutrals
         } // end NumAllies
 
         // Gets and Sets the merchant's target
-        public Transform Target
+        public Vector3 Target
         {
             get { return target; }
             set { target = value; }

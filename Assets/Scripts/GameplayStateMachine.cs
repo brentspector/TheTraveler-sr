@@ -71,7 +71,7 @@ namespace GSP
 		GameObject imageParent;						// Panel with all player images
 		GameObject textParent;						// Panel with all player names and gold
         // Inventory
-        PlayerInventory inventory;                        // The inventory script for the Inventory
+        PlayerInventory inventory;                  // The inventory script for the Inventory
         // Aliies
         AllyTable allyTable;                        // The ally table script for the AllyTable
 
@@ -488,7 +488,13 @@ namespace GSP
                     } // end Case default
             } // end switch gamePlayState
 		} // end StateMachine
-		
+
+		// Gets the guiDiceDistVal
+		public int GetDist()
+		{
+			return guiDiceDistVal;
+		} // end GetDist
+
 		// Gets the current state
         public int GetState()
 		{
