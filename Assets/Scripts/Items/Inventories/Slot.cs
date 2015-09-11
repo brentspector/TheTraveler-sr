@@ -204,19 +204,36 @@ namespace GSP.Items.Inventories
             // The item to return
             Item item = null;
             
-            // Check if the sub inventory is the market
-            if (typeof(TSubInventoryOne) == typeof(Market) && subInventoryOne != null)
+            if (slotType == SlotType.Market)
             {
                 // Get the item from the market
                 item = ((Market)(object)subInventoryOne).GetItem(slotId);
-            } // end if
-            
-            // Check if the sub inventory is the ally inventory
-            if (typeof(TSubInventoryTwo) == typeof(AllyInventory) && subInventoryTwo != null)
+            }
+            else if (slotType == SlotType.Ally)
             {
                 // Get the item from the ally inventory
                 item = subInventoryTwo.GetItem(AllyNumber, slotId);
-            } // end if
+            }
+            
+            //// Check if the sub inventory is the market
+            //if (typeof(TSubInventoryOne) == typeof(Market) && subInventoryOne != null)
+            //{
+            //    if (slotId < ((Market)(object)subInventoryOne).MaxSpace)
+            //    {
+            //        // Get the item from the market
+            //        item = ((Market)(object)subInventoryOne).GetItem(slotId);
+            //    } // end if slotId < ((Market)(object)subInventoryOne).MaxSpace
+            //} // end if
+            
+            //// Check if the sub inventory is the ally inventory
+            //if (typeof(TSubInventoryTwo) == typeof(AllyInventory) && subInventoryTwo != null)
+            //{
+            //    if (slotId < ((AllyInventory)(object)subInventoryTwo).MaxSpace)
+            //    {
+            //        // Get the item from the ally inventory
+            //        item = subInventoryTwo.GetItem(AllyNumber, slotId);
+            //    } // end if slotId < ((AllyInventory)(object)subInventoryTwo).MaxSpace
+            //} // end if
 
             // Return the item
             return item;

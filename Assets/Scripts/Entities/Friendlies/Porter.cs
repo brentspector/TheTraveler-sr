@@ -58,8 +58,8 @@ namespace GSP.Entities.Friendlies
 
             #region IInventory Variable Initialisation
 
-            // The entity's max weight is a random number between 6 and 120
-            maxWeight = die.Roll(1, 20) * 6;
+            // The entity's max weight is a random number between 25 and 120
+            maxWeight = Utility.ClampInt(die.Roll(1, 20) * 6 + 25, 25, 150);
 
             // The entity starts with no currency
             currency = 0;
@@ -91,10 +91,10 @@ namespace GSP.Entities.Friendlies
             if ((TotalWeight + resource.Weight) * amount <= MaxWeight)
             {
                 // Check if there is enough room for this resource
-                if (inventory.FindFreeSlot(AllyNumber, SlotType.Inventory) >= 0)
+                if (inventory.FindFreeSlot(AllyNumber, SlotType.Ally) >= 0)
                 {
                     // Add the resource to the inventory
-                    inventory.AddItem(AllyNumber, resource.Id, SlotType.Inventory);
+                    inventory.AddItem(AllyNumber, resource.Id, SlotType.Ally);
 
                     // Update the inventory's stats; this is hard coded for a single ally
                     inventory.SetStats((Merchant)GameMaster.Instance.GetPlayerScript(AllyNumber - 6).Entity);

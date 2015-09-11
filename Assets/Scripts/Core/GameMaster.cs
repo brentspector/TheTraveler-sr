@@ -387,6 +387,9 @@ namespace GSP.Core
                         // Give the ally script the ID for the ally
                         script.GetAlly(entID);
 
+                        // Set the ally's number
+                        ((Friendly)script.Entity).AllyNumber = GameMaster.Instance.Turn + 6;
+
                         break;
                     } // end case Porter
                 case Entities.FriendlyType.Mercenary:
@@ -411,6 +414,9 @@ namespace GSP.Core
 
                         // Give the ally script the ID for the ally
                         script.GetAlly(entID);
+
+                        // Set the ally's number
+                        ((Friendly)script.Entity).AllyNumber = GameMaster.Instance.Turn + 6;
 
                         break;
                     } // end case Mercenary
@@ -497,6 +503,9 @@ namespace GSP.Core
             // Create a new player data instance
             PlayerData playerData = new PlayerData();
 
+            // Create a new ally data instance
+            AllyData allyData = new AllyData();
+
             // Set the player's name
             playerData.Name = Instance.GetPlayerName(playerNum);
             
@@ -515,9 +524,19 @@ namespace GSP.Core
                 // Get the Ally's GameObject
                 GameObject ally = Instance.GetPlayerObject(playerNum).GetComponent<AllyList>()[0];
 
-                //TODO: Damien: This is hard-coded for the Porter ally
-                // Set the player's ally entity ID
+                // Set the player's ally entity ID; This is hard-coded for the Porter ally
                 playerData.AllyId = ally.GetComponent<PorterMB>().Entity.Id;
+
+                // Get the ally's inventory component
+                AllyInventory allyInventory = GameObject.Find("Canvas").transform.Find("AllyInventory").
+                    GetComponent<AllyInventory>();
+
+                // Loop over the player's inventory to store their item IDs
+                for (int index = 0; index < allyInventory.MaxSpace; index++)
+                {
+                    // Hardcoded for a single ally
+                    allyData.AddItemId(allyInventory.GetItem(playerNum + 6, index).Id);
+                } // end for
             } // end if
             else
             {
@@ -526,13 +545,17 @@ namespace GSP.Core
             } // end else
 
             // Get the Inventory component
-			PlayerInventory inventory = GameObject.Find("Canvas").transform.Find("PlayerInventory").GetComponent<PlayerInventory>();
+			PlayerInventory inventory = GameObject.Find("Canvas").transform.Find("PlayerInventory").
+                GetComponent<PlayerInventory>();
 
             // Loop over the player's inventory to store their item IDs
             for (int index = 0; index < (inventory.BonusSlotEnd + 1); index++)
             {
                 playerData.AddItemId(inventory.GetItem(playerNum, index).Id);
             } // end for
+
+            // Add the ally data to the player data
+            playerData.AllyData = allyData;
 
             // Now write the data to the file
             binaryFormatter.Serialize(fileStream, playerData);
@@ -574,6 +597,9 @@ namespace GSP.Core
                 // Create a player data instance from the file
                 PlayerData playerData = (PlayerData)binaryFormater.Deserialize(fileStream);
 
+                // Create the ally's data from the player's data
+                AllyData allyData = playerData.AllyData;
+
                 // Now close the file stream
                 fileStream.Close();
 
@@ -582,6 +608,13 @@ namespace GSP.Core
 
                 // Set the player's position
                 Instance.GetPlayerScript(playerNum).Position = playerData.Position;
+
+                // Get the ally's Inventory component
+                AllyInventory allyInventory = GameObject.Find("Canvas").transform.Find("AllyInventory").
+                    GetComponent<AllyInventory>();
+
+                // Create the list of items for the player; hard coded for a single ally
+                allyInventory.CreateAllyItemList(playerNum + 6);
 
                 // Check if the player had an ally
                 if (playerData.AllyId >= 0)
@@ -595,10 +628,21 @@ namespace GSP.Core
                     // Add the add to the player
                     var list = Instance.GetPlayerObject(playerNum).GetComponent<AllyList>();
                     list.AddAlly(allyObj);
+                    
+                    // Check if the ally data's list has items
+                    if(allyData.IdsCount > 0)
+                    {   
+                        // Loop over the player's inventory to restore it
+                        for (int index = 0; index < allyInventory.MaxSpace; index++)
+                        {
+                            allyInventory.AddItemFromSave(playerNum + 6, allyData.GetItemId(index), index);
+                        } // end for
+                    } // end if
                 }
 
                 // Get the Inventory component
-                PlayerInventory inventory = GameObject.Find("Canvas").transform.Find("PlayerInventory").GetComponent<PlayerInventory>();
+                PlayerInventory inventory = GameObject.Find("Canvas").transform.Find("PlayerInventory").
+                    GetComponent<PlayerInventory>();
 
                 // Create the list of items for the player
                 inventory.CreatePlayerItemList(playerNum);

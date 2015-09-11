@@ -65,6 +65,8 @@ namespace GSP.Items.Inventories
             {
                 items.Add(key, new List<Item>());
             } // end for
+
+            slots.Clear();
         } // end Awake
 
         // Use this for initialisation
@@ -112,9 +114,7 @@ namespace GSP.Items.Inventories
         public void CreateSlots(int numSlots, SlotType slotType, Transform parent, string slotName)
         {
             // The slot's index
-            //int slotIndex = Utility.ZeroClampInt(slots.Count - 1);
-            int slotIndex = slots.Count;
-            
+            int slotIndex = slots.Count;            
             // Loop to create the inventory slots
             for (int index = 0; index < numSlots; index++)
             {
@@ -307,6 +307,12 @@ namespace GSP.Items.Inventories
             // Loop over the items and slots to determine the next free slot
             for (int index = 0; index < slots.Count; index++)
             {
+                Debug.LogFormat("Slot Count: {0}", slots.Count);
+                if (slots[index] == null)
+                {
+                    Debug.LogWarningFormat("The slot at index '{0}' is null!", index);
+                }
+
                 // Get the current slot's script reference
                 TSlotType inventorySlot = slots[index].GetComponent<TSlotType>();
 

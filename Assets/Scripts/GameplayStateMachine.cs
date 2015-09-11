@@ -705,8 +705,23 @@ namespace GSP
             {
                 // Otherwise, close the ally window
                 allyInventory.gameObject.SetActive(false);
+
+                // Close the inventory window if it's open
+                if (isInventoryOpen)
+                {
+                    ShowInventory();
+                } // end if
             } // end else
         } // end ShowAllyInventory
+
+        public void AllyTradeWithPlayer()
+        {
+            // Toggle the inventory
+            ShowInventory();
+
+            // Toggle the ally window
+            ShowAllies();
+        } // end AllyTradeWithPlayer
 
 		// Pause button - Displays pause menu and pauses game
 		public void PauseGame()

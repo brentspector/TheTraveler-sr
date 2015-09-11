@@ -40,6 +40,8 @@ namespace GSP
         // Sets the player's ally stats and colour
         public void SetPlayer(int playerNum)
         {
+            Debug.LogFormat("AllyTable: playerNum: {0}", playerNum);
+
             // Get the player's script
             Player player = GameMaster.Instance.GetPlayerScript(playerNum);
 
@@ -55,6 +57,10 @@ namespace GSP
                 // Activate the ally line
                 body.GetChild(1).gameObject.SetActive(true);
             } // end if
+            else
+            {
+                body.GetChild(1).gameObject.SetActive(false);
+            } // end else
             
             // Set the interface colour to the player's colour
             GameObject.Find("Canvas").transform.Find("Allies").GetComponent<Image>().color =

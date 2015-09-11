@@ -1,4 +1,5 @@
-﻿/*******************************************************************************
+﻿using GSP.Char.Allies;
+/*******************************************************************************
  *
  *  File Name: AllySlot.cs
  *
@@ -8,6 +9,7 @@
  *
  *******************************************************************************/
 using GSP.Core;
+using GSP.Entities.Friendlies;
 using GSP.Entities.Neutrals;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -79,10 +81,24 @@ namespace GSP.Items.Inventories
                     // Get the item that was right clicked
                     Item item = subInventoryTwo.GetItem(AllyNumber, SlotId);
 
-                    // TODO: Do something with the ally inventory later
+                    // For now, just handle the transferring to the player's inventory
+                    TradeToPlayer(item);
                 } // end if inventory.GetItem(PlayerNumber, SlotId).Name != string.Empty
             } // end if
         } // end OnPointerUp
+
+        // Trades to the player
+        void TradeToPlayer(Item item)
+        {
+            // Get the player's merchant
+            Merchant playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(PlayerNumber).Entity;
+
+            // Get the ally, this is hardcoded for the port ally
+            Porter ally = (Porter)playerMerchant.GetAlly(0).GetComponent<PorterMB>().Entity;
+
+            // Transfer the resource to the ally
+            ally.TransferResource<Merchant>(playerMerchant, (Resource)item);
+        } // end TradeToPlayer
 
         #endregion
     } // end AllySlot

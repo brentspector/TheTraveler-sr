@@ -57,8 +57,10 @@ namespace GSP.Items.Inventories
             // Call the parent's Start() first
             base.Start();
 
+            Debug.Log("AllyInventory: Start Called");
+
             // Create the inventory slots
-            CreateSlots(numInventorySlotsCreate, SlotType.Ally, bottomGrid, "InventorySlot ");
+            CreateSlots(numInventorySlotsCreate, SlotType.Ally, bottomGrid, "AllySlot ");
         } // end Start
 
         // Runs each frame; used to update the tooltip's position

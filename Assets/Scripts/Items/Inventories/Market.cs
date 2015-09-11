@@ -38,7 +38,7 @@ namespace GSP.Items.Inventories
         {
             // Call the parent's Awake() first
             base.Awake();
-            
+
             // Get Inventory's Bottom panel
             bottomGrid = GameObject.Find("Market/Body").transform;
 
@@ -257,5 +257,11 @@ namespace GSP.Items.Inventories
         {
             get { return action; }
         } // end Action
+
+        // Gets the max space for the inventory
+        public int MaxSpace
+        {
+            get { return numInventorySlotsCreate; }
+        } // end MaxSpace
     } // end Market
 } // end GSP.Itens.Inventories

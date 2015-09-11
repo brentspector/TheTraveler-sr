@@ -1,4 +1,5 @@
-﻿/*******************************************************************************
+﻿using GSP.Char.Allies;
+/*******************************************************************************
  *
  *  File Name: InventorySlot.cs
  *
@@ -7,6 +8,7 @@
  *
  *******************************************************************************/
 using GSP.Core;
+using GSP.Entities.Friendlies;
 using GSP.Entities.Neutrals;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -95,7 +97,17 @@ namespace GSP.Items.Inventories
                     // Check if the ally inventory exists
                     else if (subInventoryTwo != null && subInventoryTwo is AllyInventory)
                     {
-                        // Handle the transferring to the ally's inventory
+                        // Check if the item is a resource
+                        if (item is Resource)
+                        {
+                            // Handle the transferring to the ally's inventory
+                            TradeToAlly(item);
+                        } // end if
+                        else
+                        {
+                            // Otherwise, handle any equipment
+                            HandleEquipment(item);
+                        } // end else
                     } // end else if
                     else
                     {
@@ -159,6 +171,23 @@ namespace GSP.Items.Inventories
                 } // end if market.AddItem(item.Id)
             } // end if
         } // end SellToMarket
+
+        // Trades an item to an ally
+        void TradeToAlly(Item item)
+        {
+            // Get the player's merchant
+            Merchant playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(PlayerNumber).Entity;
+
+            // Get the ally, this is hardcoded for the port ally
+            Porter ally = (Porter)playerMerchant.GetAlly(0).GetComponent<PorterMB>().Entity;
+
+            // Transfer the resource to the ally
+            if (playerMerchant.TransferResource<Porter>(ally, (Resource)item))
+            {
+                // Update the player's stats
+                mainInventory.SetStats(playerMerchant);
+            } // end if
+        } // end TradeToAlly
 
         #endregion
     } // end InventorySlot
