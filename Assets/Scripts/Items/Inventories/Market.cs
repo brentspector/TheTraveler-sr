@@ -38,7 +38,7 @@ namespace GSP.Items.Inventories
         {
             // Call the parent's Awake() first
             base.Awake();
-            
+
             // Get Inventory's Bottom panel
             bottomGrid = GameObject.Find("Market/Body").transform;
 
@@ -90,7 +90,7 @@ namespace GSP.Items.Inventories
             base.Start();
 
             // Create the market slots
-            CreateSlots(numInventorySlotsCreate, SlotType.Market, bottomGrid, "MarketSlot ");
+            CreateSlots(1, numInventorySlotsCreate, SlotType.Market, bottomGrid, "MarketSlot ");
         } // end Start
 
         // Runs each frame; used to update the tooltip's position
@@ -102,10 +102,10 @@ namespace GSP.Items.Inventories
 
         // Gets the first empty slot of the given SlotType
         // Note: Only usuable in buy mode; returns -1 otherwise
-        public override int FindFreeSlot(int key, SlotType slotType)
+        public override int FindFreeSlot(int slotKey, int key, SlotType slotType)
         {
             // Find the next free slot using the parent's calculations
-            int freeSlot = base.FindFreeSlot(key, slotType);
+            int freeSlot = base.FindFreeSlot(slotKey, key, slotType);
 
             // Check if we found a free slot
             if (freeSlot < 0)
@@ -240,7 +240,7 @@ namespace GSP.Items.Inventories
                     foreach (Item item in tempItems)
                     {
                         // Add the current item to the player's inventory
-                        inventory.AddItem(GameMaster.Instance.Turn, item.Id, SlotType.Inventory);
+                        inventory.AddItem(0, GameMaster.Instance.Turn, item.Id, SlotType.Inventory);
                     } // end foreach
                 } // end if
             }
@@ -257,5 +257,11 @@ namespace GSP.Items.Inventories
         {
             get { return action; }
         } // end Action
+
+        // Gets the max space for the inventory
+        public int MaxSpace
+        {
+            get { return numInventorySlotsCreate; }
+        } // end MaxSpace
     } // end Market
 } // end GSP.Itens.Inventories

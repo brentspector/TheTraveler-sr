@@ -285,7 +285,7 @@ namespace GSP
                 result = item.Name;
                 
                 // Add the item to the player's inventory
-                inventory.AddItem(GameMaster.Instance.Turn, item.Id, SlotType.Inventory);
+                inventory.AddItem(0, GameMaster.Instance.Turn, item.Id, SlotType.Inventory);
             } // end if
 			
 			// Set and return the result
