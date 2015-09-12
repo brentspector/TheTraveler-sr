@@ -97,7 +97,11 @@ namespace GSP.Items.Inventories
             Porter ally = (Porter)playerMerchant.GetAlly(0).GetComponent<PorterMB>().Entity;
 
             // Transfer the resource to the ally
-            ally.TransferResource<Merchant>(playerMerchant, (Resource)item);
+            if(ally.TransferResource<Merchant>(playerMerchant, (Resource)item))
+            {
+                // Update the ally's stats
+                subInventoryTwo.SetStats(playerMerchant);
+            } // end if
         } // end TradeToPlayer
 
         #endregion

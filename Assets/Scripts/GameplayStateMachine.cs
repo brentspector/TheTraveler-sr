@@ -155,7 +155,7 @@ namespace GSP
 			die = new Die();
 
             // Reseed the random number generator
-            die.Reseed(Environment.TickCount);
+            die.Reseed(Environment.TickCount + Utility.ClampInt(new System.Random(DateTime.UtcNow.Millisecond).Next(200), 1, 200));
 
 			// Get movement and map event components
 			guiMovement = GameObject.Find("Canvas").GetComponent<GUIMovement> ();
@@ -242,7 +242,7 @@ namespace GSP
 
                 // Hard coded for a single ally right now
                 // Create the inventory list for the ally
-                allyInventory.CreateAllyItemList(count + 6);
+                allyInventory.CreateAllyItemList(count + 7);
 			} // end for
 		} // end AddPlayers
 
@@ -261,8 +261,8 @@ namespace GSP
                     Item legs = ItemDatabase.Instance.Items.Find(item => item.Type == ArmorType.Chainlegs.ToString());
 
                     // Add the items to the player's inventory
-                    inventory.AddItem(count, weapon.Id, SlotType.Inventory);
-                    inventory.AddItem(count, legs.Id, SlotType.Inventory);
+                    inventory.AddItem(0, count, weapon.Id, SlotType.Inventory);
+                    inventory.AddItem(0, count, legs.Id, SlotType.Inventory);
 
                     // Equip the items for the player
                     inventory.EquipItem(count, (Equipment)weapon);
@@ -299,7 +299,7 @@ namespace GSP
         // Updates the state machine and things; runs every frame
         void Update()
         {
-            if (Input.GetKeyDown(KeyCode.M))
+            if (Input.GetKeyDown(KeyCode.M) && !isPaused)
             {
                 // Save the players
                 GameMaster.Instance.SavePlayers();

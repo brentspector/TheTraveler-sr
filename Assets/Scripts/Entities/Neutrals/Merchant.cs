@@ -263,12 +263,9 @@ namespace GSP.Entities.Neutrals
             // Check if picking up this resource will put the entity overweight
             if ((TotalWeight + resource.Weight) * amount <= MaxWeight)
             {
-                // Check if there is enough room for this resource
-                if (inventory.FindFreeSlot(PlayerNumber, SlotType.Inventory) >= 0)
+                // Attempt to add the resource to the inventory
+                if (inventory.AddItem(0, PlayerNumber, resource.Id, SlotType.Inventory))
                 {
-                    // Add the resource to the inventory
-                    inventory.AddItem(PlayerNumber, resource.Id, SlotType.Inventory);
-
                     // Update the inventory's stats
                     inventory.SetStats(this);
 

@@ -57,7 +57,7 @@ namespace GSP.Items.Inventories
             playerNum = GameMaster.Instance.Turn;
 
             // Set the player's ally number; hard coded for a single ally right now
-            allyNum = playerNum + 6;
+            allyNum = playerNum + 7;
 
             // Get the main inventory component reference
             if (GameObjectExists(typeof(TMainInventory)))
@@ -94,93 +94,100 @@ namespace GSP.Items.Inventories
                 playerNum = GameMaster.Instance.Turn;
 
                 // Set the player's ally number; hard coded for a single ally right now
-                allyNum = playerNum + 6;
+                allyNum = playerNum + 7;
             } // end if
 
-            if (mainInventory == null)
-            {
-                Debug.Log("Update: Main Inventory is null");
-            }
-            
             // Check if the inventory exists
             if (mainInventory != null && mainInventoryIcon != null)
             {
-                // Check if the slot contains an item
-                if (mainInventory.GetItem(PlayerNumber, slotId).Name != string.Empty)
+               // Check if the item's list exists
+                if (mainInventory.GetItemsListCount(playerNum) > 0)
                 {
-                    // Enable the component
-                    if (!mainInventoryIcon.enabled)
+                    // Check if the slot contains an item
+                    if (mainInventory.GetItem(PlayerNumber, slotId).Name != string.Empty)
                     {
-                        mainInventoryIcon.enabled = true;
-                        mainInventoryIcon.sprite = mainInventory.GetItem(PlayerNumber, slotId).Icon;
+                        // Enable the component
+                        if (!mainInventoryIcon.enabled)
+                        {
+                            mainInventoryIcon.enabled = true;
+                            mainInventoryIcon.sprite = mainInventory.GetItem(PlayerNumber, slotId).Icon;
+                        } // end if
+                        else
+                        {
+                            mainInventoryIcon.sprite = mainInventory.GetItem(PlayerNumber, slotId).Icon;
+                        } // end else
                     } // end if
                     else
                     {
-                        mainInventoryIcon.sprite = mainInventory.GetItem(PlayerNumber, slotId).Icon;
+                        if (mainInventoryIcon.enabled)
+                        {
+                            // Disable the component
+                            mainInventoryIcon.enabled = false;
+                        } // end if
                     } // end else
-                } // end if
-                else
-                {
-                    if (mainInventoryIcon.enabled)
-                    {
-                        // Disable the component
-                        mainInventoryIcon.enabled = false;
-                    } // end if
-                } // end else
+                } // end if mainInventory.GetItemsListCount(playerNum) > 0
             } // end if
 
             // Check if the market exists
             if (subInventoryOne != null && subInventoryOneIcon != null)
             {
-                // Check if the slot contains an item
-                if (GetItem(slotId).Name != string.Empty)
+                // Check if the item's list exists
+                if (GetItemsListCount() > 0)
                 {
-                    // Enable the component
-                    if (!subInventoryOneIcon.enabled)
+                    // Check if the slot contains an item
+                    if (GetItem(slotId).Name != string.Empty)
                     {
-                        subInventoryOneIcon.enabled = true;
-                        subInventoryOneIcon.sprite = GetItem(slotId).Icon;
+                        // Enable the component
+                        if (!subInventoryOneIcon.enabled)
+                        {
+                            subInventoryOneIcon.enabled = true;
+                            subInventoryOneIcon.sprite = GetItem(slotId).Icon;
+                        } // end if
+                        else
+                        {
+                            subInventoryOneIcon.sprite = GetItem(slotId).Icon;
+                        } // end else
                     } // end if
                     else
                     {
-                        subInventoryOneIcon.sprite = GetItem(slotId).Icon;
+                        if (subInventoryOneIcon.enabled)
+                        {
+                            // Disable the component
+                            subInventoryOneIcon.enabled = false;
+                        } // end if
                     } // end else
-                } // end if
-                else
-                {
-                    if (subInventoryOneIcon.enabled)
-                    {
-                        // Disable the component
-                        subInventoryOneIcon.enabled = false;
-                    } // end if
-                } // end else
+                } // end if subInventoryOne.GetItemsListCount(playerNum) > 0
             } // end if
 
             // Check if the ally inventory exists
             if (subInventoryTwo != null && subInventoryTwoIcon != null)
             {
-                // Check if the slot contains an item
-                if (GetItem(slotId).Name != string.Empty)
+                // Check if the item's list exists
+                if (subInventoryTwo.GetItemsListCount(allyNum) > 0)
                 {
-                    // Enable the component
-                    if (!subInventoryTwoIcon.enabled)
+                    // Check if the slot contains an item
+                    if (GetItem(slotId).Name != string.Empty)
                     {
-                        subInventoryTwoIcon.enabled = true;
-                        subInventoryTwoIcon.sprite = GetItem(slotId).Icon;
+                        // Enable the component
+                        if (!subInventoryTwoIcon.enabled)
+                        {
+                            subInventoryTwoIcon.enabled = true;
+                            subInventoryTwoIcon.sprite = GetItem(slotId).Icon;
+                        } // end if
+                        else
+                        {
+                            subInventoryTwoIcon.sprite = GetItem(slotId).Icon;
+                        } // end else
                     } // end if
                     else
                     {
-                        subInventoryTwoIcon.sprite = GetItem(slotId).Icon;
+                        if (subInventoryTwoIcon.enabled)
+                        {
+                            // Disable the component
+                            subInventoryTwoIcon.enabled = false;
+                        } // end if
                     } // end else
-                } // end if
-                else
-                {
-                    if (subInventoryTwoIcon.enabled)
-                    {
-                        // Disable the component
-                        subInventoryTwoIcon.enabled = false;
-                    } // end if
-                } // end else
+                } // end if subInventoryTwo.GetItemsListCount(playerNum) > 0
             } // end if
         } // end Update
 
@@ -214,36 +221,23 @@ namespace GSP.Items.Inventories
                 // Get the item from the ally inventory
                 item = subInventoryTwo.GetItem(AllyNumber, slotId);
             }
-            
-            //// Check if the sub inventory is the market
-            //if (typeof(TSubInventoryOne) == typeof(Market) && subInventoryOne != null)
-            //{
-            //    if (slotId < ((Market)(object)subInventoryOne).MaxSpace)
-            //    {
-            //        // Get the item from the market
-            //        item = ((Market)(object)subInventoryOne).GetItem(slotId);
-            //    } // end if slotId < ((Market)(object)subInventoryOne).MaxSpace
-            //} // end if
-            
-            //// Check if the sub inventory is the ally inventory
-            //if (typeof(TSubInventoryTwo) == typeof(AllyInventory) && subInventoryTwo != null)
-            //{
-            //    if (slotId < ((AllyInventory)(object)subInventoryTwo).MaxSpace)
-            //    {
-            //        // Get the item from the ally inventory
-            //        item = subInventoryTwo.GetItem(AllyNumber, slotId);
-            //    } // end if slotId < ((AllyInventory)(object)subInventoryTwo).MaxSpace
-            //} // end if
 
             // Return the item
             return item;
         } // end GetItem
 
-        // Shows an icon for the inventory
-        public void ShowIcon(Image icon, bool canShow)
+        // Gets the items list count for the market
+        int GetItemsListCount()
         {
-            //
-        } // end ShowIcon
+            if (((Market)(object)subInventoryOne).Action == MarketAction.Buy)
+            {
+                return subInventoryOne.GetItemsListCount(5);
+            } // end if
+            else
+            {
+                return subInventoryOne.GetItemsListCount(4);
+            } // end else
+        } // end GetItemsListCount
 
         // Sets the component reference for the slot's icon
         void SetIconReference()

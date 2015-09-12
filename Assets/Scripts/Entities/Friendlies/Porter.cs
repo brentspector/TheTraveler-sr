@@ -90,12 +90,9 @@ namespace GSP.Entities.Friendlies
             // Check if picking up this resource will put the entity overweight
             if ((TotalWeight + resource.Weight) * amount <= MaxWeight)
             {
-                // Check if there is enough room for this resource
-                if (inventory.FindFreeSlot(AllyNumber, SlotType.Ally) >= 0)
+                // Attempt to add the resource to the inventory
+                if (inventory.AddItem(2, AllyNumber, resource.Id, SlotType.Ally))
                 {
-                    // Add the resource to the inventory
-                    inventory.AddItem(AllyNumber, resource.Id, SlotType.Ally);
-
                     // Update the inventory's stats; this is hard coded for a single ally
                     inventory.SetStats((Merchant)GameMaster.Instance.GetPlayerScript(AllyNumber - 6).Entity);
 

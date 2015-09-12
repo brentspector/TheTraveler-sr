@@ -388,7 +388,7 @@ namespace GSP.Core
                         script.GetAlly(entID);
 
                         // Set the ally's number
-                        ((Friendly)script.Entity).AllyNumber = GameMaster.Instance.Turn + 6;
+                        ((Friendly)script.Entity).AllyNumber = GameMaster.Instance.Turn + 7;
 
                         break;
                     } // end case Porter
@@ -416,7 +416,7 @@ namespace GSP.Core
                         script.GetAlly(entID);
 
                         // Set the ally's number
-                        ((Friendly)script.Entity).AllyNumber = GameMaster.Instance.Turn + 6;
+                        ((Friendly)script.Entity).AllyNumber = GameMaster.Instance.Turn + 7;
 
                         break;
                     } // end case Mercenary
@@ -535,7 +535,7 @@ namespace GSP.Core
                 for (int index = 0; index < allyInventory.MaxSpace; index++)
                 {
                     // Hardcoded for a single ally
-                    allyData.AddItemId(allyInventory.GetItem(playerNum + 6, index).Id);
+                    allyData.AddItemId(allyInventory.GetItem(playerNum + 7, index).Id);
                 } // end for
             } // end if
             else
@@ -614,7 +614,7 @@ namespace GSP.Core
                     GetComponent<AllyInventory>();
 
                 // Create the list of items for the player; hard coded for a single ally
-                allyInventory.CreateAllyItemList(playerNum + 6);
+                allyInventory.CreateAllyItemList(playerNum + 7);
 
                 // Check if the player had an ally
                 if (playerData.AllyId >= 0)
@@ -635,7 +635,7 @@ namespace GSP.Core
                         // Loop over the player's inventory to restore it
                         for (int index = 0; index < allyInventory.MaxSpace; index++)
                         {
-                            allyInventory.AddItemFromSave(playerNum + 6, allyData.GetItemId(index), index);
+                            allyInventory.AddItemFromSave(playerNum + 7, allyData.GetItemId(index), index);
                         } // end for
                     } // end if
                 }
@@ -879,6 +879,15 @@ namespace GSP.Core
             // Reset the collections first
             Instance.ResetCollections();
 
+            // Get the Invenory GameObject
+            GameObject inventory = GameObject.Find("Canvas").transform.Find("PlayerInventory").gameObject;
+            // Check if it exists
+            if (inventory != null)
+            {
+                // Clean the inventory
+                inventory.GetComponent<PlayerInventory>().Clean();
+            } // end if
+
             // Then load the level
             Application.LoadLevel(level);
         } // end LoadLevel
@@ -886,6 +895,15 @@ namespace GSP.Core
         // Loads a level by its name
         public void LoadLevel(string level)
         {
+            // Get the Invenory GameObject
+            var inventory = GameObject.Find("Canvas").transform.Find("PlayerInventory");
+            // Check if it exists
+            if (inventory != null)
+            {
+                // Clean the inventory
+                inventory.GetComponent<PlayerInventory>().Clean();
+            } // end if
+            
             // Reset the collections first
             Instance.ResetCollections();
 

@@ -38,14 +38,8 @@ namespace GSP.Items.Inventories
             // Call the parent's Awake() first
             base.Awake();
 
-            // Get Inventory's Bottom panel
-            bottomGrid = GameObject.Find("AllyInventory/Bottom").transform;
-
-            // Get the Inventory's Top/StatusLeft panel
-            statusLeft = GameObject.Find("AllyInventory/Top/StatusLeft").transform;
-
-            // Get the Inventory's Top/StatusRight panel
-            statusRight = GameObject.Find("AllyInventory/Top/StatusRight").transform;
+            // Set the ally inventory's transform references
+            SetReferences();
 
             // Initialise the number of slots to create
             numInventorySlotsCreate = 28;
@@ -57,10 +51,8 @@ namespace GSP.Items.Inventories
             // Call the parent's Start() first
             base.Start();
 
-            Debug.Log("AllyInventory: Start Called");
-
             // Create the inventory slots
-            CreateSlots(numInventorySlotsCreate, SlotType.Ally, bottomGrid, "AllySlot ");
+            CreateSlots(2, numInventorySlotsCreate, SlotType.Ally, bottomGrid, "AllySlot ");
         } // end Start
 
         // Runs each frame; used to update the tooltip's position
@@ -69,6 +61,19 @@ namespace GSP.Items.Inventories
             // Call the parent's Update() first
             base.Update();
         } // end Update
+
+        // Sets the references used for the ally's inventory such as the transforms
+        void SetReferences()
+        {
+            // Get Inventory's Bottom panel
+            bottomGrid = GameObject.Find("AllyInventory/Bottom").transform;
+
+            // Get the Inventory's Top/StatusLeft panel
+            statusLeft = GameObject.Find("AllyInventory/Top/StatusLeft").transform;
+
+            // Get the Inventory's Top/StatusRight panel
+            statusRight = GameObject.Find("AllyInventory/Top/StatusRight").transform;
+        } // end SetReferences
 
         // Creates the list of items for the ally
         public void CreateAllyItemList(int allyNum)
@@ -82,10 +87,10 @@ namespace GSP.Items.Inventories
         } // end CreateAllyItemList
 
         // Gets the first empty slot of the given SlotType
-        public override int FindFreeSlot(int key, SlotType slotType)
+        public override int FindFreeSlot(int slotKey, int key, SlotType slotType)
         {
             // Find the next free slot using the parent's calculations
-            int freeSlot = base.FindFreeSlot(key, slotType);
+            int freeSlot = base.FindFreeSlot(slotKey, key, slotType);
 
             // Check if we found a free slot
             if (freeSlot < 0)
@@ -101,21 +106,41 @@ namespace GSP.Items.Inventories
         // Sets the player's stats for the status panels
         public override void SetStats(Merchant player)
         {
+            if (statusLeft == null && statusRight == null)
+            {
+                // Set the references for the transforms
+                SetReferences();
+            } // end if
+            
             // Hard coding it for now to accept the first ally of the player
             // that happens to be porter
             Porter ally = (Porter)player.GetAlly(0).GetComponent<PorterMB>().Entity;
-            
-            // Set the ally's name
-            statusLeft.GetChild(0).GetChild(1).GetComponent<Text>().text = ally.Name;
 
-            // Set the ally's type
-            statusLeft.GetChild(1).GetChild(1).GetComponent<Text>().text = ally.FriendlyType.ToString();
-            
-            // Set the Weight status line's value
-            statusRight.GetChild(0).GetChild(1).GetComponent<Text>().text = ally.TotalWeight.ToString() + "/" + ally.MaxWeight.ToString();
+            if (statusLeft != null)
+            {
+                // Set the ally's name
+                statusLeft.GetChild(0).GetChild(1).GetComponent<Text>().text = ally.Name;
 
-            // Set the Profit status line's value
-            statusRight.GetChild(1).GetChild(1).GetComponent<Text>().text = ally.TotalWorth.ToString();
+                // Set the ally's type
+                statusLeft.GetChild(1).GetChild(1).GetComponent<Text>().text = ally.FriendlyType.ToString();
+            } // end if
+            else
+            {
+                Debug.LogWarning("statusLeft is null!");
+            }
+
+            if (statusRight != null)
+            {
+                // Set the Weight status line's value
+                statusRight.GetChild(0).GetChild(1).GetComponent<Text>().text = ally.TotalWeight.ToString() + "/" + ally.MaxWeight.ToString();
+
+                // Set the Profit status line's value
+                statusRight.GetChild(1).GetChild(1).GetComponent<Text>().text = ally.TotalWorth.ToString();
+            } // end if
+            else
+            {
+                Debug.LogWarning("statusRight is null!");
+            }
         } // end SetStats
 
         // Sets the inventory up for the current player

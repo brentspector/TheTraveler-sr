@@ -137,7 +137,7 @@ namespace GSP.Items.Inventories
                         int freeSlot;   // The first slot that is free
 
                         // Check if there's space for the item
-                        if ((freeSlot = mainInventory.FindFreeSlot(PlayerNumber, SlotType.Inventory)) >= 0)
+                        if ((freeSlot = mainInventory.FindFreeSlot(0, PlayerNumber, SlotType.Inventory)) >= 0)
                         {
                             // Swap the bonus item with the item at the free slot
                             mainInventory.SwapItem(PlayerNumber, item, mainInventory.GetItem(PlayerNumber, freeSlot));
@@ -164,7 +164,7 @@ namespace GSP.Items.Inventories
             if (SlotId < mainInventory.WeaponSlot)
             {
                 // Add it to the market's inventory
-                if (subInventoryOne.AddItem(5, item.Id, SlotType.Market))
+                if (subInventoryOne.AddItem(1, 5, item.Id, SlotType.Market))
                 {
                     // Now remove it from the player's inventory
                     mainInventory.Remove(PlayerNumber, item);

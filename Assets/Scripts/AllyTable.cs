@@ -40,8 +40,6 @@ namespace GSP
         // Sets the player's ally stats and colour
         public void SetPlayer(int playerNum)
         {
-            Debug.LogFormat("AllyTable: playerNum: {0}", playerNum);
-
             // Get the player's script
             Player player = GameMaster.Instance.GetPlayerScript(playerNum);
 
