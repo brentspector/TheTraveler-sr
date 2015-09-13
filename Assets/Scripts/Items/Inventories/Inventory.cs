@@ -173,6 +173,12 @@ namespace GSP.Items.Inventories
                     // Create the ally slot
                     slot = Instantiate(PrefabReference.prefabAllySlot) as GameObject;
                 } // end else if
+                // Check if it should be a recycle bin inventory slot
+                else if (typeof(TSlotType) == typeof(RecycleSlot))
+                {
+                    // Create the ally slot
+                    slot = Instantiate(PrefabReference.prefabRecycleSlot) as GameObject;
+                } // end else if
 
                 // Make sure the slot was created
                 if (slot == null)

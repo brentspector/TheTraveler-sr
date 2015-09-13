@@ -1,5 +1,4 @@
-﻿using GSP.Char.Allies;
-/*******************************************************************************
+﻿/*******************************************************************************
  *
  *  File Name: InventorySlot.cs
  *
@@ -7,6 +6,7 @@
  *               with slots. Their functionality is fairly minimal.
  *
  *******************************************************************************/
+using GSP.Char.Allies;
 using GSP.Core;
 using GSP.Entities.Friendlies;
 using GSP.Entities.Neutrals;
@@ -23,7 +23,7 @@ namespace GSP.Items.Inventories
      *              through Unity's EventSystems interfaces.
      * 
      *******************************************************************************/
-    public class InventorySlot : Slot<PlayerInventory, Market, AllyInventory>, 
+    public class InventorySlot : Slot<PlayerInventory, Market, AllyInventory, RecycleBin>, 
         IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler
     {
         #region IPointerEnterHandler Members
