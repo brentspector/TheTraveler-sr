@@ -24,7 +24,7 @@ namespace GSP.Items.Inventories
      *              This is done through Unity's EventSystems interfaces.
      * 
      *******************************************************************************/
-    public class AllySlot : Slot<PlayerInventory, Market, AllyInventory>, 
+    public class AllySlot : Slot<PlayerInventory, Market, AllyInventory, RecycleBin>, 
         IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler
     {
         #region IPointerEnterHandler Members

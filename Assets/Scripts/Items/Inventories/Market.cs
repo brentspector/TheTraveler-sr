@@ -2,7 +2,7 @@
  *
  *  File Name: Market.cs
  *
- *  Description: Contains the logic of the market system. This is am
+ *  Description: Contains the logic of the market system. This is an
  *               inventory backend for the market system.
  *
  *******************************************************************************/
@@ -26,7 +26,7 @@ namespace GSP.Items.Inventories
     {
         int numInventorySlotsCreate;    // The number of inventory slots to create
 
-        Transform bottomGrid;       // The Inentory's Bottom Panel
+        Transform bottomGrid;       // The Inventory's Bottom Panel
 
         GameObject buySellButton;   // Reference for the Market's buy/sell button
         GameObject acceptButton;    // Reference for the Market's accept button
@@ -144,6 +144,7 @@ namespace GSP.Items.Inventories
             // No stats to set, but have to implement this
         } // end SetStats
 
+        // Toggles the market's pages between buy and sell
         public void ToggleBuySell()
         {
             // Toggle the action
@@ -181,6 +182,7 @@ namespace GSP.Items.Inventories
             } // end else
         } // end ToggleBuySell
 
+        // Toggles the market action between buy and sell
         void ToggleAction()
         {
             if (action == MarketAction.Sell)
@@ -195,6 +197,7 @@ namespace GSP.Items.Inventories
             } // end else
         } // end ToggleAction
 
+        // Sells or returns the player's items
         public void SellItems(bool isSelling = true)
         {
             // Get all the items in the buy items window
@@ -250,7 +253,7 @@ namespace GSP.Items.Inventories
 
             // Recreate the buy items list
             CreateItemList(5, numInventorySlotsCreate);
-        }
+        } // end SellItems
 
         // Gets the action the market is doing
         public MarketAction Action

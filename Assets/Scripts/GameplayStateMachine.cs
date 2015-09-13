@@ -49,6 +49,7 @@ namespace GSP
         bool isInventoryOpen;                       // Whether the inventory window is open
         bool isAlliesOpen;                          // Whether the allies window is open
         bool isAllyInventoryOpen;                   // Whether the ally's inventory window is open
+        bool isRecyleInventoryOpen;                 // Whether the recycle bin's inventory window is open
 		int guiDiceDistVal;	                		// The dice value which is then onverted into a distance value
 
 		// State Machine input/output variables
@@ -76,6 +77,7 @@ namespace GSP
         // Inventory
         PlayerInventory inventory;                  // The inventory script for the player's Inventory
         AllyInventory allyInventory;                // The inventory script for the ally's Inventory
+        RecycleBin recycleInventory;                // The inventory script for the recycle bin's Inventory
         // Aliies
         AllyTable allyTable;                        // The ally table script for the AllyTable
 
@@ -110,37 +112,28 @@ namespace GSP
             textParent = GameObject.Find("AllPlayers/TextOrganizer");
             inventory = GameObject.Find("PlayerInventory").GetComponent<PlayerInventory>();
             allyInventory = GameObject.Find("AllyInventory").GetComponent<AllyInventory>();
+            recycleInventory = GameObject.Find("RecycleBin").GetComponent<RecycleBin>();
             allyTable = GameObject.Find("Allies").GetComponent<AllyTable>();
 			GameObject.Find ("Canvas").transform.Find ("Instructions").gameObject.SetActive (false);
 			actionButtonActive = true;
 			isPaused = false;
 
-            // Disable the accept panel by default
+            // Disable the other panels by default
             acceptPanel.SetActive(false);
-
-			// Disable the pause menu by default
 			pauseMenu.SetActive (false);
-
-            // Disable the inventory by default
             inventory.gameObject.SetActive(false);
-
-            // Disable the ally's inventory by default
             allyInventory.gameObject.SetActive(false);
-
-            // Disable the ally window by default
+            recycleInventory.gameObject.SetActive(false);
             allyTable.gameObject.SetActive(false);
 
             // Running the end stuff defaults to true
             canRunEndStuff = true;
 
-            // The inventory is closed by default
+            // The windows are closed by default
             isInventoryOpen = false;
-
-            // The ally window is closed by default
             isAlliesOpen = false;
-
-            // The ally inventory is closed by default
             isAllyInventoryOpen = false;
+            isRecyleInventoryOpen = false;
 
             // Get the number of players
             guiNumOfPlayers = GameMaster.Instance.NumPlayers;
@@ -714,6 +707,7 @@ namespace GSP
             } // end else
         } // end ShowAllyInventory
 
+        // Trade with Player button - Toggles the player's inventory and allies windows
         public void AllyTradeWithPlayer()
         {
             // Toggle the inventory
@@ -722,6 +716,45 @@ namespace GSP
             // Toggle the ally window
             ShowAllies();
         } // end AllyTradeWithPlayer
+
+        // Accept/Cancel button - Handles the Accept/Cancel clicks
+        public void AcceptCancelRecycle(bool isRecycling)
+        {
+            // Tell the inventory to recycle the player's items based upon the given value
+            recycleInventory.RecycleItems(isRecycling);
+
+            // Hide the inventory after
+            ShowRecycleBin();
+        } // end AcceptCancelRecycle
+
+        // Recycle Bin button - Displays the recycle bin window
+        public void ShowRecycleBin()
+        {
+            // Toggle the recycle bin's inventory window
+            isAllyInventoryOpen = !isAllyInventoryOpen;
+
+            // Check if the recycle bin's window is open
+            if (isAllyInventoryOpen)
+            {
+                // Set the recycle bin window up before displaying it
+                recycleInventory.SetPlayer(guiPlayerTurn);
+
+                // Open the recycle bin window
+                recycleInventory.gameObject.SetActive(true);
+            } // end if
+            else
+            {
+                // Otherwise, close the recycle bin window
+                recycleInventory.gameObject.SetActive(false);
+
+                // Check if there are any items still in the recycle bin's window
+                if (recycleInventory.GetItemsListCount(6) > 0)
+                {
+                    // The window is being closed to return all the player's items
+                    AcceptCancelRecycle(false);
+                } // end if
+            } // end else
+        } // end ShowRecycleBin
 
 		// Pause button - Displays pause menu and pauses game
 		public void PauseGame()

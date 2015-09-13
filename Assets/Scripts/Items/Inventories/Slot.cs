@@ -23,19 +23,22 @@ namespace GSP.Items.Inventories
      *       TSubInventoryTwo should be the ally inventory
      * 
      *******************************************************************************/
-    public abstract class Slot<TMainInventory, TSubInventoryOne, TSubInventoryTwo> : MonoBehaviour, IBaseSlot
+    public abstract class Slot<TMainInventory, TSubInventoryOne, TSubInventoryTwo, TSubInventoryThree> : MonoBehaviour, IBaseSlot
         where TMainInventory : class, IBaseInventory
         where TSubInventoryOne : class, IBaseInventory
         where TSubInventoryTwo : class, IBaseInventory
+        where TSubInventoryThree : class, IBaseInventory
     {
         // Variables are set to protected so the derived classes can access them while others can't
         protected Image mainInventoryIcon;      // Image component of the main inventory's slot; where the item's icon goes
         protected Image subInventoryOneIcon;    // Image component of the sub inventory's slot; where the item's icon goes
         protected Image subInventoryTwoIcon;    // Image component of the sub inventory's slot; where the item's icon goes
+        protected Image subInventoryThreeIcon;  // Image component of the sub inventory's slot; where the item's icon goes
 
-        protected TMainInventory mainInventory; // The main inventory system that's being interacted with
-        protected TSubInventoryOne subInventoryOne; // The sub inventory system that's being interacted with
-        protected TSubInventoryTwo subInventoryTwo; // The sub inventory system that's being interacted with
+        protected TMainInventory mainInventory;         // The main inventory system that's being interacted with
+        protected TSubInventoryOne subInventoryOne;     // The sub inventory system that's being interacted with
+        protected TSubInventoryTwo subInventoryTwo;     // The sub inventory system that's being interacted with
+        protected TSubInventoryThree subInventoryThree; // The sub inventory system that's being interacted with
         
         int slotId;         // The ID of the slot
         int playerNum;      // The current player's turn
@@ -49,9 +52,11 @@ namespace GSP.Items.Inventories
             mainInventoryIcon = null;
             subInventoryOneIcon = null;
             subInventoryTwoIcon = null;
+            subInventoryThreeIcon = null;
             mainInventory = null;
             subInventoryOne = null;
             subInventoryTwo = null;
+            subInventoryThree = null;
 
             // Set the player number to the current turn
             playerNum = GameMaster.Instance.Turn;
@@ -77,7 +82,13 @@ namespace GSP.Items.Inventories
                 subInventoryTwo = GameObject.Find("Canvas").transform.Find(typeof(TSubInventoryTwo).Name).GetComponent<TSubInventoryTwo>();
             } // end if
 
-            if (mainInventoryIcon == null && subInventoryOneIcon == null && subInventoryTwoIcon == null)
+            // Get the third sub inventory component reference
+            if (GameObjectExists(typeof(TSubInventoryThree)))
+            {
+                subInventoryThree = GameObject.Find("Canvas").transform.Find(typeof(TSubInventoryThree).Name).GetComponent<TSubInventoryThree>();
+            } // end if
+
+            if (mainInventoryIcon == null && subInventoryOneIcon == null && subInventoryTwoIcon == null && subInventoryThreeIcon == null)
             {
                 // Set the icon's image reference for one of them
                 SetIconReference();
@@ -156,7 +167,7 @@ namespace GSP.Items.Inventories
                             subInventoryOneIcon.enabled = false;
                         } // end if
                     } // end else
-                } // end if subInventoryOne.GetItemsListCount(playerNum) > 0
+                } // end if GetItemsListCount() > 0
             } // end if
 
             // Check if the ally inventory exists
@@ -187,7 +198,38 @@ namespace GSP.Items.Inventories
                             subInventoryTwoIcon.enabled = false;
                         } // end if
                     } // end else
-                } // end if subInventoryTwo.GetItemsListCount(playerNum) > 0
+                } // end if subInventoryTwo.GetItemsListCount(allyNum) > 0
+            } // end if
+
+            // Check if the recyle bin inventory exists
+            if (subInventoryThree != null && subInventoryThreeIcon != null)
+            {
+                // Check if the item's list exists
+                if (subInventoryThree.GetItemsListCount(6) > 0)
+                {
+                    // Check if the slot contains an item
+                    if (subInventoryThree.GetItem(6, slotId).Name != string.Empty)
+                    {
+                        // Enable the component
+                        if (!subInventoryThreeIcon.enabled)
+                        {
+                            subInventoryThreeIcon.enabled = true;
+                            subInventoryThreeIcon.sprite = subInventoryThree.GetItem(6, slotId).Icon;
+                        } // end if
+                        else
+                        {
+                            subInventoryThreeIcon.sprite = subInventoryThree.GetItem(6, slotId).Icon;
+                        } // end else
+                    } // end if
+                    else
+                    {
+                        if (subInventoryThreeIcon.enabled)
+                        {
+                            // Disable the component
+                            subInventoryThreeIcon.enabled = false;
+                        } // end if
+                    } // end else
+                } // end if subInventoryThree.GetItemsListCount(6) > 0
             } // end if
         } // end Update
 
@@ -259,6 +301,12 @@ namespace GSP.Items.Inventories
             {
                 // Get the Image component reference
                 subInventoryTwoIcon = gameObject.transform.GetChild(0).GetComponent<Image>();
+            } // end else if
+            // Check if the slot's type is recycle
+            else if (slotType == SlotType.Recycle)
+            {
+                // Get the Image component reference
+                subInventoryThreeIcon = gameObject.transform.GetChild(0).GetComponent<Image>();
             } // end else if
         } // end SetIconReference
 
