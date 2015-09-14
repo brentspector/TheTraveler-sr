@@ -55,6 +55,9 @@ namespace GSP
         // This is the reference to the ally slot prefab
         public static GameObject prefabAllySlot = Resources.Load("Inventory/AllySlot") as GameObject;
 
+        // This is the reference to the recycle slot prefab
+        public static GameObject prefabRecycleSlot = Resources.Load("Inventory/RecycleSlot") as GameObject;
+
 	} // end PrefabReference
 } // end GSP
 

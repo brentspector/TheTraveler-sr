@@ -2,7 +2,7 @@
  *
  *  File Name: Market.cs
  *
- *  Description: Contains the logic of the market system. This is am
+ *  Description: Contains the logic of the market system. This is an
  *               inventory backend for the market system.
  *
  *******************************************************************************/
@@ -26,7 +26,7 @@ namespace GSP.Items.Inventories
     {
         int numInventorySlotsCreate;    // The number of inventory slots to create
 
-        Transform bottomGrid;       // The Inentory's Bottom Panel
+        Transform bottomGrid;       // The Inventory's Bottom Panel
 
         GameObject buySellButton;   // Reference for the Market's buy/sell button
         GameObject acceptButton;    // Reference for the Market's accept button
@@ -38,7 +38,7 @@ namespace GSP.Items.Inventories
         {
             // Call the parent's Awake() first
             base.Awake();
-            
+
             // Get Inventory's Bottom panel
             bottomGrid = GameObject.Find("Market/Body").transform;
 
@@ -90,7 +90,7 @@ namespace GSP.Items.Inventories
             base.Start();
 
             // Create the market slots
-            CreateSlots(numInventorySlotsCreate, SlotType.Market, bottomGrid, "MarketSlot ");
+            CreateSlots(1, numInventorySlotsCreate, SlotType.Market, bottomGrid, "MarketSlot ");
         } // end Start
 
         // Runs each frame; used to update the tooltip's position
@@ -102,10 +102,10 @@ namespace GSP.Items.Inventories
 
         // Gets the first empty slot of the given SlotType
         // Note: Only usuable in buy mode; returns -1 otherwise
-        public override int FindFreeSlot(int key, SlotType slotType)
+        public override int FindFreeSlot(int slotKey, int key, SlotType slotType)
         {
             // Find the next free slot using the parent's calculations
-            int freeSlot = base.FindFreeSlot(key, slotType);
+            int freeSlot = base.FindFreeSlot(slotKey, key, slotType);
 
             // Check if we found a free slot
             if (freeSlot < 0)
@@ -144,6 +144,7 @@ namespace GSP.Items.Inventories
             // No stats to set, but have to implement this
         } // end SetStats
 
+        // Toggles the market's pages between buy and sell
         public void ToggleBuySell()
         {
             // Toggle the action
@@ -181,6 +182,7 @@ namespace GSP.Items.Inventories
             } // end else
         } // end ToggleBuySell
 
+        // Toggles the market action between buy and sell
         void ToggleAction()
         {
             if (action == MarketAction.Sell)
@@ -195,6 +197,7 @@ namespace GSP.Items.Inventories
             } // end else
         } // end ToggleAction
 
+        // Sells or returns the player's items
         public void SellItems(bool isSelling = true)
         {
             // Get all the items in the buy items window
@@ -240,7 +243,7 @@ namespace GSP.Items.Inventories
                     foreach (Item item in tempItems)
                     {
                         // Add the current item to the player's inventory
-                        inventory.AddItem(GameMaster.Instance.Turn, item.Id, SlotType.Inventory);
+                        inventory.AddItem(0, GameMaster.Instance.Turn, item.Id, SlotType.Inventory);
                     } // end foreach
                 } // end if
             }
@@ -250,12 +253,18 @@ namespace GSP.Items.Inventories
 
             // Recreate the buy items list
             CreateItemList(5, numInventorySlotsCreate);
-        }
+        } // end SellItems
 
         // Gets the action the market is doing
         public MarketAction Action
         {
             get { return action; }
         } // end Action
+
+        // Gets the max space for the inventory
+        public int MaxSpace
+        {
+            get { return numInventorySlotsCreate; }
+        } // end MaxSpace
     } // end Market
 } // end GSP.Itens.Inventories

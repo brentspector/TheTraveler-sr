@@ -81,13 +81,13 @@ namespace GSP.Items.Inventories
             base.Start();
 
             // Create the inventory slots
-            CreateSlots(numInventorySlotsCreate, SlotType.Inventory, bottomGrid, "InventorySlot ");
+            CreateSlots(0, numInventorySlotsCreate, SlotType.Inventory, bottomGrid, "InventorySlot ");
 
             // Create the equipment slots
-            CreateSlots(numEquipmentSlotsCreate, SlotType.Equipment, equipmentPanel, "EquipmentSlot ");
+            CreateSlots(0, numEquipmentSlotsCreate, SlotType.Equipment, equipmentPanel, "EquipmentSlot ");
 
             // Create the bonus slots
-            CreateSlots(numBonusSlotsCreate, SlotType.Bonus, bonusPanel, "BonusSlot ");;
+            CreateSlots(0, numBonusSlotsCreate, SlotType.Bonus, bonusPanel, "BonusSlot "); ;
         } // end Start
 
         // Runs each frame; used to update the tooltip's position
@@ -208,7 +208,7 @@ namespace GSP.Items.Inventories
                     Merchant playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(playerNum).Entity;
 
                     // Make sure there's enough enough space
-                    if ((freeSlot = FindFreeSlot(playerNum, SlotType.Bonus)) >= 0)
+                    if ((freeSlot = FindFreeSlot(0, playerNum, SlotType.Bonus)) >= 0)
                     {
                         // Swap slot places with the item
                         SwapItem(playerNum, freeSlot, itemIndex);
@@ -240,10 +240,10 @@ namespace GSP.Items.Inventories
         } // end EquipItem
 
         // Gets the first empty slot of the given SlotType
-        public override int FindFreeSlot(int key, SlotType slotType)
+        public override int FindFreeSlot(int slotKey, int key, SlotType slotType)
         {
             // Find the next free slot using the parent's calculations
-            int freeSlot = base.FindFreeSlot(key, slotType);
+            int freeSlot = base.FindFreeSlot(slotKey, key, slotType);
 
             // Check if we found a free slot
             if (freeSlot < 0)

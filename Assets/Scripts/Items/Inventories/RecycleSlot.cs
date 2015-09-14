@@ -1,10 +1,9 @@
 ﻿/*******************************************************************************
  *
- *  File Name: MarketSlot.cs
+ *  File Name: RecycleSlot.cs
  *
- *  Description: Contains the logic of a market slot. The market system is
- *               filled with these slots. Their functionality is fairly
- *               minimal.
+ *  Description: Contains the logic of a slot. The Recycle Bin Inventory system
+ *                is filled with slots. Their functionality is fairly minimal.
  *
  *******************************************************************************/
 using UnityEngine;
@@ -16,13 +15,13 @@ namespace GSP.Items.Inventories
 {
     /*******************************************************************************
      *
-     * Name: MarketSlot
+     * Name: RecycleSlot
      * 
-     * Description: The functionality of each slot in the Market's inventory. This
-     *              is done through Unity's EventSystems interfaces.
+     * Description: The functionality of each slot in the Recyle Bin's inventory.
+     *              This is done through Unity's EventSystems interfaces.
      * 
      *******************************************************************************/
-    public class MarketSlot : Slot<PlayerInventory, Market, AllyInventory, RecycleBin>, 
+    public class RecycleSlot : Slot<PlayerInventory, Market, AllyInventory, RecycleBin>,
         IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler
     {
         #region IPointerEnterHandler Members
@@ -31,10 +30,10 @@ namespace GSP.Items.Inventories
         public void OnPointerEnter(PointerEventData pointerEventData)
         {
             // Check if there is an item in the slot
-            if (subInventoryOne.GetItem(SlotId).Name != string.Empty)
+            if (subInventoryThree.GetItem(6, SlotId).Name != string.Empty)
             {
                 // Show the tooltip window while hovering over an item
-                subInventoryOne.ShowTooltip(subInventoryOne.GetItem(SlotId));
+                subInventoryThree.ShowTooltip(subInventoryThree.GetItem(6, SlotId));
             } // end if
         } // end OnPointerEnter
 
@@ -46,10 +45,10 @@ namespace GSP.Items.Inventories
         public void OnPointerExit(PointerEventData pointerEventData)
         {
             // Check if there is an item in the slot
-            if (subInventoryOne.GetItem(SlotId).Name != string.Empty)
+            if (subInventoryThree.GetItem(6, SlotId).Name != string.Empty)
             {
                 // Show the tooltip window while not hovering over an item
-                subInventoryOne.ShowTooltip(null, false);
+                subInventoryThree.ShowTooltip(null, false);
             } // end if
         } // end OnPointerEnter
 
@@ -74,57 +73,30 @@ namespace GSP.Items.Inventories
             if (pointerEventData.pointerId == -2)
             {
                 // Check if there is an item in the slot
-                if (subInventoryOne.GetItem(SlotId).Name != string.Empty)
+                if (subInventoryThree.GetItem(6, SlotId).Name != string.Empty)
                 {
                     // Get the item that was right clicked
-                    Item item = subInventoryOne.GetItem(SlotId);
+                    Item item = subInventoryThree.GetItem(6, SlotId);
 
                     // Get the player's merchant
                     Merchant playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(PlayerNumber).Entity;
 
-                    // Check if we're buying to selling
-                    if (subInventoryOne.Action == MarketAction.Sell)
-                    {
-                        // The market is selling so handle the selling
-                        HandleSelling(item, playerMerchant);
-                    } // end if
-                    else
-                    {
-                        // Otherwise, the market is buying so handle the buying
-                        HandleBuying(item, playerMerchant);
-                    } // end else
-                } // end if market.GetItem(SlotId).Name != string.Empty
+                    // Handle the retrieving of items to recycle
+                    HandleRecycling(item, playerMerchant);
+                } // end if subInventoryThree.GetItem(6, SlotId).Name != string.Empty
             } // end if
         } // end OnPointerUp
 
         // Handles the market buying items from the player
-        void HandleBuying(Item item, Merchant merchant)
+        void HandleRecycling(Item item, Merchant merchant)
         {
             // Simply add the item back to the player's inventory
             mainInventory.AddItem(0, PlayerNumber, item.Id, SlotType.Inventory);
 
             // Now remove it from the market's buy inventory
-            subInventoryOne.Remove(5, item);
-        } // end HandleBuying
-
-        // Handles the market selling items to the player
-        void HandleSelling(Item item, Merchant merchant)
-        {
-            // Check if the merchant has enough space in the inventory
-            if (mainInventory.FindFreeSlot(0, PlayerNumber, SlotType.Inventory) >= 0)
-            {
-                // Check if the merchant has enough currency to purchase the item
-                if (merchant.Currency >= ((Equipment)item).CostValue)
-                {
-                    // The merchant has enough currency so deduct the cost
-                    merchant.Currency -= ((Equipment)item).CostValue;
-
-                    // Add the item to the player's inventory
-                    mainInventory.AddItem(0, PlayerNumber, item.Id, SlotType.Inventory);
-                } // end if merchant.Currency >= ((Equipment)item).CostValue
-            } // end if
-        } // end HandleSelling
+            subInventoryThree.Remove(6, item);
+        } // end HandleRecycling
 
         #endregion
-    } // end MarketSlot
-} // end GSP.Items.Inventories
+    } // end RecycleSlot
+}
