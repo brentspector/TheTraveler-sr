@@ -30,7 +30,7 @@ namespace GSP.Entities.Neutrals
         int maxWeight;		                // The maximum weight the entity can hold
         int currency; 		                // The amount of currency the entity is holding
         List<Resource> resources;           // The list of resources
-        PlayerInventory inventory;                // The inventory of the player
+        PlayerInventory inventory;          // The inventory of the player
         ResourceUtility resourceUtility;    // The resource utility functions
 
         #endregion
@@ -58,7 +58,9 @@ namespace GSP.Entities.Neutrals
         List<Sprite> charSprites;		// The Sprite's for the Character
         SpriteRenderer spriteRenderer;  // SpriteRenderer component of the Character
 
-        AllyList allyScript;				// The ally script object
+        AllyList allyScript;    // The ally script object
+
+        Vector3 target;   // The target the merchant is going after
 
         int playerNum;  // The merchant's player number
 
@@ -74,6 +76,9 @@ namespace GSP.Entities.Neutrals
 
             // Set the Merchant's colour
             color = playerCoulours;
+
+            // Initialise the target to null
+            target = Vector3.zero;
 
             // Initialise the player number
             playerNum = -1;
@@ -218,6 +223,12 @@ namespace GSP.Entities.Neutrals
             } // end switch facingDirection
         } // end Face
 
+        // Gets an ally GameObject
+        public GameObject GetAlly(int allyNumber)
+        {
+            return allyScript.GetObject(allyNumber);
+        } // end GetAlly
+
         // Gets the Merchant's colour
         public InterfaceColors Color
         {
@@ -229,6 +240,13 @@ namespace GSP.Entities.Neutrals
         {
             get { return allyScript.NumAllies; }
         } // end NumAllies
+
+        // Gets and Sets the merchant's target
+        public Vector3 Target
+        {
+            get { return target; }
+            set { target = value; }
+        } // end Target
 
         // Gets and Sets the Merchants player number
         public int PlayerNumber
@@ -245,12 +263,9 @@ namespace GSP.Entities.Neutrals
             // Check if picking up this resource will put the entity overweight
             if ((TotalWeight + resource.Weight) * amount <= MaxWeight)
             {
-                // Check if there is enough room for this resource
-                if (inventory.FindFreeSlot(PlayerNumber, SlotType.Inventory) >= 0)
+                // Attempt to add the resource to the inventory
+                if (inventory.AddItem(0, PlayerNumber, resource.Id, SlotType.Inventory))
                 {
-                    // Add the resource to the inventory
-                    inventory.AddItem(PlayerNumber, resource.Id, SlotType.Inventory);
-
                     // Update the inventory's stats
                     inventory.SetStats(this);
 

@@ -31,6 +31,11 @@ namespace GSP
         // Use this for initialisation
 		void Awake() 
 		{
+            // Disable the inventories
+            GameObject.Find("Canvas").transform.Find("PlayerInventory").gameObject.SetActive(false);
+            GameObject.Find("Canvas").transform.Find("AllyInventory").gameObject.SetActive(false);
+            GameObject.Find("Canvas").transform.Find("Tooltip").gameObject.SetActive(false);
+            
             // Create the players in data only mode
             GameMaster.Instance.LoadPlayers(true);
 
