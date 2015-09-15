@@ -81,7 +81,7 @@ namespace GSP.Items.Inventories
                     Item item = mainInventory.GetItem(PlayerNumber, SlotId);
 
                     // Check if the market exists and is in buy mode
-                    if (subInventoryOne != null && subInventoryOne is Market)
+                    if (subInventoryOne != null && subInventoryOne is Market && subInventoryOne.IsOpen)
                     {
                         if (((Market)(object)subInventoryOne).Action == MarketAction.Buy)
                         {
@@ -95,7 +95,7 @@ namespace GSP.Items.Inventories
                         } // end else
                     } // end if
                     // Check if the ally inventory exists
-                    else if (subInventoryTwo != null && subInventoryTwo is AllyInventory)
+                    else if (subInventoryTwo != null && subInventoryTwo is AllyInventory && subInventoryTwo.IsOpen)
                     {
                         // Check if the item is a resource
                         if (item is Resource)
@@ -108,6 +108,12 @@ namespace GSP.Items.Inventories
                             // Otherwise, handle any equipment
                             HandleEquipment(item);
                         } // end else
+                    } // end else if
+                    // Check if the recycle inventory exists
+                    else if (subInventoryThree != null && subInventoryThree is RecycleBin && subInventoryThree.IsOpen)
+                    {
+                        // Handle the adding of items to the recycle bin
+                        HandleRecycle(item);
                     } // end else if
                     else
                     {
@@ -168,7 +174,7 @@ namespace GSP.Items.Inventories
                 {
                     // Now remove it from the player's inventory
                     mainInventory.Remove(PlayerNumber, item);
-                } // end if market.AddItem(item.Id)
+                } // end if subInventoryOne.AddItem(1, 5, item.Id, SlotType.Market)
             } // end if
         } // end SellToMarket
 
@@ -188,6 +194,21 @@ namespace GSP.Items.Inventories
                 mainInventory.SetStats(playerMerchant);
             } // end if
         } // end TradeToAlly
+
+        // Adds items to the recycle bin
+        void HandleRecycle(Item item)
+        {
+            // Make sure we're not right clicking the equipped equipment
+            if (SlotId < mainInventory.WeaponSlot)
+            {
+                // Add it to the recycle bin's inventory
+                if (subInventoryThree.AddItem(3, 6, item.Id, SlotType.Recycle))
+                {
+                    // Now remove it from the player's inventory
+                    mainInventory.Remove(PlayerNumber, item);
+                } // end if subInventoryThree.AddItem(3, 6, item.Id, SlotType.Recycle)
+            } // end if
+        } // end HandleRecycle
 
         #endregion
     } // end InventorySlot

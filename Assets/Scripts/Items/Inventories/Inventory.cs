@@ -52,6 +52,8 @@ namespace GSP.Items.Inventories
         GameObject tooltip;         // The tooltip's GameObject
         RectTransform tooltipRect;  // The transform of the tooltip
 
+        bool isOpen;    // Whether the window is open
+
         // Use this for initialisation
         protected virtual void Awake()
         {
@@ -98,6 +100,9 @@ namespace GSP.Items.Inventories
 
             // Get the reference to the tooltips RectTransform
             tooltipRect = tooltip.GetComponent<RectTransform>();
+
+            // Initialise the inventory as closed
+            isOpen = false;
         } // end Start
 
         // Runs each frame; used to update the tooltip's position
@@ -495,5 +500,12 @@ namespace GSP.Items.Inventories
             // Set the inventory's colour
             SetInventoryColor(GameMaster.Instance.GetPlayerColor(playerNum));
         } // end SetPlayer
+
+        // Gets and Sets whether the inventory window is open
+        public bool IsOpen
+        {
+            get { return isOpen; }
+            set { isOpen = value; }
+        } // end IsOpen
     } // end Inventory
 } // end GSP.Items.Inventories

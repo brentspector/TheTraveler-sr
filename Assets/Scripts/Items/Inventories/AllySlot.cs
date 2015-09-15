@@ -75,15 +75,19 @@ namespace GSP.Items.Inventories
             // Check if the button was the right mouse
             if (pointerEventData.pointerId == -2)
             {
-                // Check if there is an item in the slot
-                if (subInventoryTwo.GetItem(AllyNumber, SlotId).Name != string.Empty)
+                // Check if the inventory window is open
+                if (mainInventory.IsOpen)
                 {
-                    // Get the item that was right clicked
-                    Item item = subInventoryTwo.GetItem(AllyNumber, SlotId);
+                    // Check if there is an item in the slot
+                    if (subInventoryTwo.GetItem(AllyNumber, SlotId).Name != string.Empty)
+                    {
+                        // Get the item that was right clicked
+                        Item item = subInventoryTwo.GetItem(AllyNumber, SlotId);
 
-                    // For now, just handle the transferring to the player's inventory
-                    TradeToPlayer(item);
-                } // end if inventory.GetItem(PlayerNumber, SlotId).Name != string.Empty
+                        // For now, just handle the transferring to the player's inventory
+                        TradeToPlayer(item);
+                    } // end if inventory.GetItem(PlayerNumber, SlotId).Name != string.Empty
+                } // end mainInventory.IsOpen
             } // end if
         } // end OnPointerUp
 

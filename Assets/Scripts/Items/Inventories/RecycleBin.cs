@@ -87,7 +87,7 @@ namespace GSP.Items.Inventories
         public void RecycleItems(bool isRecycling = true)
         {
             // Get all the items in the recycle bin window
-            List<Item> tempItems = GetItems(5).FindAll(item => item.Name != string.Empty);
+            List<Item> tempItems = GetItems(6).FindAll(item => item.Name != string.Empty);
 
             // Get the inventory for the player
             PlayerInventory inventory = GameObject.Find("Canvas").transform.Find("PlayerInventory").GetComponent<PlayerInventory>();
