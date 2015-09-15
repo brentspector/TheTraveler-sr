@@ -94,7 +94,7 @@ namespace GSP.Entities.Friendlies
                 if (inventory.AddItem(2, AllyNumber, resource.Id, SlotType.Ally))
                 {
                     // Update the inventory's stats; this is hard coded for a single ally
-                    inventory.SetStats((Merchant)GameMaster.Instance.GetPlayerScript(AllyNumber - 6).Entity);
+                    inventory.SetStats((Merchant)GameMaster.Instance.GetPlayerScript(AllyNumber - 7).Entity);
 
                     // Return success
                     return true;

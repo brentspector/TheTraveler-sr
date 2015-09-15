@@ -72,18 +72,22 @@ namespace GSP.Items.Inventories
             // Check if the button was the right mouse
             if (pointerEventData.pointerId == -2)
             {
-                // Check if there is an item in the slot
-                if (subInventoryThree.GetItem(6, SlotId).Name != string.Empty)
+                // Check if the inventory window is open
+                if (mainInventory.IsOpen)
                 {
-                    // Get the item that was right clicked
-                    Item item = subInventoryThree.GetItem(6, SlotId);
+                    // Check if there is an item in the slot
+                    if (subInventoryThree.GetItem(6, SlotId).Name != string.Empty)
+                    {
+                        // Get the item that was right clicked
+                        Item item = subInventoryThree.GetItem(6, SlotId);
 
-                    // Get the player's merchant
-                    Merchant playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(PlayerNumber).Entity;
+                        // Get the player's merchant
+                        Merchant playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(PlayerNumber).Entity;
 
-                    // Handle the retrieving of items to recycle
-                    HandleRecycling(item, playerMerchant);
-                } // end if subInventoryThree.GetItem(6, SlotId).Name != string.Empty
+                        // Handle the retrieving of items to recycle
+                        HandleRecycling(item, playerMerchant);
+                    } // end if subInventoryThree.GetItem(6, SlotId).Name != string.Empty
+                } // end mainInventory.IsOpen
             } // end if
         } // end OnPointerUp
 
