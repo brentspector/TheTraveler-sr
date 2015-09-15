@@ -73,27 +73,31 @@ namespace GSP.Items.Inventories
             // Check if the button was the right mouse
             if (pointerEventData.pointerId == -2)
             {
-                // Check if there is an item in the slot
-                if (subInventoryOne.GetItem(SlotId).Name != string.Empty)
+                // Check if the inventory window is open
+                if (mainInventory.IsOpen)
                 {
-                    // Get the item that was right clicked
-                    Item item = subInventoryOne.GetItem(SlotId);
-
-                    // Get the player's merchant
-                    Merchant playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(PlayerNumber).Entity;
-
-                    // Check if we're buying to selling
-                    if (subInventoryOne.Action == MarketAction.Sell)
+                    // Check if there is an item in the slot
+                    if (subInventoryOne.GetItem(SlotId).Name != string.Empty)
                     {
-                        // The market is selling so handle the selling
-                        HandleSelling(item, playerMerchant);
-                    } // end if
-                    else
-                    {
-                        // Otherwise, the market is buying so handle the buying
-                        HandleBuying(item, playerMerchant);
-                    } // end else
-                } // end if market.GetItem(SlotId).Name != string.Empty
+                        // Get the item that was right clicked
+                        Item item = subInventoryOne.GetItem(SlotId);
+
+                        // Get the player's merchant
+                        Merchant playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(PlayerNumber).Entity;
+
+                        // Check if we're buying to selling
+                        if (subInventoryOne.Action == MarketAction.Sell)
+                        {
+                            // The market is selling so handle the selling
+                            HandleSelling(item, playerMerchant);
+                        } // end if
+                        else
+                        {
+                            // Otherwise, the market is buying so handle the buying
+                            HandleBuying(item, playerMerchant);
+                        } // end else
+                    } // end if market.GetItem(SlotId).Name != string.Empty
+                } // end mainInventory.IsOpen
             } // end if
         } // end OnPointerUp
 
