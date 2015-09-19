@@ -5,13 +5,16 @@ using GSP.Items.Inventories;
 
 namespace GSP
 {
-    public class TestMarket : MonoBehaviour
+    public class GUIMarket : MonoBehaviour
     {
         // Used for initialisation
         void Awake()
         {
             // Load the players
             GameMaster.Instance.LoadPlayers(true);
+
+            // Disable the ally's inventory
+            GameObject.Find("Canvas").transform.Find("AllyInventory").gameObject.SetActive(false);
 
             // Set the colours
             GameObject.Find("Canvas").transform.Find("PlayerInventory").GetComponent<PlayerInventory>().SetPlayer(GameMaster.Instance.Turn);
@@ -20,6 +23,9 @@ namespace GSP
 
         public void LeaveMarket()
         {
+            // enable the ally's inventory
+            GameObject.Find("Canvas").transform.Find("AllyInventory").gameObject.SetActive(true);
+            
             // Save the players
             GameMaster.Instance.SavePlayers();
 
