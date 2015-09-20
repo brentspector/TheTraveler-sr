@@ -16,6 +16,7 @@ namespace GSP.Items.Inventories
         Equipment,
         Bonus,
         Market,
-        Ally
+        Ally,
+        Recycle
     } // end SlotType
 } // end GSP.Items.Inventories

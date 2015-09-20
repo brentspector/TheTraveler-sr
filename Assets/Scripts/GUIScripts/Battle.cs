@@ -93,7 +93,7 @@ namespace GSP
 			playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(playerNum).Entity;
 			playerAttack = playerMerchant.AttackPower;
 			playerDefense = playerMerchant.DefencePower;
-			GameObject.Find ("Battler1Sprite").GetComponent<Image> ().sprite = playerMerchant.GetSprite (1);
+			GameObject.Find ("Battler1Sprite").GetComponent<Image> ().sprite = playerMerchant.GetSprite (2);
 
 			// Set the player
 			player = (IDamageable)playerMerchant;
@@ -118,6 +118,7 @@ namespace GSP
 
 			// Init and set HUD objects
             GameObject.Find("Canvas").transform.Find("PlayerInventory").gameObject.SetActive(false);
+            GameObject.Find("Canvas").transform.Find("AllyInventory").gameObject.SetActive(false);
 			GameObject.Find("Canvas").transform.Find("Tooltip").gameObject.SetActive(false);
 			playerName = GameObject.Find ("Battler1Name").GetComponent<Text> ();
 			playerName.text = GameMaster.Instance.GetPlayerName (playerNum);
@@ -189,6 +190,7 @@ namespace GSP
 				// Set up inventory
 				GameObject.Find("Canvas").transform.Find("Tooltip").gameObject.SetActive(true);
                 GameObject.Find("Canvas").transform.Find("PlayerInventory").gameObject.SetActive(true);
+                GameObject.Find("Canvas").transform.Find("AllyInventory").gameObject.SetActive(true);
                 PlayerInventory inventory = GameObject.Find("Canvas").transform.Find("PlayerInventory").GetComponent<PlayerInventory>();
 
 				// The player lost the fight, remove its resources or its weapon

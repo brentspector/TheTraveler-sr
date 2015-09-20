@@ -28,6 +28,7 @@ namespace GSP.Core
         int merchantId;                 // The player's merchant entity ID
         int allyId;                     // The player's ally entity ID
         List<int> itemIds;              // The player's list of item IDs in their inventory
+        AllyData allyData;              // The player's ally's data
 
         // Default constructor; Creates an empty object
         public PlayerData()
@@ -57,6 +58,9 @@ namespace GSP.Core
 
             // Clear the list
             itemIds.Clear();
+
+            // Set the ally data to a null state
+            allyData = null;
         } // end Reset
 
         // Gets an itemId at the given index
@@ -105,5 +109,12 @@ namespace GSP.Core
             get { return allyId; }
             set { allyId = value; }
         } // end AllyId
+
+        // Gets and Sets the player's Ally's data
+        public AllyData AllyData
+        {
+            get { return allyData; }
+            set { allyData = value; }
+        } // end AllyData
     } // end PlayerData
 } // end GSP.Core

@@ -1,30 +1,27 @@
-﻿using GSP.Char.Allies;
-/*******************************************************************************
+﻿/*******************************************************************************
  *
- *  File Name: AllySlot.cs
+ *  File Name: RecycleSlot.cs
  *
- *  Description: Contains the logic of an ally slot. The ally's Inventory
- *               system is filled with these slots. Their functionality is
- *               fairly minimal.
+ *  Description: Contains the logic of a slot. The Recycle Bin Inventory system
+ *                is filled with slots. Their functionality is fairly minimal.
  *
  *******************************************************************************/
-using GSP.Core;
-using GSP.Entities.Friendlies;
-using GSP.Entities.Neutrals;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using GSP.Entities.Neutrals;
+using GSP.Core;
 
 namespace GSP.Items.Inventories
 {
     /*******************************************************************************
      *
-     * Name: AllySlot
+     * Name: RecycleSlot
      * 
-     * Description: The functionality of each slot in the ally's inventory.
+     * Description: The functionality of each slot in the Recyle Bin's inventory.
      *              This is done through Unity's EventSystems interfaces.
      * 
      *******************************************************************************/
-    public class AllySlot : Slot<PlayerInventory, Market, AllyInventory, RecycleBin>, 
+    public class RecycleSlot : Slot<PlayerInventory, Market, AllyInventory, RecycleBin>,
         IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler
     {
         #region IPointerEnterHandler Members
@@ -33,10 +30,10 @@ namespace GSP.Items.Inventories
         public void OnPointerEnter(PointerEventData pointerEventData)
         {
             // Check if there is an item in the slot
-            if (subInventoryTwo.GetItem(AllyNumber, SlotId).Name != string.Empty)
+            if (subInventoryThree.GetItem(6, SlotId).Name != string.Empty)
             {
                 // Show the tooltip window while hovering over an item
-                subInventoryTwo.ShowTooltip(subInventoryTwo.GetItem(AllyNumber, SlotId));
+                subInventoryThree.ShowTooltip(subInventoryThree.GetItem(6, SlotId));
             } // end if
         } // end OnPointerEnter
 
@@ -48,10 +45,10 @@ namespace GSP.Items.Inventories
         public void OnPointerExit(PointerEventData pointerEventData)
         {
             // Check if there is an item in the slot
-            if (subInventoryTwo.GetItem(AllyNumber, SlotId).Name != string.Empty)
+            if (subInventoryThree.GetItem(6, SlotId).Name != string.Empty)
             {
                 // Show the tooltip window while not hovering over an item
-                subInventoryTwo.ShowTooltip(null, false);
+                subInventoryThree.ShowTooltip(null, false);
             } // end if
         } // end OnPointerEnter
 
@@ -79,35 +76,31 @@ namespace GSP.Items.Inventories
                 if (mainInventory.IsOpen)
                 {
                     // Check if there is an item in the slot
-                    if (subInventoryTwo.GetItem(AllyNumber, SlotId).Name != string.Empty)
+                    if (subInventoryThree.GetItem(6, SlotId).Name != string.Empty)
                     {
                         // Get the item that was right clicked
-                        Item item = subInventoryTwo.GetItem(AllyNumber, SlotId);
+                        Item item = subInventoryThree.GetItem(6, SlotId);
 
-                        // For now, just handle the transferring to the player's inventory
-                        TradeToPlayer(item);
-                    } // end if inventory.GetItem(PlayerNumber, SlotId).Name != string.Empty
+                        // Get the player's merchant
+                        Merchant playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(PlayerNumber).Entity;
+
+                        // Handle the retrieving of items to recycle
+                        HandleRecycling(item, playerMerchant);
+                    } // end if subInventoryThree.GetItem(6, SlotId).Name != string.Empty
                 } // end mainInventory.IsOpen
             } // end if
         } // end OnPointerUp
 
-        // Trades to the player
-        void TradeToPlayer(Item item)
+        // Handles the market buying items from the player
+        void HandleRecycling(Item item, Merchant merchant)
         {
-            // Get the player's merchant
-            Merchant playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(PlayerNumber).Entity;
+            // Simply add the item back to the player's inventory
+            mainInventory.AddItem(0, PlayerNumber, item.Id, SlotType.Inventory);
 
-            // Get the ally, this is hardcoded for the port ally
-            Porter ally = (Porter)playerMerchant.GetAlly(0).GetComponent<PorterMB>().Entity;
-
-            // Transfer the resource to the ally
-            if(ally.TransferResource<Merchant>(playerMerchant, (Resource)item))
-            {
-                // Update the ally's stats
-                subInventoryTwo.SetStats(playerMerchant);
-            } // end if
-        } // end TradeToPlayer
+            // Now remove it from the market's buy inventory
+            subInventoryThree.Remove(6, item);
+        } // end HandleRecycling
 
         #endregion
-    } // end AllySlot
-} // end GSP.Items.Inventories
+    } // end RecycleSlot
+}

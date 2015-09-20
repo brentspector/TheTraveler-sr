@@ -6,7 +6,9 @@
  *               with slots. Their functionality is fairly minimal.
  *
  *******************************************************************************/
+using GSP.Char.Allies;
 using GSP.Core;
+using GSP.Entities.Friendlies;
 using GSP.Entities.Neutrals;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -21,7 +23,8 @@ namespace GSP.Items.Inventories
      *              through Unity's EventSystems interfaces.
      * 
      *******************************************************************************/
-    public class InventorySlot : Slot<PlayerInventory, Market>, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler
+    public class InventorySlot : Slot<PlayerInventory, Market, AllyInventory, RecycleBin>, 
+        IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler
     {
         #region IPointerEnterHandler Members
 
@@ -78,9 +81,9 @@ namespace GSP.Items.Inventories
                     Item item = mainInventory.GetItem(PlayerNumber, SlotId);
 
                     // Check if the market exists and is in buy mode
-                    if (subInventory != null && subInventory is Market)
+                    if (subInventoryOne != null && subInventoryOne is Market && subInventoryOne.IsOpen)
                     {
-                        if (subInventory.Action == MarketAction.Buy)
+                        if (((Market)(object)subInventoryOne).Action == MarketAction.Buy)
                         {
                             // Handle selling to the market
                             SellToMarket(item);
@@ -91,6 +94,27 @@ namespace GSP.Items.Inventories
                             HandleEquipment(item);
                         } // end else
                     } // end if
+                    // Check if the ally inventory exists
+                    else if (subInventoryTwo != null && subInventoryTwo is AllyInventory && subInventoryTwo.IsOpen)
+                    {
+                        // Check if the item is a resource
+                        if (item is Resource)
+                        {
+                            // Handle the transferring to the ally's inventory
+                            TradeToAlly(item);
+                        } // end if
+                        else
+                        {
+                            // Otherwise, handle any equipment
+                            HandleEquipment(item);
+                        } // end else
+                    } // end else if
+                    // Check if the recycle inventory exists
+                    else if (subInventoryThree != null && subInventoryThree is RecycleBin && subInventoryThree.IsOpen)
+                    {
+                        // Handle the adding of items to the recycle bin
+                        HandleRecycle(item);
+                    } // end else if
                     else
                     {
                         // Otherwise, handle any equipment
@@ -119,7 +143,7 @@ namespace GSP.Items.Inventories
                         int freeSlot;   // The first slot that is free
 
                         // Check if there's space for the item
-                        if ((freeSlot = mainInventory.FindFreeSlot(PlayerNumber, SlotType.Inventory)) >= 0)
+                        if ((freeSlot = mainInventory.FindFreeSlot(0, PlayerNumber, SlotType.Inventory)) >= 0)
                         {
                             // Swap the bonus item with the item at the free slot
                             mainInventory.SwapItem(PlayerNumber, item, mainInventory.GetItem(PlayerNumber, freeSlot));
@@ -146,13 +170,45 @@ namespace GSP.Items.Inventories
             if (SlotId < mainInventory.WeaponSlot)
             {
                 // Add it to the market's inventory
-                if (subInventory.AddItem(5, item.Id, SlotType.Market))
+                if (subInventoryOne.AddItem(1, 5, item.Id, SlotType.Market))
                 {
                     // Now remove it from the player's inventory
                     mainInventory.Remove(PlayerNumber, item);
-                } // end if market.AddItem(item.Id)
+                } // end if subInventoryOne.AddItem(1, 5, item.Id, SlotType.Market)
             } // end if
         } // end SellToMarket
+
+        // Trades an item to an ally
+        void TradeToAlly(Item item)
+        {
+            // Get the player's merchant
+            Merchant playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(PlayerNumber).Entity;
+
+            // Get the ally, this is hardcoded for the port ally
+            Porter ally = (Porter)playerMerchant.GetAlly(0).GetComponent<PorterMB>().Entity;
+
+            // Transfer the resource to the ally
+            if (playerMerchant.TransferResource<Porter>(ally, (Resource)item))
+            {
+                // Update the player's stats
+                mainInventory.SetStats(playerMerchant);
+            } // end if
+        } // end TradeToAlly
+
+        // Adds items to the recycle bin
+        void HandleRecycle(Item item)
+        {
+            // Make sure we're not right clicking the equipped equipment
+            if (SlotId < mainInventory.WeaponSlot)
+            {
+                // Add it to the recycle bin's inventory
+                if (subInventoryThree.AddItem(3, 6, item.Id, SlotType.Recycle))
+                {
+                    // Now remove it from the player's inventory
+                    mainInventory.Remove(PlayerNumber, item);
+                } // end if subInventoryThree.AddItem(3, 6, item.Id, SlotType.Recycle)
+            } // end if
+        } // end HandleRecycle
 
         #endregion
     } // end InventorySlot
