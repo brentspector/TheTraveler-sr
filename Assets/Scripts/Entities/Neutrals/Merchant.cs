@@ -187,37 +187,37 @@ namespace GSP.Entities.Neutrals
                 case FacingDirection.North:
                     {
                         // Change the Character's Sprite to face the north direction
-                        SetSprite(0);
+                        SetSprite(3);
 
                         // Using the GameObject's transform, scale to fix the small Sprite issue
-                        GameObj.transform.localScale = new Vector3(1.66f, 1.56f, 1.0f);
+                        //GameObj.transform.localScale = new Vector3(1.66f, 1.56f, 1.0f);
                         break;
                     } // end case North
                 case FacingDirection.East:
                     {
                         // Change the Character's Sprite to face the east direction
-                        SetSprite(1);
+                        SetSprite(2);
 
                         // Using the GameObject's transform, scale to fix the small Sprite issue
-                        GameObj.transform.localScale = new Vector3(1.41f, 1.56f, 1.0f);
+                        //GameObj.transform.localScale = new Vector3(1.41f, 1.56f, 1.0f);
                         break;
                     } // end case East
                 case FacingDirection.South:
                     {
                         // Change the Character's Sprite to face the south direction
-                        SetSprite(2);
+                        SetSprite(0);
 
                         // Using the GameObject's transform, scale to fix the small Sprite issue
-                        GameObj.transform.localScale = new Vector3(1.66f, 1.56f, 1.0f);
+                        //GameObj.transform.localScale = new Vector3(1.66f, 1.56f, 1.0f);
                         break;
                     } // end case South
                 case FacingDirection.West:
                     {
                         // Change the Character's Sprite to face the west direction
-                        SetSprite(3);
+                        SetSprite(1);
 
                         // Using the GameObject's transform, scale to fix the small Sprite issue
-                        GameObj.transform.localScale = new Vector3(1.40f, 1.56f, 1.0f);
+                        //GameObj.transform.localScale = new Vector3(1.40f, 1.56f, 1.0f);
                         break;
                     } // end case West
             } // end switch facingDirection

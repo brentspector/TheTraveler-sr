@@ -1,23 +1,25 @@
 fileFormatVersion: 2
-guid: efe657a2a66b11f45832dd3ef0dfacb4
+guid: b212226c676e48143b070b30ceaf702a
+timeCreated: 1442703906
+licenseType: Free
 TextureImporter:
   fileIDToRecycleName:
-    21300000: Player4_0
-    21300002: Player4_1
-    21300004: Player4_2
-    21300006: Player4_3
-    21300008: Player4_4
-    21300010: Player4_5
-    21300012: Player4_6
-    21300014: Player4_7
-    21300016: Player4_8
-    21300018: Player4_9
-    21300020: Player4_10
-    21300022: Player4_11
+    21300000: player4_0
+    21300002: player4_1
+    21300004: player4_2
+    21300006: player4_3
+    21300008: player4_4
+    21300010: player4_5
+    21300012: player4_6
+    21300014: player4_7
+    21300016: player4_8
+    21300018: player4_9
+    21300020: player4_10
+    21300022: player4_11
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0
-    enableMipMap: 0
+    enableMipMap: 1
     linearTexture: 0
     correctGamma: 0
     fadeOut: 0
@@ -32,16 +34,20 @@ TextureImporter:
   isReadable: 0
   grayScaleToAlpha: 0
   generateCubemap: 0
+  cubemapConvolution: 0
+  cubemapConvolutionSteps: 8
+  cubemapConvolutionExponent: 1.5
   seamlessCubemap: 0
-  textureFormat: -3
-  maxTextureSize: 4096
+  textureFormat: -1
+  maxTextureSize: 2048
   textureSettings:
-    filterMode: 2
-    aniso: 1
+    filterMode: -1
+    aniso: 16
     mipBias: -1
     wrapMode: 1
   nPOTScale: 0
   lightmap: 0
+  rGBM: 0
   compressionQuality: 50
   spriteMode: 2
   spriteExtrude: 1
@@ -55,125 +61,127 @@ TextureImporter:
   buildTargetSettings: []
   spriteSheet:
     sprites:
-    - name: Player4_0
+    - name: player4_0
       rect:
         serializedVersion: 2
         x: 0
-        y: 146
-        width: 34
-        height: 40
+        y: 192
+        width: 64
+        height: 64
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
-    - name: Player4_1
+    - name: player4_1
       rect:
         serializedVersion: 2
-        x: 35
-        y: 146
-        width: 35
-        height: 41
+        x: 64
+        y: 192
+        width: 64
+        height: 64
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
-    - name: Player4_2
+    - name: player4_2
       rect:
         serializedVersion: 2
-        x: 71
-        y: 146
-        width: 34
-        height: 40
+        x: 128
+        y: 192
+        width: 64
+        height: 64
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
-    - name: Player4_3
-      rect:
-        serializedVersion: 2
-        x: 1
-        y: 98
-        width: 30
-        height: 40
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-    - name: Player4_4
-      rect:
-        serializedVersion: 2
-        x: 37
-        y: 98
-        width: 30
-        height: 41
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-    - name: Player4_5
-      rect:
-        serializedVersion: 2
-        x: 73
-        y: 98
-        width: 29
-        height: 40
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-    - name: Player4_6
+    - name: player4_3
       rect:
         serializedVersion: 2
         x: 0
-        y: 50
-        width: 34
-        height: 40
+        y: 128
+        width: 64
+        height: 64
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
-    - name: Player4_7
+    - name: player4_4
       rect:
         serializedVersion: 2
-        x: 35
-        y: 50
-        width: 35
-        height: 41
+        x: 64
+        y: 128
+        width: 64
+        height: 64
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
-    - name: Player4_8
+    - name: player4_5
       rect:
         serializedVersion: 2
-        x: 71
-        y: 50
-        width: 34
-        height: 40
+        x: 128
+        y: 128
+        width: 64
+        height: 64
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
-    - name: Player4_9
+    - name: player4_6
       rect:
         serializedVersion: 2
-        x: 3
-        y: 2
-        width: 29
-        height: 40
+        x: 0
+        y: 64
+        width: 64
+        height: 64
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
-    - name: Player4_10
+    - name: player4_7
       rect:
         serializedVersion: 2
-        x: 38
-        y: 2
-        width: 30
-        height: 41
+        x: 64
+        y: 64
+        width: 64
+        height: 64
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
-    - name: Player4_11
+    - name: player4_8
       rect:
         serializedVersion: 2
-        x: 74
-        y: 2
-        width: 30
-        height: 40
+        x: 128
+        y: 64
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: player4_9
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: player4_10
+      rect:
+        serializedVersion: 2
+        x: 64
+        y: 0
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: player4_11
+      rect:
+        serializedVersion: 2
+        x: 128
+        y: 0
+        width: 64
+        height: 64
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
   spritePackingTag: 
   userData: 
+  assetBundleName: 
+  assetBundleVariant: 
