@@ -93,7 +93,7 @@ namespace GSP
 			playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(playerNum).Entity;
 			playerAttack = playerMerchant.AttackPower;
 			playerDefense = playerMerchant.DefencePower;
-			GameObject.Find ("Battler1Sprite").GetComponent<Image> ().sprite = playerMerchant.GetSprite (1);
+			GameObject.Find ("Battler1Sprite").GetComponent<Image> ().sprite = playerMerchant.GetSprite (2);
 
 			// Set the player
 			player = (IDamageable)playerMerchant;

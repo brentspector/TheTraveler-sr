@@ -48,5 +48,8 @@ namespace GSP.Items.Inventories
 
         // Gets the items list count for the specified key
         int GetItemsListCount(int key);
+
+        // Gets and Sets whether the inventory window is open
+        bool IsOpen { get; set; }
     } // end IBaseInventory
 } // end GSP.Items.Inventories
