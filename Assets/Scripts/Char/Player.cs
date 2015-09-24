@@ -80,7 +80,6 @@ namespace GSP.Char
                 // Otherwise, Check if it's the AI's turn
                 if (GameMaster.Instance.Turn == merchant.PlayerNumber)
                 {
-                    Debug.LogWarningFormat("AI: Update: TurnPhase: {0}", turnPhase);
                     // Roll Dice phase
                     if (turnPhase == 0)
                     {
@@ -90,8 +89,17 @@ namespace GSP.Char
                             // Set isProcessing to true
                             isProcessing = true;
 
-                            // Only roll die once
-                            PressAction();
+                            // Check if we are on the battle scene
+                            if (Application.loadedLevelName == "BattleScene")
+                            {
+                                // Set the turnPhase to 2 so we can battle
+                                turnPhase = 2;
+                            } // end if
+                            else
+                            {
+                                // Otherwise, Only roll die once
+                                PressAction();
+                            } // end else
                         } //end if !isProcessing
                     } //end if
                     // Select Path to Take phase

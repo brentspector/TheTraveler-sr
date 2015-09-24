@@ -50,9 +50,9 @@ namespace GSP
 		//NOTE: These should add up to less than 100 so that 
 		//there is a chance nothing occurs. Minimum chance of
 		//one or else there will be problems
-        int enemyChance = 99;//25;   // The minimum chance for the MapEvent to an enemy
-        int allyChance = 0;//55;    // The minimum chance for the MapEvent to an ally
-        int itemChance = 0;//15;    // The minimum chance for the MapEvent to an item
+        int enemyChance = 25;   // The minimum chance for the MapEvent to an enemy
+        int allyChance = 55;    // The minimum chance for the MapEvent to an ally
+        int itemChance = 15;    // The minimum chance for the MapEvent to an item
 		
 		string guiResult; // The MapEvent summary
 

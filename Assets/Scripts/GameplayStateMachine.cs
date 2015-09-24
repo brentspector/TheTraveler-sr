@@ -418,8 +418,6 @@ namespace GSP
 						// Get and resolve the map event
 						mapEventResult = guiMapEvent.DetermineEvent(guiPlayerTurn, die);
 
-                        Debug.LogFormat("GPSM: SM: map event: {0}", mapEventResult);
-
 						// If it's an ally, allow player to accept
 						if(mapEventResult.Contains("Ally"))
 						{
