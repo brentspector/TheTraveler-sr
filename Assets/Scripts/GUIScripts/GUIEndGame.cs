@@ -1,4 +1,5 @@
-﻿/*******************************************************************************
+﻿using GSP.Char;
+/*******************************************************************************
  *
  *  File Name: GUIEndGane.cs
  *
@@ -49,15 +50,32 @@ namespace GSP
             // Check if the game was single player
             if (GameMaster.Instance.IsSinglePlayer)
             {
-                // Get the player's merchant
-                Merchant playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(0).Entity;
-
                 // Load the Score table
                 GameMaster.Instance.LoadHighScores();
-
-                // Add the player's score to the table
                 HighScoreTable highScoreTable = GameMaster.Instance.ScoresTable;
-                highScoreTable.AddScore(playerMerchant.Name, playerMerchant.Currency);
+
+                // The player's name
+                string playerName = "";
+                
+                // Loop through players and AI
+                for (int index = 0; index < GameMaster.Instance.NumPlayers; index++)
+                {
+                    // Get the player's merchant
+                    Merchant playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(index).Entity;
+
+                    // Set the player's name
+                    playerName = playerMerchant.Name;
+
+                    // Check if the player is an AI
+                    if (playerMerchant.GameObj.GetComponent<Player>().IsAI)
+                    {
+                        // Append an AI tag to signify the entry was an AI
+                        playerName += " [AI]";
+                    } // end if
+                    
+                    // Add the player's score to the table
+                    highScoreTable.AddScore(playerName, playerMerchant.Currency);
+                } // end for
 
                 // Show the high scores table
                 highScores.SetActive(true);
@@ -71,7 +89,10 @@ namespace GSP
                 // Show the ranking table
                 rankings.SetActive(true);
             } // end else
-		} // end Start
+
+            // Reset the turn through the game master
+            GameMaster.Instance.ResetTurn();
+		} // end Awake
 
 		void Update()
 		{

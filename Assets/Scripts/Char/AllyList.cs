@@ -37,7 +37,7 @@ namespace GSP.Char
 		// Return and ally GameObject reference
 		public GameObject GetObject(int index)
 		{
-			return allies[index];
+            return allies[index];
 		} // end GetObject
 
 		// Get the index of the ally

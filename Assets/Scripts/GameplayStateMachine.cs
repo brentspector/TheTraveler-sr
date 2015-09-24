@@ -48,6 +48,7 @@ namespace GSP
 		bool canRunEndStuff;                    	// Whether the end scene stuff should be ran during that state
         bool isAlliesOpen;                          // Whether the allies window is open
 		int guiDiceDistVal;	                		// The dice value which is then onverted into a distance value
+        bool isMovementInitialized;                 // Whether the movement class is initialised
 
 		// State Machine input/output variables
 		int guiNumOfPlayers; 	           			// The number of players playing
@@ -125,6 +126,9 @@ namespace GSP
 
             // Running the end stuff defaults to true
             canRunEndStuff = true;
+
+            // The movement class is not initialised
+            isMovementInitialized = false;
 
             // The ally window are closed by default
             isAlliesOpen = false;
@@ -334,6 +338,9 @@ namespace GSP
 						actionButton.interactable = true;
 						actionButtonActive = true;
 
+                        // The movement class is not initialised for the current player
+                        isMovementInitialized = false;
+
                         // Switch the state to the RollDie state
                         gamePlayState = GamePlayState.RollDice;
                         break;
@@ -376,6 +383,9 @@ namespace GSP
                         // Display the movement arrows
                         guiMovement.InitThis(player, guiDiceDistVal);
 
+                        // The movement class is now initialised for the current player
+                        isMovementInitialized = true;
+
 						// Make the action button clickable again
 						actionButton.interactable = true;
 						actionButtonActive = true;
@@ -407,6 +417,8 @@ namespace GSP
 
 						// Get and resolve the map event
 						mapEventResult = guiMapEvent.DetermineEvent(guiPlayerTurn, die);
+
+                        Debug.LogFormat("GPSM: SM: map event: {0}", mapEventResult);
 
 						// If it's an ally, allow player to accept
 						if(mapEventResult.Contains("Ally"))
@@ -475,17 +487,21 @@ namespace GSP
 
                                 Porter allyPorter;  // The ally's porter entity
 
-                                // Check if the ally type is porter
-                                if (playerMerchant.GetAlly(0).GetComponent<PorterMB>() != null)
+                                // Check if the player has an ally
+                                if (playerMerchant.NumAllies > 0)
                                 {
-                                    // THe ally type is porter to get its entity
-                                    allyPorter = (Porter)playerMerchant.GetAlly(0).GetComponent<PorterMB>().Entity;
+                                    // Check if the ally type is porter
+                                    if (playerMerchant.GetAlly(0).GetComponent<PorterMB>() != null)
+                                    {
+                                        // THe ally type is porter to get its entity
+                                        allyPorter = (Porter)playerMerchant.GetAlly(0).GetComponent<PorterMB>().Entity;
 
-                                    // Sell the ally's resources
-                                    allyPorter.SellResources();
+                                        // Sell the ally's resources
+                                        allyPorter.SellResources();
 
-                                    // Transfer the currency to the player's merchant
-                                    allyPorter.TransferCurrency<Merchant>(playerMerchant, allyPorter.Currency);
+                                        // Transfer the currency to the player's merchant
+                                        allyPorter.TransferCurrency<Merchant>(playerMerchant, allyPorter.Currency);
+                                    } // end if playerMerchant.GetAlly(0).GetComponent<PorterMB>() != null
                                 } // end if
 
                                 // We need to access the character script at the given index and sell the resources
@@ -862,5 +878,11 @@ namespace GSP
 			actionButton.interactable = true;
 			actionButtonActive = true;
 		} //end No
+
+        // Gets whether the movement class is initialised for the current player
+        public bool IsMovementInitialized
+        {
+            get { return isMovementInitialized; }
+        } // end IsMovementInitialized
 	} // end GameplayStateMachine
 } // end GSP

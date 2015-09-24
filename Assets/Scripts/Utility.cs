@@ -53,6 +53,16 @@ namespace GSP
             } // end else
         } // end ClampInt
 
+        // Truncates a float to two decimal places
+        public static float TruncateFloat(float toTruncate)
+        {
+            // Get the float to two decimal places then truncate the rest converting it into an integer
+            int temp = System.Convert.ToInt32(toTruncate * 100.0f);
+
+            // Return the truncated float
+            return temp / 100.0f;
+        } // end TruncateFloat
+
         // Returns the colour representative to the enumeration value. If the colour can't be parsed, it returns white
         public static Color InterfaceColorToColor(InterfaceColors interfaceColor)
         {
