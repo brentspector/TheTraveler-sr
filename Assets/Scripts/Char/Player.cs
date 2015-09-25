@@ -125,11 +125,9 @@ namespace GSP.Char
                     // Do Action phase
                     else if (turnPhase == 2)
                     {
-                        Debug.LogWarningFormat("AI: Update: level name: {0}", Application.loadedLevelName);
                         // Determine what scene we are in
                         if (Application.loadedLevelName == "BattleScene")
                         {
-                            Debug.Log("AI: Battling");
                             // If in battle scene, keep battling until BattleScene ends itself
                             Battle();
                         } //end if
