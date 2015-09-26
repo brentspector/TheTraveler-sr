@@ -158,8 +158,14 @@ namespace GSP
                                     if (mapSelection != "nothing")
                                     {
                                         // Pick player amount
-                                        // Set the number of players to one for solo mode
-                                        GameMaster.Instance.NumPlayers = 1;
+                                        // Set the number of players to two; the player and an AI
+                                        GameMaster.Instance.NumPlayers = 2;
+
+                                        // Flag the game as single player
+                                        GameMaster.Instance.IsSinglePlayer = true;
+
+                                        // Enable the AI
+                                        GameMaster.Instance.IsAIEnabled = true;
 
                                         // Transition into the colours menu state
                                         menuState = MenuState.Colors;
@@ -209,6 +215,12 @@ namespace GSP
                                         // Note: I screwed this up previously, but it still shouldn't have to be repeated so do a simple conditional check
                                         if (GameMaster.Instance.NumPlayers >= 2 && GameMaster.Instance.NumPlayers <= 4)
                                         {
+                                            // Flag the game as multiplayer
+                                            GameMaster.Instance.IsSinglePlayer = false;
+                                            
+                                            // Diable the AI
+                                            GameMaster.Instance.IsAIEnabled = false;
+                                            
                                             // Transition into the colours menu state
                                             menuState = MenuState.Colors;
                                         }
@@ -231,24 +243,29 @@ namespace GSP
                                         EnableColors();
                                         guideText.text = "Please choose a name and color.";
 
-                                        if (GameMaster.Instance.NumPlayers > 1 && GameMaster.Instance.NumPlayers <= 2)
+                                        // Check if the game is multiplayer
+                                        if (!GameMaster.Instance.IsSinglePlayer)
                                         {
-                                            // Enable player 2
-                                            colorSet.transform.GetChild(1).gameObject.SetActive(true);
-                                        } // end if
-                                        else if (GameMaster.Instance.NumPlayers > 2 && GameMaster.Instance.NumPlayers <= 3)
-                                        {
-                                            // Enable player 2-3
-                                            colorSet.transform.GetChild(1).gameObject.SetActive(true);
-                                            colorSet.transform.GetChild(2).gameObject.SetActive(true);
-                                        } // end else if
-                                        else if (GameMaster.Instance.NumPlayers > 3 && GameMaster.Instance.NumPlayers <= 4)
-                                        {
-                                            // Enable player 2-4
-                                            colorSet.transform.GetChild(1).gameObject.SetActive(true);
-                                            colorSet.transform.GetChild(2).gameObject.SetActive(true);
-                                            colorSet.transform.GetChild(3).gameObject.SetActive(true);
-                                        } // end else if
+                                            // Check which colour lines should be displayed.
+                                            if (GameMaster.Instance.NumPlayers > 1 && GameMaster.Instance.NumPlayers <= 2)
+                                            {
+                                                // Enable player 2
+                                                colorSet.transform.GetChild(1).gameObject.SetActive(true);
+                                            } // end if
+                                            else if (GameMaster.Instance.NumPlayers > 2 && GameMaster.Instance.NumPlayers <= 3)
+                                            {
+                                                // Enable player 2-3
+                                                colorSet.transform.GetChild(1).gameObject.SetActive(true);
+                                                colorSet.transform.GetChild(2).gameObject.SetActive(true);
+                                            } // end else if
+                                            else if (GameMaster.Instance.NumPlayers > 3 && GameMaster.Instance.NumPlayers <= 4)
+                                            {
+                                                // Enable player 2-4
+                                                colorSet.transform.GetChild(1).gameObject.SetActive(true);
+                                                colorSet.transform.GetChild(2).gameObject.SetActive(true);
+                                                colorSet.transform.GetChild(3).gameObject.SetActive(true);
+                                            } // end else if
+                                        } // end if !GameMaster.Instance.IsSinglePlayer
                                     } // end if
                                     break;
                                 } // end case Colors
@@ -342,18 +359,6 @@ namespace GSP
 
                         // This is a new game
                         GameMaster.Instance.IsNew = true;
-
-                        // Check if this is a single player game
-                        if (GameMaster.Instance.NumPlayers == 1)
-                        {
-                            // Flag the game as single player
-                            GameMaster.Instance.IsSinglePlayer = true;
-                        } // end if
-                        else
-                        {
-                            // Otherwise flag the game as multiplayer
-                            GameMaster.Instance.IsSinglePlayer = false;
-                        } // end else
 
                         // Tell the GameMaster to load selected level
                         GameMaster.Instance.LoadLevel(mapSelection);

@@ -25,32 +25,47 @@ namespace GSP
 		Vector3 origPlayerPosition; // If player cancels movement, player resets to this original poisition
 		int initialTravelDist;      // Initial dice roll
 		int currTravelDist;         // Dice roll left
-		bool isMoving = false;      // If the player is moving, one dice roll value is taken off
+		bool isMoving;              // If the player is moving, one dice roll value is taken off
+        bool isPlayerAI;            // Whether the player is an AI
 		Button upButton;			// Up movement button		
 		Button downButton;			// Down movement button
 		Button leftButton;			// Left movement button
 		Button rightButton;			// Right movement button
 		Button cancelButton;		// Cancel movement button
 
-		// Get component references
+		// Used for initialisation
+        void Awake()
+        {
+            isMoving = false;
+            isPlayerAI = false;
+        } // end Awake
+        
+        // Get component references
 		void Start()
 		{
 			// Get HUD Arrows
-			upButton = GameObject.Find ("UpButton").GetComponent<Button> ();
-			downButton = GameObject.Find ("DownButton").GetComponent<Button> ();
-			leftButton = GameObject.Find ("LeftButton").GetComponent<Button> ();
-			rightButton = GameObject.Find ("RightButton").GetComponent<Button> ();
-			cancelButton = GameObject.Find ("CancelButton").GetComponent<Button> ();
+            upButton = GameObject.Find("CurrentPlayer/UpButton").GetComponent<Button>();
+            downButton = GameObject.Find("CurrentPlayer/DownButton").GetComponent<Button>();
+            leftButton = GameObject.Find("CurrentPlayer/LeftButton").GetComponent<Button>();
+            rightButton = GameObject.Find("CurrentPlayer/RightButton").GetComponent<Button>();
+            cancelButton = GameObject.Find("CurrentPlayer/CancelButton").GetComponent<Button>();
 			
 			// Make sure they are disabled
 			DisableButtons ();
 		} //end Start
 
         // Initialise things sort of like a custom constructor
-		public void InitThis(Player player, int travelDistance)
+		public void InitThis(Player player, int travelDistance, bool isAI)
 		{
-			// Make sure buttons are enabled
-			EnableButtons ();
+            // Set whether the player is an AI
+            isPlayerAI = isAI;
+            
+            // Make sure the player isn't AI before enabling the buttons
+            if (!isAI)
+            {
+                // Make sure buttons are enabled
+                EnableButtons();
+            } // end if
 
 			// Player script
             playerScript = player;
@@ -176,8 +191,12 @@ namespace GSP
 		// Cancels a move sending the player back to the original position
 		public void CancelMove()
 		{
-			// Enable movement arrows
-			EnableButtons ();
+            // Make sure the player isn't AI before enabling the buttons
+            if (!isPlayerAI)
+            {
+                // Make sure buttons are enabled
+                EnableButtons();
+            } // end if
 
 			// Face the character to the south; This is the default facing
 			playerScript.Face(FacingDirection.South);
@@ -239,15 +258,25 @@ namespace GSP
 		// Disable buttons if out of travel distance
 		public void TravelDistanceLeft()
 		{
-			//If out of distance to move, disable movement arrows
+            //If out of distance to move, disable movement arrows
 			if(currTravelDist <= 0)
 			{
 				DisableButtons();
-				cancelButton.interactable = true;
+				
+                // Make sure the player isn't AI before enabling the cancel button
+                if (!isPlayerAI)
+                {
+                    cancelButton.interactable = true;
+                } // end if !isPlayerAI
 			} //end if
 			else
 			{
-				EnableButtons();
+                // Make sure the player isn't AI before enabling the buttons
+                if (!isPlayerAI)
+                {
+                    // Make sure buttons are enabled
+                    EnableButtons();
+                } // end if
 			} //end else
 		} //end TravelDistanceLeft
 
