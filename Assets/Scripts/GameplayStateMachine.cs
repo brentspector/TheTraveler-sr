@@ -67,6 +67,8 @@ namespace GSP
 		bool actionButtonActive;					// Whether the action button is active or not
 		GameObject acceptPanel;						// Panel for accepting an ally
 		GameObject pauseMenu;						// Panel for pausing game
+		GameObject instructionsSet;					// Panel that displays instructions
+		int instructionsProgress;					// What slide should instructions show
 		bool isPaused;								// Whether the game is paused or not
 		// All Players
 		GameObject imageParent;						// Panel with all player images
@@ -105,6 +107,7 @@ namespace GSP
             actionButtonText = GameObject.Find("CurrentPlayer/ActionButton").GetComponentInChildren<Text>();
 			acceptPanel = GameObject.Find("Accept");
 			pauseMenu = GameObject.Find ("PauseMenu");
+			instructionsSet = GameObject.Find ("Instructions");
             imageParent = GameObject.Find("AllPlayers/ImageOrganizer");
             textParent = GameObject.Find("AllPlayers/TextOrganizer");
             inventory = GameObject.Find("PlayerInventory").GetComponent<PlayerInventory>();
@@ -114,6 +117,7 @@ namespace GSP
 			GameObject.Find ("Canvas").transform.Find ("Instructions").gameObject.SetActive (false);
 			actionButtonActive = true;
 			isPaused = false;
+			instructionsProgress = 1;
 
             // Disable the other panels by default
             acceptPanel.SetActive(false);
@@ -819,9 +823,40 @@ namespace GSP
 		// Instructions button - Displays instructions panel
 		public void Instructions()
 		{
-			GameObject.Find ("Canvas").transform.Find ("Instructions").gameObject.SetActive (
-				!GameObject.Find ("Canvas").transform.Find ("Instructions").gameObject.activeInHierarchy);
+			instructionsSet.SetActive (!instructionsSet.activeInHierarchy);
+			instructionsSet.transform.GetChild(0).gameObject.SetActive(true);
+			instructionsSet.transform.GetChild(1).gameObject.SetActive(false);
+			instructionsSet.transform.GetChild(2).gameObject.SetActive(false);
+			instructionsProgress = 1;
 		} //end Instructions
+
+		// Continue button - goes through instruction slides
+		public void Continue()
+		{
+			if(instructionsProgress == 0)
+			{
+				instructionsSet.transform.GetChild(0).gameObject.SetActive(true);
+				instructionsSet.transform.GetChild(1).gameObject.SetActive(false);
+				instructionsSet.transform.GetChild(2).gameObject.SetActive(false);
+			} //end if
+			else if(instructionsProgress == 1)
+			{
+				instructionsSet.transform.GetChild(0).gameObject.SetActive(false);
+				instructionsSet.transform.GetChild(1).gameObject.SetActive(true);
+				instructionsSet.transform.GetChild(2).gameObject.SetActive(false);
+			} //end else if
+			else if(instructionsProgress == 2)
+			{
+				instructionsSet.transform.GetChild(0).gameObject.SetActive(false);
+				instructionsSet.transform.GetChild(1).gameObject.SetActive(false);
+				instructionsSet.transform.GetChild(2).gameObject.SetActive(true);
+			} //end else if
+			instructionsProgress++;
+			if(instructionsProgress > 2)
+			{
+				instructionsProgress = 0;
+			} //end if
+		} //end Continue
 
 		public void MainMenu()
 		{
