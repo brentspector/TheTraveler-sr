@@ -87,7 +87,7 @@ namespace GSP.Items.Inventories
             CreateSlots(0, numEquipmentSlotsCreate, SlotType.Equipment, equipmentPanel, "EquipmentSlot ");
 
             // Create the bonus slots
-            CreateSlots(0, numBonusSlotsCreate, SlotType.Bonus, bonusPanel, "BonusSlot "); ;
+            CreateSlots(0, numBonusSlotsCreate, SlotType.Bonus, bonusPanel, "BonusSlot ");
         } // end Start
 
         // Runs each frame; used to update the tooltip's position

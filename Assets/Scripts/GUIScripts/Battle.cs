@@ -93,7 +93,7 @@ namespace GSP
 			playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(playerNum).Entity;
 			playerAttack = playerMerchant.AttackPower;
 			playerDefense = playerMerchant.DefencePower;
-			GameObject.Find ("Battler1Sprite").GetComponent<Image> ().sprite = playerMerchant.GetSprite (1);
+			GameObject.Find ("Battler1Sprite").GetComponent<Image> ().sprite = playerMerchant.GetSprite (2);
 
 			// Set the player
 			player = (IDamageable)playerMerchant;
@@ -144,6 +144,15 @@ namespace GSP
 			verbs.Add ("hammered");
 			verbs.Add ("struck");
 			verbs.Add ("lashed at");
+
+            // Check if the player is an AI
+            if (playerMerchant.GameObj.GetComponent<Player>().IsAI)
+            {
+                // Disable the fight buttons
+                GameObject.Find("AttackButtons/HeadButton").GetComponent<Button>().interactable = false;
+                GameObject.Find("AttackButtons/TorsoButton").GetComponent<Button>().interactable = false;
+                GameObject.Find("AttackButtons/FeintButton").GetComponent<Button>().interactable = false;
+            }
 		}//end Start
 	
 		void Fight()
