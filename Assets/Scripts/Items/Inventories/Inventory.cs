@@ -191,7 +191,7 @@ namespace GSP.Items.Inventories
                     // Throw a null reference exception
                     throw new System.NullReferenceException("Incorrect TSlotType parameter given resulting failure to create the slot.");
                 } // end if
-                
+
                 // Parent the slot to the given transform
                 slot.transform.SetParent(parent);
 

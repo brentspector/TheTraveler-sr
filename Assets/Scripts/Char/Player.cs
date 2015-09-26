@@ -86,19 +86,26 @@ namespace GSP.Char
                         // Only run once per turn
                         if (!isProcessing)
                         {
-                            // Set isProcessing to true
-                            isProcessing = true;
-
                             // Check if we are on the battle scene
                             if (Application.loadedLevelName == "BattleScene")
                             {
+                                // Set isProcessing to true
+                                isProcessing = true;
+
                                 // Set the turnPhase to 2 so we can battle
                                 turnPhase = 2;
                             } // end if
                             else
                             {
-                                // Otherwise, Only roll die once
-                                PressAction();
+                                // Check if we're in the RollDice State
+                                if (GPSM.GetState() == 1)
+                                {
+                                    // Set isProcessing to true
+                                    isProcessing = true;
+
+                                    // Otherwise, Only roll die once
+                                    PressAction();
+                                } // end if
                             } // end else
                         } //end if !isProcessing
                     } //end if
