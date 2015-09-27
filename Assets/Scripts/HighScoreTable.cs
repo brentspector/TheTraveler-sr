@@ -33,20 +33,19 @@ namespace GSP
             // Initialise the list
             scores = new List<Pair<string, int>>();
 
-            // Get the reference to the body panel
-            body = GameObject.Find("Canvas").transform.Find("HighScoresTable/Body").transform;
+            // Set the set the high score table's transform references
+            SetReferences();
 
             // Set the max number of entries
             maxScores = 10;
-
-            // Set the table's interface colour to the player's colour
-            GameObject.Find("Canvas").transform.Find("HighScoresTable").GetComponent<Image>().color =
-                Utility.InterfaceColorToColor(GameMaster.Instance.GetPlayerColor(0));
-
-            // Set the Back to Menu button's panel to the player's colour
-            GameObject.Find("Canvas").transform.Find("ButtonPanel").GetComponent<Image>().color =
-                Utility.InterfaceColorToColor(GameMaster.Instance.GetPlayerColor(0));
         } // end HighScoreTable
+
+        // Sets the references used for the high scores table such as the transforms
+        void SetReferences()
+        {
+            // Get the reference to the body panel
+            body = GameObject.Find("Canvas").transform.Find("HighScoresTable/Body").transform;
+        } // end SetReferences
 
         // Fills the table with empty entries if there are less than the max
         public void FillTable()
@@ -117,6 +116,20 @@ namespace GSP
         // Sets the scores for display on the table.
         void DisplayScores()
         {
+            // Reset the references for the high scores table if they become null
+            if (body == null)
+            {
+                SetReferences();
+            } // end if
+
+            // Set the table's interface colour to the player's colour
+            GameObject.Find("Canvas").transform.Find("HighScoresTable").GetComponent<Image>().color =
+                Utility.InterfaceColorToColor(GameMaster.Instance.GetPlayerColor(0));
+
+            // Set the Back to Menu button's panel to the player's colour
+            GameObject.Find("Canvas").transform.Find("ButtonPanel").GetComponent<Image>().color =
+                Utility.InterfaceColorToColor(GameMaster.Instance.GetPlayerColor(0));
+            
             // Loop over the table to set the values
             for (int index = 0; index < maxScores; index++)
             {
@@ -126,7 +139,7 @@ namespace GSP
                     // Break out of the loop
                     break;
                 } // end if
-
+                
                 // Get the child at index + 1
                 Transform entry = body.GetChild(index + 1);
 
