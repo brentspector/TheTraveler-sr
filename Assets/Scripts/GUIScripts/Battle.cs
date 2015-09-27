@@ -85,6 +85,16 @@ namespace GSP
 			enemyEntity.AttackPower = die.Roll(1, 9);
 			enemyEntity.DefencePower = die.Roll(1, 9);
 
+			// Set sprite of enemy
+			if(enemyEntity.AttackPower > enemyEntity.DefencePower)
+			{
+				GameObject.Find ("Battler2Sprite").GetComponent<Image> ().sprite = Resources.Load<Sprite> ("Bandit1");
+			} //end if
+			else
+			{
+				GameObject.Find ("Battler2Sprite").GetComponent<Image> ().sprite = Resources.Load<Sprite> ("Bandit2");
+			}
+
 			// Set the enemy
 			enemy = (IDamageable) enemyEntity;
 
@@ -246,7 +256,7 @@ namespace GSP
 				// Update the fightbox position
 				fightBoxText.transform.position = new Vector3(
 					fightBoxText.transform.position.x,
-					fightBoxText.transform.position.y + 19);
+					fightBoxText.transform.position.y + 35);
 
 				// Return to game after 3 seconds
 				playerTurn = false;

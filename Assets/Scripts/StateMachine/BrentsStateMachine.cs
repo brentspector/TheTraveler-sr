@@ -46,6 +46,7 @@ namespace GSP
 		Text 	   guideText;				// Map selection text
 		bool isMenuDisplayed;				// Whether menu is displayed or not
 		bool isInstructionsDisplayed;		// Whether instructions are displayed or not
+		int  instructionsProgress;			// What slide the player is on
 		bool isCreditsDisplayed;			// Whether Credits are displayed or not
 		string mapSelection;		        // Scene name of map
 		bool isMapsDisplayed;				// Whether selection maps are displayed or not
@@ -60,6 +61,7 @@ namespace GSP
 			isMenuDisplayed = true;							// Menu begins displayed
 			isCreditsDisplayed = false;						// Credits begins hidden
 			isInstructionsDisplayed = false;				// Instructions begin hidden
+			instructionsProgress = 1;						// No progress made, prepare to show second slide
 			timeHolder = Time.time + 3.0f;					// Initialize first wait period
 			mapSelection = "nothing";						// Nothing has been chosen yet
 			isMapsDisplayed = false;						// Map selection begins hidden
@@ -471,6 +473,10 @@ namespace GSP
 		{
 			instructionsSet.SetActive (false);
 			isInstructionsDisplayed = false;
+			instructionsProgress = 1;
+			instructionsSet.transform.GetChild(0).gameObject.SetActive(true);
+			instructionsSet.transform.GetChild(1).gameObject.SetActive(false);
+			instructionsSet.transform.GetChild(2).gameObject.SetActive(false);
 		} // end DisableInstructions
 
         // Enable the credits screen
@@ -571,7 +577,34 @@ namespace GSP
 			{
 				menuState = MenuState.Home;
 			} // end else
-		} // end Back()
+		} // end Back
+
+		public void Continue()
+		{
+			if(instructionsProgress == 0)
+			{
+				instructionsSet.transform.GetChild(0).gameObject.SetActive(true);
+				instructionsSet.transform.GetChild(1).gameObject.SetActive(false);
+				instructionsSet.transform.GetChild(2).gameObject.SetActive(false);
+			} //end if
+			else if(instructionsProgress == 1)
+			{
+				instructionsSet.transform.GetChild(0).gameObject.SetActive(false);
+				instructionsSet.transform.GetChild(1).gameObject.SetActive(true);
+				instructionsSet.transform.GetChild(2).gameObject.SetActive(false);
+			} //end else if
+			else if(instructionsProgress == 2)
+			{
+				instructionsSet.transform.GetChild(0).gameObject.SetActive(false);
+				instructionsSet.transform.GetChild(1).gameObject.SetActive(false);
+				instructionsSet.transform.GetChild(2).gameObject.SetActive(true);
+			} //end else if
+			instructionsProgress++;
+			if(instructionsProgress > 2)
+			{
+				instructionsProgress = 0;
+			} //end if
+		} //end Continue
 
 		// Desert map button
         public void DesertMap()

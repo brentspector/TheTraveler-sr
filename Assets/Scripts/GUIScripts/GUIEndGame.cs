@@ -32,6 +32,8 @@ namespace GSP
 
         GameObject toggleButton;        // The reference to the toggle button
 
+        int winningPlayer;              // The number of the winning player used to get the proper colour
+
         // Use this for initialisation
 		void Awake() 
 		{
@@ -71,6 +73,9 @@ namespace GSP
             rankTable.ClearCurrency();
             // Display the rankings
             rankTable.DisplayRanks(GameMaster.Instance.NumPlayers);
+
+            // Get the winning player now
+            winningPlayer = rankTable.Currencies[0].Key;
 
             // Check if the game was single player
             if (GameMaster.Instance.IsSinglePlayer)
@@ -143,6 +148,10 @@ namespace GSP
                 highScores.SetActive(false);
                 rankings.SetActive(true);
                 toggleButton.transform.GetChild(0).GetComponent<Text>().text = "High Scores";
+
+                // Toggle the colour of the button panel
+                GameObject.Find("Canvas").transform.Find("ButtonPanel").GetComponent<Image>().color =
+                    Utility.InterfaceColorToColor(GameMaster.Instance.GetPlayerColor(winningPlayer));
             } // end if
             // Switch to the high scores window if we're on the rank summary window
             else if (rankings.activeInHierarchy)
@@ -150,6 +159,10 @@ namespace GSP
                 rankings.SetActive(false);
                 highScores.SetActive(true);
                 toggleButton.transform.GetChild(0).GetComponent<Text>().text = "Summary";
+
+                // Toggle the colour of the button panel
+                GameObject.Find("Canvas").transform.Find("ButtonPanel").GetComponent<Image>().color =
+                    Utility.InterfaceColorToColor(GameMaster.Instance.GetPlayerColor(0));
             } // end else if
         } // end ToggleWindow
 	} // end GUIEndGame
