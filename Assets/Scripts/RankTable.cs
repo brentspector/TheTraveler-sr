@@ -68,6 +68,19 @@ namespace GSP
                 entry.GetChild(1).GetComponent<Text>().text = GameMaster.Instance.GetPlayerName(currencies[index].Key);
                 entry.GetChild(2).GetComponent<Text>().text = playerMerchant.Currency.ToString();
             } // end for
+
+            // Check if there are only two players
+            if (numPlayers < 3)
+            {
+                // Disable the last two lines of the rank table
+                body.GetChild(3).gameObject.SetActive(false);
+                body.GetChild(4).gameObject.SetActive(false);
+            } // end if
+            else if (numPlayers < 4)
+            {
+                // Disable the last line of the rank table
+                body.GetChild(4).gameObject.SetActive(false);
+            } // end else if
         } // end DisplayRanks
 
         // Determine who the winner is and fill in the sorted list
