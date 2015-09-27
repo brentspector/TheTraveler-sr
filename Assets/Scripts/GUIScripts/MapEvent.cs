@@ -31,7 +31,7 @@ namespace GSP
 		GameObject player;          // The player's GameObject reference
 		Player playerScript;        // The player's Character script component reference
         Merchant playerMerchant;    // The player's merchant Entity for convienience
-        Inventory inventory;        // The inventory script
+        PlayerInventory inventory;        // The inventory script
 
 		//NOTE!!
 		//SIZE must be the last item in the enum so that anything based
@@ -67,7 +67,7 @@ namespace GSP
             playerMerchant = (Merchant)playerScript.Entity;
 
             // Get the inventory script
-            inventory = GameObject.Find("Canvas").transform.Find("Inventory").GetComponent<Inventory>();
+            inventory = GameObject.Find("Canvas").transform.Find("PlayerInventory").GetComponent<PlayerInventory>();
 			
 			// Get the tile at the player's position
 			Vector3 tmp = player.transform.localPosition;
@@ -285,7 +285,7 @@ namespace GSP
                 result = item.Name;
                 
                 // Add the item to the player's inventory
-                inventory.AddItem(GameMaster.Instance.Turn, item.Id);
+                inventory.AddItem(0, GameMaster.Instance.Turn, item.Id, SlotType.Inventory);
             } // end if
 			
 			// Set and return the result

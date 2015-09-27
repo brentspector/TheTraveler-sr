@@ -1,5 +1,7 @@
 fileFormatVersion: 2
 guid: 826618ebd93c8c34a9a12f3f43f32093
+timeCreated: 1442446981
+licenseType: Free
 TextureImporter:
   fileIDToRecycleName:
     21300000: buttons_sprite_sheet_0
@@ -32,6 +34,9 @@ TextureImporter:
   isReadable: 0
   grayScaleToAlpha: 0
   generateCubemap: 0
+  cubemapConvolution: 0
+  cubemapConvolutionSteps: 8
+  cubemapConvolutionExponent: 1.5
   seamlessCubemap: 0
   textureFormat: -3
   maxTextureSize: 4096
@@ -42,6 +47,7 @@ TextureImporter:
     wrapMode: 1
   nPOTScale: 0
   lightmap: 0
+  rGBM: 0
   compressionQuality: 50
   spriteMode: 2
   spriteExtrude: 1
@@ -78,7 +84,7 @@ TextureImporter:
     - name: buttons_sprite_sheet_2
       rect:
         serializedVersion: 2
-        x: 39
+        x: 41
         y: 946
         width: 273
         height: 84
@@ -88,92 +94,94 @@ TextureImporter:
     - name: buttons_sprite_sheet_3
       rect:
         serializedVersion: 2
-        x: 39
-        y: 836
-        width: 277
-        height: 86
+        x: 41
+        y: 837
+        width: 273
+        height: 84
       alignment: 0
       pivot: {x: .5, y: .5}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: buttons_sprite_sheet_4
       rect:
         serializedVersion: 2
-        x: 39
-        y: 725
-        width: 277
-        height: 86
+        x: 41
+        y: 726
+        width: 273
+        height: 84
       alignment: 0
       pivot: {x: .5, y: .5}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: buttons_sprite_sheet_5
       rect:
         serializedVersion: 2
-        x: 39
-        y: 611
-        width: 277
-        height: 86
+        x: 41
+        y: 612
+        width: 273
+        height: 84
       alignment: 0
       pivot: {x: .5, y: .5}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: buttons_sprite_sheet_6
       rect:
         serializedVersion: 2
-        x: 39
-        y: 501
-        width: 277
-        height: 86
+        x: 41
+        y: 502
+        width: 273
+        height: 84
       alignment: 0
       pivot: {x: .5, y: .5}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: buttons_sprite_sheet_7
       rect:
         serializedVersion: 2
-        x: 36
-        y: 386
-        width: 277
-        height: 86
+        x: 41
+        y: 387
+        width: 273
+        height: 84
       alignment: 0
       pivot: {x: .5, y: .5}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: buttons_sprite_sheet_8
       rect:
         serializedVersion: 2
-        x: 39
-        y: 271
-        width: 277
-        height: 86
+        x: 41
+        y: 272
+        width: 273
+        height: 84
       alignment: 0
       pivot: {x: .5, y: .5}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: buttons_sprite_sheet_9
       rect:
         serializedVersion: 2
-        x: 39
-        y: 156
-        width: 277
-        height: 86
+        x: 41
+        y: 157
+        width: 273
+        height: 84
       alignment: 0
       pivot: {x: .5, y: .5}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: buttons_sprite_sheet_10
       rect:
         serializedVersion: 2
-        x: 39
-        y: 41
-        width: 277
-        height: 86
+        x: 41
+        y: 42
+        width: 273
+        height: 84
       alignment: 0
       pivot: {x: .5, y: .5}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: buttons_sprite_sheet_11
       rect:
         serializedVersion: 2
-        x: 345
-        y: 42
-        width: 277
-        height: 86
+        x: 347
+        y: 43
+        width: 273
+        height: 84
       alignment: 0
       pivot: {x: .5, y: .5}
       border: {x: 0, y: 0, z: 0, w: 0}
   spritePackingTag: 
   userData: 
+  assetBundleName: 
+  assetBundleVariant: 

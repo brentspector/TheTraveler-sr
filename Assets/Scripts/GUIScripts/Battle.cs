@@ -85,6 +85,16 @@ namespace GSP
 			enemyEntity.AttackPower = die.Roll(1, 9);
 			enemyEntity.DefencePower = die.Roll(1, 9);
 
+			// Set sprite of enemy
+			if(enemyEntity.AttackPower > enemyEntity.DefencePower)
+			{
+				GameObject.Find ("Battler2Sprite").GetComponent<Image> ().sprite = Resources.Load<Sprite> ("Bandit1");
+			} //end if
+			else
+			{
+				GameObject.Find ("Battler2Sprite").GetComponent<Image> ().sprite = Resources.Load<Sprite> ("Bandit2");
+			}
+
 			// Set the enemy
 			enemy = (IDamageable) enemyEntity;
 
@@ -93,7 +103,7 @@ namespace GSP
 			playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(playerNum).Entity;
 			playerAttack = playerMerchant.AttackPower;
 			playerDefense = playerMerchant.DefencePower;
-			GameObject.Find ("Battler1Sprite").GetComponent<Image> ().sprite = playerMerchant.GetSprite (1);
+			GameObject.Find ("Battler1Sprite").GetComponent<Image> ().sprite = playerMerchant.GetSprite (2);
 
 			// Set the player
 			player = (IDamageable)playerMerchant;
@@ -117,7 +127,8 @@ namespace GSP
 			} //end else
 
 			// Init and set HUD objects
-			GameObject.Find("Canvas").transform.Find("Inventory").gameObject.SetActive(false);
+            GameObject.Find("Canvas").transform.Find("PlayerInventory").gameObject.SetActive(false);
+            GameObject.Find("Canvas").transform.Find("AllyInventory").gameObject.SetActive(false);
 			GameObject.Find("Canvas").transform.Find("Tooltip").gameObject.SetActive(false);
 			playerName = GameObject.Find ("Battler1Name").GetComponent<Text> ();
 			playerName.text = GameMaster.Instance.GetPlayerName (playerNum);
@@ -143,6 +154,15 @@ namespace GSP
 			verbs.Add ("hammered");
 			verbs.Add ("struck");
 			verbs.Add ("lashed at");
+
+            // Check if the player is an AI
+            if (playerMerchant.GameObj.GetComponent<Player>().IsAI)
+            {
+                // Disable the fight buttons
+                GameObject.Find("AttackButtons/HeadButton").GetComponent<Button>().interactable = false;
+                GameObject.Find("AttackButtons/TorsoButton").GetComponent<Button>().interactable = false;
+                GameObject.Find("AttackButtons/FeintButton").GetComponent<Button>().interactable = false;
+            }
 		}//end Start
 	
 		void Fight()
@@ -177,7 +197,7 @@ namespace GSP
 			{
 				fightBoxText.transform.position = new Vector3(
 					fightBoxText.transform.position.x,
-					fightBoxText.transform.position.y + 16);
+					fightBoxText.transform.position.y + 19);
 			} //end if
 
 			// Check if the player lost the fight
@@ -188,9 +208,9 @@ namespace GSP
 
 				// Set up inventory
 				GameObject.Find("Canvas").transform.Find("Tooltip").gameObject.SetActive(true);
-				GameObject.Find("Canvas").transform.Find("Inventory").gameObject.SetActive(true);
-				Inventory inventory = GameObject.Find("Canvas").transform.Find("Inventory").GetComponent<Inventory>();
-				inventory.SetPlayer(playerNum, true);
+                GameObject.Find("Canvas").transform.Find("PlayerInventory").gameObject.SetActive(true);
+                GameObject.Find("Canvas").transform.Find("AllyInventory").gameObject.SetActive(true);
+                PlayerInventory inventory = GameObject.Find("Canvas").transform.Find("PlayerInventory").GetComponent<PlayerInventory>();
 
 				// The player lost the fight, remove its resources or its weapon
 				fightBoxText.text += "\n" + enemyName.text + " wins!";
@@ -203,7 +223,7 @@ namespace GSP
 						fightBoxText.text += "\nAs a result, you lost your " + playerMerchant.EquippedWeapon.Name;
 						playerAttack -= playerMerchant.EquippedWeapon.AttackValue;	
 						playerMerchant.UnequipWeapon(playerMerchant.EquippedWeapon);					
-						inventory.Remove(GameMaster.Instance.Turn, inventory.WeaponSlot);
+						inventory.Remove(playerNum, inventory.WeaponSlot);
 					} // end if EquippedWeapon != null
 					else
 					{
@@ -230,13 +250,13 @@ namespace GSP
                     } // end if Count != 0
 				} // end else TotalWeight > 0
 				// Disable inventory and tooltip
-				GameObject.Find("Canvas").transform.Find("Inventory").gameObject.SetActive(false);
+                GameObject.Find("Canvas").transform.Find("PlayerInventory").gameObject.SetActive(false);
 				GameObject.Find("Canvas").transform.Find("Tooltip").gameObject.SetActive(false);
 
 				// Update the fightbox position
 				fightBoxText.transform.position = new Vector3(
 					fightBoxText.transform.position.x,
-					fightBoxText.transform.position.y + 16);
+					fightBoxText.transform.position.y + 35);
 
 				// Return to game after 3 seconds
 				playerTurn = false;
@@ -250,6 +270,11 @@ namespace GSP
 
 				// Update fight text box
 				fightBoxText.text += "\n" + playerName.text + " wins!";
+
+				// Update the fightbox position
+				fightBoxText.transform.position = new Vector3(
+					fightBoxText.transform.position.x,
+					fightBoxText.transform.position.y + 19);
 
 				// Return to game after 3 seconds
 				playerTurn = false;

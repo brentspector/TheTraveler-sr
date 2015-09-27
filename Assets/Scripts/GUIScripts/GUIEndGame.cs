@@ -1,4 +1,5 @@
-﻿/*******************************************************************************
+﻿using GSP.Char;
+/*******************************************************************************
  *
  *  File Name: GUIEndGane.cs
  *
@@ -11,6 +12,7 @@ using GSP.Entities.Neutrals;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace GSP
 {
@@ -28,30 +30,64 @@ namespace GSP
         HighScoreTable highScoreTable;  // The reference for the HighScoreTable
         RankTable rankTable;            // THe script refernece for the RankTable
 
+        GameObject toggleButton;        // The reference to the toggle button
+
+        int winningPlayer;              // The number of the winning player used to get the proper colour
+
         // Use this for initialisation
 		void Awake() 
 		{
+            // Disable the inventories
+            GameObject.Find("Canvas").transform.Find("PlayerInventory").gameObject.SetActive(false);
+            GameObject.Find("Canvas").transform.Find("AllyInventory").gameObject.SetActive(false);
+            GameObject.Find("Canvas").transform.Find("Tooltip").gameObject.SetActive(false);
+            
             // Create the players in data only mode
             GameMaster.Instance.LoadPlayers(true);
 
             // Get the references
             highScores = GameObject.Find("Canvas").transform.Find("HighScoresTable").gameObject;
             rankings = GameObject.Find("Canvas").transform.Find("RankingTable").gameObject;
+            toggleButton = GameObject.Find("Canvas").transform.Find("ButtonPanel/ToggleHighScore").gameObject;
 
             // Play the winning sound
             AudioManager.Instance.PlayVictory();
 
+            // Create the rank table instance
+            RankTable rankTable = new RankTable();
+            // Get the sorted list
+            rankTable.DetermineWinner(GameMaster.Instance.NumPlayers);
+
+            // Loop over the currencies and apply the penalties
+            var currencies = rankTable.Currencies;
+            for (int index = 0; index < currencies.Count; index++)
+            {
+                // Apply the penalties; since the list is sorted, the index is the rank
+                int currency = Utility.ApplyPenalty(index, currencies[index].Value);
+
+                // Modify the player's currency to match the penalty version
+                ((Merchant)GameMaster.Instance.GetPlayerScript(currencies[index].Key).Entity).Currency = currency;
+            } // end for
+
+            // Clear the player's currency dictionary in the rank table to make room for the new values
+            rankTable.ClearCurrency();
+            // Display the rankings
+            rankTable.DisplayRanks(GameMaster.Instance.NumPlayers);
+
+            // Get the winning player now
+            winningPlayer = rankTable.Currencies[0].Key;
+
             // Check if the game was single player
             if (GameMaster.Instance.IsSinglePlayer)
             {
+                // Load the Score table
+                GameMaster.Instance.LoadHighScores();
+                HighScoreTable highScoreTable = GameMaster.Instance.ScoresTable;
+
                 // Get the player's merchant
                 Merchant playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(0).Entity;
 
-                // Load the Score table
-                GameMaster.Instance.LoadHighScores();
-
                 // Add the player's score to the table
-                HighScoreTable highScoreTable = GameMaster.Instance.ScoresTable;
                 highScoreTable.AddScore(playerMerchant.Name, playerMerchant.Currency);
 
                 // Show the high scores table
@@ -59,14 +95,16 @@ namespace GSP
             } // end if
             else
             {
-                // Display the rankings
-                RankTable rankTable = new RankTable();
-                rankTable.DisplayRanks(GameMaster.Instance.NumPlayers);
-
                 // Show the ranking table
                 rankings.SetActive(true);
+
+                // Hide the toggle button
+                toggleButton.SetActive(false);
             } // end else
-		} // end Start
+
+            // Reset the turn through the game master
+            GameMaster.Instance.ResetTurn();
+		} // end Awake
 
 		void Update()
 		{
@@ -100,5 +138,32 @@ namespace GSP
             AudioManager.Instance.PlayMenu();
             GameMaster.Instance.LoadLevel("MenuScene");
         } // end BackToMenu
+
+        // Toggles between the rank summary window and the high scores window
+        public void ToggleWindow()
+        {
+            // Switch to the rank summary window if we're on the high scores window
+            if (highScores.activeInHierarchy)
+            {
+                highScores.SetActive(false);
+                rankings.SetActive(true);
+                toggleButton.transform.GetChild(0).GetComponent<Text>().text = "High Scores";
+
+                // Toggle the colour of the button panel
+                GameObject.Find("Canvas").transform.Find("ButtonPanel").GetComponent<Image>().color =
+                    Utility.InterfaceColorToColor(GameMaster.Instance.GetPlayerColor(winningPlayer));
+            } // end if
+            // Switch to the high scores window if we're on the rank summary window
+            else if (rankings.activeInHierarchy)
+            {
+                rankings.SetActive(false);
+                highScores.SetActive(true);
+                toggleButton.transform.GetChild(0).GetComponent<Text>().text = "Summary";
+
+                // Toggle the colour of the button panel
+                GameObject.Find("Canvas").transform.Find("ButtonPanel").GetComponent<Image>().color =
+                    Utility.InterfaceColorToColor(GameMaster.Instance.GetPlayerColor(0));
+            } // end else if
+        } // end ToggleWindow
 	} // end GUIEndGame
 } // end GSP

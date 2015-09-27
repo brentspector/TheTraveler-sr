@@ -45,6 +45,7 @@ namespace GSP.Core
         bool isNew;             // Whether the game is new or loaded
 
         bool isSinglePlayer;    // Whether the game is a single player game
+        bool isAIEnabled;       // Whether the AI is enabled for single player games
 
         HighScoreTable highScoreTable;  // The scores table reference
         
@@ -213,7 +214,17 @@ namespace GSP.Core
 
             // Create the player GameObject
             GameObject obj = Instantiate(PrefabReference.prefabPlayer) as GameObject;
-            obj.transform.localScale = new Vector3(1, 1, 1);
+            obj.transform.localScale = Vector3.one;
+
+            // Check if the player is AI
+            if (Instance.IsSinglePlayer && playerNum > 0)
+            {
+                // Give the player a name and colour
+                GiveRandomNameAndColor(playerNum);
+
+                // Set the player to be an AI
+                obj.GetComponent<Player>().IsAI = true;
+            } // end if
 
             // Name the player in the editor for convienience
             obj.name = GetPlayerName(playerNum);
@@ -234,17 +245,40 @@ namespace GSP.Core
             players[playerNum].GetMerchant(entID);
         } // end CreatePlayer
 
+        // Gives the player with the given player num, a random name and color
+        void GiveRandomNameAndColor(int playerNum)
+        {
+            // For now just give the player a standard name
+            string name = "Player " + (playerNum + 1);
+            
+            // Set the name for the player
+            Instance.SetPlayerName(playerNum, name);
+
+            // Create a new die object to get a random colour
+            Die die = new Die();
+            die.Reseed(System.Environment.TickCount);
+
+            // Get a random colour; subtract one to get a number between zero and seven
+            int randColor = die.Roll(1, 8) - 1;
+
+            // Set the colour for the player
+            Instance.SetPlayerColor(playerNum, (InterfaceColors)randColor);
+        } // end GiveRandomNameAndColor
+
         // Create new players
         public void CreatePlayers()
         {
-            // Loop over the dictionary to create each player; We use the player name dictionary here
-            foreach (var player in playerNames)
+            // Get the keys from the player name dictionary
+            var playerKeys = new List<int>(playerNames.Keys);
+            
+            // Loop over the dictionary to create each player
+            foreach (var player in playerKeys)
             {
                 // Check if the player is playing
-                if (player.Key < numPlayers)
+                if (player < numPlayers)
                 {
                     // Create the current player
-                    CreatePlayer(player.Key);
+                    CreatePlayer(player);
                 } // end if
             } // end foreach
         } // end CreatePlayers
@@ -255,6 +289,13 @@ namespace GSP.Core
             // Create the player GameObject
             GameObject obj = Instantiate(PrefabReference.prefabPlayer) as GameObject;
             obj.transform.localScale = Vector3.one;
+
+            // Check if the player is AI
+            if (Instance.IsSinglePlayer && playerNum > 0)
+            {
+                // Set the player to be an AI
+                obj.GetComponent<Player>().IsAI = true;
+            } // end if
 
             // Name the player in the editor for convienience
             obj.name = GetPlayerName(playerNum);
@@ -387,6 +428,9 @@ namespace GSP.Core
                         // Give the ally script the ID for the ally
                         script.GetAlly(entID);
 
+                        // Set the ally's number
+                        ((Friendly)script.Entity).AllyNumber = GameMaster.Instance.Turn + 7;
+
                         break;
                     } // end case Porter
                 case Entities.FriendlyType.Mercenary:
@@ -411,6 +455,9 @@ namespace GSP.Core
 
                         // Give the ally script the ID for the ally
                         script.GetAlly(entID);
+
+                        // Set the ally's number
+                        ((Friendly)script.Entity).AllyNumber = GameMaster.Instance.Turn + 7;
 
                         break;
                     } // end case Mercenary
@@ -497,6 +544,9 @@ namespace GSP.Core
             // Create a new player data instance
             PlayerData playerData = new PlayerData();
 
+            // Create a new ally data instance
+            AllyData allyData = new AllyData();
+
             // Set the player's name
             playerData.Name = Instance.GetPlayerName(playerNum);
             
@@ -515,9 +565,19 @@ namespace GSP.Core
                 // Get the Ally's GameObject
                 GameObject ally = Instance.GetPlayerObject(playerNum).GetComponent<AllyList>()[0];
 
-                //TODO: Damien: This is hard-coded for the Porter ally
-                // Set the player's ally entity ID
+                // Set the player's ally entity ID; This is hard-coded for the Porter ally
                 playerData.AllyId = ally.GetComponent<PorterMB>().Entity.Id;
+
+                // Get the ally's inventory component
+                AllyInventory allyInventory = GameObject.Find("Canvas").transform.Find("AllyInventory").
+                    GetComponent<AllyInventory>();
+
+                // Loop over the player's inventory to store their item IDs
+                for (int index = 0; index < allyInventory.MaxSpace; index++)
+                {
+                    // Hardcoded for a single ally
+                    allyData.AddItemId(allyInventory.GetItem(playerNum + 7, index).Id);
+                } // end for
             } // end if
             else
             {
@@ -526,13 +586,17 @@ namespace GSP.Core
             } // end else
 
             // Get the Inventory component
-			Inventory inventory = GameObject.Find("Canvas").transform.Find("Inventory").GetComponent<Inventory>();
+			PlayerInventory inventory = GameObject.Find("Canvas").transform.Find("PlayerInventory").
+                GetComponent<PlayerInventory>();
 
             // Loop over the player's inventory to store their item IDs
             for (int index = 0; index < (inventory.BonusSlotEnd + 1); index++)
             {
                 playerData.AddItemId(inventory.GetItem(playerNum, index).Id);
             } // end for
+
+            // Add the ally data to the player data
+            playerData.AllyData = allyData;
 
             // Now write the data to the file
             binaryFormatter.Serialize(fileStream, playerData);
@@ -574,6 +638,9 @@ namespace GSP.Core
                 // Create a player data instance from the file
                 PlayerData playerData = (PlayerData)binaryFormater.Deserialize(fileStream);
 
+                // Create the ally's data from the player's data
+                AllyData allyData = playerData.AllyData;
+
                 // Now close the file stream
                 fileStream.Close();
 
@@ -582,6 +649,13 @@ namespace GSP.Core
 
                 // Set the player's position
                 Instance.GetPlayerScript(playerNum).Position = playerData.Position;
+
+                // Get the ally's Inventory component
+                AllyInventory allyInventory = GameObject.Find("Canvas").transform.Find("AllyInventory").
+                    GetComponent<AllyInventory>();
+
+                // Create the list of items for the player; hard coded for a single ally
+                allyInventory.CreateAllyItemList(playerNum + 7);
 
                 // Check if the player had an ally
                 if (playerData.AllyId >= 0)
@@ -595,10 +669,24 @@ namespace GSP.Core
                     // Add the add to the player
                     var list = Instance.GetPlayerObject(playerNum).GetComponent<AllyList>();
                     list.AddAlly(allyObj);
+                    
+                    // Check if the ally data's list has items
+                    if(allyData.IdsCount > 0)
+                    {   
+                        // Loop over the player's inventory to restore it
+                        for (int index = 0; index < allyInventory.MaxSpace; index++)
+                        {
+                            allyInventory.AddItemFromSave(playerNum + 7, allyData.GetItemId(index), index);
+                        } // end for
+                    } // end if
                 }
 
                 // Get the Inventory component
-				Inventory inventory = GameObject.Find("Canvas").transform.Find("Inventory").GetComponent<Inventory>();
+                PlayerInventory inventory = GameObject.Find("Canvas").transform.Find("PlayerInventory").
+                    GetComponent<PlayerInventory>();
+
+                // Create the list of items for the player
+                inventory.CreatePlayerItemList(playerNum);
 
                 // Loop over the player's inventory to restore it
                 for (int index = 0; index < (inventory.BonusSlotEnd + 1); index++)
@@ -617,7 +705,7 @@ namespace GSP.Core
                 // Check if the player is playing
                 if (player.Key < numPlayers)
                 {
-                    // Save the current player
+                    // Load the current player
                     Instance.LoadPlayer(player.Key, isDataOnly);
                 } // end if
             } // end foreach
@@ -832,6 +920,15 @@ namespace GSP.Core
             // Reset the collections first
             Instance.ResetCollections();
 
+            // Get the Invenory GameObject
+            GameObject inventory = GameObject.Find("Canvas").transform.Find("PlayerInventory").gameObject;
+            // Check if it exists
+            if (inventory != null)
+            {
+                // Clean the inventory
+                inventory.GetComponent<PlayerInventory>().Clean();
+            } // end if
+
             // Then load the level
             Application.LoadLevel(level);
         } // end LoadLevel
@@ -839,6 +936,15 @@ namespace GSP.Core
         // Loads a level by its name
         public void LoadLevel(string level)
         {
+            // Get the Invenory GameObject
+            var inventory = GameObject.Find("Canvas").transform.Find("PlayerInventory");
+            // Check if it exists
+            if (inventory != null)
+            {
+                // Clean the inventory
+                inventory.GetComponent<PlayerInventory>().Clean();
+            } // end if
+            
             // Reset the collections first
             Instance.ResetCollections();
 
@@ -904,6 +1010,13 @@ namespace GSP.Core
             get { return isSinglePlayer; }
             set { isSinglePlayer = value; }
         } // end IsSinglePlayer
+
+        // Gets and Sets whether the AI is enabled
+        public bool IsAIEnabled
+        {
+            get { return isAIEnabled; }
+            set { isAIEnabled = value; }
+        } // end IsAIEnabled
 
         // Gets the highscore table
         public HighScoreTable ScoresTable

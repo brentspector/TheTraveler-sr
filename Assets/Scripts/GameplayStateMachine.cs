@@ -14,6 +14,8 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 using GSP.Items.Inventories;
+using GSP.Char.Allies;
+using GSP.Entities.Friendlies;
 
 namespace GSP
 {
@@ -44,9 +46,9 @@ namespace GSP
 		GamePlayState gamePlayState;            	// The current state
 		bool canInitAfterStart;			         	// Initialising values after Start()
 		bool canRunEndStuff;                    	// Whether the end scene stuff should be ran during that state
-        bool isInventoryOpen;                       // Whether the inventory window is open
-        bool isAlliesOpen;                          // Whether the inventory window is open
+        bool isAlliesOpen;                          // Whether the allies window is open
 		int guiDiceDistVal;	                		// The dice value which is then onverted into a distance value
+        bool isMovementInitialized;                 // Whether the movement class is initialised
 
 		// State Machine input/output variables
 		int guiNumOfPlayers; 	           			// The number of players playing
@@ -54,6 +56,7 @@ namespace GSP
 		int guiPlayerTurn;  	                	// Whos turn is it
 		int guiMaxWeight;							// Maximum weight player can carry
 		int guiCurrentWeight;						// Total weight of player at the moment
+        bool isPlayerAI;                            // Whether the player is an AI
 
 		// HUD Elements
         // Current Player
@@ -66,12 +69,16 @@ namespace GSP
 		bool actionButtonActive;					// Whether the action button is active or not
 		GameObject acceptPanel;						// Panel for accepting an ally
 		GameObject pauseMenu;						// Panel for pausing game
+		GameObject instructionsSet;					// Panel that displays instructions
+		int instructionsProgress;					// What slide should instructions show
 		bool isPaused;								// Whether the game is paused or not
 		// All Players
 		GameObject imageParent;						// Panel with all player images
 		GameObject textParent;						// Panel with all player names and gold
         // Inventory
-        Inventory inventory;                        // The inventory script for the Inventory
+        PlayerInventory inventory;                  // The inventory script for the player's Inventory
+        AllyInventory allyInventory;                // The inventory script for the ally's Inventory
+        RecycleBin recycleInventory;                // The inventory script for the recycle bin's Inventory
         // Aliies
         AllyTable allyTable;                        // The ally table script for the AllyTable
 
@@ -94,41 +101,41 @@ namespace GSP
             TileManager.GenerateAndAddTiles();
 
 			// Get HUD elements
-            guiPlayerName = GameObject.Find("CurrentPlayer/PlayerName").GetComponent<Text>();
-            guiTurnText = GameObject.Find("CurrentPlayer/TurnPhase").GetComponent<Text>();
+            guiPlayerName = GameObject.Find("CurrentPlayer/PlayerNamePanel/PlayerName").GetComponent<Text>();
+            guiTurnText = GameObject.Find("CurrentPlayer/TurnPhasePanel/TurnPhase").GetComponent<Text>();
             guiGold = GameObject.Find("CurrentPlayer/WeightGold/Gold").GetComponent<Text>();
             guiWeight = GameObject.Find("CurrentPlayer/WeightGold/Weight").GetComponent<Text>();
             actionButton = GameObject.Find("CurrentPlayer/ActionButton").GetComponent<Button>();
             actionButtonText = GameObject.Find("CurrentPlayer/ActionButton").GetComponentInChildren<Text>();
 			acceptPanel = GameObject.Find("Accept");
 			pauseMenu = GameObject.Find ("PauseMenu");
+			instructionsSet = GameObject.Find ("Instructions");
             imageParent = GameObject.Find("AllPlayers/ImageOrganizer");
             textParent = GameObject.Find("AllPlayers/TextOrganizer");
-            inventory = GameObject.Find("Inventory").GetComponent<Inventory>();
+            inventory = GameObject.Find("PlayerInventory").GetComponent<PlayerInventory>();
+            allyInventory = GameObject.Find("AllyInventory").GetComponent<AllyInventory>();
+            recycleInventory = GameObject.Find("RecycleBin").GetComponent<RecycleBin>();
             allyTable = GameObject.Find("Allies").GetComponent<AllyTable>();
 			GameObject.Find ("Canvas").transform.Find ("Instructions").gameObject.SetActive (false);
 			actionButtonActive = true;
 			isPaused = false;
+			instructionsProgress = 1;
 
-            // Disable the accept panel by default
+            // Disable the other panels by default
             acceptPanel.SetActive(false);
-
-			// Disable the pause menu by default
 			pauseMenu.SetActive (false);
-
-            // Disable the inventory by default
             inventory.gameObject.SetActive(false);
-
-            // Disable the ally window by default
+            allyInventory.gameObject.SetActive(false);
+            recycleInventory.gameObject.SetActive(false);
             allyTable.gameObject.SetActive(false);
 
             // Running the end stuff defaults to true
             canRunEndStuff = true;
 
-            // The inventory is closed by default
-            isInventoryOpen = false;
+            // The movement class is not initialised
+            isMovementInitialized = false;
 
-            // The ally window is closed by default
+            // The ally window are closed by default
             isAlliesOpen = false;
 
             // Get the number of players
@@ -138,7 +145,10 @@ namespace GSP
             guiPlayerTurn = GameMaster.Instance.Turn;
 
 			// Set starting values             		            
-			guiDiceDistVal = 0;	                
+			guiDiceDistVal = 0;
+
+            // The player is not an AI by default
+            isPlayerAI = false;
 
 			// Create a die
 			die = new Die();
@@ -225,6 +235,13 @@ namespace GSP
 
                 // Set the player's player number
                 ((Merchant)playerScript.Entity).PlayerNumber = count;
+
+                // Create the list of items for the player
+                inventory.CreatePlayerItemList(count);
+
+                // Hard coded for a single ally right now
+                // Create the inventory list for the ally
+                allyInventory.CreateAllyItemList(count + 7);
 			} // end for
 		} // end AddPlayers
 
@@ -241,10 +258,10 @@ namespace GSP
                     // in the database
                     Item weapon = ItemDatabase.Instance.Items.Find(item => item.Type == WeaponType.Sword.ToString());
                     Item legs = ItemDatabase.Instance.Items.Find(item => item.Type == ArmorType.Chainlegs.ToString());
-                    
+
                     // Add the items to the player's inventory
-                    inventory.AddItem(count, weapon.Id);
-                    inventory.AddItem(count, legs.Id);
+                    inventory.AddItem(0, count, weapon.Id, SlotType.Inventory);
+                    inventory.AddItem(0, count, legs.Id, SlotType.Inventory);
 
                     // Equip the items for the player
                     inventory.EquipItem(count, (Equipment)weapon);
@@ -276,11 +293,27 @@ namespace GSP
 
 			// The Weight Values; Current weight / Max weight
             guiWeight.text = "Weight: " + guiCurrentWeight + "/" + guiMaxWeight;
+
+            // Determine if the current player is an AI
+            isPlayerAI = GetCurrentPlayer().GetComponent<Player>().IsAI;
 		} // end GetPlayerValues
 
         // Updates the state machine and things; runs every frame
         void Update()
         {
+            // TODO: Damien: This is disabled until it can be properly implemented into the game.
+            //if (Input.GetKeyDown(KeyCode.M) && !isPaused)
+            //{
+            //    // Save the players
+            //    GameMaster.Instance.SavePlayers();
+                
+            //    // Save the resources
+            //    GameMaster.Instance.SaveResources();
+
+            //    // Finally, tell the GameMaster to load the end scene
+            //    GameMaster.Instance.LoadLevel("Market");
+            //}
+            
             // This was set to true at the end of Start()
             if (canInitAfterStart)
             {
@@ -313,9 +346,29 @@ namespace GSP
 						// Clear the map event text
 						mapEventResult = "";
 
-						//Verify the action button is enabled
-						actionButton.interactable = true;
-						actionButtonActive = true;
+						// Check if the player isn't an AI
+                        if (isPlayerAI)
+                        {
+                            // Disable the buttons for AI as they don't use them
+                            actionButton.interactable = false;
+                            actionButtonActive = false;
+                            GameObject.Find("CurrentPlayer/PauseButton").GetComponent<Button>().interactable = false;
+                            GameObject.Find("CurrentPlayer/InvAlly/Inventory").GetComponent<Button>().interactable = false;
+                            GameObject.Find("CurrentPlayer/InvAlly/Ally").GetComponent<Button>().interactable = false;
+                        } // end if
+                        else
+                        {
+                            // Otherwise, Verify the action button is enabled
+                            actionButton.interactable = true;
+                            actionButtonActive = true;
+                            // Enable the pause, inventory, and ally window buttons
+                            GameObject.Find("CurrentPlayer/PauseButton").GetComponent<Button>().interactable = true;
+                            GameObject.Find("CurrentPlayer/InvAlly/Inventory").GetComponent<Button>().interactable = true;
+                            GameObject.Find("CurrentPlayer/InvAlly/Ally").GetComponent<Button>().interactable = true;
+                        } // end else
+
+                        // The movement class is not initialised for the current player
+                        isMovementInitialized = false;
 
                         // Switch the state to the RollDie state
                         gamePlayState = GamePlayState.RollDice;
@@ -357,11 +410,18 @@ namespace GSP
                         guiTurnText.text = "Displaying distance...";
 
                         // Display the movement arrows
-                        guiMovement.InitThis(player, guiDiceDistVal);
+                        guiMovement.InitThis(player, guiDiceDistVal, isPlayerAI);
 
-						// Make the action button clickable again
-						actionButton.interactable = true;
-						actionButtonActive = true;
+                        // The movement class is now initialised for the current player
+                        isMovementInitialized = true;
+
+						// Make sure the player isn't an AI
+                        if (!isPlayerAI)
+                        {
+                            // Make the action button clickable again
+                            actionButton.interactable = true;
+                            actionButtonActive = true;
+                        } // end if
 
 						// Change the state to the SelectPathToTake state
 						gamePlayState = GamePlayState.SelectPathToTake;
@@ -396,6 +456,20 @@ namespace GSP
 						{
 							// Enable the panel
 							acceptPanel.SetActive(true);
+
+                            // Check if the player is an AI
+                            if (isPlayerAI)
+                            {
+                                // Disable the buttons on the accept panel
+                                acceptPanel.transform.GetChild(2).gameObject.GetComponent<Button>().interactable = false;
+                                acceptPanel.transform.GetChild(3).gameObject.GetComponent<Button>().interactable = false;
+                            } // end if
+                            else
+                            {
+                                // Otherwise re-enable the buttons for the player
+                                acceptPanel.transform.GetChild(2).gameObject.GetComponent<Button>().interactable = true;
+                                acceptPanel.transform.GetChild(3).gameObject.GetComponent<Button>().interactable = true;
+                            } // end else
 					
 							// Update the text
 							Text eventText = GameObject.Find("EventText").GetComponent<Text>();
@@ -406,9 +480,13 @@ namespace GSP
 							// Return the result for now
 							guiTurnText.text = mapEventResult;
 
-							// Enable Action Button
-							actionButton.interactable = true;
-							actionButtonActive = true;
+                            // Make sure the player isn't an AI
+                            if (!isPlayerAI)
+                            {
+                                // Make the action button clickable again
+                                actionButton.interactable = true;
+                                actionButtonActive = true;
+                            } // end if
 						} //end if
 
 						// Change the state to the EndTurn state
@@ -445,12 +523,35 @@ namespace GSP
                             // Force the inventory closed
                             inventory.gameObject.SetActive(false);
 
+                            // Force the allies window and ally inventory closed
+                            allyTable.gameObject.SetActive(false);
+                            allyInventory.gameObject.SetActive(false);
+
                             // Loop through and sell the players's resources and their ally's resources
                             // Note: Ally resources are not setup to pickup or sell right now
                             for (int playerSellIndex = 0; playerSellIndex < guiNumOfPlayers; playerSellIndex++)
                             {
                                 // Get the player's merchant entity
                                 Merchant playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(playerSellIndex).Entity;
+
+                                Porter allyPorter;  // The ally's porter entity
+
+                                // Check if the player has an ally
+                                if (playerMerchant.NumAllies > 0)
+                                {
+                                    // Check if the ally type is porter
+                                    if (playerMerchant.GetAlly(0).GetComponent<PorterMB>() != null)
+                                    {
+                                        // THe ally type is porter to get its entity
+                                        allyPorter = (Porter)playerMerchant.GetAlly(0).GetComponent<PorterMB>().Entity;
+
+                                        // Sell the ally's resources
+                                        allyPorter.SellResources();
+
+                                        // Transfer the currency to the player's merchant
+                                        allyPorter.TransferCurrency<Merchant>(playerMerchant, allyPorter.Currency);
+                                    } // end if playerMerchant.GetAlly(0).GetComponent<PorterMB>() != null
+                                } // end if
 
                                 // We need to access the character script at the given index and sell the resources
                                 playerMerchant.SellResources();
@@ -473,6 +574,12 @@ namespace GSP
                     } // end Case default
             } // end switch gamePlayState
 		} // end StateMachine
+		
+		// Gets the guiDiceDistVal
+		public int GetDist()
+		{
+			return guiDiceDistVal;
+		} // end GetDist
 		
 		// Gets the current state
         public int GetState()
@@ -524,9 +631,9 @@ namespace GSP
 		// Action Button - Used to move the turn through its phases
 		public void ActionButton()
 		{
-			if(gamePlayState == GamePlayState.RollDice)
+            if(gamePlayState == GamePlayState.RollDice)
 			{
-				// Roll the die
+                // Roll the die
 				guiDiceDistVal = die.Roll(2, 5);
 				
 				//Play dieRoll sound
@@ -558,21 +665,31 @@ namespace GSP
 			else if(gamePlayState == GamePlayState.EndTurn)
 			{
 				// Close the inventory if it's open
-                if (isInventoryOpen)
+                if (inventory.IsOpen)
                 {
-                    isInventoryOpen = false;
+                    inventory.IsOpen = false;
                     inventory.gameObject.SetActive(false);
+                } // end if
+
+                // Close the ally's window if it's open
+                if (isAlliesOpen)
+                {
+                    isAlliesOpen = false;
+                    allyTable.gameObject.SetActive(false);
+                } // end if
+
+                // Close the ally's inventory if it's open
+                if (allyInventory.IsOpen)
+                {
+                    allyInventory.IsOpen = false;
+                    allyInventory.gameObject.SetActive(false);
                 } // end if
                 
                 // Update the turn
 				guiPlayerTurn = GameMaster.Instance.NextTurn();
 
-                // Check if we're not single player
-                if (!GameMaster.Instance.IsSinglePlayer)
-                {
-                    // Change the interface element's colours
-                    ChangeColor();
-                } // end if
+                // Change the interface element's colours
+                ChangeColor();
 
 				// Change the state to the BeginTurn state
 				gamePlayState = GamePlayState.BeginTurn;
@@ -583,10 +700,10 @@ namespace GSP
 		public void ShowInventory()
 		{
 			// Toggle the inventory
-            isInventoryOpen = !isInventoryOpen;
+            inventory.IsOpen = !inventory.IsOpen;
 
             // Check if the inventory is open
-            if (isInventoryOpen)
+            if (inventory.IsOpen)
             {
                 // Set the inventory window up before displaying it
                 inventory.SetPlayer(guiPlayerTurn);
@@ -601,10 +718,10 @@ namespace GSP
             } // end if
 		} // end ShowInventory
 		
-		// Ally button - Displays allies and their inventories
+		// Ally button - Displays allies
 		public void ShowAllies()
 		{
-			// Toggle the all window
+			// Toggle the allies window
             isAlliesOpen = !isAlliesOpen;
 
             // Check if the ally window is open
@@ -623,6 +740,98 @@ namespace GSP
             } // end else
 		} // end ShowAllies
 
+        // Ally inventory button - Displays the ally's inventory
+        public void ShowAllyInventory()
+        {
+            // Toggle the ally's inventory window
+            allyInventory.IsOpen = !allyInventory.IsOpen;
+
+            // Check if the ally window is open
+            if (allyInventory.IsOpen)
+            {
+                // Set the ally window up before displaying it
+                allyInventory.SetPlayer(guiPlayerTurn);
+
+                // Open the ally window
+                allyInventory.gameObject.SetActive(true);
+            } // end if
+            else
+            {
+                // Otherwise, close the ally window
+                allyInventory.gameObject.SetActive(false);
+
+                // Close the inventory window if it's open
+                if (inventory.IsOpen)
+                {
+                    ShowInventory();
+                } // end if
+            } // end else
+        } // end ShowAllyInventory
+
+        // Trade with Player button - Toggles the player's inventory and allies windows
+        public void AllyTradeWithPlayer()
+        {
+            // Check if the allies window is open without the player inventory window
+            if (isAlliesOpen && !inventory.IsOpen)
+            {
+                // Toggle the ally window
+                ShowAllies();
+
+                // Toggle the inventory
+                ShowInventory();
+            } // end if
+            // Check if the allies window is closed and the player inventory is opened
+            else if (!isAlliesOpen && inventory.IsOpen)
+            {
+                // Toggle the inventory
+                ShowInventory();
+
+                // Toggle the ally window
+                ShowAllies();
+            } // end else if
+            // Check if both windows are open at the same time
+            else if (isAlliesOpen && inventory.IsOpen)
+            {
+                // Toggle the ally window
+                ShowAllies();
+            } // end else if
+        } // end AllyTradeWithPlayer
+
+        // Accept/Cancel button - Handles the Accept/Cancel clicks
+        public void AcceptCancelRecycle(bool isRecycling)
+        {
+            // Tell the inventory to recycle the player's items based upon the given value
+            recycleInventory.RecycleItems(isRecycling);
+
+            // Hide the inventory after if it's open
+            if (recycleInventory.IsOpen)
+            {
+                ShowRecycleBin();
+            } // end if
+        } // end AcceptCancelRecycle
+
+        // Recycle Bin button - Displays the recycle bin window
+        public void ShowRecycleBin()
+        {
+            // Toggle the recycle bin's inventory window
+            recycleInventory.IsOpen = !recycleInventory.IsOpen;
+
+            // Check if the recycle bin's window is open
+            if (recycleInventory.IsOpen)
+            {
+                // Set the recycle bin window up before displaying it
+                recycleInventory.SetPlayer(guiPlayerTurn);
+
+                // Open the recycle bin window
+                recycleInventory.gameObject.SetActive(true);
+            } // end if
+            else
+            {
+                // Otherwise, close the recycle bin window
+                recycleInventory.gameObject.SetActive(false);
+            } // end else
+        } // end ShowRecycleBin
+
 		// Pause button - Displays pause menu and pauses game
 		public void PauseGame()
 		{
@@ -632,19 +841,31 @@ namespace GSP
 				pauseMenu.SetActive (true);
 				guiMovement.DisableButtons();
 				actionButton.interactable = false;
-				if(isInventoryOpen)
+                if (inventory.IsOpen)
 				{
 					ShowInventory();
 				} //end if
-				GameObject.Find("Inventory").GetComponent<Button>().interactable = false;
-				GameObject.Find("Ally").GetComponent<Button>().interactable = false;
+                if(isAlliesOpen)
+                {
+                    ShowAllies();
+                } // end if
+                if (allyInventory.IsOpen)
+                {
+                    ShowAllyInventory();
+                } // end if
+                if (recycleInventory.IsOpen)
+                {
+                    ShowRecycleBin();
+                } // end if
+                GameObject.Find("CurrentPlayer/InvAlly/Inventory").GetComponent<Button>().interactable = false;
+                GameObject.Find("CurrentPlayer/InvAlly/Ally").GetComponent<Button>().interactable = false;
 			} //end if
 			else
 			{
 				isPaused = false;
 				pauseMenu.SetActive(false);
-				GameObject.Find("Inventory").GetComponent<Button>().interactable = true;
-				GameObject.Find("Ally").GetComponent<Button>().interactable = true;
+                GameObject.Find("CurrentPlayer/InvAlly/Inventory").GetComponent<Button>().interactable = true;
+                GameObject.Find("CurrentPlayer/InvAlly/Ally").GetComponent<Button>().interactable = true;
 				if(actionButtonActive)
 				{
 					actionButton.interactable = true;
@@ -659,9 +880,40 @@ namespace GSP
 		// Instructions button - Displays instructions panel
 		public void Instructions()
 		{
-			GameObject.Find ("Canvas").transform.Find ("Instructions").gameObject.SetActive (
-				!GameObject.Find ("Canvas").transform.Find ("Instructions").gameObject.activeInHierarchy);
+			instructionsSet.SetActive (!instructionsSet.activeInHierarchy);
+			instructionsSet.transform.GetChild(0).gameObject.SetActive(true);
+			instructionsSet.transform.GetChild(1).gameObject.SetActive(false);
+			instructionsSet.transform.GetChild(2).gameObject.SetActive(false);
+			instructionsProgress = 1;
 		} //end Instructions
+
+		// Continue button - goes through instruction slides
+		public void Continue()
+		{
+			if(instructionsProgress == 0)
+			{
+				instructionsSet.transform.GetChild(0).gameObject.SetActive(true);
+				instructionsSet.transform.GetChild(1).gameObject.SetActive(false);
+				instructionsSet.transform.GetChild(2).gameObject.SetActive(false);
+			} //end if
+			else if(instructionsProgress == 1)
+			{
+				instructionsSet.transform.GetChild(0).gameObject.SetActive(false);
+				instructionsSet.transform.GetChild(1).gameObject.SetActive(true);
+				instructionsSet.transform.GetChild(2).gameObject.SetActive(false);
+			} //end else if
+			else if(instructionsProgress == 2)
+			{
+				instructionsSet.transform.GetChild(0).gameObject.SetActive(false);
+				instructionsSet.transform.GetChild(1).gameObject.SetActive(false);
+				instructionsSet.transform.GetChild(2).gameObject.SetActive(true);
+			} //end else if
+			instructionsProgress++;
+			if(instructionsProgress > 2)
+			{
+				instructionsProgress = 0;
+			} //end if
+		} //end Continue
 
 		public void MainMenu()
 		{
@@ -684,9 +936,13 @@ namespace GSP
 			} //end if
 			acceptPanel.SetActive (false);
 
-			// Enable Action Button
-			actionButton.interactable = true;
-			actionButtonActive = true;
+            // Make sure the player isn't an AI
+            if (!isPlayerAI)
+            {
+                // Make the action button clickable again
+                actionButton.interactable = true;
+                actionButtonActive = true;
+            } // end if
 		} //end Yes
 
 		// No Button - Declines whatever is presented
@@ -698,9 +954,19 @@ namespace GSP
 			} //end if
 			acceptPanel.SetActive (false);
 
-			// Enable Action Button
-			actionButton.interactable = true;
-			actionButtonActive = true;
+            // Make sure the player isn't an AI
+            if (!isPlayerAI)
+            {
+                // Make the action button clickable again
+                actionButton.interactable = true;
+                actionButtonActive = true;
+            } // end if
 		} //end No
+
+        // Gets whether the movement class is initialised for the current player
+        public bool IsMovementInitialized
+        {
+            get { return isMovementInitialized; }
+        } // end IsMovementInitialized
 	} // end GameplayStateMachine
 } // end GSP

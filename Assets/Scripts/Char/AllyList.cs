@@ -37,7 +37,7 @@ namespace GSP.Char
 		// Return and ally GameObject reference
 		public GameObject GetObject(int index)
 		{
-			return allies[index];
+            return allies[index];
 		} // end GetObject
 
 		// Get the index of the ally
@@ -55,15 +55,6 @@ namespace GSP.Char
 			{
                 // Add the ally to the list
                 allies.Add(ally);
-
-				// Get the merchant script of the player
-                var playerEntity = (Merchant)GetComponent<Player>().Entity;
-				// Get the porter script of the ally
-                var allyEntity = (Porter)ally.GetComponent<PorterMB>().Entity;
-
-				// Add the ally's values to the player directly
-                // Note: this will be done differently later
-                playerEntity.MaxWeight += allyEntity.MaxWeight;
 
                 // Return sucess
                 return true;

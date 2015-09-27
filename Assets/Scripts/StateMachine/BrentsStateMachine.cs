@@ -46,6 +46,7 @@ namespace GSP
 		Text 	   guideText;				// Map selection text
 		bool isMenuDisplayed;				// Whether menu is displayed or not
 		bool isInstructionsDisplayed;		// Whether instructions are displayed or not
+		int  instructionsProgress;			// What slide the player is on
 		bool isCreditsDisplayed;			// Whether Credits are displayed or not
 		string mapSelection;		        // Scene name of map
 		bool isMapsDisplayed;				// Whether selection maps are displayed or not
@@ -60,6 +61,7 @@ namespace GSP
 			isMenuDisplayed = true;							// Menu begins displayed
 			isCreditsDisplayed = false;						// Credits begins hidden
 			isInstructionsDisplayed = false;				// Instructions begin hidden
+			instructionsProgress = 1;						// No progress made, prepare to show second slide
 			timeHolder = Time.time + 3.0f;					// Initialize first wait period
 			mapSelection = "nothing";						// Nothing has been chosen yet
 			isMapsDisplayed = false;						// Map selection begins hidden
@@ -156,8 +158,14 @@ namespace GSP
                                     if (mapSelection != "nothing")
                                     {
                                         // Pick player amount
-                                        // Set the number of players to one for solo mode
-                                        GameMaster.Instance.NumPlayers = 1;
+                                        // Set the number of players to two; the player and an AI
+                                        GameMaster.Instance.NumPlayers = 2;
+
+                                        // Flag the game as single player
+                                        GameMaster.Instance.IsSinglePlayer = true;
+
+                                        // Enable the AI
+                                        GameMaster.Instance.IsAIEnabled = true;
 
                                         // Transition into the colours menu state
                                         menuState = MenuState.Colors;
@@ -207,6 +215,12 @@ namespace GSP
                                         // Note: I screwed this up previously, but it still shouldn't have to be repeated so do a simple conditional check
                                         if (GameMaster.Instance.NumPlayers >= 2 && GameMaster.Instance.NumPlayers <= 4)
                                         {
+                                            // Flag the game as multiplayer
+                                            GameMaster.Instance.IsSinglePlayer = false;
+                                            
+                                            // Diable the AI
+                                            GameMaster.Instance.IsAIEnabled = false;
+                                            
                                             // Transition into the colours menu state
                                             menuState = MenuState.Colors;
                                         }
@@ -229,24 +243,29 @@ namespace GSP
                                         EnableColors();
                                         guideText.text = "Please choose a name and color.";
 
-                                        if (GameMaster.Instance.NumPlayers > 1 && GameMaster.Instance.NumPlayers <= 2)
+                                        // Check if the game is multiplayer
+                                        if (!GameMaster.Instance.IsSinglePlayer)
                                         {
-                                            // Enable player 2
-                                            colorSet.transform.GetChild(1).gameObject.SetActive(true);
-                                        } // end if
-                                        else if (GameMaster.Instance.NumPlayers > 2 && GameMaster.Instance.NumPlayers <= 3)
-                                        {
-                                            // Enable player 2-3
-                                            colorSet.transform.GetChild(1).gameObject.SetActive(true);
-                                            colorSet.transform.GetChild(2).gameObject.SetActive(true);
-                                        } // end else if
-                                        else if (GameMaster.Instance.NumPlayers > 3 && GameMaster.Instance.NumPlayers <= 4)
-                                        {
-                                            // Enable player 2-4
-                                            colorSet.transform.GetChild(1).gameObject.SetActive(true);
-                                            colorSet.transform.GetChild(2).gameObject.SetActive(true);
-                                            colorSet.transform.GetChild(3).gameObject.SetActive(true);
-                                        } // end else if
+                                            // Check which colour lines should be displayed.
+                                            if (GameMaster.Instance.NumPlayers > 1 && GameMaster.Instance.NumPlayers <= 2)
+                                            {
+                                                // Enable player 2
+                                                colorSet.transform.GetChild(1).gameObject.SetActive(true);
+                                            } // end if
+                                            else if (GameMaster.Instance.NumPlayers > 2 && GameMaster.Instance.NumPlayers <= 3)
+                                            {
+                                                // Enable player 2-3
+                                                colorSet.transform.GetChild(1).gameObject.SetActive(true);
+                                                colorSet.transform.GetChild(2).gameObject.SetActive(true);
+                                            } // end else if
+                                            else if (GameMaster.Instance.NumPlayers > 3 && GameMaster.Instance.NumPlayers <= 4)
+                                            {
+                                                // Enable player 2-4
+                                                colorSet.transform.GetChild(1).gameObject.SetActive(true);
+                                                colorSet.transform.GetChild(2).gameObject.SetActive(true);
+                                                colorSet.transform.GetChild(3).gameObject.SetActive(true);
+                                            } // end else if
+                                        } // end if !GameMaster.Instance.IsSinglePlayer
                                     } // end if
                                     break;
                                 } // end case Colors
@@ -340,18 +359,6 @@ namespace GSP
 
                         // This is a new game
                         GameMaster.Instance.IsNew = true;
-
-                        // Check if this is a single player game
-                        if (GameMaster.Instance.NumPlayers == 1)
-                        {
-                            // Flag the game as single player
-                            GameMaster.Instance.IsSinglePlayer = true;
-                        } // end if
-                        else
-                        {
-                            // Otherwise flag the game as multiplayer
-                            GameMaster.Instance.IsSinglePlayer = false;
-                        } // end else
 
                         // Tell the GameMaster to load selected level
                         GameMaster.Instance.LoadLevel(mapSelection);
@@ -466,6 +473,10 @@ namespace GSP
 		{
 			instructionsSet.SetActive (false);
 			isInstructionsDisplayed = false;
+			instructionsProgress = 1;
+			instructionsSet.transform.GetChild(0).gameObject.SetActive(true);
+			instructionsSet.transform.GetChild(1).gameObject.SetActive(false);
+			instructionsSet.transform.GetChild(2).gameObject.SetActive(false);
 		} // end DisableInstructions
 
         // Enable the credits screen
@@ -566,7 +577,34 @@ namespace GSP
 			{
 				menuState = MenuState.Home;
 			} // end else
-		} // end Back()
+		} // end Back
+
+		public void Continue()
+		{
+			if(instructionsProgress == 0)
+			{
+				instructionsSet.transform.GetChild(0).gameObject.SetActive(true);
+				instructionsSet.transform.GetChild(1).gameObject.SetActive(false);
+				instructionsSet.transform.GetChild(2).gameObject.SetActive(false);
+			} //end if
+			else if(instructionsProgress == 1)
+			{
+				instructionsSet.transform.GetChild(0).gameObject.SetActive(false);
+				instructionsSet.transform.GetChild(1).gameObject.SetActive(true);
+				instructionsSet.transform.GetChild(2).gameObject.SetActive(false);
+			} //end else if
+			else if(instructionsProgress == 2)
+			{
+				instructionsSet.transform.GetChild(0).gameObject.SetActive(false);
+				instructionsSet.transform.GetChild(1).gameObject.SetActive(false);
+				instructionsSet.transform.GetChild(2).gameObject.SetActive(true);
+			} //end else if
+			instructionsProgress++;
+			if(instructionsProgress > 2)
+			{
+				instructionsProgress = 0;
+			} //end if
+		} //end Continue
 
 		// Desert map button
         public void DesertMap()

@@ -25,119 +25,208 @@ namespace GSP.Items
     public class ResourceUtility
     {
         // Get all the resources
-        public List<Resource> GetResources(int playerNum)
+        public List<Resource> GetResources(int key, bool isPlayer = true)
         {
             // The list to return; returns empty list if the inventory doesn't exist
             List<Resource> resources = new List<Resource>();
 
-            // Get the inventory script
-            Inventory inventory = GameObject.Find("Canvas").transform.Find("Inventory").GetComponent<Inventory>();
-
-            // Make sure the inventory exists
-            if (inventory != null)
+            // Check if it's the player
+            if (isPlayer)
             {
-                // Set the inventory up for the correct player
-                inventory.SetPlayer(playerNum, true);
-                
-                // Get all the items in the inventory
-                List<Item> inventoryItems = inventory.GetItems(playerNum);
+                // Get the inventory script
+                PlayerInventory inventory = GameObject.Find("Canvas").transform.Find("PlayerInventory").GetComponent<PlayerInventory>();
 
-                // Find all the resources
-                resources = inventoryItems.FindAll(tempItem => tempItem is Resource).Select(item => (Resource)item).ToList();
+                // Make sure the inventory exists
+                if (inventory != null)
+                {
+                    // Get all the items in the inventory
+                    List<Item> inventoryItems = inventory.GetItems(key);
+
+                    // Find all the resources
+                    resources = inventoryItems.FindAll(tempItem => tempItem is Resource).Select(item => (Resource)item).ToList();
+                } // end if
             } // end if
+            // Otherwise it must be the ally
+            else
+            {
+                // Get the inventory script
+                AllyInventory inventory = GameObject.Find("Canvas").transform.Find("AllyInventory").GetComponent<AllyInventory>();
+
+                // Make sure the inventory exists
+                if (inventory != null)
+                {
+                    // Get all the items in the inventory
+                    List<Item> inventoryItems = inventory.GetItems(key);
+
+                    // Find all the resources
+                    resources = inventoryItems.FindAll(tempItem => tempItem is Resource).Select(item => (Resource)item).ToList();
+                } // end if
+            } // end else
 
             // Return the list of resources
             return resources;
         } // end GetResources
 
         // Removes all the resources
-        public void RemoveResources(int playerNum)
+        public void RemoveResources(int key, bool isPlayer = true)
         {
-            // Get the inventory script
-            Inventory inventory = GameObject.Find("Canvas").transform.Find("Inventory").GetComponent<Inventory>();
-
-            // Make sure the inventory exists
-            if (inventory != null)
+            // Check if it's the player
+            if (isPlayer)
             {
-                // Set the inventory up for the correct player
-                inventory.SetPlayer(playerNum, true);
-                
-                // Get all the resources
-                List<Resource> resources = new List<Resource>();
-                resources = GetResources(playerNum);
+                // Get the inventory script
+                PlayerInventory inventory = GameObject.Find("Canvas").transform.Find("PlayerInventory").GetComponent<PlayerInventory>();
 
-                // Loop over each resource and remove it
-                foreach (var resource in resources)
+                // Make sure the inventory exists
+                if (inventory != null)
                 {
-                    inventory.Remove(playerNum, resource);
-                } // end foreach
+                    // Get all the resources
+                    List<Resource> resources = new List<Resource>();
+                    resources = GetResources(key);
+
+                    // Loop over each resource and remove it
+                    foreach (var resource in resources)
+                    {
+                        inventory.Remove(key, resource);
+                    } // end foreach
+                } // end if
             } // end if
+            // Otherwise it must be the ally
+            else
+            {
+                // Get the inventory script
+                AllyInventory inventory = GameObject.Find("Canvas").transform.Find("AllyInventory").GetComponent<AllyInventory>();
+
+                // Make sure the inventory exists
+                if (inventory != null)
+                {
+                    // Get all the resources
+                    List<Resource> resources = new List<Resource>();
+                    resources = GetResources(key);
+
+                    // Loop over each resource and remove it
+                    foreach (var resource in resources)
+                    {
+                        inventory.Remove(key, resource);
+                    } // end foreach
+                } // end if
+            } // end else
         } // end RemoveResources
 
         // Get all the resources of a given type
-        public List<Resource> GetResourcesByType(ResourceType resourceType, int playerNum)
+        public List<Resource> GetResourcesByType(ResourceType resourceType, int key, bool isPlayer = true)
         {
             // The list to return; returns empty list if the inventory doesn't exist
             List<Resource> resources = new List<Resource>();
-            
-            // Get the inventory script
-            Inventory inventory = GameObject.Find("Canvas").transform.Find("Inventory").GetComponent<Inventory>();
 
-            // Make sure the inventory exists
-            if (inventory != null)
+            // Check if it's the player
+            if (isPlayer)
             {
-                // Set the inventory up for the correct player
-                inventory.SetPlayer(playerNum, true);
-                
-                // Get all the items in the inventory
-                List<Item> inventoryItems = inventory.GetItems(playerNum);
+                // Get the inventory script
+                PlayerInventory inventory = GameObject.Find("Canvas").transform.Find("PlayerInventory").GetComponent<PlayerInventory>();
 
-                // Find all the resources of the given type
-                resources = inventoryItems.FindAll(tempItem => tempItem.Type == resourceType.ToString()).Select(item => (Resource)item).ToList();
+                // Make sure the inventory exists
+                if (inventory != null)
+                {
+                    // Get all the items in the inventory
+                    List<Item> inventoryItems = inventory.GetItems(key);
+
+                    // Find all the resources of the given type
+                    resources = inventoryItems.FindAll(tempItem => tempItem.Type == resourceType.ToString()).Select(item => (Resource)item).ToList();
+                } // end if
             } // end if
+            // Otherwise it must be the ally
+            else
+            {
+                // Get the inventory script
+                AllyInventory inventory = GameObject.Find("Canvas").transform.Find("AllyInventory").GetComponent<AllyInventory>();
+
+                // Make sure the inventory exists
+                if (inventory != null)
+                {
+                    // Get all the items in the inventory
+                    List<Item> inventoryItems = inventory.GetItems(key);
+
+                    // Find all the resources of the given type
+                    resources = inventoryItems.FindAll(tempItem => tempItem.Type == resourceType.ToString()).Select(item => (Resource)item).ToList();
+                } // end if
+            } // end else
 
             // Return the list of resources
             return resources;
         } // end RemoveResources
 
         // Remove all the resources of a given type
-        public void RemoveResourcesByType(ResourceType resourceType, int playerNum)
+        public void RemoveResourcesByType(ResourceType resourceType, int key, bool isPlayer = true)
         {
-            // Get the inventory script
-            Inventory inventory = GameObject.Find("Canvas").transform.Find("Inventory").GetComponent<Inventory>();
-
-            // Make sure the inventory exists
-            if (inventory != null)
+            // Check if it's the player
+            if (isPlayer)
             {
-                // Set the inventory up for the correct player
-                inventory.SetPlayer(playerNum, true);
-                
-                // Get all the resources
-                List<Resource> resources = GetResourcesByType(resourceType, playerNum);
+                // Get the inventory script
+                PlayerInventory inventory = GameObject.Find("Canvas").transform.Find("PlayerInventory").GetComponent<PlayerInventory>();
 
-                // Loop over each resource and remove it
-                foreach (var resource in resources)
+                // Make sure the inventory exists
+                if (inventory != null)
                 {
-                    inventory.Remove(playerNum, resource);
-                } // end foreach
+                    // Get all the resources
+                    List<Resource> resources = GetResourcesByType(resourceType, key);
+
+                    // Loop over each resource and remove it
+                    foreach (var resource in resources)
+                    {
+                        inventory.Remove(key, resource);
+                    } // end foreach
+                } // end if
             } // end if
+            // Otherwise it must be the ally
+            else
+            {
+                // Get the inventory script
+                AllyInventory inventory = GameObject.Find("Canvas").transform.Find("AllyInventory").GetComponent<AllyInventory>();
+
+                // Make sure the inventory exists
+                if (inventory != null)
+                {
+                    // Get all the resources
+                    List<Resource> resources = GetResourcesByType(resourceType, key);
+
+                    // Loop over each resource and remove it
+                    foreach (var resource in resources)
+                    {
+                        inventory.Remove(key, resource);
+                    } // end foreach
+                } // end if
+            } // end else
         } // end RemoveResources
 
         // Remove a single resource
-        public void RemoveResource(Resource resource, int playerNum)
+        public void RemoveResource(Resource resource, int key, bool isPlayer = true)
         {
-            // Get the inventory script
-            Inventory inventory = GameObject.Find("Canvas").transform.Find("Inventory").GetComponent<Inventory>();
-
-            // Make sure the inventory exists
-            if (inventory != null)
+            // Check if it's the player
+            if (isPlayer)
             {
-                // Set the inventory up for the correct player
-                inventory.SetPlayer(playerNum, true);
+                // Get the inventory script
+                PlayerInventory inventory = GameObject.Find("Canvas").transform.Find("PlayerInventory").GetComponent<PlayerInventory>();
 
-                // Remove the resource
-                inventory.Remove(playerNum, resource);
+                // Make sure the inventory exists
+                if (inventory != null)
+                {
+                    // Remove the resource
+                    inventory.Remove(key, resource);
+                } // end if
             } // end if
+            // Otherwise it must be the ally
+            else
+            {
+                // Get the inventory script
+                AllyInventory inventory = GameObject.Find("Canvas").transform.Find("AllyInventory").GetComponent<AllyInventory>();
+
+                // Make sure the inventory exists
+                if (inventory != null)
+                {
+                    // Remove the resource
+                    inventory.Remove(key, resource);
+                } // end if
+            } // end else
         } // end RemoveResource
     } // end ResourceUtility
 } // end GSP.Items
