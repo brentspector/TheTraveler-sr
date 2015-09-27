@@ -124,10 +124,6 @@ namespace GSP.Items.Inventories
                 // Set the ally's type
                 statusLeft.GetChild(1).GetChild(1).GetComponent<Text>().text = ally.FriendlyType.ToString();
             } // end if
-            else
-            {
-                Debug.LogWarning("statusLeft is null!");
-            }
 
             if (statusRight != null)
             {
@@ -137,10 +133,6 @@ namespace GSP.Items.Inventories
                 // Set the Profit status line's value
                 statusRight.GetChild(1).GetChild(1).GetComponent<Text>().text = ally.TotalWorth.ToString();
             } // end if
-            else
-            {
-                Debug.LogWarning("statusRight is null!");
-            }
         } // end SetStats
 
         // Sets the inventory up for the current player

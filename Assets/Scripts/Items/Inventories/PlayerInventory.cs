@@ -87,7 +87,7 @@ namespace GSP.Items.Inventories
             CreateSlots(0, numEquipmentSlotsCreate, SlotType.Equipment, equipmentPanel, "EquipmentSlot ");
 
             // Create the bonus slots
-            CreateSlots(0, numBonusSlotsCreate, SlotType.Bonus, bonusPanel, "BonusSlot "); ;
+            CreateSlots(0, numBonusSlotsCreate, SlotType.Bonus, bonusPanel, "BonusSlot ");
         } // end Start
 
         // Runs each frame; used to update the tooltip's position
@@ -145,8 +145,12 @@ namespace GSP.Items.Inventories
                         // Otherwise there is already armour equipped; Swap slot places with the item
                         SwapItem(playerNum, armorSlot, itemIndex);
 
-                        // Update the tooltip
-                        ShowTooltip(armor);
+                        // Check if the inventory is open
+                        if (IsOpen)
+                        {
+                            // Update the tooltip
+                            ShowTooltip(armor);
+                        } // end if
 
                         // Then deal with the unequipping and equipping
                         playerMerchant.UnequipArmor((Armor)armor);
@@ -185,8 +189,12 @@ namespace GSP.Items.Inventories
                         // Otherwise there is already a weapon equipped; Swap slot places with the item
                         SwapItem(playerNum, weaponSlot, itemIndex);
 
-                        // Update the tooltip
-                        ShowTooltip(weapon);
+                        // Check if the inventory is open
+                        if (IsOpen)
+                        {
+                            // Update the tooltip
+                            ShowTooltip(weapon);
+                        } // end if
 
                         // Then deal with the unequipping and equipping
                         playerMerchant.UnequipWeapon((Weapon)weapon);
