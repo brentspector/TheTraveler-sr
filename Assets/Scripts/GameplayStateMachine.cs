@@ -87,18 +87,17 @@ namespace GSP
         GUIMovement guiMovement;		            // The GUIMovement component reference
 		MapEvent guiMapEvent;						// The MapEvent component reference
 		string mapEventResult;						// Result of the map event
+        TileManager tileManager;                    // Manages the loading of the map.
 
         // Runs when the object if first instantiated, because this object will occur once through the game,
         // these values are the beginning of game values
         // Note: Values should be updated at the EndTurn State
         void Start()
 		{
-            //TODO: Damien: Replace Tile stuff later
-            // Clear the tile dictionary
-            TileDictionary.Clean();
-            // Set the dimensions and generate/add the tiles
-            TileManager.SetDimensions(64, 20, 16);
-            TileManager.GenerateAndAddTiles();
+            // Get the reference to the tile manager
+            tileManager = GameObject.Find("TileManager").GetComponent<TileManager>();
+            // Generate the map
+            tileManager.GenerateMap();
 
 			// Get HUD elements
             guiPlayerName = GameObject.Find("CurrentPlayer/PlayerNamePanel/PlayerName").GetComponent<Text>();

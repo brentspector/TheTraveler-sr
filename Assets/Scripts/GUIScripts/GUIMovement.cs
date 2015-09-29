@@ -6,6 +6,7 @@
  *
  *******************************************************************************/
 using GSP.Char;
+using GSP.Tiles;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -87,9 +88,9 @@ namespace GSP
 		public void MoveUp()
 		{
 			//If we're not at the top end of the map, allow movement
-			if(playerScript.gameObject.transform.position.y < GSP.Tiles.TileManager.MinHeightUnits)
+			if(playerScript.gameObject.transform.position.y < TileUtils.MinHeight)
 			{
-				displacementVector = new Vector3(0, GSP.Tiles.TileManager.PlayerMoveDistance, 0);
+                displacementVector = new Vector3(0, TileUtils.PlayerMoveDistance, 0);
 			} //end if
 			else
 			{
@@ -113,9 +114,9 @@ namespace GSP
 		public void MoveDown()
 		{
 			//If we're not at the bottom end of the map, allow movement
-			if(playerScript.gameObject.transform.position.y > GSP.Tiles.TileManager.MaxHeightUnits)
+            if (playerScript.gameObject.transform.position.y > TileUtils.MaxHeight)
 			{
-				displacementVector = new Vector3(0, -GSP.Tiles.TileManager.PlayerMoveDistance, 0);
+                displacementVector = new Vector3(0, -TileUtils.PlayerMoveDistance, 0);
 			} //end if
 			else
 			{
@@ -139,9 +140,9 @@ namespace GSP
 		public void MoveLeft()
 		{
 			//If we're not at the left end of the map, allow movement
-			if(playerScript.gameObject.transform.position.x > GSP.Tiles.TileManager.MinWidthUnits)
+            if (playerScript.gameObject.transform.position.x > TileUtils.MinWidth)
 			{
-				displacementVector = new Vector3(-GSP.Tiles.TileManager.PlayerMoveDistance, 0, 0);
+                displacementVector = new Vector3(-TileUtils.PlayerMoveDistance, 0, 0);
 			} //end if
 			else
 			{
@@ -165,9 +166,9 @@ namespace GSP
 		public void MoveRight()
 		{
 			// If we're not at the right end of the map, allow movement
-			if(playerScript.gameObject.transform.position.x < GSP.Tiles.TileManager.MaxWidthUnits)
+            if (playerScript.gameObject.transform.position.x < TileUtils.MaxWidth)
 			{
-				displacementVector = new Vector3(GSP.Tiles.TileManager.PlayerMoveDistance, 0, 0);
+                displacementVector = new Vector3(TileUtils.PlayerMoveDistance, 0, 0);
 			} //end if
 			else
 			{

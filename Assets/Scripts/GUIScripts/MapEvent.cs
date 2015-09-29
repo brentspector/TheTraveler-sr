@@ -74,7 +74,9 @@ namespace GSP
 
 			// Fix the z-axis; change by Damien to get the tiles to work again.
 			tmp.z = -0.01f;
-            Tile currentTile = TileDictionary.GetTile(TileManager.ToPixels(tmp));
+            //TODO: Damien: TileDictionary
+            //Tile currentTile = TileDictionary.GetTile(TileManager.ToPixels(tmp));
+            Tile currentTile = null;
 			
 			// Was a tile found?
 			if(currentTile == null)

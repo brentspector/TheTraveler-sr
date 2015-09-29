@@ -307,7 +307,7 @@ namespace GSP.Char
                 int resourceValue = 0;
 
                 // Get all objects within move distance sphere on layer 9  (resource layer)
-                float radius = GPSM.GetDist() * TileManager.PlayerMoveDistance - 0.31f;
+                float radius = GPSM.GetDist() * TileUtils.PlayerMoveDistance - 0.31f;
                 Collider2D[] hitColliders = Physics2D.OverlapCircleAll(merchant.Position, radius, 
                     1 << LayerMask.NameToLayer("Resources"));
 
@@ -365,7 +365,7 @@ namespace GSP.Char
                     int resourceValue = 0;
 
                     // Get all objects within move distance sphere on layer 9  (resource layer)
-                    float radius = GPSM.GetDist() * TileManager.PlayerMoveDistance - 0.31f;
+                    float radius = GPSM.GetDist() * TileUtils.PlayerMoveDistance - 0.31f;
                     Collider2D[] hitColliders = Physics2D.OverlapCircleAll(merchant.Position, radius,
                         1 << LayerMask.NameToLayer("Resources"));
 

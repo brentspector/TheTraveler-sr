@@ -277,7 +277,8 @@ namespace GSP.Entities.Neutrals
                         // Change the z to make tiles work
                         tmp.z = -0.01f;
                         // Remove the resource from the map
-                        TileDictionary.RemoveResource(TileManager.ToPixels(tmp));
+                        //TODO: Damien TileDictionary
+                        //TileDictionary.RemoveResource(TileManager.ToPixels(tmp));
                     } // end if
 
                     // Return success

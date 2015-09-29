@@ -35,7 +35,7 @@ namespace GSP.Core
         string saveFileExt;          // The save file's extension
 
         // The first tile
-        Vector3 startingPos = new Vector3(0.32f, -(GSP.Tiles.TileManager.MaxHeightUnits / 2.0f), -1.6f);
+        Vector3 startingPos = new Vector3(GSP.Tiles.TileUtils.MinWidth, GSP.Tiles.TileUtils.MinHeight, -1.6f);
 
         readonly int maxPlayers = 4; // Max number of players
         int turn;                    // Who's turn it is
