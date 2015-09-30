@@ -10,6 +10,7 @@ using GSP.Items;
 using System;
 using UnityEngine;
 using X_UniTMX;
+using System.Collections.Generic;
 
 namespace GSP.Tiles
 {
@@ -22,12 +23,20 @@ namespace GSP.Tiles
      *******************************************************************************/
     public class TileManager : MonoBehaviour
 	{
-        Map tiledMap;   // The map that was loaded for the game
+        Map tiledMap;                       // The map that was loaded for the game
+        List<Vector2> resourcePositions;    // List of positions of resources on the map
 
         public TextAsset mapFile;           // The map file the TileManager is managing, set through the editor
         public Material defaultMaterial;    // The default material for the sprites, set through the editor
 
-    	// Sets the dimensions of the Tiled map; This should only be called once when initialising the map
+    	// Used for initialisation
+        void Awake()
+        {
+            // Initialise the resource positions list
+            resourcePositions = new List<Vector2>();
+        } // end Awake
+        
+        // Sets the dimensions of the Tiled map; This should only be called once when initialising the map
 		void SetDimensions(int size, int tilesWide, int tilesHigh)
 		{
             // Update the map values of the TileUtils class
@@ -118,7 +127,7 @@ namespace GSP.Tiles
             tiledMap = map;
 
             /*
-             * Geneate the map with the following options:
+             * Generate the map with the following options:
              * 
              * TileManager's GameObject is the parent in the hierarchy
              * The default material is the default sprite's material
@@ -128,13 +137,45 @@ namespace GSP.Tiles
             // Generate any tile collisions
             tiledMap.GenerateTileCollisions();
 
+            MapObjectLayer resourcesObjectLayer;    // The object layer for resources
+
             // Check if the map has a resources object layer
-            if (tiledMap.GetObjectLayer("Resources") != null)
+            if ((resourcesObjectLayer = tiledMap.GetObjectLayer("Resources")) != null)
             {
+                // Get the list of MapObjects on the resources layer
+                List<MapObject> resourceObjects = resourcesObjectLayer.Objects;
+
+                // Check if the game is new
+                if (GameMaster.Instance.IsNew)
+                {
+                    // The game is new so add all the resources to the list
+                    foreach (var resource in resourceObjects)
+                    {
+                        resourcePositions.Add(new Vector2(resource.Bounds.x, resource.Bounds.y));
+                    } // end foreach
+
+                    // Finally, save the resource positions list
+                    GameMaster.Instance.SaveResources();
+                } // end if
+                else
+                {
+                    // The game isn't new so load all the saved resources
+                    resourcePositions = GameMaster.Instance.LoadResources();
+                } // end else
+                
                 // Generate the colliders from this layer
                 tiledMap.GenerateCollidersFromLayer("Resources");
-                // Generate the prefabs from this layer
-                tiledMap.GeneratePrefabsFromLayer("Resources", Vector2.up, false, true);
+
+                // Loop through the objects to check if they're on the resources list
+                foreach (var resource in resourceObjects)
+                {
+                    // Make sure the resource is in the list
+                    if (resourcePositions.Contains(new Vector2(resource.Bounds.x, resource.Bounds.y)))
+                    {
+                        // Generate the prefab for the resource
+                        tiledMap.GeneratePrefab(resource, Vector2.up, null, false, true);
+                    } // end if
+                } // end foreach
             } // end if
 
             // Check if the map has a markets object layer
@@ -149,9 +190,19 @@ namespace GSP.Tiles
             // Finally, Update the TileUtils static class
             SetDimensions(tiledMap.MapRenderParameter.TileHeight, tiledMap.MapRenderParameter.Width,
                 tiledMap.MapRenderParameter.Height);
-
-            Debug.LogFormat("Bounds {0}", tiledMap.GetObjectLayer("Resources").GetObject("Ore").Bounds.ToString());
-            Debug.LogFormat("Bounds {0}", tiledMap.GetObjectLayer("Resources").GetObject("Wool11").Bounds.ToString());
         } // end OnMapLoaded
+
+        // Gets the resource's positions
+        public List<Vector2> ResourcePositions
+        {
+            get
+            {
+                // Create a temp list based upon the resource positions
+                List<Vector2> tempPositions = resourcePositions;
+
+                // Return the temp list
+                return tempPositions;
+            } // end get
+        } // end ResourcePositions
 	} // end TileManager
 } // end GSP.Tiles

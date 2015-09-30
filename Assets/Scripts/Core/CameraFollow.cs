@@ -42,7 +42,7 @@ namespace GSP.Core
             lookAheadMoveThreshold = 0.1f;
 
             // Set the X-axis offset
-            offsetX = 1.7f;
+            offsetX = 2.4f;
 
             // Make sure we are not a child
             transform.parent = null;

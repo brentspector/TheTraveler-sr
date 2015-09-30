@@ -305,7 +305,7 @@ namespace GSP
             //{
             //    // Save the players
             //    GameMaster.Instance.SavePlayers();
-                
+
             //    // Save the resources
             //    GameMaster.Instance.SaveResources();
 
