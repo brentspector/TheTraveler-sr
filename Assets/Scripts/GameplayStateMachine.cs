@@ -48,6 +48,7 @@ namespace GSP
 		bool canRunEndStuff;                    	// Whether the end scene stuff should be ran during that state
         bool isAlliesOpen;                          // Whether the allies window is open
 		int guiDiceDistVal;	                		// The dice value which is then onverted into a distance value
+        bool isMovementInitialized;                 // Whether the movement class is initialised
 
 		// State Machine input/output variables
 		int guiNumOfPlayers; 	           			// The number of players playing
@@ -55,6 +56,7 @@ namespace GSP
 		int guiPlayerTurn;  	                	// Whos turn is it
 		int guiMaxWeight;							// Maximum weight player can carry
 		int guiCurrentWeight;						// Total weight of player at the moment
+        bool isPlayerAI;                            // Whether the player is an AI
 
 		// HUD Elements
         // Current Player
@@ -130,6 +132,9 @@ namespace GSP
             // Running the end stuff defaults to true
             canRunEndStuff = true;
 
+            // The movement class is not initialised
+            isMovementInitialized = false;
+
             // The ally window are closed by default
             isAlliesOpen = false;
 
@@ -140,7 +145,10 @@ namespace GSP
             guiPlayerTurn = GameMaster.Instance.Turn;
 
 			// Set starting values             		            
-			guiDiceDistVal = 0;	                
+			guiDiceDistVal = 0;
+
+            // The player is not an AI by default
+            isPlayerAI = false;
 
 			// Create a die
 			die = new Die();
@@ -188,6 +196,10 @@ namespace GSP
 				// Set the player's merchant entity
 				Merchant playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(i).Entity;
 
+				// Get image component and update with player sprite
+				imageParent.transform.GetChild(i).GetComponent<Image>().sprite =
+					playerMerchant.GetSprite(0);
+
 				// Get text component and update with player name and gold
 				textParent.transform.GetChild(i).GetComponent<Text>().text =
 					GameMaster.Instance.GetPlayerName(i) + " - " + playerMerchant.Currency;
@@ -219,8 +231,7 @@ namespace GSP
 				Player playerScript = GameMaster.Instance.GetPlayerScript(count);
 				
 				// Set the players's sprite sheet sprites
-                int playerNum = count + 1;
-				playerScript.SetCharacterSprites(playerNum);
+				playerScript.SetCharacterSprites(GameMaster.Instance.GetPlayerSprite(count));
 				
 				// Set the player's facing
 				playerScript.Face(FacingDirection.South);
@@ -285,22 +296,26 @@ namespace GSP
 
 			// The Weight Values; Current weight / Max weight
             guiWeight.text = "Weight: " + guiCurrentWeight + "/" + guiMaxWeight;
+
+            // Determine if the current player is an AI
+            isPlayerAI = GetCurrentPlayer().GetComponent<Player>().IsAI;
 		} // end GetPlayerValues
 
         // Updates the state machine and things; runs every frame
         void Update()
         {
-            if (Input.GetKeyDown(KeyCode.M) && !isPaused)
-            {
-                // Save the players
-                GameMaster.Instance.SavePlayers();
+            // TODO: Damien: This is disabled until it can be properly implemented into the game.
+            //if (Input.GetKeyDown(KeyCode.M) && !isPaused)
+            //{
+            //    // Save the players
+            //    GameMaster.Instance.SavePlayers();
                 
-                // Save the resources
-                GameMaster.Instance.SaveResources();
+            //    // Save the resources
+            //    GameMaster.Instance.SaveResources();
 
-                // Finally, tell the GameMaster to load the end scene
-                GameMaster.Instance.LoadLevel("Market");
-            }
+            //    // Finally, tell the GameMaster to load the end scene
+            //    GameMaster.Instance.LoadLevel("Market");
+            //}
             
             // This was set to true at the end of Start()
             if (canInitAfterStart)
@@ -334,9 +349,29 @@ namespace GSP
 						// Clear the map event text
 						mapEventResult = "";
 
-						//Verify the action button is enabled
-						actionButton.interactable = true;
-						actionButtonActive = true;
+						// Check if the player isn't an AI
+                        if (isPlayerAI)
+                        {
+                            // Disable the buttons for AI as they don't use them
+                            actionButton.interactable = false;
+                            actionButtonActive = false;
+                            GameObject.Find("CurrentPlayer/PauseButton").GetComponent<Button>().interactable = false;
+                            GameObject.Find("CurrentPlayer/InvAlly/Inventory").GetComponent<Button>().interactable = false;
+                            GameObject.Find("CurrentPlayer/InvAlly/Ally").GetComponent<Button>().interactable = false;
+                        } // end if
+                        else
+                        {
+                            // Otherwise, Verify the action button is enabled
+                            actionButton.interactable = true;
+                            actionButtonActive = true;
+                            // Enable the pause, inventory, and ally window buttons
+                            GameObject.Find("CurrentPlayer/PauseButton").GetComponent<Button>().interactable = true;
+                            GameObject.Find("CurrentPlayer/InvAlly/Inventory").GetComponent<Button>().interactable = true;
+                            GameObject.Find("CurrentPlayer/InvAlly/Ally").GetComponent<Button>().interactable = true;
+                        } // end else
+
+                        // The movement class is not initialised for the current player
+                        isMovementInitialized = false;
 
                         // Switch the state to the RollDie state
                         gamePlayState = GamePlayState.RollDice;
@@ -378,11 +413,18 @@ namespace GSP
                         guiTurnText.text = "Displaying distance...";
 
                         // Display the movement arrows
-                        guiMovement.InitThis(player, guiDiceDistVal);
+                        guiMovement.InitThis(player, guiDiceDistVal, isPlayerAI);
 
-						// Make the action button clickable again
-						actionButton.interactable = true;
-						actionButtonActive = true;
+                        // The movement class is now initialised for the current player
+                        isMovementInitialized = true;
+
+						// Make sure the player isn't an AI
+                        if (!isPlayerAI)
+                        {
+                            // Make the action button clickable again
+                            actionButton.interactable = true;
+                            actionButtonActive = true;
+                        } // end if
 
 						// Change the state to the SelectPathToTake state
 						gamePlayState = GamePlayState.SelectPathToTake;
@@ -417,6 +459,20 @@ namespace GSP
 						{
 							// Enable the panel
 							acceptPanel.SetActive(true);
+
+                            // Check if the player is an AI
+                            if (isPlayerAI)
+                            {
+                                // Disable the buttons on the accept panel
+                                acceptPanel.transform.GetChild(2).gameObject.GetComponent<Button>().interactable = false;
+                                acceptPanel.transform.GetChild(3).gameObject.GetComponent<Button>().interactable = false;
+                            } // end if
+                            else
+                            {
+                                // Otherwise re-enable the buttons for the player
+                                acceptPanel.transform.GetChild(2).gameObject.GetComponent<Button>().interactable = true;
+                                acceptPanel.transform.GetChild(3).gameObject.GetComponent<Button>().interactable = true;
+                            } // end else
 					
 							// Update the text
 							Text eventText = GameObject.Find("EventText").GetComponent<Text>();
@@ -427,9 +483,13 @@ namespace GSP
 							// Return the result for now
 							guiTurnText.text = mapEventResult;
 
-							// Enable Action Button
-							actionButton.interactable = true;
-							actionButtonActive = true;
+                            // Make sure the player isn't an AI
+                            if (!isPlayerAI)
+                            {
+                                // Make the action button clickable again
+                                actionButton.interactable = true;
+                                actionButtonActive = true;
+                            } // end if
 						} //end if
 
 						// Change the state to the EndTurn state
@@ -479,17 +539,21 @@ namespace GSP
 
                                 Porter allyPorter;  // The ally's porter entity
 
-                                // Check if the ally type is porter
-                                if (playerMerchant.GetAlly(0).GetComponent<PorterMB>() != null)
+                                // Check if the player has an ally
+                                if (playerMerchant.NumAllies > 0)
                                 {
-                                    // THe ally type is porter to get its entity
-                                    allyPorter = (Porter)playerMerchant.GetAlly(0).GetComponent<PorterMB>().Entity;
+                                    // Check if the ally type is porter
+                                    if (playerMerchant.GetAlly(0).GetComponent<PorterMB>() != null)
+                                    {
+                                        // THe ally type is porter to get its entity
+                                        allyPorter = (Porter)playerMerchant.GetAlly(0).GetComponent<PorterMB>().Entity;
 
-                                    // Sell the ally's resources
-                                    allyPorter.SellResources();
+                                        // Sell the ally's resources
+                                        allyPorter.SellResources();
 
-                                    // Transfer the currency to the player's merchant
-                                    allyPorter.TransferCurrency<Merchant>(playerMerchant, allyPorter.Currency);
+                                        // Transfer the currency to the player's merchant
+                                        allyPorter.TransferCurrency<Merchant>(playerMerchant, allyPorter.Currency);
+                                    } // end if playerMerchant.GetAlly(0).GetComponent<PorterMB>() != null
                                 } // end if
 
                                 // We need to access the character script at the given index and sell the resources
@@ -570,9 +634,9 @@ namespace GSP
 		// Action Button - Used to move the turn through its phases
 		public void ActionButton()
 		{
-			if(gamePlayState == GamePlayState.RollDice)
+            if(gamePlayState == GamePlayState.RollDice)
 			{
-				// Roll the die
+                // Roll the die
 				guiDiceDistVal = die.Roll(2, 5);
 				
 				//Play dieRoll sound
@@ -627,12 +691,8 @@ namespace GSP
                 // Update the turn
 				guiPlayerTurn = GameMaster.Instance.NextTurn();
 
-                // Check if we're not single player
-                if (!GameMaster.Instance.IsSinglePlayer)
-                {
-                    // Change the interface element's colours
-                    ChangeColor();
-                } // end if
+                // Change the interface element's colours
+                ChangeColor();
 
 				// Change the state to the BeginTurn state
 				gamePlayState = GamePlayState.BeginTurn;
@@ -879,9 +939,13 @@ namespace GSP
 			} //end if
 			acceptPanel.SetActive (false);
 
-			// Enable Action Button
-			actionButton.interactable = true;
-			actionButtonActive = true;
+            // Make sure the player isn't an AI
+            if (!isPlayerAI)
+            {
+                // Make the action button clickable again
+                actionButton.interactable = true;
+                actionButtonActive = true;
+            } // end if
 		} //end Yes
 
 		// No Button - Declines whatever is presented
@@ -893,9 +957,19 @@ namespace GSP
 			} //end if
 			acceptPanel.SetActive (false);
 
-			// Enable Action Button
-			actionButton.interactable = true;
-			actionButtonActive = true;
+            // Make sure the player isn't an AI
+            if (!isPlayerAI)
+            {
+                // Make the action button clickable again
+                actionButton.interactable = true;
+                actionButtonActive = true;
+            } // end if
 		} //end No
+
+        // Gets whether the movement class is initialised for the current player
+        public bool IsMovementInitialized
+        {
+            get { return isMovementInitialized; }
+        } // end IsMovementInitialized
 	} // end GameplayStateMachine
 } // end GSP

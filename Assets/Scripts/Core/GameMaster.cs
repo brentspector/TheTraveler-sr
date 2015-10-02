@@ -45,12 +45,14 @@ namespace GSP.Core
         bool isNew;             // Whether the game is new or loaded
 
         bool isSinglePlayer;    // Whether the game is a single player game
+        bool isAIEnabled;       // Whether the AI is enabled for single player games
 
         HighScoreTable highScoreTable;  // The scores table reference
         
         // The variables here are through dictionaries; The key is the player number
         Dictionary<int, string> playerNames;            // The list of the players' names
         Dictionary<int, InterfaceColors> playerColors;  // The list of the players' colours
+		Dictionary<int, int> playerSprite;				// The list of the players' sprites
         Dictionary<int, GameObject> playerObjs;         // The list of players' GameObject's
         Dictionary<int, Char.Player> players;           // The list of players' Player scripts references
 
@@ -69,6 +71,7 @@ namespace GSP.Core
             // Create the dictionaries
             playerNames = new Dictionary<int, string>();
             playerColors = new Dictionary<int, InterfaceColors>();
+			playerSprite = new Dictionary<int, int> ();
             playerObjs = new Dictionary<int, GameObject>();
             players = new Dictionary<int, Char.Player>();
 
@@ -91,6 +94,7 @@ namespace GSP.Core
             {
                 playerNames.Add(index, string.Empty);
                 playerColors.Add(index, InterfaceColors.Black);
+				playerSprite.Add(index, -1);
                 playerObjs.Add(index, null);
                 players.Add(index, null);
             } // end for
@@ -186,6 +190,18 @@ namespace GSP.Core
             playerColors[playerNum] = playerColor;
         } // end SetPlayerColor
 
+		// Gets the player's sprite with the given key
+		public int GetPlayerSprite(int playerNum)
+		{
+			return playerSprite [playerNum];
+		} //end GetPlayerSprite
+
+		// Sets the player's sprite with the given key
+		public void SetPlayerSprite(int playerNum, int pSprite)
+		{
+			playerSprite [playerNum] = pSprite;
+		} //end SetPlayerSprite
+
         // Gets the player's GameObject
         public GameObject GetPlayerObject(int playerNum)
         {
@@ -213,7 +229,17 @@ namespace GSP.Core
 
             // Create the player GameObject
             GameObject obj = Instantiate(PrefabReference.prefabPlayer) as GameObject;
-            obj.transform.localScale = new Vector3(1, 1, 1);
+            obj.transform.localScale = Vector3.one;
+
+            // Check if the player is AI
+            if (Instance.IsSinglePlayer && playerNum > 0)
+            {
+                // Give the player a name and colour
+                GiveRandomNameAndColor(playerNum);
+
+                // Set the player to be an AI
+                obj.GetComponent<Player>().IsAI = true;
+            } // end if
 
             // Name the player in the editor for convienience
             obj.name = GetPlayerName(playerNum);
@@ -234,17 +260,47 @@ namespace GSP.Core
             players[playerNum].GetMerchant(entID);
         } // end CreatePlayer
 
+        // Gives the player with the given player num, a random name and color
+        void GiveRandomNameAndColor(int playerNum)
+        {
+            // For now just give the player a standard name
+            string name = "Player " + (playerNum + 1);
+            
+            // Set the name for the player
+            Instance.SetPlayerName(playerNum, name);
+
+            // Create a new die object to get a random colour
+            Die die = new Die();
+            die.Reseed(System.Environment.TickCount);
+
+            // Get a random colour; subtract one to get a number between zero and seven
+            int randColor = die.Roll(1, 8) - 1;
+
+            // Set the colour for the player
+            Instance.SetPlayerColor(playerNum, (InterfaceColors)randColor);
+
+			// Get a random sprite
+			int randSprite = die.Roll (1, 8);
+			Debug.Log (randSprite);
+
+			// Set the sprite for the player
+			Instance.SetPlayerSprite (playerNum, randSprite);
+        } // end GiveRandomNameAndColor
+
         // Create new players
         public void CreatePlayers()
         {
-            // Loop over the dictionary to create each player; We use the player name dictionary here
-            foreach (var player in playerNames)
+            // Get the keys from the player name dictionary
+            var playerKeys = new List<int>(playerNames.Keys);
+            
+            // Loop over the dictionary to create each player
+            foreach (var player in playerKeys)
             {
                 // Check if the player is playing
-                if (player.Key < numPlayers)
+                if (player < numPlayers)
                 {
                     // Create the current player
-                    CreatePlayer(player.Key);
+                    CreatePlayer(player);
                 } // end if
             } // end foreach
         } // end CreatePlayers
@@ -255,6 +311,13 @@ namespace GSP.Core
             // Create the player GameObject
             GameObject obj = Instantiate(PrefabReference.prefabPlayer) as GameObject;
             obj.transform.localScale = Vector3.one;
+
+            // Check if the player is AI
+            if (Instance.IsSinglePlayer && playerNum > 0)
+            {
+                // Set the player to be an AI
+                obj.GetComponent<Player>().IsAI = true;
+            } // end if
 
             // Name the player in the editor for convienience
             obj.name = GetPlayerName(playerNum);
@@ -969,6 +1032,13 @@ namespace GSP.Core
             get { return isSinglePlayer; }
             set { isSinglePlayer = value; }
         } // end IsSinglePlayer
+
+        // Gets and Sets whether the AI is enabled
+        public bool IsAIEnabled
+        {
+            get { return isAIEnabled; }
+            set { isAIEnabled = value; }
+        } // end IsAIEnabled
 
         // Gets the highscore table
         public HighScoreTable ScoresTable

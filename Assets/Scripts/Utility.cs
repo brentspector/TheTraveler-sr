@@ -53,6 +53,16 @@ namespace GSP
             } // end else
         } // end ClampInt
 
+        // Truncates a float to two decimal places
+        public static float TruncateFloat(float toTruncate)
+        {
+            // Get the float to two decimal places then truncate the rest converting it into an integer
+            int temp = System.Convert.ToInt32(toTruncate * 100.0f);
+
+            // Return the truncated float
+            return temp / 100.0f;
+        } // end TruncateFloat
+
         // Returns the colour representative to the enumeration value. If the colour can't be parsed, it returns white
         public static Color InterfaceColorToColor(InterfaceColors interfaceColor)
         {
@@ -122,5 +132,44 @@ namespace GSP
                 return Color.white;
             } // end else
         } // end InterfaceColorToColor
+
+        // Returns the final currency after penalties
+        public static int ApplyPenalty(int rank, int currency)
+        {
+            // Holds the penalty amount
+            float penalty = 0.0f;
+            
+            // Switch over the ranks
+            switch (rank)
+            {
+                // Rank 1, no penalty
+                case 0:
+                    {
+                        penalty = 0.0f;
+                        break;
+                    } // end case 0
+                // Rank 2, 5% penalty
+                case 1:
+                    {
+                        penalty = 0.05f;
+                        break;
+                    } // end case 1
+                // Rank 3, 10% penalty
+                case 2:
+                    {
+                        penalty = 0.1f;
+                        break;
+                    } // end case 2
+                // Rank 4, 20% penalty
+                case 3:
+                    {
+                        penalty = 0.2f;
+                        break;
+                    } // end case 3
+            } // end switch
+
+            // Finally, return the result
+            return System.Convert.ToInt32(currency - (currency * penalty));
+        } // end ApplyPenalty
     } // end Utility
 } // end GSP

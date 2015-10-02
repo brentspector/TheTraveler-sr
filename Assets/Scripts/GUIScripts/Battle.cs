@@ -154,6 +154,15 @@ namespace GSP
 			verbs.Add ("hammered");
 			verbs.Add ("struck");
 			verbs.Add ("lashed at");
+
+            // Check if the player is an AI
+            if (playerMerchant.GameObj.GetComponent<Player>().IsAI)
+            {
+                // Disable the fight buttons
+                GameObject.Find("AttackButtons/HeadButton").GetComponent<Button>().interactable = false;
+                GameObject.Find("AttackButtons/TorsoButton").GetComponent<Button>().interactable = false;
+                GameObject.Find("AttackButtons/FeintButton").GetComponent<Button>().interactable = false;
+            }
 		}//end Start
 	
 		void Fight()
