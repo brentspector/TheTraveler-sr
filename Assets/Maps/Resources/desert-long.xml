@@ -19,7 +19,7 @@
  <objectgroup name="Resources">
   <object name="Ore01" type="NoCollider" x="64" y="1152" width="64" height="64">
    <properties>
-    <property name="ResType" value="Ore"/>
+    <property name="restype" value="Ore"/>
     <property name="layer name" value="Resources"/>
     <property name="prefab" value="Resource_Ore"/>
     <property name="prefab add collider" value="false"/>
@@ -30,7 +30,7 @@
   </object>
   <object name="Ore02" type="NoCollider" x="64" y="1472" width="64" height="64">
    <properties>
-    <property name="ResType" value="Ore"/>
+    <property name="restype" value="Ore"/>
     <property name="layer name" value="Resources"/>
     <property name="prefab" value="Resource_Ore"/>
     <property name="prefab add collider" value="false"/>
@@ -41,7 +41,7 @@
   </object>
   <object name="Ore03" type="NoCollider" x="1088" y="128" width="64" height="64">
    <properties>
-    <property name="ResType" value="Ore"/>
+    <property name="restype" value="Ore"/>
     <property name="layer name" value="Resources"/>
     <property name="prefab" value="Resource_Ore"/>
     <property name="prefab add collider" value="false"/>
@@ -52,7 +52,7 @@
   </object>
   <object name="Ore04" type="NoCollider" x="2496" y="960" width="64" height="64">
    <properties>
-    <property name="ResType" value="Ore"/>
+    <property name="restype" value="Ore"/>
     <property name="layer name" value="Resources"/>
     <property name="prefab" value="Resource_Ore"/>
     <property name="prefab add collider" value="false"/>
@@ -63,7 +63,7 @@
   </object>
   <object name="Ore05" type="NoCollider" x="3776" y="1024" width="64" height="64">
    <properties>
-    <property name="ResType" value="Ore"/>
+    <property name="restype" value="Ore"/>
     <property name="layer name" value="Resources"/>
     <property name="prefab" value="Resource_Ore"/>
     <property name="prefab add collider" value="false"/>
@@ -74,7 +74,7 @@
   </object>
   <object name="Ore06" type="NoCollider" x="4480" y="960" width="64" height="64">
    <properties>
-    <property name="ResType" value="Ore"/>
+    <property name="restype" value="Ore"/>
     <property name="layer name" value="Resources"/>
     <property name="prefab" value="Resource_Ore"/>
     <property name="prefab add collider" value="false"/>
@@ -85,7 +85,7 @@
   </object>
   <object name="Ore07" type="NoCollider" x="4544" y="512" width="64" height="64">
    <properties>
-    <property name="ResType" value="Ore"/>
+    <property name="restype" value="Ore"/>
     <property name="layer name" value="Resources"/>
     <property name="prefab" value="Resource_Ore"/>
     <property name="prefab add collider" value="false"/>
@@ -96,7 +96,7 @@
   </object>
   <object name="Ore08" type="NoCollider" x="5504" y="320" width="64" height="64">
    <properties>
-    <property name="ResType" value="Ore"/>
+    <property name="restype" value="Ore"/>
     <property name="layer name" value="Resources"/>
     <property name="prefab" value="Resource_Ore"/>
     <property name="prefab add collider" value="false"/>
@@ -107,7 +107,7 @@
   </object>
   <object name="Wood01" type="NoCollider" x="64" y="640" width="64" height="64">
    <properties>
-    <property name="ResType" value="Wood"/>
+    <property name="restype" value="Wood"/>
     <property name="layer name" value="Resources"/>
     <property name="prefab" value="Resource_Wood"/>
     <property name="prefab add collider" value="false"/>
@@ -118,7 +118,7 @@
   </object>
   <object name="Wood02" type="NoCollider" x="320" y="384" width="64" height="64">
    <properties>
-    <property name="ResType" value="Wood"/>
+    <property name="restype" value="Wood"/>
     <property name="layer name" value="Resources"/>
     <property name="prefab" value="Resource_Wood"/>
     <property name="prefab add collider" value="false"/>
@@ -129,7 +129,7 @@
   </object>
   <object name="Wood03" type="NoCollider" x="640" y="704" width="64" height="64">
    <properties>
-    <property name="ResType" value="Wood"/>
+    <property name="restype" value="Wood"/>
     <property name="layer name" value="Resources"/>
     <property name="prefab" value="Resource_Wood"/>
     <property name="prefab add collider" value="false"/>
@@ -140,7 +140,7 @@
   </object>
   <object name="Wood04" type="NoCollider" x="1920" y="448" width="64" height="64">
    <properties>
-    <property name="ResType" value="Wood"/>
+    <property name="restype" value="Wood"/>
     <property name="layer name" value="Resources"/>
     <property name="prefab" value="Resource_Wood"/>
     <property name="prefab add collider" value="false"/>
@@ -151,7 +151,7 @@
   </object>
   <object name="Wood05" type="NoCollider" x="1280" y="768" width="64" height="64">
    <properties>
-    <property name="ResType" value="Wood"/>
+    <property name="restype" value="Wood"/>
     <property name="layer name" value="Resources"/>
     <property name="prefab" value="Resource_Wood"/>
     <property name="prefab add collider" value="false"/>
@@ -162,7 +162,7 @@
   </object>
   <object name="Wood06" type="NoCollider" x="2560" y="384" width="64" height="64">
    <properties>
-    <property name="ResType" value="Wood"/>
+    <property name="restype" value="Wood"/>
     <property name="layer name" value="Resources"/>
     <property name="prefab" value="Resource_Wood"/>
     <property name="prefab add collider" value="false"/>
@@ -173,7 +173,7 @@
   </object>
   <object name="Wood07" type="NoCollider" x="3328" y="704" width="64" height="64">
    <properties>
-    <property name="ResType" value="Wood"/>
+    <property name="restype" value="Wood"/>
     <property name="layer name" value="Resources"/>
     <property name="prefab" value="Resource_Wood"/>
     <property name="prefab add collider" value="false"/>
@@ -184,7 +184,7 @@
   </object>
   <object name="Wood08" type="NoCollider" x="4160" y="512" width="64" height="64">
    <properties>
-    <property name="ResType" value="Wood"/>
+    <property name="restype" value="Wood"/>
     <property name="layer name" value="Resources"/>
     <property name="prefab" value="Resource_Wood"/>
     <property name="prefab add collider" value="false"/>
@@ -195,7 +195,7 @@
   </object>
   <object name="Wood09" type="NoCollider" x="5760" y="384" width="64" height="64">
    <properties>
-    <property name="ResType" value="Wood"/>
+    <property name="restype" value="Wood"/>
     <property name="layer name" value="Resources"/>
     <property name="prefab" value="Resource_Wood"/>
     <property name="prefab add collider" value="false"/>
@@ -206,7 +206,7 @@
   </object>
   <object name="Fish01" type="NoCollider" x="4800" y="576" width="64" height="64">
    <properties>
-    <property name="ResType" value="Fish"/>
+    <property name="restype" value="Fish"/>
     <property name="layer name" value="Resources"/>
     <property name="prefab" value="Resource_Fish"/>
     <property name="prefab add collider" value="false"/>
@@ -217,7 +217,7 @@
   </object>
   <object name="Fish02" type="NoCollider" x="5120" y="576" width="64" height="64">
    <properties>
-    <property name="ResType" value="Fish"/>
+    <property name="restype" value="Fish"/>
     <property name="layer name" value="Resources"/>
     <property name="prefab" value="Resource_Fish"/>
     <property name="prefab add collider" value="false"/>
@@ -228,7 +228,7 @@
   </object>
   <object name="Fish03" type="NoCollider" x="5504" y="512" width="64" height="64">
    <properties>
-    <property name="ResType" value="Fish"/>
+    <property name="restype" value="Fish"/>
     <property name="layer name" value="Resources"/>
     <property name="prefab" value="Resource_Fish"/>
     <property name="prefab add collider" value="false"/>
@@ -239,7 +239,7 @@
   </object>
   <object name="Fish04" type="NoCollider" x="3520" y="512" width="64" height="64">
    <properties>
-    <property name="ResType" value="Fish"/>
+    <property name="restype" value="Fish"/>
     <property name="layer name" value="Resources"/>
     <property name="prefab" value="Resource_Fish"/>
     <property name="prefab add collider" value="false"/>
@@ -250,7 +250,7 @@
   </object>
   <object name="Fish05" type="NoCollider" x="3072" y="512" width="64" height="64">
    <properties>
-    <property name="ResType" value="Fish"/>
+    <property name="restype" value="Fish"/>
     <property name="layer name" value="Resources"/>
     <property name="prefab" value="Resource_Fish"/>
     <property name="prefab add collider" value="false"/>
@@ -261,7 +261,7 @@
   </object>
   <object name="Fish06" type="NoCollider" x="2816" y="576" width="64" height="64">
    <properties>
-    <property name="ResType" value="Fish"/>
+    <property name="restype" value="Fish"/>
     <property name="layer name" value="Resources"/>
     <property name="prefab" value="Resource_Fish"/>
     <property name="prefab add collider" value="false"/>
@@ -272,7 +272,7 @@
   </object>
   <object name="Fish07" type="NoCollider" x="1536" y="576" width="64" height="64">
    <properties>
-    <property name="ResType" value="Fish"/>
+    <property name="restype" value="Fish"/>
     <property name="layer name" value="Resources"/>
     <property name="prefab" value="Resource_Fish"/>
     <property name="prefab add collider" value="false"/>
@@ -283,7 +283,7 @@
   </object>
   <object name="Fish08" type="NoCollider" x="960" y="512" width="64" height="64">
    <properties>
-    <property name="ResType" value="Fish"/>
+    <property name="restype" value="Fish"/>
     <property name="layer name" value="Resources"/>
     <property name="prefab" value="Resource_Fish"/>
     <property name="prefab add collider" value="false"/>
@@ -294,7 +294,7 @@
   </object>
   <object name="Fish09" type="NoCollider" x="1088" y="640" width="64" height="64">
    <properties>
-    <property name="ResType" value="Fish"/>
+    <property name="restype" value="Fish"/>
     <property name="layer name" value="Resources"/>
     <property name="prefab" value="Resource_Fish"/>
     <property name="prefab add collider" value="false"/>
@@ -305,7 +305,7 @@
   </object>
   <object name="Wool01" type="NoCollider" x="1664" y="1472" width="64" height="64">
    <properties>
-    <property name="ResType" value="Wool"/>
+    <property name="restype" value="Wool"/>
     <property name="layer name" value="Resources"/>
     <property name="prefab" value="Resource_Wool"/>
     <property name="prefab add collider" value="false"/>
@@ -316,7 +316,7 @@
   </object>
   <object name="Wool02" type="NoCollider" x="704" y="1344" width="64" height="64">
    <properties>
-    <property name="ResType" value="Wool"/>
+    <property name="restype" value="Wool"/>
     <property name="layer name" value="Resources"/>
     <property name="prefab" value="Resource_Wool"/>
     <property name="prefab add collider" value="false"/>
@@ -327,7 +327,7 @@
   </object>
   <object name="Wool03" type="NoCollider" x="2304" y="1472" width="64" height="64">
    <properties>
-    <property name="ResType" value="Wool"/>
+    <property name="restype" value="Wool"/>
     <property name="layer name" value="Resources"/>
     <property name="prefab" value="Resource_Wool"/>
     <property name="prefab add collider" value="false"/>
@@ -338,7 +338,7 @@
   </object>
   <object name="Wool04" type="NoCollider" x="3648" y="1536" width="64" height="64">
    <properties>
-    <property name="ResType" value="Wool"/>
+    <property name="restype" value="Wool"/>
     <property name="layer name" value="Resources"/>
     <property name="prefab" value="Resource_Wool"/>
     <property name="prefab add collider" value="false"/>
@@ -349,7 +349,7 @@
   </object>
   <object name="Wool05" type="NoCollider" x="4672" y="1344" width="64" height="64">
    <properties>
-    <property name="ResType" value="Wool"/>
+    <property name="restype" value="Wool"/>
     <property name="layer name" value="Resources"/>
     <property name="prefab" value="Resource_Wool"/>
     <property name="prefab add collider" value="false"/>
@@ -360,7 +360,7 @@
   </object>
   <object name="Wool06" type="NoCollider" x="5632" y="1536" width="64" height="64">
    <properties>
-    <property name="ResType" value="Wool"/>
+    <property name="restype" value="Wool"/>
     <property name="layer name" value="Resources"/>
     <property name="prefab" value="Resource_Wool"/>
     <property name="prefab add collider" value="false"/>
@@ -371,7 +371,7 @@
   </object>
   <object name="Wool07" type="NoCollider" x="5632" y="704" width="64" height="64">
    <properties>
-    <property name="ResType" value="Wool"/>
+    <property name="restype" value="Wool"/>
     <property name="layer name" value="Resources"/>
     <property name="prefab" value="Resource_Wool"/>
     <property name="prefab add collider" value="false"/>
@@ -382,7 +382,7 @@
   </object>
   <object name="Wool08" type="NoCollider" x="4608" y="128" width="64" height="64">
    <properties>
-    <property name="ResType" value="Wool"/>
+    <property name="restype" value="Wool"/>
     <property name="layer name" value="Resources"/>
     <property name="prefab" value="Resource_Wool"/>
     <property name="prefab add collider" value="false"/>
@@ -393,7 +393,7 @@
   </object>
   <object name="Wool09" type="NoCollider" x="3584" y="256" width="64" height="64">
    <properties>
-    <property name="ResType" value="Wool"/>
+    <property name="restype" value="Wool"/>
     <property name="layer name" value="Resources"/>
     <property name="prefab" value="Resource_Wool"/>
     <property name="prefab add collider" value="false"/>
@@ -404,7 +404,7 @@
   </object>
   <object name="Wool10" type="NoCollider" x="2624" y="128" width="64" height="64">
    <properties>
-    <property name="ResType" value="Wool"/>
+    <property name="restype" value="Wool"/>
     <property name="layer name" value="Resources"/>
     <property name="prefab" value="Resource_Wool"/>
     <property name="prefab add collider" value="false"/>
@@ -415,7 +415,7 @@
   </object>
   <object name="Wool11" type="NoCollider" x="384" y="128" width="64" height="64">
    <properties>
-    <property name="ResType" value="Wool"/>
+    <property name="restype" value="Wool"/>
     <property name="layer name" value="Resources"/>
     <property name="prefab" value="Resource_Wool"/>
     <property name="prefab add collider" value="false"/>

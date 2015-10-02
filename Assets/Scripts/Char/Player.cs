@@ -300,117 +300,89 @@ namespace GSP.Char
         // Sets the target to move towards
         void SetTarget()
         {
+            // Obtain a reference to the scene's TileManager
+            TileManager tileManager = GameObject.Find("TileManager").GetComponent<TileManager>();
+            
             // If a target does not exist, create one
             if (merchant.Target == Vector3.zero)
             {
-                // Value of the target resource
-                int resourceValue = 0;
-
-                // Get all objects within move distance sphere on layer 9  (resource layer)
-                float radius = GPSM.GetDist() * TileUtils.PlayerMoveDistance - 0.31f;
-                Collider2D[] hitColliders = Physics2D.OverlapCircleAll(merchant.Position, radius, 
-                    1 << LayerMask.NameToLayer("Resources"));
-
-                // Determine highest value if possible
-                for (int index = 0; index < hitColliders.Length; index++)
-                {
-                    // Get ResourceType of resource hit
-                    ResourceType resourceType = hitColliders[index].gameObject.GetComponent<ResourceTile>().Type;
-
-                    // Get worth/value of the resource
-                    Resource resource = (Resource)ItemDatabase.Instance.Items.Find(tempItem =>
-                        tempItem.Type == resourceType.ToString());
-
-                    // If the value is higher than current target, replace it as the new target
-                    if (resourceValue < resource.Worth)
-                    {
-                        merchant.Target = hitColliders[index].transform.position;
-                        resourceValue = resource.Worth;
-                    }
-                } //end for
-
-                // Verify there is a target, otherwise set it to a village
-                if (merchant.Target == Vector3.zero)
-                {
-                    // Set target depending on the map
-                    if (GameMaster.Instance.BattleMap == BattleMap.area01)
-                    {
-                        merchant.Target = new Vector3(12.48f, -3.52f, -0.01f);
-                    } //end if
-                    else if (GameMaster.Instance.BattleMap == BattleMap.area02)
-                    {
-                        merchant.Target = new Vector3(12.48f, -3.52f, -0.01f);
-                    } //end else if
-                    else if (GameMaster.Instance.BattleMap == BattleMap.area03)
-                    {
-                        merchant.Target = new Vector3(9.28f, -0.32f, -0.01f);
-                    } //end else if
-                    else
-                    {
-                        merchant.Target = new Vector3(12.48f, -3.52f, -0.01f);
-                    } //end else
-                } //end if
+                // Attempt to get a resource target; otherwise get the proper market target
+                GetResourceTarget(tileManager);
             } //end if
             else
             {
                 // Make sure target still exists
-                if (TileDictionary.ResourcePositions.Contains(merchant.Target))
+                if (tileManager.ResourcePositions.Contains(merchant.Target))
                 {
                     return;
                 } //end if
                 // If not, pick a new target
                 else
                 {
-                    // Value of the target resource
-                    int resourceValue = 0;
-
-                    // Get all objects within move distance sphere on layer 9  (resource layer)
-                    float radius = GPSM.GetDist() * TileUtils.PlayerMoveDistance - 0.31f;
-                    Collider2D[] hitColliders = Physics2D.OverlapCircleAll(merchant.Position, radius,
-                        1 << LayerMask.NameToLayer("Resources"));
-
-                    // Determine highest value if possible
-                    for (int index = 0; index < hitColliders.Length; index++)
-                    {
-                        // Get ResourceType of resource hit
-                        ResourceType resourceType = hitColliders[index].gameObject.GetComponent<ResourceTile>().Type;
-
-                        // Get worth/value of the resource
-                        Resource resource = (Resource)ItemDatabase.Instance.Items.Find(tempItem =>
-                            tempItem.Type == resourceType.ToString());
-
-                        // If the value is higher than current target, replace it as the new target
-                        if (resourceValue < resource.Worth)
-                        {
-                            merchant.Target = hitColliders[index].transform.position;
-                            resourceValue = resource.Worth;
-                        };
-                    } //end for
-
-                    // Verify there is a target, otherwise set it to a village
-                    if (merchant.Target == Vector3.zero)
-                    {
-                        // Set target depending on the map
-                        if (GameMaster.Instance.BattleMap == BattleMap.area01)
-                        {
-                            merchant.Target = new Vector3(12.48f, -3.52f, -0.01f);
-                        } //end if
-                        else if (GameMaster.Instance.BattleMap == BattleMap.area02)
-                        {
-                            merchant.Target = new Vector3(12.48f, -3.52f, -0.01f);
-                        } //end else if
-                        else if (GameMaster.Instance.BattleMap == BattleMap.area03)
-                        {
-                            merchant.Target = new Vector3(9.28f, -0.32f, -0.01f);
-                        } //end else if
-                        else
-                        {
-                            merchant.Target = new Vector3(12.48f, -3.52f, -0.01f);
-                        } //end else
-                    } //end if
+                    // Attempt to get a resource target; otherwise get the proper market target
+                    GetResourceTarget(tileManager);
                 } //end else
             } //end else
         } //end SetTarget
+
+        // Gets a resource target if possible
+        public void GetResourceTarget(TileManager tileManager)
+        {
+            // Value of the target resource
+            int resourceValue = 0;
+
+            // Get all objects within move distance sphere on layer 9  (resource layer)
+            float radius = GPSM.GetDist() * TileUtils.PlayerMoveDistance + 10;
+            Collider2D[] hitColliders = Physics2D.OverlapCircleAll(merchant.Position, radius,
+                1 << LayerMask.NameToLayer("Resources"));
+
+            // Determine highest value if possible
+            for (int index = 0; index < hitColliders.Length; index++)
+            {
+                // Get ResourceType of resource hit
+                ResourceType resourceType = tileManager.GetResourceType(hitColliders[index].gameObject.name);
+
+                // Get worth/value of the resource
+                Resource resource = (Resource)ItemDatabase.Instance.Items.Find(tempItem =>
+                    tempItem.Type == resourceType.ToString());
+
+                // If the value is higher than current target, replace it as the new target
+                if (resourceValue < resource.Worth)
+                {
+                    merchant.Target = hitColliders[index].transform.position;
+                    resourceValue = resource.Worth;
+                } // end if
+            } //end for
+
+            // Verify there is a target, otherwise set it to a village
+            if (merchant.Target == Vector3.zero)
+            {
+                // Get the proper market target
+                GetMarketTarget(tileManager);
+            } //end if
+        } // end GetResourceTarget
+
+        // Gets a market target otherwise
+        public void GetMarketTarget(TileManager tileManager)
+        {
+            // Set target depending on the map
+            if (GameMaster.Instance.BattleMap == BattleMap.area01)
+            {
+                merchant.Target = new Vector3(12.48f, -3.52f, -0.01f);
+            } //end if
+            else if (GameMaster.Instance.BattleMap == BattleMap.area02)
+            {
+                merchant.Target = new Vector3(12.48f, -3.52f, -0.01f);
+            } //end else if
+            else if (GameMaster.Instance.BattleMap == BattleMap.area03)
+            {
+                merchant.Target = new Vector3(9.28f, -0.32f, -0.01f);
+            } //end else if
+            else
+            {
+                merchant.Target = new Vector3(12.48f, -3.52f, -0.01f);
+            } //end else
+        } // end GetMarketTarget
 
         // Moves the AI towards the target
         void Move()

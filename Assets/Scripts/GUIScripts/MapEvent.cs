@@ -50,7 +50,7 @@ namespace GSP
 		//NOTE: These should add up to less than 100 so that 
 		//there is a chance nothing occurs. Minimum chance of
 		//one or else there will be problems
-        int enemyChance = 25;   // The minimum chance for the MapEvent to an enemy
+        int enemyChance = 0;//25;   // The minimum chance for the MapEvent to an enemy
         int allyChance = 55;    // The minimum chance for the MapEvent to an ally
         int itemChance = 15;    // The minimum chance for the MapEvent to an item
 		
@@ -69,24 +69,17 @@ namespace GSP
             // Get the inventory script
             inventory = GameObject.Find("Canvas").transform.Find("PlayerInventory").GetComponent<PlayerInventory>();
 			
-			// Get the tile at the player's position
+			// Get the player's position
 			Vector3 tmp = player.transform.localPosition;
 
-			// Fix the z-axis; change by Damien to get the tiles to work again.
-			tmp.z = -0.01f;
-            //TODO: Damien: TileDictionary
-            //Tile currentTile = TileDictionary.GetTile(TileManager.ToPixels(tmp));
-            Tile currentTile = null;
+            // Get the tile manager's reference
+            TileManager tileManager = GameObject.Find("TileManager").GetComponent<TileManager>();
+
+            // Get the resource type of the tile
+            ResourceType currentTileType = tileManager.GetResourceType(tmp);
 			
-			// Was a tile found?
-			if(currentTile == null)
-			{
-				// No tile found so return "This is not a valid \ntile. No event occured.";
-				guiResult = "This is not a valid \ntile. No event occured.";
-				return "Nothing";
-			} // end if
-			// Otherwise, was the tile a non-resource?
-			else if (currentTile.ResourceType == ResourceType.None) 
+			// Was the tile type a non-resource?
+            if (currentTileType == ResourceType.None) 
 			{
 				// Roll a die to get a number from 1-100
                 if (die == null)
@@ -117,11 +110,11 @@ namespace GSP
 					return "Nothing";
 				} // end else
 			} //end if
-			// Otherwise, the tile is a resource
+			// Otherwise, the tile type is a resource
 			else
 			{
                 // Get the resource from the database
-                Item temp = ItemDatabase.Instance.Items.Find(resource => resource.Type == currentTile.ResourceType.ToString());
+                Item temp = ItemDatabase.Instance.Items.Find(resource => resource.Type == currentTileType.ToString());
 				
 				// Pick up the resource
                 playerMerchant.PickupResource((Resource)temp, 1);

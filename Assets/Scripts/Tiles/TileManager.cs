@@ -25,6 +25,7 @@ namespace GSP.Tiles
 	{
         Map tiledMap;                       // The map that was loaded for the game
         List<Vector2> resourcePositions;    // List of positions of resources on the map
+        List<Vector2> marketPositions;      // List of positions of markets on the map
 
         public TextAsset mapFile;           // The map file the TileManager is managing, set through the editor
         public Material defaultMaterial;    // The default material for the sprites, set through the editor
@@ -32,8 +33,9 @@ namespace GSP.Tiles
     	// Used for initialisation
         void Awake()
         {
-            // Initialise the resource positions list
+            // Initialise the lists
             resourcePositions = new List<Vector2>();
+            marketPositions = new List<Vector2>();
         } // end Awake
         
         // Sets the dimensions of the Tiled map; This should only be called once when initialising the map
@@ -48,76 +50,6 @@ namespace GSP.Tiles
 		{
             // Create a new map and supply a callback for when the map is loaded.
             new Map(mapFile, "", OnMapLoaded);
-
-            //// Get all the game objects tagged as resources
-            //GameObject[] resourceObjects = GameObject.FindGameObjectsWithTag("Resource");
-
-            //// Loop over the map; Width first
-            //for (int width = 32; width < (int)MapSize.x; width += 64)
-            //{
-            //    // Then height
-            //    for (int height = 32; height < (int)MapSize.y; height += 64)
-            //    {
-            //        // We are in the fourth quadrant so the y is negative
-            //        Vector3 key = new Vector3(width, height * -1, -1.0f);
-
-            //        // Create an empty Tile at the given position
-            //        Tile newTile = new Tile(key, ResourceType.None, null);
-
-            //        // Add the Tile to the dictionary
-            //        TileDictionary.AddEntry(key, newTile);
-            //    } // end inner for
-            //} // end outer for
-
-            //// Check if the game is new
-            //if (GameMaster.Instance.IsNew)
-            //{
-            //    // Now loop over the resourceObjects array and set the Tiles to resources
-            //    for (int index = 0; index < resourceObjects.Length; index++)
-            //    {
-            //        // Get the position of the resource
-            //        Vector3 key = ToPixels(resourceObjects[index].transform.position);
-
-            //        // Add the position to the list
-            //        TileDictionary.ResourcePositions.Add(key);
-
-            //        // Holds the Tile's ResourceType
-            //        ResourceType resourceType = resourceObjects[index].GetComponent<ResourceTile>().Type;
-
-            //        // Update the tile at the given key
-            //        TileDictionary.UpdateTile(key, resourceType, resourceObjects[index]);
-            //    } // end for
-            //} // end if
-            //else
-            //{
-            //    // Otherwise the game isn't new so load the resource positions
-            //    GameMaster.Instance.LoadResources();
-
-            //    // Get the list's length
-            //    int length = resourceObjects.Length;
-
-            //    // Now loop over the resourceObjects array and set the Tiles to resources
-            //    for (int index = 0; index < length; index++)
-            //    {
-            //        // Get the position of the resource
-            //        Vector3 key = ToPixels(resourceObjects[index].transform.position);
-
-            //        // Check if the key is in the list
-            //        if (TileDictionary.ResourcePositions.Contains(key))
-            //        {
-            //            // Holds the Tile's ResourceType
-            //            ResourceType resourceType = resourceObjects[index].GetComponent<ResourceTile>().Type;
-
-            //            // Update the tile at the given key
-            //            TileDictionary.UpdateTile(key, resourceType, resourceObjects[index]);
-            //        } // end if
-            //        else
-            //        {
-            //            // Otherwise, we want to get rid of the resource object
-            //            GameObject.Destroy(resourceObjects[index]);
-            //        } // end else
-            //    } // end for
-            //} // end else
 		} // end GenerateAndAddTiles
 
         // Callback for when the map has been loaded.
@@ -151,7 +83,12 @@ namespace GSP.Tiles
                     // The game is new so add all the resources to the list
                     foreach (var resource in resourceObjects)
                     {
-                        resourcePositions.Add(new Vector2(resource.Bounds.x, resource.Bounds.y));
+                        resourcePositions.Add(ToMap(resource.Bounds));
+                    } // end foreach
+
+                    foreach (var resource in resourcePositions)
+                    {
+                        Debug.LogFormat("TM: OML: {0}", resource.ToString("F2"));
                     } // end foreach
 
                     // Finally, save the resource positions list
@@ -170,7 +107,7 @@ namespace GSP.Tiles
                 foreach (var resource in resourceObjects)
                 {
                     // Make sure the resource is in the list
-                    if (resourcePositions.Contains(new Vector2(resource.Bounds.x, resource.Bounds.y)))
+                    if (resourcePositions.Contains(ToMap(resource.Bounds)))
                     {
                         // Generate the prefab for the resource
                         tiledMap.GeneratePrefab(resource, Vector2.up, null, false, true);
@@ -191,6 +128,269 @@ namespace GSP.Tiles
             SetDimensions(tiledMap.MapRenderParameter.TileHeight, tiledMap.MapRenderParameter.Width,
                 tiledMap.MapRenderParameter.Height);
         } // end OnMapLoaded
+
+        // Gets the resource type of a given resource on the map
+        public ResourceType GetResourceType(string resourceName)
+        {
+            MapObjectLayer resourcesObjectLayer;    // The object layer for resources
+            
+            // The resource type used to return the resource's type
+            ResourceType resourceType = ResourceType.None;
+
+            // Check if the map has a resources object layer
+            if ((resourcesObjectLayer = tiledMap.GetObjectLayer("Resources")) != null)
+            {
+                // Get the list of MapObjects on the resources layer
+                List<MapObject> resourceObjects = resourcesObjectLayer.Objects;
+
+                // Find the object that matches the given name
+                MapObject mapResource = resourceObjects.Find(resource => resource.Name == resourceName);
+
+                // Check if we found anything
+                if (mapResource != null)
+                {
+                    // Check if the resource has a resource type property
+                    if (mapResource.HasProperty("restype"))
+                    {
+                        // Get the resource type property
+                        string type = mapResource.GetPropertyAsString("restype");
+
+                        // Try to parse the ResourceType from the Type
+                        try
+                        {
+                            resourceType = (ResourceType)Enum.Parse(typeof(ResourceType), type);
+
+                            // Check if the result is defined
+                            if (!Enum.IsDefined(typeof(ResourceType), resourceType))
+                            {
+                                // It's not defined so return None
+                                Debug.LogErrorFormat("'{0}' is not defined within the ResourceType enum.", resourceType.ToString());
+                                resourceType = ResourceType.None;
+                            } // end if
+                        } // end try
+                        catch (ArgumentException)
+                        {
+                            // We couldn't parse so return None
+                            Debug.LogErrorFormat("Parsing the Type '{0}' as a ResourceType failed.", type);
+                            resourceType = ResourceType.None;
+                        } // end catch
+                    } // end if
+                    else
+                    {
+                        // Otherwise, the resource doesn't have a resource type property so return none
+                        resourceType = ResourceType.None;
+                    } // end else
+                } // end if
+                else
+                {
+                    // Otherwise, nothing was found so return none
+                    resourceType = ResourceType.None;
+                } // end else
+            }
+
+            // Return the resource type of the given resource on the map
+            return resourceType;
+        } // end GetResourceType
+
+        // Gets the resource type of a given resource on the map
+        public ResourceType GetResourceType(Vector2 key)
+        {
+            // First, get the map object at the specified location
+            MapObject resource = GetObject(1, key);
+
+            // Make sure the object exists
+            if (resource != null)
+            {
+                // Get the object's resource type by its name now
+                return GetResourceType(resource.Name);
+            } // end if
+            else
+            {
+                // Otherwise the object doesn't exist so return none
+                return ResourceType.None;
+            } // end else
+        } // end GetResourceType
+
+        // Gets if a key exists in the list
+        bool EntryExists(int list, Vector2 key)
+        {
+            // Switch over the list parameter
+            switch (list)
+            {
+                // Resource list
+                case 1:
+                    {
+                        return resourcePositions.Contains(key);
+                    } // end case 1
+                // Market list
+                case 2:
+                    {
+                        return marketPositions.Contains(key);
+                    } // end case 2
+                default:
+                    {
+                        return false;
+                    } // end default case
+            } // end switch
+        } // end EntryExists
+        
+        // Gets a map object's game object at the given coordinates
+        MapObject GetObject(int list, Vector2 key)
+        {
+            // Holds the returned value
+            MapObject mapObject = null;
+            
+            // Check if the entry exists
+            if (EntryExists(list, key))
+            {
+                // The key exists so retrieve the object
+
+                MapObjectLayer objectLayer;    // The object layer
+
+                // Switch over the list parameter
+                switch (list)
+                {
+                    // Resource list
+                    case 1:
+                        {
+                            // Check if the map has a resources object layer
+                            if ((objectLayer = tiledMap.GetObjectLayer("Resources")) != null)
+                            {
+                                // Get the list of MapObjects on the resources layer
+                                List<MapObject> resourceObjects = objectLayer.Objects;
+
+                                // Find the object that matches the given position
+                                MapObject mapResource = resourceObjects.Find(resource => resource.Bounds.x == key.x && resource.Bounds.y == FromMap(key.y));
+
+                                // Check if we found anything
+                                if (mapResource != null)
+                                {
+                                    // Set the map object to the found resource
+                                    mapObject = mapResource;
+                                } // end if
+                                else
+                                {
+                                    // Otherwise, nothing was found so return null
+                                    mapObject = null;
+                                } // end else
+                            } // end if
+
+                            break;
+                        } // end case 1
+                    // Market list
+                    case 2:
+                        {
+                            // Check if the map has a markets object layer
+                            if ((objectLayer = tiledMap.GetObjectLayer("Markets")) != null)
+                            {
+                                // Get the list of MapObjects on the markets layer
+                                List<MapObject> marketObjects = objectLayer.Objects;
+
+                                // Find the object that matches the given position
+                                MapObject mapMarket = marketObjects.Find(market => market.Bounds.x == key.x && market.Bounds.y == FromMap(key.y));
+
+                                // Check if we found anything
+                                if (mapMarket != null)
+                                {
+                                    // Set the map object to the found resource
+                                    mapObject = mapMarket;
+                                } // end if
+                                else
+                                {
+                                    // Otherwise, nothing was found so return null
+                                    mapObject = null;
+                                } // end else
+                            } // end if
+
+                            break;
+                        } // end case 2
+                    default:
+                        {
+                            mapObject = null;
+                            break;
+                        } // end default case
+                } // end switch
+            } // end if
+            else
+            {
+                // Otherwise the key doesn't exist so return null
+                mapObject = null;
+            } // end else
+
+            // Return the map object
+            return mapObject;
+        } // end GetObject
+
+        // Gets a resource's game object
+        public GameObject GetResource(Vector2 key)
+        {
+            // Retrieve the map object first
+            MapObject mapObject = GetObject(1, key);
+
+            // Make sure the object isn't null
+            if (mapObject != null)
+            {
+                // Return the map object's game object
+                return mapObject.LinkedGameObject;
+            } // end if
+            else
+            {
+                // Otherwise, simply return null
+                return null;
+            } // end else
+        } // end GetResource
+
+        // Gets a market's game object
+        public GameObject GetMarket(Vector2 key)
+        {
+            // Retrieve the map object first
+            MapObject mapObject = GetObject(2, key);
+
+            // Make sure the object isn't null
+            if (mapObject != null)
+            {
+                // Return the map object's game object
+                return mapObject.LinkedGameObject;
+            } // end if
+            else
+            {
+                // Otherwise, simply return null
+                return null;
+            } // end else
+        } // end GetMarket
+
+        // Removes a resource from the list and the map
+        public void RemoveResource(Vector2 key)
+        {
+            // Check to make sure the entry exists
+            if (EntryExists(1, key))
+            {
+                // If the entry exists, it means the correct key format was entered.
+                
+                // First destroy the game object
+                Destroy(GetResource(key));
+
+                // Finally, remove it from the list
+                resourcePositions.Remove(key);
+            } // end if
+        } // end RemoveResource
+
+        // Converts the map objects' bounding box positions to the map's version
+        Vector2 ToMap(Rect bounds)
+        {
+            // Create a new vector based upon the bound's x and y
+            Vector2 tmp = new Vector2(bounds.x, bounds.y);
+            tmp.y = (tmp.y + 1.0f) * -1.0f;
+
+            // Return the converted vector
+            return tmp;
+        } // end ToMap
+
+        // Converts the map objects' map y-coordinate back to the normal version
+        float FromMap(float yCoord)
+        {
+            return ((yCoord * -1.0f) - 1.0f);
+        } // end FromMap
 
         // Gets the resource's positions
         public List<Vector2> ResourcePositions
