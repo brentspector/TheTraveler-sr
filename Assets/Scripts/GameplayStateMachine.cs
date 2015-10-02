@@ -196,6 +196,10 @@ namespace GSP
 				// Set the player's merchant entity
 				Merchant playerMerchant = (Merchant)GameMaster.Instance.GetPlayerScript(i).Entity;
 
+				// Get image component and update with player sprite
+				imageParent.transform.GetChild(i).GetComponent<Image>().sprite =
+					playerMerchant.GetSprite(0);
+
 				// Get text component and update with player name and gold
 				textParent.transform.GetChild(i).GetComponent<Text>().text =
 					GameMaster.Instance.GetPlayerName(i) + " - " + playerMerchant.Currency;
@@ -227,8 +231,7 @@ namespace GSP
 				Player playerScript = GameMaster.Instance.GetPlayerScript(count);
 				
 				// Set the players's sprite sheet sprites
-                int playerNum = count + 1;
-				playerScript.SetCharacterSprites(playerNum);
+				playerScript.SetCharacterSprites(GameMaster.Instance.GetPlayerSprite(count));
 				
 				// Set the player's facing
 				playerScript.Face(FacingDirection.South);
