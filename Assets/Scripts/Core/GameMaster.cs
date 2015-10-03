@@ -202,6 +202,12 @@ namespace GSP.Core
 			playerSprite [playerNum] = pSprite;
 		} //end SetPlayerSprite
 
+		// Gets the player's GameObject's animator - not settable outside SetPlayerSprite
+		public Animator GetPlayerAnimator(int playerNum)
+		{
+			return playerObjs [playerNum].GetComponent<Animator> ();
+		} //end GetPlayerAnimator
+
         // Gets the player's GameObject
         public GameObject GetPlayerObject(int playerNum)
         {

@@ -2399,8 +2399,9 @@ MonoBehaviour:
     Merchant - Created by LiDou. Obtained from http://www.freevector.com/patriarch/
     \n\nArmor - Created by Clint Bellanger, Blarumyrran, crowline (CrowLineStudio),
     and Justin Nichol.\nObtained from http://opengameart.org/content/armor-icons-by-equipment-slot\n\nWeapons
-    - Mod/Created by VWolfdog. Obtained from http://opengameart.org/content/32x32-icons-flare-compatible\n\nFonts:\nTitle
-    Font - \"DevinneSwashShadow\" by Dieter Steffmann. Obtained from  http://www.1001fonts.com/devinne-swash-font.html.\nMain
+    - Mod/Created by VWolfdog. Obtained from http://opengameart.org/content/32x32-icons-flare-compatible\n\nMarket
+    - Created by Zabin.\nObtained from opengameart.com\n\nFonts:\nTitle Font - \"DevinneSwashShadow\"
+    by Dieter Steffmann. Obtained from  http://www.1001fonts.com/devinne-swash-font.html.\nMain
     Font - \"DevinneSwash\" by Dieter Steffmann. Obtained from  http://www.1001fonts.com/devinne-swash-font.html."
 --- !u!222 &470385193
 CanvasRenderer:

@@ -227,6 +227,12 @@ namespace GSP
 			// Loop over the number of players to add their instances
 			for (int count = 0; count < numPlayers; count++)
 			{
+				// Give players an animator
+				Animator animator = GameMaster.Instance.GetPlayerObject(count).AddComponent<Animator> ();
+				animator.runtimeAnimatorController = 
+					Resources.Load ("Animations/Player" + GameMaster.Instance.GetPlayerSprite(count)) 
+						as RuntimeAnimatorController;
+
 				// Get the player's script
 				Player playerScript = GameMaster.Instance.GetPlayerScript(count);
 				
