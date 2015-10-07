@@ -29,6 +29,9 @@ namespace GSP
             // Save the players
             GameMaster.Instance.SavePlayers();
 
+            // Go to the next turn
+            GameMaster.Instance.NextTurn();
+
             // Load the level we was on before
             GameMaster.Instance.LoadLevel(GameMaster.Instance.BattleMap.ToString());
         } // end LeaveMarket

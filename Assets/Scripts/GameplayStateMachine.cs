@@ -300,19 +300,6 @@ namespace GSP
         // Updates the state machine and things; runs every frame
         void Update()
         {
-            // TODO: Damien: This is disabled until it can be properly implemented into the game.
-            //if (Input.GetKeyDown(KeyCode.M) && !isPaused)
-            //{
-            //    // Save the players
-            //    GameMaster.Instance.SavePlayers();
-
-            //    // Save the resources
-            //    GameMaster.Instance.SaveResources();
-
-            //    // Finally, tell the GameMaster to load the end scene
-            //    GameMaster.Instance.LoadLevel("Market");
-            //}
-            
             // This was set to true at the end of Start()
             if (canInitAfterStart)
             {
@@ -474,6 +461,41 @@ namespace GSP
 							Text eventText = GameObject.Find("EventText").GetComponent<Text>();
 							eventText.text = "Porter ally found.\nWould you like to add them?";
 						} //end if
+                        // If it's a market, send them to the market scene
+                        else if (mapEventResult.Contains("Market"))
+                        {
+                            // set the turn text
+                            guiTurnText.text = "You found a market!";
+                            
+                            // Save the players
+                            GameMaster.Instance.SavePlayers();
+
+                            // Save the resources
+                            GameMaster.Instance.SaveResources();
+
+                            // Finally, tell the GameMaster to load the end scene
+                            GameMaster.Instance.LoadLevel("Market");
+                        } // end else if
+                        // If it's a village, end the game for now
+                        else if (mapEventResult.Contains("Village"))
+                        {
+                            // set the turn text
+                            guiTurnText.text = "You found a village!";
+                            
+                            // Get the player's script and check if it's an AI
+                            Player player = GameMaster.Instance.GetPlayerScript(guiPlayerTurn);
+
+                            // Check if the player is an AI
+                            if (isPlayerAI)
+                            {
+                                // Tell the AI it's the end of the game
+                                player.IsEnd = true;
+                            } // end if
+
+                            // Change the state to the EndGame state
+                            gamePlayState = GamePlayState.EndGame;
+                            break;
+                        } // end else if
 						else 
 				   		{
 							// Return the result for now

@@ -97,14 +97,18 @@ namespace GSP.Char
                             } // end if
                             else
                             {
-                                // Check if we're in the RollDice State
-                                if (GPSM.GetState() == 1)
+                                // Check if we're not in the market scene
+                                if (Application.loadedLevelName != "Market")
                                 {
-                                    // Set isProcessing to true
-                                    isProcessing = true;
+                                    // Check if we're in the RollDice State
+                                    if (GPSM.GetState() == 1)
+                                    {
+                                        // Set isProcessing to true
+                                        isProcessing = true;
 
-                                    // Otherwise, Only roll die once
-                                    PressAction();
+                                        // Otherwise, Only roll die once
+                                        PressAction();
+                                    } // end if GPSM.GetState() == 1
                                 } // end if
                             } // end else
                         } //end if !isProcessing
@@ -203,21 +207,6 @@ namespace GSP.Char
             merchant.UpdateScriptReferences();
         } // end UpdateScriptReferences
         
-        // Allows for collision on the market place to end the game
-        void OnCollisionEnter2D(Collision2D coll)
-        {
-			Debug.LogFormat("GameObject being collided with: {0}", coll.gameObject.name);
-            // Layer 8 is the "Market"
-            if (coll.gameObject.layer == 8)
-            {
-                // It's now the end of the game
-                isEnd = true;
-                
-                // End the game by calling EndGame()
-                GPSM.EndGame();
-            }
-        } // end OnCollisionEnter2D
-        
         // Destroy the GameObject this script is attached to
 		public void DestroyGO()
 		{
@@ -238,6 +227,16 @@ namespace GSP.Char
             get { return isAI; }
             set { isAI = value; }
         } // end IsAI
+
+        #region AI Properties
+
+        public bool IsEnd
+        {
+            get { return isEnd; }
+            set { isEnd = value; }
+        } // end IsEnd
+
+        #endregion
 
         #region Wrapper for the merchant class
 
@@ -279,7 +278,7 @@ namespace GSP.Char
         }
 
         #endregion
-
+        
         #region AI Functions
 
         // Reset variables for the AI
@@ -332,7 +331,7 @@ namespace GSP.Char
             int resourceValue = 0;
 
             // Get all objects within move distance sphere on layer 9  (resource layer)
-            float radius = GPSM.GetDist() * TileUtils.PlayerMoveDistance + 10;
+            float radius = GPSM.GetDist() * TileUtils.PlayerMoveDistance;
             Collider2D[] hitColliders = Physics2D.OverlapCircleAll(merchant.Position, radius,
                 1 << LayerMask.NameToLayer("Resources"));
 
@@ -365,23 +364,22 @@ namespace GSP.Char
         // Gets a market target otherwise
         public void GetMarketTarget(TileManager tileManager)
         {
-            // Set target depending on the map
-            if (GameMaster.Instance.BattleMap == BattleMap.area01)
+            // List of market positions
+            List<Vector2> marketPositions = tileManager.MarketPositions;
+
+            // Loop through them to find the village
+            foreach (var position in marketPositions)
             {
-                merchant.Target = new Vector3(12.48f, -3.52f, -0.01f);
-            } //end if
-            else if (GameMaster.Instance.BattleMap == BattleMap.area02)
-            {
-                merchant.Target = new Vector3(12.48f, -3.52f, -0.01f);
-            } //end else if
-            else if (GameMaster.Instance.BattleMap == BattleMap.area03)
-            {
-                merchant.Target = new Vector3(9.28f, -0.32f, -0.01f);
-            } //end else if
-            else
-            {
-                merchant.Target = new Vector3(12.48f, -3.52f, -0.01f);
-            } //end else
+                // Check if the market type is village
+                if (tileManager.GetMarketType(position) == MarketType.Village)
+                {
+                    // Set the target to the position of the village
+                    merchant.Target = new Vector3(position.x, position.y, 0.0f);
+
+                    // Break out of the loop since we found a village
+                    break;
+                } // end if
+            } // end foreach
         } // end GetMarketTarget
 
         // Moves the AI towards the target

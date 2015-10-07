@@ -49,7 +49,7 @@ namespace GSP.Tiles
 		public void GenerateMap()
 		{
             // Create a new map and supply a callback for when the map is loaded.
-            new Map(mapFile, "", OnMapLoaded);
+            new Map(mapFile, string.Empty, OnMapLoaded);
 		} // end GenerateAndAddTiles
 
         // Callback for when the map has been loaded.
@@ -86,11 +86,6 @@ namespace GSP.Tiles
                         resourcePositions.Add(ToMap(resource.Bounds));
                     } // end foreach
 
-                    foreach (var resource in resourcePositions)
-                    {
-                        Debug.LogFormat("TM: OML: {0}", resource.ToString("F2"));
-                    } // end foreach
-
                     // Finally, save the resource positions list
                     GameMaster.Instance.SaveResources();
                 } // end if
@@ -100,9 +95,6 @@ namespace GSP.Tiles
                     resourcePositions = GameMaster.Instance.LoadResources();
                 } // end else
                 
-                // Generate the colliders from this layer
-                tiledMap.GenerateCollidersFromLayer("Resources");
-
                 // Loop through the objects to check if they're on the resources list
                 foreach (var resource in resourceObjects)
                 {
@@ -110,7 +102,7 @@ namespace GSP.Tiles
                     if (resourcePositions.Contains(ToMap(resource.Bounds)))
                     {
                         // Generate the prefab for the resource
-                        tiledMap.GeneratePrefab(resource, Vector2.up, null, false, true);
+                        tiledMap.GeneratePrefab(resource, Vector2.zero, null, false, true);
                     } // end if
                 } // end foreach
             } // end if
@@ -118,10 +110,19 @@ namespace GSP.Tiles
             // Check if the map has a markets object layer
             if (tiledMap.GetObjectLayer("Markets") != null)
             {
+                // Get the list of MapObjects on the markets layer
+                List<MapObject> marketObjects = tiledMap.GetObjectLayer("Markets").Objects;
+
+                // Add all the markets to the list
+                foreach (var market in marketObjects)
+                {
+                    marketPositions.Add(ToMap(market.Bounds));
+                } // end foreach
+                
                 // Generate the colliders from this layer
                 tiledMap.GenerateCollidersFromLayer("Markets");
                 // Generate the prefabs from this layer
-                tiledMap.GeneratePrefabsFromLayer("Markets", Vector2.up, false, true);
+                tiledMap.GeneratePrefabsFromLayer("Markets", Vector2.zero, false, true);
             } // end if
 
             // Finally, Update the TileUtils static class
@@ -211,6 +212,88 @@ namespace GSP.Tiles
             } // end else
         } // end GetResourceType
 
+        // Gets the market type of a given market on the map
+        public MarketType GetMarketType(string marketName)
+        {
+            MapObjectLayer marketsObjectLayer;    // The object layer for markets
+
+            // The market type used to return the market's type
+            MarketType marketType = MarketType.None;
+
+            // Check if the map has a markets object layer
+            if ((marketsObjectLayer = tiledMap.GetObjectLayer("Markets")) != null)
+            {
+                // Get the list of MapObjects on the markets layer
+                List<MapObject> marketObjects = marketsObjectLayer.Objects;
+
+                // Find the object that matches the given name
+                MapObject mapMarket = marketObjects.Find(market => market.Name == marketName);
+
+                // Check if we found anything
+                if (mapMarket != null)
+                {
+                    // Check if the market has a restype property
+                    if (mapMarket.HasProperty("restype"))
+                    {
+                        // Get the restype property
+                        string type = mapMarket.GetPropertyAsString("restype");
+
+                        // Try to parse the MarketType from the type
+                        try
+                        {
+                            marketType = (MarketType)Enum.Parse(typeof(MarketType), type);
+
+                            // Check if the result is defined
+                            if (!Enum.IsDefined(typeof(MarketType), marketType))
+                            {
+                                // It's not defined so return None
+                                Debug.LogErrorFormat("'{0}' is not defined within the MarketType enum.", marketType.ToString());
+                                marketType = MarketType.None;
+                            } // end if
+                        } // end try
+                        catch (ArgumentException)
+                        {
+                            // We couldn't parse so return None
+                            Debug.LogErrorFormat("Parsing the Type '{0}' as a MarketType failed.", type);
+                            marketType = MarketType.None;
+                        } // end catch
+                    } // end if
+                    else
+                    {
+                        // Otherwise, the resource doesn't have a restype property so return none
+                        marketType = MarketType.None;
+                    } // end else
+                } // end if
+                else
+                {
+                    // Otherwise, nothing was found so return none
+                    marketType = MarketType.None;
+                } // end else
+            }
+
+            // Return the market type of the given market on the map
+            return marketType;
+        } // end GetResourceType
+
+        // Gets the market type of a given resource on the map
+        public MarketType GetMarketType(Vector2 key)
+        {
+            // First, get the map object at the specified location
+            MapObject market = GetObject(2, key);
+
+            // Make sure the object exists
+            if (market != null)
+            {
+                // Get the object's market type by its name now
+                return GetMarketType(market.Name);
+            } // end if
+            else
+            {
+                // Otherwise the object doesn't exist so return none
+                return MarketType.None;
+            } // end else
+        } // end GetMarketType
+
         // Gets if a key exists in the list
         bool EntryExists(int list, Vector2 key)
         {
@@ -260,7 +343,7 @@ namespace GSP.Tiles
                                 List<MapObject> resourceObjects = objectLayer.Objects;
 
                                 // Find the object that matches the given position
-                                MapObject mapResource = resourceObjects.Find(resource => resource.Bounds.x == key.x && resource.Bounds.y == FromMap(key.y));
+                                MapObject mapResource = resourceObjects.Find(resource => resource.Bounds.x == key.x && resource.Bounds.y == Math.Abs(key.y));
 
                                 // Check if we found anything
                                 if (mapResource != null)
@@ -287,7 +370,7 @@ namespace GSP.Tiles
                                 List<MapObject> marketObjects = objectLayer.Objects;
 
                                 // Find the object that matches the given position
-                                MapObject mapMarket = marketObjects.Find(market => market.Bounds.x == key.x && market.Bounds.y == FromMap(key.y));
+                                MapObject mapMarket = marketObjects.Find(market => market.Bounds.x == key.x && market.Bounds.y == Math.Abs(key.y));
 
                                 // Check if we found anything
                                 if (mapMarket != null)
@@ -380,17 +463,11 @@ namespace GSP.Tiles
         {
             // Create a new vector based upon the bound's x and y
             Vector2 tmp = new Vector2(bounds.x, bounds.y);
-            tmp.y = (tmp.y + 1.0f) * -1.0f;
+            tmp.y *= -1.0f;
 
             // Return the converted vector
             return tmp;
         } // end ToMap
-
-        // Converts the map objects' map y-coordinate back to the normal version
-        float FromMap(float yCoord)
-        {
-            return ((yCoord * -1.0f) - 1.0f);
-        } // end FromMap
 
         // Gets the resource's positions
         public List<Vector2> ResourcePositions
@@ -404,5 +481,18 @@ namespace GSP.Tiles
                 return tempPositions;
             } // end get
         } // end ResourcePositions
+
+        // Gets the market's positions
+        public List<Vector2> MarketPositions
+        {
+            get
+            {
+                // Create a temp list based upon the market positions
+                List<Vector2> tempPositions = marketPositions;
+
+                // Return the temp list
+                return tempPositions;
+            } // end get
+        } // end MarketPositions
 	} // end TileManager
 } // end GSP.Tiles
