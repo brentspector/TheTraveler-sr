@@ -466,6 +466,13 @@ namespace GSP
                         {
                             // set the turn text
                             guiTurnText.text = "You found a market!";
+
+                            // Check if the player is an AI
+                            if (isPlayerAI)
+                            {
+                                // Tell the AI it's at the market
+                                GetCurrentPlayer().GetComponent<Player>().IsAtMarket = true;
+                            } // end if
                             
                             // Save the players
                             GameMaster.Instance.SavePlayers();
@@ -481,15 +488,12 @@ namespace GSP
                         {
                             // set the turn text
                             guiTurnText.text = "You found a village!";
-                            
-                            // Get the player's script and check if it's an AI
-                            Player player = GameMaster.Instance.GetPlayerScript(guiPlayerTurn);
 
                             // Check if the player is an AI
                             if (isPlayerAI)
                             {
                                 // Tell the AI it's the end of the game
-                                player.IsEnd = true;
+                                GetCurrentPlayer().GetComponent<Player>().IsEnd = true;
                             } // end if
 
                             // Change the state to the EndGame state

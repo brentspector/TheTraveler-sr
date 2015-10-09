@@ -37,6 +37,7 @@ namespace GSP.Char
         int turnPhase;				// Moves AI along through turn
         bool isProcessing;			// Whether AI is already doing something
         bool isEnd;                 // Whether it's the end of the game
+        bool isAtMarket;            // Whether the AI is at the market
 
         #endregion
 
@@ -67,6 +68,9 @@ namespace GSP.Char
             // It's not the end of the game
             isEnd = false;
 
+            // The AI isn't at the market
+            isAtMarket = false;
+
             #endregion
         } // end Start
 
@@ -95,20 +99,31 @@ namespace GSP.Char
                                 // Set the turnPhase to 2 so we can battle
                                 turnPhase = 2;
                             } // end if
+                            else if (Application.loadedLevelName == "Market")
+                            {
+                                // Make sure the AI is at the market before trying to do anything
+                                if (isAtMarket)
+                                {
+                                    // Set isProcessing to true
+                                    isProcessing = true;
+
+                                    // Sell the resources to the market
+                                    merchant.SellResources();
+
+                                    // Leave the market
+                                    GameObject.Find("Canvas").GetComponent<GUIMarket>().LeaveMarket();
+                                } // end if
+                            } // end else if
                             else
                             {
-                                // Check if we're not in the market scene
-                                if (Application.loadedLevelName != "Market")
+                                // Check if we're in the RollDice State
+                                if (GPSM.GetState() == 1)
                                 {
-                                    // Check if we're in the RollDice State
-                                    if (GPSM.GetState() == 1)
-                                    {
-                                        // Set isProcessing to true
-                                        isProcessing = true;
+                                    // Set isProcessing to true
+                                    isProcessing = true;
 
-                                        // Otherwise, Only roll die once
-                                        PressAction();
-                                    } // end if GPSM.GetState() == 1
+                                    // Otherwise, Only roll die once
+                                    PressAction();
                                 } // end if
                             } // end else
                         } //end if !isProcessing
@@ -230,11 +245,19 @@ namespace GSP.Char
 
         #region AI Properties
 
+        // Gets whether it's the end of the game
         public bool IsEnd
         {
             get { return isEnd; }
             set { isEnd = value; }
         } // end IsEnd
+
+        // Gets whether the AI is at the market
+        public bool IsAtMarket
+        {
+            get { return isAtMarket; }
+            set { isAtMarket = value; }
+        } // end IsAtMarket
 
         #endregion
 
@@ -302,7 +325,7 @@ namespace GSP.Char
             // Obtain a reference to the scene's TileManager
             TileManager tileManager = GameObject.Find("TileManager").GetComponent<TileManager>();
             
-            // If a target does not exist, create one
+            // Check if a target has been chosen
             if (merchant.Target == Vector3.zero)
             {
                 // Attempt to get a resource target; otherwise get the proper market target
