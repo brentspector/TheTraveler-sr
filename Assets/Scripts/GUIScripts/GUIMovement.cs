@@ -6,7 +6,7 @@
  *
  *******************************************************************************/
 using GSP.Char;
-using GSP.Tiles;
+using GSP.Core;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -22,6 +22,7 @@ namespace GSP
     public class GUIMovement : MonoBehaviour
     {
         Player playerScript;        // This is the current player's Player script
+		Animator animator;			// The player's animator
 		Vector3 displacementVector; // value player moves relative to Space.World
 		Vector3 origPlayerPosition; // If player cancels movement, player resets to this original poisition
 		int initialTravelDist;      // Initial dice roll
@@ -71,6 +72,9 @@ namespace GSP
 			// Player script
             playerScript = player;
 
+			// Player animator
+			animator = GameMaster.Instance.GetPlayerAnimator (GameMaster.Instance.Turn);
+
 			// Store original position
 			origPlayerPosition = player.transform.position;
 
@@ -88,105 +92,121 @@ namespace GSP
 		public void MoveUp()
 		{
 			//If we're not at the top end of the map, allow movement
-			if(playerScript.gameObject.transform.position.y < TileUtils.MinHeight)
+			if(playerScript.gameObject.transform.position.y < GSP.Tiles.TileManager.MinHeightUnits)
 			{
-                displacementVector = new Vector3(0, TileUtils.PlayerMoveDistance, 0);
+				displacementVector = new Vector3(0, GSP.Tiles.TileManager.PlayerMoveDistance, 0);
 			} //end if
 			else
 			{
 				displacementVector = Vector3.zero;
 			} //end else
 
-			// Face the character to the north (up), and move them
-			playerScript.Face(FacingDirection.North);
-			MovePlayer();
+			//Play walking sound
+			AudioManager.Instance.PlayWalk ();
+
+			// Move player and play walking animation
+			animator.SetBool("Idle_N", true);
+			animator.SetBool("Idle_S", false);
+			animator.SetBool("Idle_W", false);
+			animator.SetBool("Idle_E", false);
+			animator.SetTrigger ("Walk_N");
+			MovePlayer ();
 
 			// Clear the highlight objects
 			Highlight.ClearHighlight();
 
 			// Recreate the highlights with the new values
 			Highlight.GenerateHighlight(playerScript.gameObject.transform.position, currTravelDist);
-
-			//Play walking sound
-			AudioManager.Instance.PlayWalk ();
 		} //end MoveUp
 
 		public void MoveDown()
 		{
 			//If we're not at the bottom end of the map, allow movement
-            if (playerScript.gameObject.transform.position.y > TileUtils.MaxHeight)
+			if(playerScript.gameObject.transform.position.y > GSP.Tiles.TileManager.MaxHeightUnits)
 			{
-                displacementVector = new Vector3(0, -TileUtils.PlayerMoveDistance, 0);
+				displacementVector = new Vector3(0, -GSP.Tiles.TileManager.PlayerMoveDistance, 0);
 			} //end if
 			else
 			{
 				displacementVector = Vector3.zero;
 			} //end else
 
-			// Face the character to the south (down), and move them
-			playerScript.Face(FacingDirection.South);
-			MovePlayer();
+			//Play walking sound
+			AudioManager.Instance.PlayWalk ();
+			
+			// Move player and play walking animation
+			animator.SetBool("Idle_N", false);
+			animator.SetBool("Idle_S", true);
+			animator.SetBool("Idle_W", false);
+			animator.SetBool("Idle_E", false);
+			animator.SetTrigger ("Walk_S");
+			MovePlayer ();
 
 			// Clear the highlight objects
 			Highlight.ClearHighlight();
 
 			// Recreate the highlights with the new values
 			Highlight.GenerateHighlight(playerScript.gameObject.transform.position, currTravelDist);
-
-			//Play walking sound
-			AudioManager.Instance.PlayWalk ();
 		} //end MoveDown
 
 		public void MoveLeft()
 		{
 			//If we're not at the left end of the map, allow movement
-            if (playerScript.gameObject.transform.position.x > TileUtils.MinWidth)
+			if(playerScript.gameObject.transform.position.x > GSP.Tiles.TileManager.MinWidthUnits)
 			{
-                displacementVector = new Vector3(-TileUtils.PlayerMoveDistance, 0, 0);
+				displacementVector = new Vector3(-GSP.Tiles.TileManager.PlayerMoveDistance, 0, 0);
 			} //end if
 			else
 			{
 				displacementVector = Vector3.zero;
 			} //end else
 
-			// Face the character to the west (left), and move them
-			playerScript.Face(FacingDirection.West);
-			MovePlayer();
+			//Play walking sound
+			AudioManager.Instance.PlayWalk ();
+			
+			// Move player and play walking animation
+			animator.SetBool("Idle_N", false);
+			animator.SetBool("Idle_S", false);
+			animator.SetBool("Idle_W", true);
+			animator.SetBool("Idle_E", false);
+			animator.SetTrigger ("Walk_W");
+			MovePlayer ();
 
 			// Clear the highlight objects
 			Highlight.ClearHighlight();
 
 			// Recreate the highlights with the new values
 			Highlight.GenerateHighlight(playerScript.gameObject.transform.position, currTravelDist);
-
-			//Play walking sound
-			AudioManager.Instance.PlayWalk ();
 		} //end MoveLeft
 
 		public void MoveRight()
 		{
 			// If we're not at the right end of the map, allow movement
-            if (playerScript.gameObject.transform.position.x < TileUtils.MaxWidth)
+			if(playerScript.gameObject.transform.position.x < GSP.Tiles.TileManager.MaxWidthUnits)
 			{
-                displacementVector = new Vector3(TileUtils.PlayerMoveDistance, 0, 0);
+				displacementVector = new Vector3(GSP.Tiles.TileManager.PlayerMoveDistance, 0, 0);
 			} //end if
 			else
 			{
 				displacementVector = Vector3.zero;
 			} //end else
 
-			// Face the character to the east (right), and move them
-			playerScript.Face(FacingDirection.East);
-			MovePlayer();
+			//Play walking sound
+			AudioManager.Instance.PlayWalk ();
+			
+			// Move player and play walking animation
+			animator.SetBool("Idle_N", false);
+			animator.SetBool("Idle_S", false);
+			animator.SetBool("Idle_W", false);
+			animator.SetBool("Idle_E", true);
+			animator.SetTrigger ("Walk_E");
+			MovePlayer ();
 
 			// Clear the highlight objects
 			Highlight.ClearHighlight();
 
 			// Recreate the highlights with the new values
 			Highlight.GenerateHighlight(playerScript.gameObject.transform.position, currTravelDist);
-
-			//Play walking sound
-			AudioManager.Instance.PlayWalk ();
 		} //end MoveRight
 
 		// Cancels a move sending the player back to the original position
@@ -200,7 +220,10 @@ namespace GSP
             } // end if
 
 			// Face the character to the south; This is the default facing
-			playerScript.Face(FacingDirection.South);
+			animator.SetBool("Idle_N", false);
+			animator.SetBool("Idle_S", true);
+			animator.SetBool("Idle_W", false);
+			animator.SetBool("Idle_E", false);
 
 			// Return player to original position
 			playerScript.gameObject.transform.position = origPlayerPosition;
