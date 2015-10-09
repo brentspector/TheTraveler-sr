@@ -252,7 +252,7 @@ namespace GSP
         void MovePlayer()
 		{
 			// If no move is possible, end the function
-            if (displacementVector == Vector3.zero)
+            if ((displacementVector == Vector3.zero) || (currTravelDist <= 0))
 			{
 				isMoving = false;
 				return;
