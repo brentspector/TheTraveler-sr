@@ -88,18 +88,17 @@ namespace GSP
         GUIMovement guiMovement;		            // The GUIMovement component reference
 		MapEvent guiMapEvent;						// The MapEvent component reference
 		string mapEventResult;						// Result of the map event
+        TileManager tileManager;                    // Manages the loading of the map.
 
         // Runs when the object if first instantiated, because this object will occur once through the game,
         // these values are the beginning of game values
         // Note: Values should be updated at the EndTurn State
         void Start()
 		{
-            //TODO: Damien: Replace Tile stuff later
-            // Clear the tile dictionary
-            TileDictionary.Clean();
-            // Set the dimensions and generate/add the tiles
-            TileManager.SetDimensions(64, 20, 16);
-            TileManager.GenerateAndAddTiles();
+            // Get the reference to the tile manager
+            tileManager = GameObject.Find("TileManager").GetComponent<TileManager>();
+            // Generate the map
+            tileManager.GenerateMap();
 
 			// Get HUD elements
             guiPlayerName = GameObject.Find("CurrentPlayer/PlayerNamePanel/PlayerName").GetComponent<Text>();
@@ -312,19 +311,6 @@ namespace GSP
         // Updates the state machine and things; runs every frame
         void Update()
         {
-            // TODO: Damien: This is disabled until it can be properly implemented into the game.
-            //if (Input.GetKeyDown(KeyCode.M) && !isPaused)
-            //{
-            //    // Save the players
-            //    GameMaster.Instance.SavePlayers();
-                
-            //    // Save the resources
-            //    GameMaster.Instance.SaveResources();
-
-            //    // Finally, tell the GameMaster to load the end scene
-            //    GameMaster.Instance.LoadLevel("Market");
-            //}
-            
             // This was set to true at the end of Start()
             if (canInitAfterStart)
             {
@@ -549,6 +535,45 @@ namespace GSP
 							Text eventText = GameObject.Find("EventText").GetComponent<Text>();
 							eventText.text = "Porter ally found.\nWould you like to add them?";
 						} //end if
+                        // If it's a market, send them to the market scene
+                        else if (mapEventResult.Contains("Market"))
+                        {
+                            // set the turn text
+                            guiTurnText.text = "You found a market!";
+
+                            // Check if the player is an AI
+                            if (isPlayerAI)
+                            {
+                                // Tell the AI it's at the market
+                                GetCurrentPlayer().GetComponent<Player>().IsAtMarket = true;
+                            } // end if
+                            
+                            // Save the players
+                            GameMaster.Instance.SavePlayers();
+
+                            // Save the resources
+                            GameMaster.Instance.SaveResources();
+
+                            // Finally, tell the GameMaster to load the end scene
+                            GameMaster.Instance.LoadLevel("Market");
+                        } // end else if
+                        // If it's a village, end the game for now
+                        else if (mapEventResult.Contains("Village"))
+                        {
+                            // set the turn text
+                            guiTurnText.text = "You found a village!";
+
+                            // Check if the player is an AI
+                            if (isPlayerAI)
+                            {
+                                // Tell the AI it's the end of the game
+                                GetCurrentPlayer().GetComponent<Player>().IsEnd = true;
+                            } // end if
+
+                            // Change the state to the EndGame state
+                            gamePlayState = GamePlayState.EndGame;
+                            break;
+                        } // end else if
 						else 
 				   		{
 							// Return the result for now
