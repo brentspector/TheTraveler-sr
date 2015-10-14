@@ -99,6 +99,20 @@ namespace GSP
             continueButton.SetActive(false);
             guideText.gameObject.SetActive(false);
 
+			// Set audio to active
+			if(AudioManager.Instance.IsMusicMuted())
+			{
+				AudioManager.Instance.MuteMusic();
+			} //end if
+
+			if (AudioManager.Instance.IsSFXMuted ())
+			{
+				AudioManager.Instance.MuteSFX();
+			} //end if
+
+			AudioManager.Instance.MusicVolume (1.0f);
+			AudioManager.Instance.SFXVolume (1.0f);
+
             // Initialise the GameMaster in the menu
             // Note: Don't remove this
             if (GameMaster.Instance != null) {/* Leave this empty. :P */}
