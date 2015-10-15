@@ -60,6 +60,10 @@ namespace GSP
         bool isPlayerAI;                            // Whether the player is an AI
 
 		// HUD Elements
+		GameObject CurrentPlayer;					// CurrentPlayer panel
+		GameObject AllPlayers;						// AllPlayers panel
+		GameObject BKG;								// Canvas Background
+		bool HUDToggle;								// Whether HUD is displayed or not
         // Current Player
 		Text guiPlayerName;							// Name of current player
 		Text guiTurnText; 			       			// The turn or event currently happening
@@ -71,6 +75,7 @@ namespace GSP
 		GameObject acceptPanel;						// Panel for accepting an ally
 		GameObject pauseMenu;						// Panel for pausing game
 		GameObject instructionsSet;					// Panel that displays instructions
+		GameObject audioSet;						// Panel that displays audio options
 		int instructionsProgress;					// What slide should instructions show
 		bool isPaused;								// Whether the game is paused or not
 		// All Players
@@ -88,20 +93,22 @@ namespace GSP
         GUIMovement guiMovement;		            // The GUIMovement component reference
 		MapEvent guiMapEvent;						// The MapEvent component reference
 		string mapEventResult;						// Result of the map event
+        TileManager tileManager;                    // Manages the loading of the map.
 
         // Runs when the object if first instantiated, because this object will occur once through the game,
         // these values are the beginning of game values
         // Note: Values should be updated at the EndTurn State
         void Start()
 		{
-            //TODO: Damien: Replace Tile stuff later
-            // Clear the tile dictionary
-            TileDictionary.Clean();
-            // Set the dimensions and generate/add the tiles
-            TileManager.SetDimensions(64, 20, 16);
-            TileManager.GenerateAndAddTiles();
+            // Get the reference to the tile manager
+            tileManager = GameObject.Find("TileManager").GetComponent<TileManager>();
+            // Generate the map
+            tileManager.GenerateMap();
 
 			// Get HUD elements
+			CurrentPlayer = GameObject.Find ("Canvas/CurrentPlayer");
+			AllPlayers = GameObject.Find("Canvas/AllPlayers");
+			BKG = GameObject.Find ("Canvas/Background");
             guiPlayerName = GameObject.Find("CurrentPlayer/PlayerNamePanel/PlayerName").GetComponent<Text>();
             guiTurnText = GameObject.Find("CurrentPlayer/TurnPhasePanel/TurnPhase").GetComponent<Text>();
             guiGold = GameObject.Find("CurrentPlayer/WeightGold/Gold").GetComponent<Text>();
@@ -111,6 +118,7 @@ namespace GSP
 			acceptPanel = GameObject.Find("Accept");
 			pauseMenu = GameObject.Find ("PauseMenu");
 			instructionsSet = GameObject.Find ("Instructions");
+			audioSet = GameObject.Find ("Options");
             imageParent = GameObject.Find("AllPlayers/ImageOrganizer");
             textParent = GameObject.Find("AllPlayers/TextOrganizer");
             inventory = GameObject.Find("PlayerInventory").GetComponent<PlayerInventory>();
@@ -118,6 +126,7 @@ namespace GSP
             recycleInventory = GameObject.Find("RecycleBin").GetComponent<RecycleBin>();
             allyTable = GameObject.Find("Allies").GetComponent<AllyTable>();
 			GameObject.Find ("Canvas").transform.Find ("Instructions").gameObject.SetActive (false);
+			HUDToggle = true;
 			actionButtonActive = true;
 			isPaused = false;
 			instructionsProgress = 1;
@@ -125,6 +134,7 @@ namespace GSP
             // Disable the other panels by default
             acceptPanel.SetActive(false);
 			pauseMenu.SetActive (false);
+			audioSet.SetActive (false);
             inventory.gameObject.SetActive(false);
             allyInventory.gameObject.SetActive(false);
             recycleInventory.gameObject.SetActive(false);
@@ -209,6 +219,22 @@ namespace GSP
 
             // Change the interface element's colours
             ChangeColor();
+
+			// Restore audio options
+			audioSet.SetActive (true);
+			if(AudioManager.Instance.IsMusicMuted ())
+			{
+				GameObject.Find ("MusicToggle").GetComponent<Toggle> ().isOn = true;
+				AudioManager.Instance.MuteMusic();
+			} //end if
+			if(AudioManager.Instance.IsSFXMuted())
+			{
+				GameObject.Find ("SFXToggle").GetComponent<Toggle> ().isOn = true;
+				AudioManager.Instance.MuteSFX();
+			} // end if
+			GameObject.Find ("MusicSlider").GetComponent<Slider> ().value = AudioManager.Instance.MusicLevel ();
+			GameObject.Find ("SFXSlider").GetComponent<Slider> ().value = AudioManager.Instance.SFXLevel ();
+			audioSet.SetActive (false);
 		} // end InitAfterStart
 
         // Adds the players to the game
@@ -312,19 +338,12 @@ namespace GSP
         // Updates the state machine and things; runs every frame
         void Update()
         {
-            // TODO: Damien: This is disabled until it can be properly implemented into the game.
-            //if (Input.GetKeyDown(KeyCode.M) && !isPaused)
-            //{
-            //    // Save the players
-            //    GameMaster.Instance.SavePlayers();
-                
-            //    // Save the resources
-            //    GameMaster.Instance.SaveResources();
+			// Allow player to toggle HUD
+			if(Input.GetKeyDown(KeyCode.H))
+			{
+				ToggleHUD();
+			} //end if
 
-            //    // Finally, tell the GameMaster to load the end scene
-            //    GameMaster.Instance.LoadLevel("Market");
-            //}
-            
             // This was set to true at the end of Start()
             if (canInitAfterStart)
             {
@@ -549,6 +568,45 @@ namespace GSP
 							Text eventText = GameObject.Find("EventText").GetComponent<Text>();
 							eventText.text = "Porter ally found.\nWould you like to add them?";
 						} //end if
+                        // If it's a market, send them to the market scene
+                        else if (mapEventResult.Contains("Market"))
+                        {
+                            // set the turn text
+                            guiTurnText.text = "You found a market!";
+
+                            // Check if the player is an AI
+                            if (isPlayerAI)
+                            {
+                                // Tell the AI it's at the market
+                                GetCurrentPlayer().GetComponent<Player>().IsAtMarket = true;
+                            } // end if
+                            
+                            // Save the players
+                            GameMaster.Instance.SavePlayers();
+
+                            // Save the resources
+                            GameMaster.Instance.SaveResources();
+
+                            // Finally, tell the GameMaster to load the end scene
+                            GameMaster.Instance.LoadLevel("Market");
+                        } // end else if
+                        // If it's a village, end the game for now
+                        else if (mapEventResult.Contains("Village"))
+                        {
+                            // set the turn text
+                            guiTurnText.text = "You found a village!";
+
+                            // Check if the player is an AI
+                            if (isPlayerAI)
+                            {
+                                // Tell the AI it's the end of the game
+                                GetCurrentPlayer().GetComponent<Player>().IsEnd = true;
+                            } // end if
+
+                            // Change the state to the EndGame state
+                            gamePlayState = GamePlayState.EndGame;
+                            break;
+                        } // end else if
 						else 
 				   		{
 							// Return the result for now
@@ -978,6 +1036,12 @@ namespace GSP
 			instructionsProgress = 1;
 		} //end Instructions
 
+		// Audio button - Displays audio panel
+		public void Audio()
+		{
+			audioSet.SetActive (!audioSet.activeInHierarchy);
+		} //end Audio
+
 		// Continue button - goes through instruction slides
 		public void Continue()
 		{
@@ -1057,8 +1121,33 @@ namespace GSP
 		// HUD Button - Shows/Hides HUD and pauses game
 		public void ToggleHUD()
 		{
-			GameObject.Find ("Canvas").SetActive (!GameObject.Find ("Canvas").activeSelf);
-			isPaused = !isPaused;
+			// If HUD is displayed, reposition it
+			if(HUDToggle)
+			{
+				HUDToggle = false;
+				// Turn off menu if active
+				if(isPaused)
+				{
+					PauseGame();
+				} //end if
+				isPaused = true;
+				// Turn off current player
+				CurrentPlayer.SetActive(false);
+				// Turn off all players
+				AllPlayers.SetActive(false);
+				// Turn off background
+				BKG.SetActive(false);
+
+			} // end if HUDToggle
+			else
+			{
+				HUDToggle = true;
+				CurrentPlayer.SetActive(true);
+				AllPlayers.SetActive(true);
+				BKG.SetActive(true);
+				isPaused = false;
+			} //end else !HUDToggle
+
 		} //end ToggleHUD
 
 		// Music Slider - Changes volume of music Audio Source
