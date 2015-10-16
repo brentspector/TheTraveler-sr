@@ -52,10 +52,10 @@ namespace GSP.Items.Inventories
             items.Add(new Armor("Platelegs", ArmorType.Platelegs, SpriteReference.spritePlatelegs, 3, 1));
             items.Add(new Bonus("Rubber Boots", BonusType.RubberBoots, SpriteReference.spriteRubberBoots, 0, 10, 1));
             items.Add(new Bonus("Sachel", BonusType.Sachel, SpriteReference.spriteSachel, 3, 0, 1));
-            items.Add(new Resource("Fish", ResourceType.Fish, SpriteReference.spriteFishResource, 25, 5, 15));
-            items.Add(new Resource("Ore", ResourceType.Ore, SpriteReference.spriteOreResource, 20, 5, 10));
-            items.Add(new Resource("Wood", ResourceType.Wood, SpriteReference.spriteWoodResource, 15, 5, 20));
-            items.Add(new Resource("Wool", ResourceType.Wool, SpriteReference.spriteWoolResource, 10, 5, 15));
+            items.Add(new Resource("Fish", ResourceType.Fish, SpriteReference.spriteFishResource, 20, 5, 65));
+            items.Add(new Resource("Ore", ResourceType.Ore, SpriteReference.spriteOreResource, 30, 5, 90));
+            items.Add(new Resource("Wood", ResourceType.Wood, SpriteReference.spriteWoodResource, 15, 5, 40));
+            items.Add(new Resource("Wool", ResourceType.Wool, SpriteReference.spriteWoolResource, 10, 5, 25));
         } // end Start
 
         public List<Item> Items

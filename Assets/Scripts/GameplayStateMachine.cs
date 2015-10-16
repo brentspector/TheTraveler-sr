@@ -218,6 +218,29 @@ namespace GSP
             {
                 // Create the players
                 GameMaster.Instance.CreatePlayers();
+
+                // Set the player's max weights depending upon the map
+                for (int index = 0; index < GameMaster.Instance.NumPlayers; index++)
+                {
+                    // Check if the map is the desert
+                    if (GameMaster.Instance.BattleMap == BattleMap.area01)
+                    {
+                        // Set the player's max weight to one hundred twenty
+                        ((Merchant)GameMaster.Instance.GetPlayerScript(index).Entity).MaxWeight = 120;
+                    } // end if
+                    // Check if the map is the euro
+                    else if (GameMaster.Instance.BattleMap == BattleMap.area02)
+                    {
+                        // Set the player's max weight to sixty
+                        ((Merchant)GameMaster.Instance.GetPlayerScript(index).Entity).MaxWeight = 60;
+                    } // end else if
+                    // Otherwise check if the map is the metro or snowy
+                    else if (GameMaster.Instance.BattleMap == BattleMap.area03 || GameMaster.Instance.BattleMap == BattleMap.area04)
+                    {
+                        // Set the player's max weight to eighty
+                        ((Merchant)GameMaster.Instance.GetPlayerScript(index).Entity).MaxWeight = 80;
+                    } // end else if
+                } // end for
             } // end if
             else
             {
