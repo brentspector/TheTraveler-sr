@@ -181,6 +181,11 @@ namespace GSP
 				{
 					Feint();
 				} //end if 3 key
+				if(Input.GetKeyDown(KeyCode.M))
+				{
+					AudioManager.Instance.MuteMusic();
+					AudioManager.Instance.MuteSFX();
+				} //end if M key
 			} //end if playerTurn && !IsAI
 		} //end Update
 
