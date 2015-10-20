@@ -82,8 +82,8 @@ namespace GSP
 			enemyEntity = (Bandit)EntityManager.Instance.GetEntity(enemyID);
 			
 			// Set the stats of the enemy
-			enemyEntity.AttackPower = die.Roll(1, 9);
-			enemyEntity.DefencePower = die.Roll(1, 9);
+			enemyEntity.AttackPower = die.Roll(1, 9) + 5;
+			enemyEntity.DefencePower = die.Roll(1, 9) + 5;
 
 			// Set sprite of enemy
 			if(enemyEntity.AttackPower > enemyEntity.DefencePower)
@@ -181,6 +181,11 @@ namespace GSP
 				{
 					Feint();
 				} //end if 3 key
+				if(Input.GetKeyDown(KeyCode.M))
+				{
+					AudioManager.Instance.MuteMusic();
+					AudioManager.Instance.MuteSFX();
+				} //end if M key
 			} //end if playerTurn && !IsAI
 		} //end Update
 

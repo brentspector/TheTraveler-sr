@@ -245,6 +245,29 @@ namespace GSP
             {
                 // Create the players
                 GameMaster.Instance.CreatePlayers();
+
+                // Set the player's max weights depending upon the map
+                for (int index = 0; index < GameMaster.Instance.NumPlayers; index++)
+                {
+                    // Check if the map is the desert
+                    if (GameMaster.Instance.BattleMap == BattleMap.area01)
+                    {
+                        // Set the player's max weight to one hundred twenty
+                        ((Merchant)GameMaster.Instance.GetPlayerScript(index).Entity).MaxWeight = 120;
+                    } // end if
+                    // Check if the map is the euro
+                    else if (GameMaster.Instance.BattleMap == BattleMap.area02)
+                    {
+                        // Set the player's max weight to sixty
+                        ((Merchant)GameMaster.Instance.GetPlayerScript(index).Entity).MaxWeight = 60;
+                    } // end else if
+                    // Otherwise check if the map is the metro or snowy
+                    else if (GameMaster.Instance.BattleMap == BattleMap.area03 || GameMaster.Instance.BattleMap == BattleMap.area04)
+                    {
+                        // Set the player's max weight to eighty
+                        ((Merchant)GameMaster.Instance.GetPlayerScript(index).Entity).MaxWeight = 80;
+                    } // end else if
+                } // end for
             } // end if
             else
             {
@@ -338,12 +361,6 @@ namespace GSP
         // Updates the state machine and things; runs every frame
         void Update()
         {
-			// Allow player to toggle HUD
-			if(Input.GetKeyDown(KeyCode.H))
-			{
-				ToggleHUD();
-			} //end if
-
             // This was set to true at the end of Start()
             if (canInitAfterStart)
             {
@@ -354,37 +371,46 @@ namespace GSP
                 InitAfterStart();
             } // end if
 			// Run State Machine only if not paused
-            else if(!isPaused)
+            else
             {
-                // Update any values that affect GUI before creating GUI
-				// Mute
-				if(Input.GetKeyDown(KeyCode.M))
+				// Allow player to toggle HUD
+				if(Input.GetKeyDown(KeyCode.H))
 				{
-					AudioManager.Instance.MuteMusic();
-					AudioManager.Instance.MuteSFX();
+					ToggleHUD();
 				} //end if
-
-				// Pause
+				
+				// Allow player to pause game
 				if(Input.GetKeyDown(KeyCode.P))
 				{
 					PauseGame();
 				} //end if
 
-				// Inventory
-				if(Input.GetKeyDown(KeyCode.I))
+				if(!isPaused)
 				{
-					ShowInventory();
-				} //end if
+                	// Update any values that affect GUI before creating GUI
+					// Mute
+					if(Input.GetKeyDown(KeyCode.M))
+					{
+						AudioManager.Instance.MuteMusic();
+						AudioManager.Instance.MuteSFX();
+					} //end if M key
 
-				// Allies
-				if(Input.GetKeyDown(KeyCode.A))
-				{
-					ShowAllies ();
-				} //end if
+					// Inventory
+					if(Input.GetKeyDown(KeyCode.I))
+					{
+						ShowInventory();
+					} //end if I key
 
-				// Run StateMachine
-                StateMachine();
-            } // end else if
+					// Allies
+					if(Input.GetKeyDown(KeyCode.A))
+					{
+						ShowAllies ();
+					} //end if A key
+
+					// Run StateMachine
+                	StateMachine();
+				} //end if !isPaused
+            } // end else
         } // end Update
 
         // Controls the flow of the game through various states
@@ -455,7 +481,7 @@ namespace GSP
                         guiTurnText.text = "Calculating distance...";
 
                         // Get the dice's value and calculate the allowed movement
-                        guiDiceDistVal = guiDiceDistVal * (guiMaxWeight - guiCurrentWeight) / guiMaxWeight;
+                        guiDiceDistVal = 1 + guiDiceDistVal * (guiMaxWeight - guiCurrentWeight) / guiMaxWeight;
 
                         // Change the state to the DisplayDistance state
                         gamePlayState = GamePlayState.DisplayDistance;

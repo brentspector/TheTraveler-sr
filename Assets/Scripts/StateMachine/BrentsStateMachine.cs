@@ -740,25 +740,37 @@ namespace GSP
 		// Music mute toggle
 		public void MuteMusic()
 		{
-			AudioManager.Instance.MuteMusic ();
+            if (Application.isPlaying)
+            {
+                AudioManager.Instance.MuteMusic();
+            } // end if
 		} //end MuteMusic
 
 		// Music volume slider
 		public void AdjustMusic(float vol)
 		{
-			AudioManager.Instance.MusicVolume (vol);
+			if (Application.isPlaying)
+            {
+                AudioManager.Instance.MusicVolume(vol);
+            } // end if
 		} //end AdjustMusic
 
 		// SFX mute toggle
 		public void MuteSFX()
 		{
-			AudioManager.Instance.MuteSFX ();
+            if (Application.isPlaying)
+            {
+                AudioManager.Instance.MuteSFX();
+            } // end if
 		} //end MuteSFX
 
 		// SFX volume slider
 		public void AdjustSFX(float vol)
 		{
-			AudioManager.Instance.SFXVolume (vol);
+            if (Application.isPlaying)
+            {
+                AudioManager.Instance.SFXVolume(vol);
+            } // end if
 		} //end AdjustSFX
 
         // Colours continue button
