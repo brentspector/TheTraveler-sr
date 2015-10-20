@@ -317,7 +317,7 @@ namespace GSP
                     // Get the starting items; could use indices, but this way is future proof from moving the items around
                     // in the database
                     Item weapon = ItemDatabase.Instance.Items.Find(item => item.Type == WeaponType.Sword.ToString());
-                    Item legs = ItemDatabase.Instance.Items.Find(item => item.Type == ArmorType.Chainlegs.ToString());
+                    Item legs = ItemDatabase.Instance.Items.Find(item => item.Type == ArmorType.Skirt.ToString());
 
                     // Add the items to the player's inventory
                     inventory.AddItem(0, count, weapon.Id, SlotType.Inventory);
